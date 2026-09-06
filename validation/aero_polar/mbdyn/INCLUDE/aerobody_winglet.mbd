@@ -1,0 +1,89 @@
+#==================================================================================================
+#                                   Aerodinamic bodys
+#==================================================================================================
+# Aerodynamic bodies are defined as follows:
+# 1 --> 20 : Left Aerodynamic bodies,
+# 21 --> 40 : Right aerodynamic bodies,
+# 41 -->45 : Left control surfaces, BFL, WF1L, WF2L, WF3L, WF4L,
+# 45 --> 50 : Right control surfaces, BFR, WF1R, WF2R, WF3R, WF4R.
+
+# The aerodinamic body is structured as follows:
+# aerodynamic body: <aerobody_id>, <node_id>,
+#         reference, node, <x>, <y>, <z>, offset from the node,
+#         reference, node, 1, <x>, <y>, <z>, 2, <x>, <y>, <z>, orientation of the aerodynamic body,
+#         <span>, linear, <chord at root>, <chord at tip>, linear, <AC at root>, <AC at tip>, const, 0., const, 0.,
+#         3(gauss integration points), c81, 12(NACA0012), jacobian, yes;
+
+    c81 data: 3, "./x56_winglet.c81";
+
+    
+
+ 
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+    aerodynamic body: 20, 990020,
+        reference, node, 0., 2.1075, 0., 
+        reference, node, 1, -1., 0., 0., 2, 0., 0., 1.,
+        4.2150, linear, 23.9930, 23.9998, linear, 4.8468, 6.5545, const, 0., const, 0.,
+        3, c81, 3, jacobian, yes;
+
+    # ================= ALA DESTRA (DX) =================
+
+    aerodynamic body: 40, 990001,
+        reference, node, 0., 2.7600, 0., 
+        reference, node, 1, -1., 0., 0., 2, 0., 0., 1.,
+        5.5200, linear, 90.4550, 79.3366, linear, 35.7723, 29.6557, const, 0., const, 0.,
+        3, c81, 3, jacobian, yes;
+
+
+
+
+
+        #reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    aerodynamic body: 39, 991020,
+        reference, node, 0, -2.1075, 0.,
+        reference, node, 1, -1., 0., 0., 2, 0., 0., 1.,
+        4.2150, linear, 23.9998, 23.9930, linear, 6.5545, 4.8468, const, 0., const, 0.,
+        3, c81, 3, jacobian, yes;
+
+#AERO SUPERFICI CONTROLO SX
+
+
+
+
+
+
+#AERO SUPERFICI CONTROLO DX
+
+
+
+
+

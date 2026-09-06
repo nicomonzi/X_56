@@ -1,0 +1,90 @@
+{
+  "audited_files": {
+    "fem": {
+      "path": "/home/nicomonzi/X_56/workflows/bff_open_loop/INCLUDE/mbdyn_modal.fem",
+      "sha256": "63e23dc991d2f458d7665412abda8ad34ddbb1654822bfc0867e6512a1df252b"
+    },
+    "modal_joint": {
+      "path": "/home/nicomonzi/X_56/workflows/bff_open_loop/INCLUDE/modaljoint.mbd",
+      "sha256": "dfb2e7ab6abfaaacae98daa316b640f8adb2ec55bd55082d71bc01d09f0a0a54"
+    },
+    "main_mbd": {
+      "path": "/home/nicomonzi/X_56/workflows/bff_open_loop/main_bff_open_loop.mbd",
+      "sha256": "fa516fbd3a90449d7b4c498a0920e5fb2f423dd7227dde89b31f19e2b5d2cfd7"
+    },
+    "femgen_source": "/home/nicomonzi/src/mbdyn/utils/femgen.f90",
+    "modal_source": "/home/nicomonzi/src/mbdyn/mbdyn/struct/modal.cc",
+    "modal_ad_source": "/home/nicomonzi/src/mbdyn/mbdyn/struct/modalad.cc"
+  },
+  "mbdyn_source_git_revision": "54f018a8b813374aa21f22e54bc4e5868e8043f3",
+  "fem_header": {
+    "revision": "REV0",
+    "fem_nodes": 8527,
+    "normal_modes": 60,
+    "attachment_modes": 0,
+    "constraint_modes": 0,
+    "rejected_modes": 0
+  },
+  "record_groups_present": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "record_group_11_lumped_mass_present": true,
+  "record_group_19_stress_stiffening_present": false,
+  "automatic_differentiation_enabled_in_current_model": false,
+  "stock_femgen_writes_record_group_19": false,
+  "mbdyn_source_reads_record_group_19": true,
+  "mbdyn_modal_ad_applies_dynamic_kgeo": true,
+  "selected_modes": [
+    {
+      "fem_mode": 7,
+      "modal_mass": 1.0,
+      "modal_stiffness": 408.59979239,
+      "frequency_hz": 3.2171343848589955
+    },
+    {
+      "fem_mode": 8,
+      "modal_mass": 1.0,
+      "modal_stiffness": 1110.0903803,
+      "frequency_hz": 5.30272739451051
+    },
+    {
+      "fem_mode": 9,
+      "modal_mass": 1.0,
+      "modal_stiffness": 2991.6416932,
+      "frequency_hz": 8.705123166687413
+    },
+    {
+      "fem_mode": 10,
+      "modal_mass": 1.0,
+      "modal_stiffness": 4920.3673431,
+      "frequency_hz": 11.163976029600708
+    },
+    {
+      "fem_mode": 11,
+      "modal_mass": 1.0,
+      "modal_stiffness": 5931.0619997,
+      "frequency_hz": 12.257061455194867
+    },
+    {
+      "fem_mode": 12,
+      "modal_mass": 1.0,
+      "modal_stiffness": 6426.6935286,
+      "frequency_hz": 12.758920362086915
+    }
+  ],
+  "mass_max_abs_offdiagonal": 0.0,
+  "stiffness_max_abs_offdiagonal": 0.0,
+  "current_structural_stiffness_status": "linear_reduced_stiffness_only",
+  "physical_conclusion": "The current modal joint includes finite-body inertial coupling from lumped mass data, but its reduced elastic stiffness Kqq is constant. MBDyn can update Kgeo during the maneuver only when unit-load stress-stiffening matrices are supplied in RECORD GROUP 19 and automatic differentiation is enabled. The installed femgen does not generate that group.",
+  "campaign_decision": "Run the linear-ROM refined sweep and the explicit mode-7 stiffness sensitivity first. Do not label the sensitivity force as prestress. Generate a physical prestress model only if the measured sensitivity exceeds the identification resolution."
+}

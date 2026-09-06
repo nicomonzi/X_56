@@ -1,0 +1,629 @@
+# MBDYN AERO MODEL, Nicolò Monzani
+# REAL FLIGHT KINEMATICS VERSION
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: const real  M2IN = 39.3700787;
+
+set: const integer GROUND = 0; 
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 2; 
+
+# flight variables
+set: const real VINF  = 50 * M2IN;               # [in/s]
+set: const real VBASE = 0 * M2IN;                # [in/s] (0 se simulato in galleria del vento con clamp)
+set: const real ALPHA_DEG  = 2.0;                # [deg] 
+set: const real ALPHA  = ALPHA_DEG * pi / 180.0; # [rad]
+set: const real RHO_AIR = 1.146e-7;              # [slinch/in^3]
+set: const real C_SOUND = 340.0 * M2IN;          # [in/s]
+
+set: const real X_LE_ROOT = 0.0 * M2IN;
+set: const real X_TE_ROOT = 2.29939 * M2IN;
+set: const real X_BEAM_ROOT = 1.482862 * M2IN;
+set: const real CHORD_ROOT = X_TE_ROOT - X_LE_ROOT;               
+set: const real X_AC_ROOT = X_LE_ROOT + 0.25 * CHORD_ROOT;       
+set: const real OFFSET_ROOT = X_AC_ROOT - X_BEAM_ROOT;
+
+set: const real X_LE_TIP = 2.387 * M2IN;
+set: const real X_TE_TIP  = 2.99344 * M2IN;
+set: const real X_BEAM_TIP = 2.663113 * M2IN;
+set: const real CHORD_TIP = X_TE_TIP - X_LE_TIP;                 
+set: const real X_AC_TIP = X_LE_TIP + 0.25 * CHORD_TIP;         
+set: const real OFFSET_TIP  = X_AC_TIP - X_BEAM_TIP;              
+set: const real SPAN_ELEM   = 0.19 * M2IN;                        
+
+begin: initial value;
+    initial time: 0.;
+    final time: 2;
+    time step: 1.e-4;
+
+    method: ms, .6;
+    nonlinear solver: newton raphson, modified, 50;
+    linear solver: lapack;
+    tolerance: 1.e-8;
+    max iterations: 50;
+
+    eigenanalysis: 0.1,
+        parameter, 1.e-6,
+        output matrices,
+        output eigenvectors,
+        output geometry;
+
+    derivatives coefficient: auto;
+    derivatives tolerance: 1.e-6;
+    derivatives max iterations: 20;  
+
+    threads: disable;
+end: initial value;
+
+begin: control data;
+    print: dof stats;
+    default aerodynamic output: all;
+    skip initial joint assembly;
+
+    structural nodes: 46;       # 1 Base Node + 45 dummy
+    joints: 2;                  # 1 Clamp + 1 Modal Joint
+    
+    gravity;
+    default orientation: orientation vector;
+    output results: netcdf;
+    air properties;
+    aerodynamic elements: 39;  
+end: control data;
+
+reference: GROUND,
+    reference, global, null,
+    reference, global, eye,
+    reference, global, null,
+    reference, global, null;
+
+begin: nodes;
+
+    # --- MODIFICA CHIAVE: IL NODO BASE RUOTA IL CORPO INTERO ---
+    # Applichiamo l'angolo d'attacco come rotazione (Pitch) di Eulero attorno all'asse Y.
+    # Con asse X verso coda e Z verso l'alto, un Pitch positivo alza il muso.
+    structural: BASE_NODE, modal,
+        reference, global, 0.0, 0.0, 0.0,
+        reference, global, euler123, 0., ALPHA, 0., 
+        reference, global, null,                     # Con il clamp, la velocità iniziale deve essere nulla
+        reference, global, null;
+
+    # I nodi dummy strutturali possono rimanere orientati col GROUND
+    # MBDyn mapperà automaticamente le loro posizioni rispetto al BASE_NODE ruotato 
+    # grazie alla matrice del giunto modale e al comando "skip initial joint assembly".
+    
+    #sx
+    structural: 990001, dynamic, reference, GROUND, 160.14999390,    0.00000000, 100.16000370, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990002, dynamic, reference, GROUND, 160.14999390,  -11.03999996, 100.16000370, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990003, dynamic, reference, GROUND, 160.14999390,  -22.06999969, 100.16000370, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990004, dynamic, reference, GROUND, 160.14999390,  -31.37999916, 101.47000120, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990005, dynamic, reference, GROUND, 160.14999390,  -40.68999863, 102.77999880, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990006, dynamic, reference, GROUND, 160.14999390,  -50.00000000, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990007, dynamic, reference, GROUND, 163.46000670,  -58.43000031, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990008, dynamic, reference, GROUND, 166.77999880,  -66.86000061, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990009, dynamic, reference, GROUND, 170.10000610,  -75.29000092, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990010, dynamic, reference, GROUND, 173.41999820,  -83.70999908, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990011, dynamic, reference, GROUND, 176.74000550,  -92.13999939, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990012, dynamic, reference, GROUND, 180.05999760, -100.56999970, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990013, dynamic, reference, GROUND, 183.38000490, -109.00000000, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990014, dynamic, reference, GROUND, 186.69999690, -117.43000030, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990015, dynamic, reference, GROUND, 190.02000430, -125.86000060, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990016, dynamic, reference, GROUND, 193.33000180, -134.28999330, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990017, dynamic, reference, GROUND, 196.64999390, -142.71000670, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990018, dynamic, reference, GROUND, 199.97000120, -151.13999940, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990019, dynamic, reference, GROUND, 203.28999330, -159.57000730, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990020, dynamic, reference, GROUND, 206.61000060, -168.00000000, 104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990021, dynamic, reference, GROUND, 213.47000120, -168.00000000, 110.36000060, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990022, dynamic, reference, GROUND, 220.33000180, -168.00000000, 116.62999730, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 990023, dynamic, reference, GROUND, 227.19000240, -168.00000000, 122.90000150, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+    #dx
+    structural: 991002, dynamic, reference, GROUND, 160.14999390,  11.03999996,  100.16000370, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991003, dynamic, reference, GROUND, 160.14999390,  22.06999969,  100.16000370, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991004, dynamic, reference, GROUND, 160.14999390,  31.37999916,  101.47000120, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991005, dynamic, reference, GROUND, 160.14999390,  40.68999863,  102.77999880, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991006, dynamic, reference, GROUND, 160.14999390,  50.00000000,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991007, dynamic, reference, GROUND, 163.46000670,  58.43000031,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991008, dynamic, reference, GROUND, 166.77999880,  66.86000061,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991009, dynamic, reference, GROUND, 170.10000610,  75.29000092,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991010, dynamic, reference, GROUND, 173.41999820,  83.70999908,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991011, dynamic, reference, GROUND, 176.74000550,  92.13999939,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991012, dynamic, reference, GROUND, 180.05999760, 100.56999970,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991013, dynamic, reference, GROUND, 183.38000490, 109.00000000,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991014, dynamic, reference, GROUND, 186.69999690, 117.43000030,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991015, dynamic, reference, GROUND, 190.02000430, 125.86000060,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991016, dynamic, reference, GROUND, 193.33000180, 134.28999330,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991017, dynamic, reference, GROUND, 196.64999390, 142.71000670,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991018, dynamic, reference, GROUND, 199.97000120, 151.13999940,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991019, dynamic, reference, GROUND, 203.28999330, 159.57000730,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991020, dynamic, reference, GROUND, 206.61000060, 168.00000000,  104.08999630, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991021, dynamic, reference, GROUND, 213.47000120, 168.00000000,  110.36000060, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991022, dynamic, reference, GROUND, 220.33000180, 168.00000000,  116.62999730, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+    structural: 991023, dynamic, reference, GROUND, 227.19000240, 168.00000000,  122.90000150, reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+end: nodes;
+
+begin: elements;
+    
+    gravity: uniform, 0., 0., -1., const, 386.4; # 9.81 m/s^2 = 386.4 in/s^2
+
+    joint: 1, clamp, BASE_NODE, node, node;
+
+    # NOTA SULLA VELOCITA' VBASE:
+    # Dato che stiamo usando un joint "clamp", la velocità VBASE non può essere imposta.
+    # Il nodo rimane fermo, e usiamo la velocità del vento VINF per simulare il volo.
+    # SE VUOI SIMULARE UN VOLO LIBERO O IMPORRE UN MOTO AL BASE_NODE, 
+    # commenta il clamp qui sopra e usa un "total pin joint" in questo modo:
+    #
+    # joint: 1, total pin joint,
+    #     BASE_NODE,
+    #         position, reference, global, null,
+    #         position orientation, reference, global, euler123, 0., ALPHA, 0.,
+    #         rotation orientation, reference, global, euler123, 0., ALPHA, 0.,
+    #     position, reference, global, null,
+    #     position orientation, reference, global, euler123, 0., ALPHA, 0.,
+    #     rotation orientation, reference, global, euler123, 0., ALPHA, 0.,
+    #     position constraint, velocity, 1, 1, 1., 0., 0., const, VBASE,
+    #     orientation constraint, 1, 1, 1, null;
+
+    joint: MODAL_JOINT, modal, 
+        BASE_NODE, 
+        10,
+        list, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,      
+        8527,                                     
+        "nsvibe_test.fem",    
+        45,                                       
+            # FEM_ID     MBDYN_ID   OFFSET
+            990001,      990001,    null, 
+            990002,      990002,    null,
+            990003,      990003,    null,
+            990004,      990004,    null,
+            990005,      990005,    null,
+            990006,      990006,    null,
+            990007,      990007,    null,
+            990008,      990008,    null,
+            990009,      990009,    null,
+            990010,      990010,    null,
+            990011,      990011,    null,
+            990012,      990012,    null,
+            990013,      990013,    null,
+            990014,      990014,    null,
+            990015,      990015,    null,
+            990016,      990016,    null,
+            990017,      990017,    null,
+            990018,      990018,    null,
+            990019,      990019,    null,
+            990020,      990020,    null,
+            990021,      990021,    null,
+            990022,      990022,    null,
+            990023,      990023,    null,
+            991002,      991002,    null,
+            991003,      991003,    null,
+            991004,      991004,    null,
+            991005,      991005,    null,
+            991006,      991006,    null,
+            991007,      991007,    null,
+            991008,      991008,    null,
+            991009,      991009,    null,
+            991010,      991010,    null,
+            991011,      991011,    null,
+            991012,      991012,    null,
+            991013,      991013,    null,
+            991014,      991014,    null,
+            991015,      991015,    null,
+            991016,      991016,    null,
+            991017,      991017,    null,
+            991018,      991018,    null,
+            991019,      991019,    null,
+            991020,      991020,    null,
+            991021,      991021,    null,
+            991022,      991022,    null,
+            991023,      991023,    null;
+
+    # --- MODIFICA CHIAVE: IL VENTO SOFFIA DRITTO IN FACCIA (ASSE X GLOBALE) ---
+    air properties: RHO_AIR, C_SOUND,      
+        1., 0., 0.,                               # Direzione del vento puramente assiale
+        cosine, 0., 0.2, VINF, half, 0.;          # BUG CORRETTO: l'ampiezza ora è VINF e non "1.0"
+
+
+    c81 data: 1, "./POLAR/root/root_360.dat", nrel;
+    c81 data: 2, "./POLAR/centerbody/centerbody_360.dat", nrel;
+    c81 data: 3, "./POLAR/wingattachfitting/wingattachfitting_360.dat", nrel;
+    c81 data: 4, "./POLAR/LEcrank/LEcrank_360.dat", nrel;
+    c81 data: 5, "./POLAR/yehudi/yehudi_360.dat", nrel;
+    
+    aerodynamic body: 1, 990001,
+        reference, node, null,
+        reference, node, eye,
+        11.0400,
+        const, 90.5300, 
+        const, -35.7475, 
+        const, 0.,
+        const, 0.,
+        3, c81, 1, jacobian, yes;
+
+    c81 data: 12, "/home/nicomonzi/src/mbdyn/tests/c81/naca0012.c81";
+
+    aerodynamic body: 2, 990002,
+        reference, node, null,
+        reference, node, eye,
+        11.0350,
+        const, 68.9531, 
+        const, -24.0462, 
+        const, 0.,
+        const, 0.,
+        3, c81, 2, jacobian, yes;
+
+    aerodynamic body: 3, 990003,
+        reference, node, null,
+        reference, node, eye,
+        10.1700,
+        const, 48.4089, 
+        const, -13.0752, 
+        const, 0.,
+        const, 0.,
+        3, c81, 3, jacobian, yes;
+
+    aerodynamic body: 4, 990004,
+        reference, node, null,
+        reference, node, eye,
+        9.3100,
+        const, 39.1972, 
+        const, -9.8739, 
+        const, 0.,
+        const, 0.,
+        3, c81, 4, jacobian, yes;
+
+    aerodynamic body: 5, 990005,
+        reference, node, null,
+        reference, node, eye,
+        9.3100,
+        const, 31.5686, 
+        const, -7.8232, 
+        const, 0.,
+        const, 0.,
+        3, c81, 4, jacobian, yes;
+
+    aerodynamic body: 6, 990006,
+        reference, node, null,
+        reference, node, eye,
+        8.8700,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 7, 990007,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 8, 990008,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 9, 990009,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 10, 990010,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 11, 990011,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 12, 990012,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 13, 990013,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 14, 990014,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 15, 990015,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 16, 990016,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 17, 990017,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 18, 990018,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 19, 990019,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 20, 990020,
+        reference, node, null,
+        reference, node, eye,
+        4.2150,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 21, 991002,
+        reference, node, null,
+        reference, node, eye,
+        11.0350,
+        const, 68.9531, 
+        const, -24.0462, 
+        const, 0.,
+        const, 0.,
+        3, c81, 2, jacobian, yes;
+
+    aerodynamic body: 22, 991003,
+        reference, node, null,
+        reference, node, eye,
+        10.1700,
+        const, 48.4089, 
+        const, -13.0752, 
+        const, 0.,
+        const, 0.,
+        3, c81, 3, jacobian, yes;
+
+    aerodynamic body: 23, 991004,
+        reference, node, null,
+        reference, node, eye,
+        9.3100,
+        const, 39.1972, 
+        const, -9.8739, 
+        const, 0.,
+        const, 0.,
+        3, c81, 4, jacobian, yes;
+
+    aerodynamic body: 24, 991005,
+        reference, node, null,
+        reference, node, eye,
+        9.3100,
+        const, 31.5686, 
+        const, -7.8232, 
+        const, 0.,
+        const, 0.,
+        3, c81, 4, jacobian, yes;
+
+    aerodynamic body: 25, 991006,
+        reference, node, null,
+        reference, node, eye,
+        8.8700,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 26, 991007,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 27, 991008,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 28, 991009,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 29, 991010,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 30, 991011,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 31, 991012,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 32, 991013,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 33, 991014,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 34, 991015,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 35, 991016,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 36, 991017,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 37, 991018,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 38, 991019,
+        reference, node, null,
+        reference, node, eye,
+        8.4300,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+    aerodynamic body: 39, 991020,
+        reference, node, null,
+        reference, node, eye,
+        4.2150,
+        const, 23.9400, 
+        const, -5.7726, 
+        const, 0.,
+        const, 0.,
+        3, c81, 5, jacobian, yes;
+
+end: elements;

@@ -1,0 +1,33 @@
+# Python e ambienti locali
+__pycache__/
+*.py[cod]
+.venv*/
+.pytest_cache/
+.mypy_cache/
+.matplotlib/
+
+# Build e runtime dei solver
+build/
+build-*/
+build_*/
+precice-run/
+work/
+**/output/
+**/outputs/
+**/mbdyn_output/
+**/incomplete_attempt_*/
+
+# Risultati binari grezzi: conservarli fuori Git con un manifest
+*.nc
+*.aer
+*.mov
+*.mod
+*.jnt
+*.usr
+*.stdout
+*.bylog
+
+# File locali macchina
+machine.env
+.DS_Store
+Thumbs.db

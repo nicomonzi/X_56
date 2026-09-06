@@ -1,0 +1,22 @@
+# Profilo trapezoidale unitario: salita, mantenimento, rientro.
+drive caller: MANEUVER_PROFILE_DRIVE,
+    double ramp,
+        1./MANEUVER_RISE_TIME,
+        MANEUVER_START, MANEUVER_START + MANEUVER_RISE_TIME,
+        -1./MANEUVER_FALL_TIME,
+        MANEUVER_START + MANEUVER_RISE_TIME + MANEUVER_HOLD_TIME,
+        MANEUVER_END,
+        0.;
+
+# Riferimenti cinematici; le superfici vengono sempre mosse dai controllori.
+drive caller: PULLUP_COMMAND_DRIVE, mult,
+    const, PULLUP_ENABLE*PULLUP_PITCH_COMMAND,
+    reference, MANEUVER_PROFILE_DRIVE;
+
+drive caller: ROLL_COMMAND_DRIVE, mult,
+    const, ROLL_ENABLE*ROLL_ANGLE_COMMAND,
+    reference, MANEUVER_PROFILE_DRIVE;
+
+drive caller: PULLUP_VZ_COMMAND_DRIVE, mult,
+    const, PULLUP_ENABLE*PULLUP_CLIMB_RATE,
+    reference, MANEUVER_PROFILE_DRIVE;

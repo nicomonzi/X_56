@@ -1,0 +1,14 @@
+data_basename = ./Output/sim
+basename = ./Postpro/sim
+
+analysis = {
+  type = viz
+  name = paraview
+  start_res = 1
+  end_res = 2
+  step_res = 1
+  format = vtk
+  wake = F
+  variable = vorticity
+  component = all
+}

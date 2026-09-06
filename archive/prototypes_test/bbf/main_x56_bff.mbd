@@ -1,0 +1,358 @@
+#==================================================================================================
+#                       BBF X56 MBDyn model, Nicolò Monzani
+#==================================================================================================
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: const real V_INF = .0;
+
+set: const real TRIM_RANGE_OK = (V_INF >= 20.) * (V_INF <= 45.);
+
+# Interpolazione lineare a tratti del pitch di trim [deg]. Gli intervalli sono
+# semiaperti, salvo l'ultimo, per evitare doppio conteggio ai nodi della tabella.
+set: const real THETA_TRIM_DEG = (
+      (V_INF >= 20.) * (V_INF < 21.) * (8.89830235519 + (V_INF-20.)*(8.10320331175-8.89830235519))
+    + (V_INF >= 21.) * (V_INF < 22.) * (8.10320331175 + (V_INF-21.)*(7.35580106794-8.10320331175))
+    + (V_INF >= 22.) * (V_INF < 23.) * (7.35580106794 + (V_INF-22.)*(6.69372848490-7.35580106794))
+    + (V_INF >= 23.) * (V_INF < 24.) * (6.69372848490 + (V_INF-23.)*(6.09013247913-6.69372848490))
+    + (V_INF >= 24.) * (V_INF < 25.) * (6.09013247913 + (V_INF-24.)*(5.54576486601-6.09013247913))
+    + (V_INF >= 25.) * (V_INF < 26.) * (5.54576486601 + (V_INF-25.)*(5.05876674859-5.54576486601))
+    + (V_INF >= 26.) * (V_INF < 27.) * (5.05876674859 + (V_INF-26.)*(4.62128475160-5.05876674859))
+    + (V_INF >= 27.) * (V_INF < 28.) * (4.62128475160 + (V_INF-27.)*(4.22862380168-4.62128475160))
+    + (V_INF >= 28.) * (V_INF < 29.) * (4.22862380168 + (V_INF-28.)*(3.87539078555-4.22862380168))
+    + (V_INF >= 29.) * (V_INF < 30.) * (3.87539078555 + (V_INF-29.)*(3.55689948483-3.87539078555))
+    + (V_INF >= 30.) * (V_INF < 31.) * (3.55689948483 + (V_INF-30.)*(3.26901869597-3.55689948483))
+    + (V_INF >= 31.) * (V_INF < 32.) * (3.26901869597 + (V_INF-31.)*(3.00802486446-3.26901869597))
+    + (V_INF >= 32.) * (V_INF < 33.) * (3.00802486446 + (V_INF-32.)*(2.77079009016-3.00802486446))
+    + (V_INF >= 33.) * (V_INF < 34.) * (2.77079009016 + (V_INF-33.)*(2.55450978818-2.77079009016))
+    + (V_INF >= 34.) * (V_INF < 35.) * (2.55450978818 + (V_INF-34.)*(2.35667209479-2.55450978818))
+    + (V_INF >= 35.) * (V_INF < 36.) * (2.35667209479 + (V_INF-35.)*(2.17612837057-2.35667209479))
+    + (V_INF >= 36.) * (V_INF < 37.) * (2.17612837057 + (V_INF-36.)*(2.01048489631-2.17612837057))
+    + (V_INF >= 37.) * (V_INF < 38.) * (2.01048489631 + (V_INF-37.)*(1.85789978913-2.01048489631))
+    + (V_INF >= 38.) * (V_INF < 39.) * (1.85789978913 + (V_INF-38.)*(1.71684050607-1.85789978913))
+    + (V_INF >= 39.) * (V_INF < 40.) * (1.71684050607 + (V_INF-39.)*(1.58468086964-1.71684050607))
+    + (V_INF >= 40.) * (V_INF < 41.) * (1.58468086964 + (V_INF-40.)*(1.45970541180-1.58468086964))
+    + (V_INF >= 41.) * (V_INF < 42.) * (1.45970541180 + (V_INF-41.)*(1.34436650174-1.45970541180))
+    + (V_INF >= 42.) * (V_INF < 43.) * (1.34436650174 + (V_INF-42.)*(1.23889098813-1.34436650174))
+    + (V_INF >= 43.) * (V_INF < 44.) * (1.23889098813 + (V_INF-43.)*(1.14804933153-1.23889098813))
+    + (V_INF >= 44.) * (V_INF <=45.) * (1.14804933153 + (V_INF-44.)*(1.07999302258-1.14804933153))
+    ) / TRIM_RANGE_OK;
+
+# Interpolazione lineare a tratti del comando elevator equivalente [deg].
+set: const real DELTA_TRIM_DEG = (
+      (V_INF >= 20.) * (V_INF < 21.) * (1.56414672432 + (V_INF-20.)*(1.54694599511-1.56414672432))
+    + (V_INF >= 21.) * (V_INF < 22.) * (1.54694599511 + (V_INF-21.)*(1.51917252445-1.54694599511))
+    + (V_INF >= 22.) * (V_INF < 23.) * (1.51917252445 + (V_INF-22.)*(1.48673205268-1.51917252445))
+    + (V_INF >= 23.) * (V_INF < 24.) * (1.48673205268 + (V_INF-23.)*(1.44771021067-1.48673205268))
+    + (V_INF >= 24.) * (V_INF < 25.) * (1.44771021067 + (V_INF-24.)*(1.40604182175-1.44771021067))
+    + (V_INF >= 25.) * (V_INF < 26.) * (1.40604182175 + (V_INF-25.)*(1.36514040302-1.40604182175))
+    + (V_INF >= 26.) * (V_INF < 27.) * (1.36514040302 + (V_INF-26.)*(1.32398219619-1.36514040302))
+    + (V_INF >= 27.) * (V_INF < 28.) * (1.32398219619 + (V_INF-27.)*(1.28427970006-1.32398219619))
+    + (V_INF >= 28.) * (V_INF < 29.) * (1.28427970006 + (V_INF-28.)*(1.24618192277-1.28427970006))
+    + (V_INF >= 29.) * (V_INF < 30.) * (1.24618192277 + (V_INF-29.)*(1.21098384317-1.24618192277))
+    + (V_INF >= 30.) * (V_INF < 31.) * (1.21098384317 + (V_INF-30.)*(1.17667110055-1.21098384317))
+    + (V_INF >= 31.) * (V_INF < 32.) * (1.17667110055 + (V_INF-31.)*(1.14564200813-1.17667110055))
+    + (V_INF >= 32.) * (V_INF < 33.) * (1.14564200813 + (V_INF-32.)*(1.11638530994-1.14564200813))
+    + (V_INF >= 33.) * (V_INF < 34.) * (1.11638530994 + (V_INF-33.)*(1.08890302196-1.11638530994))
+    + (V_INF >= 34.) * (V_INF < 35.) * (1.08890302196 + (V_INF-34.)*(1.05906747950-1.08890302196))
+    + (V_INF >= 35.) * (V_INF < 36.) * (1.05906747950 + (V_INF-35.)*(1.05411866528-1.05906747950))
+    + (V_INF >= 36.) * (V_INF < 37.) * (1.05411866528 + (V_INF-36.)*(1.05887616481-1.05411866528))
+    + (V_INF >= 37.) * (V_INF < 38.) * (1.05887616481 + (V_INF-37.)*(1.05567507833-1.05887616481))
+    + (V_INF >= 38.) * (V_INF < 39.) * (1.05567507833 + (V_INF-38.)*(1.03561623959-1.05567507833))
+    + (V_INF >= 39.) * (V_INF < 40.) * (1.03561623959 + (V_INF-39.)*(0.935803642686-1.03561623959))
+    + (V_INF >= 40.) * (V_INF < 41.) * (0.935803642686 + (V_INF-40.)*(0.729083847157-0.935803642686))
+    + (V_INF >= 41.) * (V_INF < 42.) * (0.729083847157 + (V_INF-41.)*(0.563619830222-0.729083847157))
+    + (V_INF >= 42.) * (V_INF < 43.) * (0.563619830222 + (V_INF-42.)*(0.485372087565-0.563619830222))
+    + (V_INF >= 43.) * (V_INF < 44.) * (0.485372087565 + (V_INF-43.)*(0.721677379043-0.485372087565))
+    + (V_INF >= 44.) * (V_INF <=45.) * (0.721677379043 + (V_INF-44.)*(1.62876233062-0.721677379043))
+    ) / TRIM_RANGE_OK;
+
+set: const integer GROUND = 0; 
+set: const integer BFLjoint = 1; 
+set: const integer BFRjoint = 2; 
+set: const integer WFLjoint = 3; 
+set: const integer WFRjoint = 4; 
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 5; 
+set: const real THETA_PITCH = THETA_TRIM_DEG * deg2rad;
+set: const real d_ELEVATOR = DELTA_TRIM_DEG * deg2rad;
+
+# Partecipazione al comando equivalente: 1.0 = distribuzione di trim originale.
+set: const real BODY_FLAP_PARTICIPATION = 1.0;
+set: const real WING_FLAP_PARTICIPATION = 1.0;
+
+# ------------------------------------------------------------------------------
+# Controllo di volo longitudinale a bassa banda (NON flutter suppression).
+# Un PI agisce sulla velocita' verticale filtrata: il termine P smorza Vz e
+# l'integrale di Vz fornisce il richiamo proporzionale sull'errore di quota.
+# Un secondo integratore sull'heave elimina l'errore statico residuo.
+# Il filtro Butterworth a 0.50 Hz (banda da pilota/autopilota lento) lascia
+# fortemente attenuata la banda BFF attesa (circa 2.6--3.2 Hz). Il comando
+# agisce simmetricamente soltanto
+# sui body flap BFL/BFR, per non usare i wing flap come flutter suppressor.
+set: const integer FLIGHT_CONTROL_PID = 9301;
+set: const integer FLIGHT_CONTROL_DRIVE = 9302;
+set: const integer PITCH_CONTROL_PID = 9303;
+set: const integer PITCH_CONTROL_DRIVE = 9304;
+set: const integer PITCH_RATE_DAMPER_PID = 9305;
+set: const integer PITCH_RATE_DAMPER_DRIVE = 9306;
+set: const integer HEAVE_INTEGRATOR_PID = 9307;
+set: const integer HEAVE_INTEGRATOR_DRIVE = 9308;
+set: const real FLIGHT_CONTROL_ENABLE = 1.0;       # 0.0 disabilita il controllo
+set: const real FLIGHT_CONTROL_ENABLE_START = 2.0;
+set: const real FLIGHT_CONTROL_ENABLE_END = 3.0;
+set: const real FLIGHT_CONTROL_CUTOFF_HZ = 0.50;  # solo documentazione
+set: const real FLIGHT_CONTROL_KP_VZ = -0.002;    # [rad/(m/s)]
+set: const real FLIGHT_CONTROL_KI_Z = -0.0005;    # [rad/m]
+set: const real FLIGHT_CONTROL_LIMIT = 1.0*deg2rad;
+set: const real PITCH_CONTROL_KP = -0.20;         # [rad/rad]
+set: const real PITCH_CONTROL_LIMIT = 3.0*deg2rad;
+set: const real PITCH_RATE_DAMPER_KP = -0.10;     # [rad/(rad/s)]
+set: const real PITCH_RATE_DAMPER_LIMIT = 2.0*deg2rad;
+set: const real HEAVE_INTEGRATOR_KI = -0.00020;   # [rad/(m*s)]
+set: const real HEAVE_INTEGRATOR_LIMIT = 1.0*deg2rad;
+set: const real HEAVE_INTEGRATOR_PRELOAD = -0.30*deg2rad; # trim a 38 m/s
+
+# Coefficienti del Butterworth digitale ordine 2, fc=0.50 Hz, dt=0.02 s.
+# Convenzione MBDyn: y[k]=a1*y[k-1]+a2*y[k-2]+sum(b_i*u[k-i]).
+set: const real FC_A1 = 1.911197067426073;
+set: const real FC_A2 = -0.914975834801434;
+set: const real FC_B0 = 0.;
+set: const real FC_B1 = 0.000944691843840151;
+set: const real FC_B2 = 0.001889383687680302;
+set: const real FC_B3 = 0.000944691843840151;
+
+set: const real ELEVATOR_RAMP_END = 0.5;
+set: const real RELEASE_TIME = 3.0;
+set: const real PITCH_RAMP_END = 0.5;
+
+# Un ciclo sinusoidale a media nulla sul primo modo simmetrico FEM 7 (3.217 Hz).
+# Agisce solo su WFL3/WFL4/WFR3/WFR4 e termina senza bias residuo.
+set: const real EXCITATION_START = 4.0;
+set: const real EXCITATION_FREQUENCY = 2*3.21713438486;
+set: const real EXCITATION_OMEGA = 2.*pi*EXCITATION_FREQUENCY;
+set: const real EXCITATION_AMPLITUDE = 0 * deg2rad;
+set: const real EXCITATION_CYCLES = 1.0;
+set: const real X_CG = 163.187383385809;
+set: const real Y_CG = 0.110529571088;
+set: const real Z_CG = 101.239797358848;
+# The modal FEM uses this absolute CG coordinate.  Post-processing defines
+# the heave coordinate as Z - Z(0), hence the reported initial heave is zero.
+
+
+set: const real VINF  = V_INF * m2in;             # [in/s]
+set: const real RHO_AIR = 1.146e-7;              # [slinch/in^3]
+set: const real C_SOUND = 340.0 * m2in;          # [in/s]            
+set: const real GRAVITY = 9.81 * m2in;           # [in/s^2]          
+
+begin: initial value;
+    initial time: 0.;
+    final time: 15.0;
+    time step: 0.02;
+
+    max iterations: 300;
+	tolerance: 1e-3, test, relnorm;
+	derivatives tolerance: 1;
+	derivatives max iterations: 100;
+	linear solver: lapack; #naive, colamd, pivot factor, 1e-1;
+	method: ms, cosine, 0., pi/0.1, 0.6/2, half, 0.; #0.6 posso 0.4 smorzamento numerico 
+    
+    /*
+    eigenanalysis: 0.1,
+        parameter, 1.e-6,
+        output matrices,
+        output eigenvectors,
+        output geometry;
+    */
+
+    output: counter; 
+    #output: residual; 
+    
+
+end: initial value;
+
+begin: control data;
+
+    print: dof stats;
+
+    structural nodes: 56;       
+
+
+    aerodynamic elements: 50; 
+
+    loadable elements: 4;
+     
+    joints:13;
+
+    gravity;
+
+    default orientation: orientation vector;
+    output results: netcdf, sync, no text;
+    air properties;
+
+end: control data;
+
+include: "./INCLUDE/reference.mbd";
+
+begin: nodes;
+
+    include: "./INCLUDE/node.mbd";
+
+end: nodes;
+
+begin: elements;
+
+    gravity: uniform, 0., 0., -1., const, GRAVITY; 
+
+    joint: 1, total pin joint,
+        BASE_NODE,
+        
+        position, reference, node, null,
+        # Constraint axes are GLOBAL: X/Y and roll/yaw must not rotate with pitch.
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        
+        position, reference, global, X_CG, Y_CG, Z_CG,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        
+        position constraint, 
+            active, active, inactive, 
+            null, 
+            
+        orientation constraint, 
+            active, inactive, active,     
+            null; 
+
+    # Temporary acquisition joint: hold only global Z and pitch while the
+    # modal static deformation settles.  It is removed before BFF observation.
+    driven: 23, string, "Time < RELEASE_TIME";
+
+    joint: 23, total pin joint,
+        BASE_NODE,
+        position, reference, node, null,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, node, eye,
+        position, reference, global, X_CG, Y_CG, Z_CG,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position constraint, inactive, inactive, active, null,
+        orientation constraint, inactive, active, inactive,
+            component,
+                0.,
+                step5, 0., 0., PITCH_RAMP_END, THETA_PITCH,
+                0.;
+
+    # Autopilota lento di mantenimento quota. La misura XP[3] e' convertita
+    # da in/s a m/s prima del filtro; nessun segnale elastico entra nel PI.
+    module load: "libmodule-pid";
+
+    user defined: FLIGHT_CONTROL_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter,
+                2, FC_A1, FC_A2,
+                FC_B0,
+                3, FC_B1, FC_B2, FC_B3,
+                mult,
+                    step5,
+                        FLIGHT_CONTROL_ENABLE_START, 0.,
+                        FLIGHT_CONTROL_ENABLE_END, 1.,
+                    node, BASE_NODE, structural, string, "XP[3]",
+                        linear, 0., in2m,
+        Kp, FLIGHT_CONTROL_KP_VZ,
+        Ki, FLIGHT_CONTROL_KI_Z,
+        Kd, 0.,
+        Ii0, 0.,
+        Ks, 1.,
+        Ymin, -FLIGHT_CONTROL_LIMIT,
+        Ymax, FLIGHT_CONTROL_LIMIT;
+
+    drive caller: FLIGHT_CONTROL_DRIVE,
+        element, FLIGHT_CONTROL_PID, loadable, string, "yout",
+            linear, 0., FLIGHT_CONTROL_ENABLE;
+
+    # Stabilizzazione di assetto a bassa banda. Il riferimento resta il pitch
+    # di trim interpolato; nessun feedback modale o accelerometrico e' usato.
+    user defined: PITCH_CONTROL_PID, pid,
+        setpoint,
+            step5, 0., 0., PITCH_RAMP_END, THETA_PITCH,
+        measure,
+            node, BASE_NODE, structural, string, "E[2]", direct,
+        Kp, PITCH_CONTROL_KP,
+        Ki, 0.,
+        Kd, 0.,
+        Ii0, 0.,
+        Ks, 1.,
+        Ymin, -PITCH_CONTROL_LIMIT,
+        Ymax, PITCH_CONTROL_LIMIT;
+
+    drive caller: PITCH_CONTROL_DRIVE,
+        mult,
+            step5,
+                FLIGHT_CONTROL_ENABLE_START, 0.,
+                FLIGHT_CONTROL_ENABLE_END, FLIGHT_CONTROL_ENABLE,
+            element, PITCH_CONTROL_PID, loadable, string, "yout", direct;
+
+    # Smorzatore del modo rigido longitudinale: usa soltanto la velocita' di
+    # pitch del nodo base, filtrata a 0.50 Hz. Non riceve coordinate elastiche.
+    user defined: PITCH_RATE_DAMPER_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter,
+                2, FC_A1, FC_A2,
+                FC_B0,
+                3, FC_B1, FC_B2, FC_B3,
+                mult,
+                    step5,
+                        FLIGHT_CONTROL_ENABLE_START, 0.,
+                        FLIGHT_CONTROL_ENABLE_END, 1.,
+                    node, BASE_NODE, structural, string, "Omega[2]",
+                        direct,
+        Kp, PITCH_RATE_DAMPER_KP,
+        Ki, 0.,
+        Kd, 0.,
+        Ii0, 0.,
+        Ks, 1.,
+        Ymin, -PITCH_RATE_DAMPER_LIMIT,
+        Ymax, PITCH_RATE_DAMPER_LIMIT;
+
+    drive caller: PITCH_RATE_DAMPER_DRIVE,
+        element, PITCH_RATE_DAMPER_PID, loadable, string, "yout",
+            linear, 0., FLIGHT_CONTROL_ENABLE;
+
+    # Integrale vero dell'errore di heave rigido. Il setpoint e' la quota
+    # assoluta iniziale del CG, quindi nel post-processing equivale a z=0.
+    user defined: HEAVE_INTEGRATOR_PID, pid,
+        setpoint, const, Z_CG*in2m,
+        measure,
+            node, BASE_NODE, structural, string, "X[3]",
+                linear, 0., in2m,
+        Kp, 0.,
+        Ki, HEAVE_INTEGRATOR_KI,
+        Kd, 0.,
+        Ii0, HEAVE_INTEGRATOR_PRELOAD,
+        Ks, 1.,
+        Ymin, -HEAVE_INTEGRATOR_LIMIT,
+        Ymax, HEAVE_INTEGRATOR_LIMIT;
+
+    drive caller: HEAVE_INTEGRATOR_DRIVE,
+        mult,
+            step5,
+                FLIGHT_CONTROL_ENABLE_START, 0.,
+                FLIGHT_CONTROL_ENABLE_END, FLIGHT_CONTROL_ENABLE,
+            element, HEAVE_INTEGRATOR_PID, loadable, string, "yout", direct;
+
+    include: "./INCLUDE/control_surface_joints.mbd";
+
+    include: "./INCLUDE/modaljoint.mbd";
+
+    air properties: RHO_AIR, C_SOUND,
+        1., 0., 0.,
+        const, VINF;
+
+    include: "./INCLUDE/aerobody.mbd";
+
+end: elements;

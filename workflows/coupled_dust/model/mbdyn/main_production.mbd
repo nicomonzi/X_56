@@ -1,0 +1,265 @@
+# ============================================================================
+# X-56 BFF longitudinal open-loop observation
+# ============================================================================
+
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: const real V_INF = 60.8421;
+
+set: const integer GROUND = 0;
+set: const integer BFLjoint = 1;
+set: const integer BFRjoint = 2;
+set: const integer WFLjoint = 3;
+set: const integer WFRjoint = 4;
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 5;
+
+set: const real X_CG = 163.187383385809;
+set: const real Y_CG = 0.110529571088;
+set: const real Z_CG = 101.239797358848;
+set: const real RHO_AIR = 9.7284e-8;
+set: const real C_SOUND = 340.*m2in;
+set: const real GRAVITY = 9.81*m2in;
+set: const real VINF = V_INF*m2in;
+set: const real Q_DYN = 0.5*RHO_AIR*VINF*VINF;
+
+include: "./INCLUDE/setconst.mbd";
+
+# Time
+set: const real FINAL_TIME = 9.5;
+set: const real SETTLING_END = 5.5;
+set: const real BFF_RAP_START = 6.;
+set: const real BFF_RAP_DURATION = 0.25;
+set: const real BFF_RAP_AMPLITUDE = 1.*deg2rad;
+set: const real BFF_RAP_END = BFF_RAP_START + BFF_RAP_DURATION;
+# Breve ritorno a zero dell'attuatore prima di campionare le superfici.
+set: const real OPEN_LOOP_START = 6.85;
+set: const real IDENTIFICATION_START = OPEN_LOOP_START + 0.05;
+set: const real IDENTIFICATION_END = 9.40;
+set: const real RECOVERY_START = 9.40;
+set: const real SURFACE_HOLD_TOLERANCE_DEG = 0.001;
+set: const real TIME_STEP = 0.002;
+
+
+
+begin: initial value;
+    initial time: 0.;
+    final time: FINAL_TIME;
+    time step: TIME_STEP;
+    max iterations: 300;
+    tolerance: 1.e-3, test, relnorm;
+    derivatives tolerance: 1.;
+    derivatives max iterations: 100;
+    linear solver: lapack;
+    method: ms, cosine, 0., pi/0.1, 0.6/2, half, 0.;
+    output: counter;
+end: initial value;
+
+begin: control data;
+    print: dof stats;
+    skip initial joint assembly;
+    structural nodes: 76;
+    forces: 1;
+    loadable elements: 9;
+    joints: 32;
+    gravity;
+    air properties;
+    default orientation: orientation vector;
+    output results: netcdf, text;
+end: control data;
+
+include: "./INCLUDE/reference.mbd";
+
+begin: nodes;
+    include: "./INCLUDE/node.mbd";
+    include: "./INCLUDE/coupling_hinge_nodes.mbd";
+end: nodes;
+
+begin: elements;
+    gravity: uniform, 0., 0., -1., const, GRAVITY;
+    module load: "libmodule-pid";
+
+
+    joint: 1, total pin joint,
+        BASE_NODE,
+        position, reference, node, null,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position, reference, global, X_CG, Y_CG, Z_CG,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position constraint, active, active, inactive, null,
+        orientation constraint, inactive, inactive, inactive, null;
+
+    user defined: ALT_PID, pid,
+        setpoint, const, Z_CG,
+        measure, node, BASE_NODE, structural, string, "X[3]", direct,
+        # Outer loop lento: genera un riferimento di pitch e non insegue il
+        # modo longitudinale rigido. Lo scheduling conserva autorita' alle
+        # basse velocita' senza rendere aggressivo il caso ad alto q.
+        Kp, 0.00040*SAS_Q_SCALE,
+        Ki, 0.0000100*SAS_Q_SCALE,
+        Kd, 0., Ii0, 0.,
+        Ks, 1.,
+        Ymin, -2.*deg2rad, Ymax, 2.*deg2rad;
+
+    drive caller: ALT_RAW_DRIVE,
+        element, ALT_PID, loadable, string, "yout", direct;
+
+    drive caller: ALT_DRIVE,
+        discrete filter, 1, ALT_LP_A1, ALT_LP_B0, 1, ALT_LP_B1,
+            reference, ALT_RAW_DRIVE;
+
+    user defined: VZ_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter, 1, VZ_LP_A1, VZ_LP_B0, 1, VZ_LP_B1,
+                node, BASE_NODE, structural, string, "XP[3]", direct,
+        Kp, 0.00120*SAS_Q_SCALE, 
+        Ki, 0., 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -2.*deg2rad, Ymax, 2.*deg2rad;
+
+    drive caller: VZ_DRIVE,
+        element, VZ_PID, loadable, string, "yout", direct;
+
+    drive caller: LIFT_RAW_DRIVE, mult, const, 0.,
+        array, 2, reference, ALT_DRIVE, reference, VZ_DRIVE;
+
+    drive caller: LIFT_LIMIT_DRIVE, string,
+        "max(-4.*deg2rad,min(4.*deg2rad,model::drive(LIFT_RAW_DRIVE,Time)))";
+
+    drive caller: LIFT_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, LIFT_LIMIT_DRIVE;
+
+    user defined: PITCH_PID, pid,
+        setpoint, array, 3, const, TRIM_PITCH,
+            reference, ALT_DRIVE, reference, VZ_DRIVE,
+        measure, node, BASE_NODE, structural, string, "E[2]", direct,
+        Kp, -0.50*SAS_Q_SCALE,
+        Ki, -0.008*SAS_Q_SCALE,
+        Kd, 0., Ii0, 0.,
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    drive caller: PITCH_DRIVE,
+        element, PITCH_PID, loadable, string, "yout", direct;
+
+    user defined: Q_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "Omega[2]", direct,
+        Kp, -0.60*SAS_Q_SCALE, 
+        Ki, 0., 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    include: "./INCLUDE/driver.mbd";
+
+    user defined: ROLL_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "E[1]", direct,
+        Kp, -0.80,
+        Ki, -0.040,
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    drive caller: ROLL_DRIVE,
+        element, ROLL_PID, loadable, string, "yout", direct;
+
+    user defined: P_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "Omega[1]", direct,
+        Kp, -0.80, 
+        Ki, 0., 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    drive caller: P_DRIVE,
+        element, P_PID, loadable, string, "yout", direct;
+
+    drive caller: LAT_RAW_DRIVE, array, 2,
+        reference, ROLL_DRIVE, reference, P_DRIVE;
+
+    # Osservazione strettamente longitudinale: i PID laterali sono registrati
+    # per audit ma non hanno autorita' sulle superfici neppure nel settling.
+    drive caller: LAT_LIMIT_DRIVE, const, 0.;
+
+    drive caller: LAT_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, LAT_LIMIT_DRIVE;
+
+    
+    user defined: YAW_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "E[3]", direct,
+        Kp, 1.80, 
+        Ki, 0.150, 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -4.*deg2rad, Ymax, 4.*deg2rad;
+
+    drive caller: YAW_DRIVE,
+        element, YAW_PID, loadable, string, "yout", direct;
+
+    user defined: R_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "Omega[3]", direct,
+        Kp, 3.00, 
+        Ki, 0., 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -4.*deg2rad, Ymax, 4.*deg2rad;
+
+    drive caller: R_DRIVE,
+        element, R_PID, loadable, string, "yout", direct;
+
+    user defined: VY_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter, 2, LP_A1, LP_A2, LP_B0, 2, LP_B1, LP_B2,
+                node, BASE_NODE, structural, string, "XP[2]", direct,
+        Kp, 0.00060, 
+        Ki, 0.000020, 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -3.*deg2rad, Ymax, 3.*deg2rad;
+
+    drive caller: VY_DRIVE,
+        element, VY_PID, loadable, string, "yout", direct;
+
+    drive caller: DIR_RAW_DRIVE, array, 3,
+        reference, YAW_DRIVE, reference, R_DRIVE, reference, VY_DRIVE;
+
+    # Come per il laterale, il direzionale e' osservato ma disconnesso.
+    drive caller: DIR_LIMIT_DRIVE, const, 0.;
+
+    drive caller: DIR_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, DIR_LIMIT_DRIVE;
+
+    # Rap/doublet simmetrico WF4: +A per meta' durata, poi -A. Non dipende
+    # dalla frequenza BFF di riferimento. Il filtro e' la dinamica attuatore.
+    drive caller: BFF_RAP_RAW_DRIVE, string,
+        "BFF_RAP_AMPLITUDE*((Time>=BFF_RAP_START)&&(Time<BFF_RAP_START+0.5*BFF_RAP_DURATION))-BFF_RAP_AMPLITUDE*((Time>=BFF_RAP_START+0.5*BFF_RAP_DURATION)&&(Time<BFF_RAP_END))";
+    drive caller: BFF_RAP_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, BFF_RAP_RAW_DRIVE;
+
+    # Trigger comune ai dieci sample-and-hold. Dopo OPEN_LOOP_START nessun
+    # controller, safety o eccitazione puo' piu' raggiungere una superficie.
+    drive caller: OPEN_LOOP_SAMPLE_TRIGGER, string,
+        "(Time < OPEN_LOOP_START)||(Time >= RECOVERY_START)";
+
+    include: "./INCLUDE/control_surfaces.mbd";
+    include: "./INCLUDE/coupling_hinge_joints.mbd";
+    include: "./INCLUDE/modaljoint.mbd";
+    include: "./INCLUDE/external_dust_force.mbd";
+end: elements;

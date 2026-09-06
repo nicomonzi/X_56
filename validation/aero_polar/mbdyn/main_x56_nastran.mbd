@@ -1,0 +1,125 @@
+#==================================================================================================
+#                       X-56  MBDyn Aeroelastic Model, Nicolò Monzani.
+#==================================================================================================
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: const integer GROUND = 0; 
+set: const integer BFLjoint = 1; 
+set: const integer BFRjoint = 2; 
+set: const integer WFLjoint = 3; 
+set: const integer WFRjoint = 4; 
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 5; 
+set: const integer COLL_DRIVE = 50;
+set: const integer COLL_DRIVE1 = 51; 
+set: const integer COLL_DRIVE2 = 52;
+set: const integer PID = 20;
+
+
+set: const real VINF  = 40 * m2in;               # [in/s]
+set: const real ALPHA_DEG  = 0;                # [deg] 
+set: const real ALPHA  = ALPHA_DEG * deg2rad;    # [rad]
+set: const real RHO_AIR = 1.146e-7;              # [slinch/in^3]
+set: const real C_SOUND = 340.0 * m2in;          # [in/s]            
+set: const real GRAVITY = 9.81 * m2in;           # [in/s^2]          
+
+begin: initial value;
+    initial time: 0.;
+    final time: 5.0;  # Reduced for faster testing
+    time step: 0.02;
+
+    max iterations: 300;
+	tolerance: 1e-3, test, relnorm;
+	derivatives tolerance: 1;
+	derivatives max iterations: 100;
+	linear solver: lapack; #naive, colamd, pivot factor, 1e-1;
+	method: ms, cosine, 0., pi/0.1, 0.6/2, half, 0.; #0.6 posso 0.4 smorzamento numerico 
+    
+    /*
+    eigenanalysis: 0.1,
+        parameter, 1.e-6,
+        output matrices,
+        output eigenvectors,
+        output geometry;
+    */
+
+    output: counter; 
+    #output: residual; 
+    
+
+end: initial value;
+
+begin: control data;
+
+    print: dof stats;
+    #skip initial joint assembly;
+
+    structural nodes: 56;       
+
+    #abstract nodes: 10;
+
+    #genels: 10;
+
+    aerodynamic elements: 50; 
+     
+    joints:12;
+
+    loadable elements: 1;
+
+    gravity;
+
+    default orientation: orientation vector;
+    output results: netcdf, sync, no text;
+    air properties;
+
+end: control data;
+
+include: "./INCLUDE/reference.mbd";
+
+begin: nodes;
+
+    include: "./INCLUDE/node.mbd";
+
+end: nodes;
+
+begin: elements;
+
+    gravity: uniform, 0., 0., -1., const, GRAVITY; 
+
+
+    joint: 1, total pin joint,
+        990001,
+        
+        position, reference, node, null,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, node, eye,
+        
+        position, reference, other node, null, 
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, other node, eye,
+        
+        position constraint, 
+            active, active, active, 
+            null, 
+            
+        orientation constraint, 
+            inactive, active, active,      #cambia tra pitch roll 
+            null; 
+
+    include: "./INCLUDE/control_surface_joints.mbd";
+
+
+    include: "./INCLUDE/modaljoint.mbd";
+
+    air properties: RHO_AIR, C_SOUND, 
+        cos(ALPHA), 0., sin(ALPHA),
+        #tanh, 0.0, VINF, 0.2, 0.;
+        #tanh, 0.0, VINF, 0.5, 0.01;
+        const, VINF;
+
+    include: "./INCLUDE/aerobody.mbd";
+
+end: elements;

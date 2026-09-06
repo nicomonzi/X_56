@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+runs/*/cases/*.nc
+runs/*/cases/*.out
+runs/*/cases/*.log
+runs/*/cases/*.stdout
+runs/*/cases/*.mov
+runs/*/analysis/*.png

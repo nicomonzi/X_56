@@ -1,0 +1,30 @@
+    drive caller: Q_DRIVE,
+        element, Q_PID, loadable, string, "yout", direct;
+
+    drive caller: SAFETY_Q_SENSOR_DRIVE,
+        node, BASE_NODE, structural, string, "Omega[2]", direct;
+
+    drive caller: SAFETY_PITCH_SENSOR_DRIVE,
+        node, BASE_NODE, structural, string, "E[2]", direct;
+
+    drive caller: SAFETY_ARM_DRIVE,
+        step, SAFETY_ARM_TIME, 1., 0.;
+
+    drive caller: SAFETY_RAW_DRIVE, string,
+        "-0.35*(max(0.,model::drive(SAFETY_Q_SENSOR_DRIVE,Time)-18.*deg2rad)+min(0.,model::drive(SAFETY_Q_SENSOR_DRIVE,Time)+18.*deg2rad))-0.25*(max(0.,model::drive(SAFETY_PITCH_SENSOR_DRIVE,Time)-12.*deg2rad)+min(0.,model::drive(SAFETY_PITCH_SENSOR_DRIVE,Time)+12.*deg2rad))";
+    drive caller: SAFETY_LIMIT_DRIVE, string,
+
+        "max(-4.*deg2rad,min(4.*deg2rad,model::drive(SAFETY_RAW_DRIVE,Time)))";
+    drive caller: SAFETY_ACT_DRIVE, mult,
+
+        reference, SAFETY_ARM_DRIVE, reference, SAFETY_LIMIT_DRIVE;
+    drive caller: LONG_RAW_DRIVE, array, 3,
+        reference, PITCH_DRIVE, reference, Q_DRIVE,
+        reference, SAFETY_ACT_DRIVE;
+
+    drive caller: LONG_LIMIT_DRIVE, string,
+        "max(-SURFACE_CORRECTION_LIMIT,min(SURFACE_CORRECTION_LIMIT,model::drive(LONG_RAW_DRIVE,Time)))";
+
+    drive caller: LONG_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, LONG_LIMIT_DRIVE;

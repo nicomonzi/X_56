@@ -1,0 +1,350 @@
+#==================================================================================================
+#                                   Structural Nodes
+#==================================================================================================
+# Nodes are defined as follows:
+# 9900**: Dynamic nodes to the left,
+# 9910**: Dynamic nodes to the right,
+# 8800**: Control nodes to the left,
+# 8810**: Control nodes to the right.
+# In total 56 structural nodes.
+
+
+
+    structural: BASE_NODE, modal, 
+        # FEM floating-frame origin: X-56 centre of mass.
+        reference, global, X_CG, Y_CG, Z_CG,
+        reference, global, eye,
+        reference, global, null,
+        reference, global, null;
+
+    structural: 990001, dynamic, # ------------------------------------------------------------------------------ Node sx 9900**
+        reference, GROUND, 160.14999390, 0.00000000, 100.16000370, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990002, dynamic, 
+        reference, GROUND, 160.14999390,  -11.03999996, 100.16000370, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+    structural: 990003, dynamic, 
+        reference, GROUND, 160.14999390,  -22.06999969, 100.16000370, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+    structural: 990004, dynamic, 
+        reference, GROUND, 160.14999390,  -31.37999916, 101.47000120, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990005, dynamic, 
+        reference, GROUND, 160.14999390,  -40.68999863, 102.77999880, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990006, dynamic, 
+        reference, GROUND, 160.14999390,  -50.00000000, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990007, dynamic, 
+        reference, GROUND, 163.46000670,  -58.43000031, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990008, dynamic, 
+        reference, GROUND, 166.77999880,  -66.86000061, 104.08999630,
+        reference, GROUND, eye,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+        
+
+    structural: 990009, dynamic, 
+        reference, GROUND, 170.10000610,  -75.29000092, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990010, dynamic, 
+        reference, GROUND, 173.41999820,  -83.70999908, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990011, dynamic, 
+        reference, GROUND, 176.74000550,  -92.13999939, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990012, dynamic, 
+        reference, GROUND, 180.05999760, -100.56999970, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990013, dynamic, 
+        reference, GROUND, 183.38000490, -109.00000000, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990014, dynamic, 
+        reference, GROUND, 186.69999690, -117.43000030, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990015, dynamic,
+        reference, GROUND,190.02000430, -125.86000060,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990016, dynamic, 
+        reference, GROUND, 193.33000180, -134.28999330, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990017, dynamic, 
+        reference, GROUND, 196.64999390, -142.71000670, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990018, dynamic, 
+        reference, GROUND, 199.97000120, -151.13999940, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990019, dynamic,
+        reference, GROUND, 203.28999330, -159.57000730, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990020, dynamic, 
+        reference, GROUND, 206.61000060, -168.00000000, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990021, dynamic, 
+        reference, GROUND, 213.47000120, -168.00000000, 110.36000060, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990022, dynamic, 
+        reference, GROUND, 220.33000180, -168.00000000, 116.62999730, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990023, dynamic, 
+        reference, GROUND, 227.19000240, -168.00000000, 122.90000150, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    # ------------------------------------------------------------------------------ Node dx 9910**
+    structural: 991002, dynamic, 
+        reference, GROUND, 160.14999390,  11.03999996,  100.16000370, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991003, dynamic, 
+        reference, GROUND, 160.14999390,  22.06999969,  100.16000370, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991004, dynamic, 
+        reference, GROUND, 160.14999390,  31.37999916,  101.47000120, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991005, dynamic, 
+        reference, GROUND, 160.14999390,  40.68999863,  102.77999880, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991006, dynamic, 
+        reference, GROUND, 160.14999390,  50.00000000,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991007, dynamic, 
+        reference, GROUND, 163.46000670,  58.43000031,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991008, dynamic, 
+        reference, GROUND, 166.77999880,  66.86000061,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991009, dynamic, 
+        reference, GROUND, 170.10000610,  75.29000092,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991010, dynamic, 
+        reference, GROUND, 173.41999820,  83.70999908,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991011, dynamic, 
+        reference, GROUND, 176.74000550,  92.13999939,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991012, dynamic, 
+        reference, GROUND, 180.05999760, 100.56999970,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991013, dynamic, 
+        reference, GROUND, 183.38000490, 109.00000000,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991014, dynamic, 
+        reference, GROUND, 186.69999690, 117.43000030,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991015, dynamic, 
+        reference, GROUND, 190.02000430, 125.86000060,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991016, dynamic, 
+        reference, GROUND, 193.33000180, 134.28999330,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991017, dynamic, 
+        reference, GROUND, 196.64999390, 142.71000670,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991018, dynamic, 
+        reference, GROUND, 199.97000120, 151.13999940,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991019, dynamic, 
+        reference, GROUND, 203.28999330, 159.57000730,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991020, dynamic, 
+        reference, GROUND, 206.61000060, 168.00000000,  104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991021, dynamic, 
+        reference, GROUND, 213.47000120, 168.00000000,  110.36000060, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991022, dynamic, 
+        reference, GROUND, 220.33000180, 168.00000000,  116.62999730, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991023, dynamic,
+        reference, GROUND, 227.19000240, 168.00000000,  122.90000150, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+#------------------------------------------------------------------------------------------------Control nodes
+
+     structural: 880004, static,                                                    #BFL
+        reference, GROUND, 160.14999390+12.2,  -31.37999916, 101.47000120,
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 880008, static,                                                     #WF1L
+        reference, GROUND, 166.77999880 + 5.16,  -66.86000061, 104.08999630,
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 880011, static,                                                    #WF2L
+        reference, GROUND, 176.74000550 + 5.16,  -92.13999939, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 880014, static,                                                     #WF3L
+        reference, GROUND, 186.69999690 + 5.16, -117.43000030, 104.08999630,  
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 880017, static,                                                     #WF4L
+        reference, GROUND,  196.64999390 + 5.16, -142.71000670, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 881004, static,                                                     #BFR
+        reference, GROUND, 160.14999390+12.2,  31.37999916, 101.47000120,
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 881008, static,                                                     #WF1R
+        reference, GROUND, 166.77999880 + 5.16,  66.86000061, 104.08999630,
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 881011, static,                                                     #WF2R
+        reference, GROUND, 176.74000550 + 5.16, 92.13999939, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 881014, static,                                                     #WF3R
+        reference, GROUND, 186.69999690 + 5.16, 117.43000030, 104.08999630,  
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 881017, static,                                                     #WF4R
+        reference, GROUND,  196.64999390 + 5.16, 142.71000670, 104.08999630, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null;

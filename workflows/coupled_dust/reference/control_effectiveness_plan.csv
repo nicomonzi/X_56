@@ -1,0 +1,6 @@
+case,theta_deg,body_flap_deg,purpose
+baseline,0.0,0.0,reference
+theta_minus,-1.0,0.0,central difference dFz/dtheta and dMy/dtheta
+theta_plus,1.0,0.0,central difference dFz/dtheta and dMy/dtheta
+bf_minus,0.0,-1.0,central difference dFz/ddelta_BF and dMy/ddelta_BF
+bf_plus,0.0,1.0,central difference dFz/ddelta_BF and dMy/ddelta_BF

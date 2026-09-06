@@ -1,0 +1,2026 @@
+{
+  "method": "Unfiltered polynomial-plus-damped-sinusoid variable projection; independent derivative, tip, pitch and extrema checks.",
+  "synthetic": [
+    {
+      "true_sigma": 0.4,
+      "phase": 0.0,
+      "old_hilbert_sigma": 0.32543791385429643,
+      "direct_sigma": 0.4000000000000001
+    },
+    {
+      "true_sigma": 0.4,
+      "phase": 0.7,
+      "old_hilbert_sigma": 0.8027330696072554,
+      "direct_sigma": 0.4000000000000003
+    },
+    {
+      "true_sigma": 0.4,
+      "phase": 1.4,
+      "old_hilbert_sigma": 0.4807960639083146,
+      "direct_sigma": 0.3999999999999996
+    },
+    {
+      "true_sigma": 0.4,
+      "phase": 2.1,
+      "old_hilbert_sigma": 0.01084395863211524,
+      "direct_sigma": 0.39999999999999997
+    }
+  ],
+  "paired": [
+    {
+      "campaign": "primary",
+      "velocity": 66.25,
+      "nominal_n": 1.0,
+      "dt": 0.01,
+      "saved_dt": 0.019999999999999574,
+      "reference_release": 13.0,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p00p00_qcmd_p00p00_nnom_01p00_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p00p00_qcmd_p00p00_nnom_01p00_excited.nc",
+      "direct": {
+        "sigma": 0.1937014750926518,
+        "frequency": 1.9288110363376132,
+        "amplitude": 0.1866655470097202,
+        "center_time": 1.229999999999741,
+        "phase": -2.4615660304744402,
+        "r2": 0.9986264175200423,
+        "oscillatory_variance_explained": 0.9985761659495807,
+        "normalized_residual": 0.037061873670359645
+      },
+      "joint_q_qdot": {
+        "sigma": 0.22265292325790667,
+        "frequency": 1.9339871589124218,
+        "amplitude": 0.18549420013991544,
+        "center_time": 1.229999999999741,
+        "phase": -2.468708162043566,
+        "r2": 0.99831884142712,
+        "oscillatory_variance_explained": 0.9982573373968089,
+        "normalized_residual": 0.050706191735532646
+      },
+      "tip": {
+        "sigma": 0.19312732057514762,
+        "frequency": 1.9289045368079651,
+        "amplitude": 0.012320834707261365,
+        "center_time": 1.229999999999741,
+        "phase": 0.6828954765013546,
+        "r2": 0.9986447035115309,
+        "oscillatory_variance_explained": 0.9985949043306444,
+        "normalized_residual": 0.036814351664386125
+      },
+      "pitch_rate": {
+        "sigma": 0.2769236552425389,
+        "frequency": 1.940125544307468,
+        "amplitude": 0.02900711591722504,
+        "center_time": 1.229999999999741,
+        "phase": 0.33827489808575484,
+        "r2": 0.9941812172078085,
+        "oscillatory_variance_explained": 0.9940851111778154,
+        "normalized_residual": 0.07628094645579261
+      },
+      "peak_to_trough": {
+        "times": [
+          0.9099999999997479,
+          1.4299999999997368
+        ],
+        "amplitudes": [
+          0.17871252780654961,
+          0.19624467228443845
+        ],
+        "sigma": 0.1799686225957107
+      },
+      "old_hilbert_sigma": -0.3638451474979743,
+      "shadow_q": {
+        "sigma": 0.1937014750926518,
+        "frequency": 1.9288110363376132,
+        "amplitude": 0.000828733293420783,
+        "center_time": 1.229999999999741,
+        "phase": 1.651554819594413,
+        "r2": 0.8360423611972986,
+        "oscillatory_variance_explained": 0.8240407438412266,
+        "normalized_residual": 0.4049168294881143
+      },
+      "shadow_tip": {
+        "sigma": 0.1937014750926518,
+        "frequency": 1.9288110363376132,
+        "amplitude": 5.466044370645335e-05,
+        "center_time": 1.229999999999741,
+        "phase": -1.4873515303624316,
+        "r2": 0.812965300333426,
+        "oscillatory_variance_explained": 0.7997984123319373,
+        "normalized_residual": 0.4324750856020702
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.18091145585087107,
+          "frequency": 1.9262690397045013,
+          "amplitude": 0.18670030396887813,
+          "center_time": 1.229999999999741,
+          "phase": -2.4608627830295315,
+          "r2": 0.9984691842356014,
+          "oscillatory_variance_explained": 0.9984223584175248,
+          "normalized_residual": 0.03912564075384151
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.1661556187076086,
+          "frequency": 1.932313498592943,
+          "amplitude": 0.1886428312396882,
+          "center_time": 1.229999999999741,
+          "phase": -2.4697926019551906,
+          "r2": 0.9996518987655435,
+          "oscillatory_variance_explained": 0.9996512153676371,
+          "normalized_residual": 0.018657471277118254
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.1598269113675746,
+          "frequency": 1.930166130674034,
+          "amplitude": 0.18964098552733918,
+          "center_time": 1.2299999999997409,
+          "phase": -2.46491285359852,
+          "r2": 0.9998058754306924,
+          "oscillatory_variance_explained": 0.9997994595758103,
+          "normalized_residual": 0.013932859337105282
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.1937014750926518,
+          "frequency": 1.9288110363376132,
+          "amplitude": 0.1866655470097202,
+          "center_time": 1.229999999999741,
+          "phase": -2.4615660304744402,
+          "r2": 0.9986264175200423,
+          "oscillatory_variance_explained": 0.9985761659495807,
+          "normalized_residual": 0.037061873670359645
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.1587900715492053,
+          "frequency": 1.9306594367578054,
+          "amplitude": 0.18923750362220937,
+          "center_time": 1.229999999999741,
+          "phase": -2.4718614836472192,
+          "r2": 0.9997610478221894,
+          "oscillatory_variance_explained": 0.9997477008069126,
+          "normalized_residual": 0.015458078076222554
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.16914859172450014,
+          "frequency": 1.9317949861966928,
+          "amplitude": 0.19034364544277207,
+          "center_time": 1.2299999999997409,
+          "phase": -2.4680342384064224,
+          "r2": 0.9999187989337464,
+          "oscillatory_variance_explained": 0.9999061091443371,
+          "normalized_residual": 0.009011163423976029
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.18902210343683007,
+          "frequency": 1.9293831311889404,
+          "amplitude": 0.1864338696150115,
+          "center_time": 1.229999999999741,
+          "phase": -2.4634674756302064,
+          "r2": 0.9986564292930518,
+          "oscillatory_variance_explained": 0.9985069293328206,
+          "normalized_residual": 0.036654750128029566
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.1472918614802221,
+          "frequency": 1.9323509022901804,
+          "amplitude": 0.18990426490929066,
+          "center_time": 1.229999999999741,
+          "phase": -2.467726474313655,
+          "r2": 0.9999065983259304,
+          "oscillatory_variance_explained": 0.999895228878263,
+          "normalized_residual": 0.009664454152698551
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.123473511134733,
+          "frequency": 1.937673104670706,
+          "amplitude": 0.19009155151780657,
+          "center_time": 1.2299999999997409,
+          "phase": -2.4708044224384174,
+          "r2": 0.9999966654596792,
+          "oscillatory_variance_explained": 0.9999961254060004,
+          "normalized_residual": 0.0018260723755464524
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.0,
+      "delta_frequency_vs_primary_1g": 0.0,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 1.0
+    },
+    {
+      "campaign": "primary",
+      "velocity": 66.25,
+      "nominal_n": 1.3,
+      "dt": 0.01,
+      "saved_dt": 0.019999999999999574,
+      "reference_release": 13.577045247,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p05p15_qcmd_p02p55_nnom_01p30_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p05p15_qcmd_p02p55_nnom_01p30_excited.nc",
+      "direct": {
+        "sigma": 0.22351437445010588,
+        "frequency": 1.9249389130335988,
+        "amplitude": 0.19637854998633997,
+        "center_time": 1.22295475299973,
+        "phase": -2.4399122304939094,
+        "r2": 0.9985594832543082,
+        "oscillatory_variance_explained": 0.9985068313649185,
+        "normalized_residual": 0.03795414003362174
+      },
+      "joint_q_qdot": {
+        "sigma": 0.2526602005061081,
+        "frequency": 1.9297674264632487,
+        "amplitude": 0.19503934738073817,
+        "center_time": 1.22295475299973,
+        "phase": -2.447094950699551,
+        "r2": 0.9982666433468406,
+        "oscillatory_variance_explained": 0.9982032879550701,
+        "normalized_residual": 0.053213382241243196
+      },
+      "tip": {
+        "sigma": 0.22290054704193119,
+        "frequency": 1.9250471163355394,
+        "amplitude": 0.01296163517941801,
+        "center_time": 1.22295475299973,
+        "phase": 0.704517293290012,
+        "r2": 0.9985756452978338,
+        "oscillatory_variance_explained": 0.998523358453092,
+        "normalized_residual": 0.037740624029898855
+      },
+      "pitch_rate": {
+        "sigma": 0.30534293693620185,
+        "frequency": 1.9364168114955793,
+        "amplitude": 0.030048937178568387,
+        "center_time": 1.22295475299973,
+        "phase": 0.36610680639699184,
+        "r2": 0.9939177200580227,
+        "oscillatory_variance_explained": 0.9938152226447614,
+        "normalized_residual": 0.07798897320760988
+      },
+      "peak_to_trough": {
+        "times": [
+          0.9029547529997366,
+          1.4229547529997255
+        ],
+        "amplitudes": [
+          0.18630637309512957,
+          0.20847390692784196
+        ],
+        "sigma": 0.21619500188271404
+      },
+      "old_hilbert_sigma": -0.31081736370758684,
+      "shadow_q": {
+        "sigma": 0.22351437445010588,
+        "frequency": 1.9249389130335988,
+        "amplitude": 0.0033667383711859316,
+        "center_time": 1.22295475299973,
+        "phase": 2.0517426981289444,
+        "r2": 0.9980475979127846,
+        "oscillatory_variance_explained": 0.9690854985757427,
+        "normalized_residual": 0.044185994242693885
+      },
+      "shadow_tip": {
+        "sigma": 0.22351437445010588,
+        "frequency": 1.9249389130335988,
+        "amplitude": 0.00022226424183393323,
+        "center_time": 1.22295475299973,
+        "phase": -1.0864218771194558,
+        "r2": 0.9978342948543226,
+        "oscillatory_variance_explained": 0.9661522688518618,
+        "normalized_residual": 0.046537137274198725
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.21366199806804986,
+          "frequency": 1.9230638039091055,
+          "amplitude": 0.19642835262784075,
+          "center_time": 1.22295475299973,
+          "phase": -2.4393666807288694,
+          "r2": 0.9984713944868083,
+          "oscillatory_variance_explained": 0.9984257037412441,
+          "normalized_residual": 0.0390973849917317
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.20269583718228054,
+          "frequency": 1.9284367682347006,
+          "amplitude": 0.1982934536561317,
+          "center_time": 1.2229547529997296,
+          "phase": -2.447393482627842,
+          "r2": 0.9994476438870085,
+          "oscillatory_variance_explained": 0.9994469707466627,
+          "normalized_residual": 0.023502257614782
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.19576703180683117,
+          "frequency": 1.925668862197388,
+          "amplitude": 0.19976664348963868,
+          "center_time": 1.2229547529997298,
+          "phase": -2.4403487125735337,
+          "r2": 0.9997377111439062,
+          "oscillatory_variance_explained": 0.999727861557165,
+          "normalized_residual": 0.016195334392776088
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.22351437445010588,
+          "frequency": 1.9249389130335988,
+          "amplitude": 0.19637854998633997,
+          "center_time": 1.22295475299973,
+          "phase": -2.4399122304939094,
+          "r2": 0.9985594832543082,
+          "oscillatory_variance_explained": 0.9985068313649185,
+          "normalized_residual": 0.03795414003362174
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.19416330783075986,
+          "frequency": 1.926548524908808,
+          "amplitude": 0.19902608028007293,
+          "center_time": 1.2229547529997296,
+          "phase": -2.449841890352641,
+          "r2": 0.999595958143131,
+          "oscillatory_variance_explained": 0.999575121351763,
+          "normalized_residual": 0.020100792443808156
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.2069081234718851,
+          "frequency": 1.9274802583357982,
+          "amplitude": 0.2005544113032992,
+          "center_time": 1.2229547529997298,
+          "phase": -2.4438951939701186,
+          "r2": 0.9998755429897128,
+          "oscillatory_variance_explained": 0.9998560309204311,
+          "normalized_residual": 0.011156030220791709
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.22264988709204803,
+          "frequency": 1.9250474412157448,
+          "amplitude": 0.19633123430499883,
+          "center_time": 1.22295475299973,
+          "phase": -2.4402749613168044,
+          "r2": 0.9985605633567125,
+          "oscillatory_variance_explained": 0.9983930043286827,
+          "normalized_residual": 0.03793990831943914
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.17770297375424454,
+          "frequency": 1.9291507747843792,
+          "amplitude": 0.2000530587500165,
+          "center_time": 1.2229547529997296,
+          "phase": -2.4441798453441645,
+          "r2": 0.9998918712164302,
+          "oscillatory_variance_explained": 0.9998793826564486,
+          "normalized_residual": 0.010398499101782163
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.15098322921961968,
+          "frequency": 1.9350545055060544,
+          "amplitude": 0.20021728671408587,
+          "center_time": 1.2229547529997298,
+          "phase": -2.447554081996326,
+          "r2": 0.9999946982719605,
+          "oscillatory_variance_explained": 0.9999938221513867,
+          "normalized_residual": 0.002302548162242116
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.029812899357454098,
+      "delta_frequency_vs_primary_1g": -0.00387212330401443,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 4.066272184462567
+    },
+    {
+      "campaign": "primary",
+      "velocity": 66.25,
+      "nominal_n": 1.6,
+      "dt": 0.01,
+      "saved_dt": 0.019999999999999574,
+      "reference_release": 16.154090493,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p10p31_qcmd_p05p09_nnom_01p60_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p10p31_qcmd_p05p09_nnom_01p60_excited.nc",
+      "direct": {
+        "sigma": 0.22176993277966472,
+        "frequency": 1.9151618327213782,
+        "amplitude": 0.198338760483562,
+        "center_time": 1.2259095069999155,
+        "phase": -2.5126301314385504,
+        "r2": 0.9981703182299713,
+        "oscillatory_variance_explained": 0.9981202110378684,
+        "normalized_residual": 0.042774779602339254
+      },
+      "joint_q_qdot": {
+        "sigma": 0.24875235619360275,
+        "frequency": 1.9198118592003433,
+        "amplitude": 0.19694932914679894,
+        "center_time": 1.2259095069999155,
+        "phase": -2.52048440537781,
+        "r2": 0.9978878524001906,
+        "oscillatory_variance_explained": 0.997830009671872,
+        "normalized_residual": 0.06046241541638708
+      },
+      "tip": {
+        "sigma": 0.22102073577486575,
+        "frequency": 1.9152840922523109,
+        "amplitude": 0.013089932310755108,
+        "center_time": 1.2259095069999155,
+        "phase": 0.6318041383040182,
+        "r2": 0.9981822517564596,
+        "oscillatory_variance_explained": 0.9981322140691253,
+        "normalized_residual": 0.04263505885466124
+      },
+      "pitch_rate": {
+        "sigma": 0.2957277327918688,
+        "frequency": 1.9282808951390857,
+        "amplitude": 0.029936172277052586,
+        "center_time": 1.2259095069999155,
+        "phase": 0.3038142494285615,
+        "r2": 0.9925939070718334,
+        "oscillatory_variance_explained": 0.9925162747965829,
+        "normalized_residual": 0.08605865980926415
+      },
+      "peak_to_trough": {
+        "times": [
+          0.9059095069998655,
+          1.4259095069999468
+        ],
+        "amplitudes": [
+          0.18737567499234958,
+          0.21079405005195723
+        ],
+        "sigma": 0.2264731383304236
+      },
+      "old_hilbert_sigma": -0.3153095361253019,
+      "shadow_q": {
+        "sigma": 0.22176993277966472,
+        "frequency": 1.9151618327213782,
+        "amplitude": 0.0012226938528541482,
+        "center_time": 1.2259095069999155,
+        "phase": 0.7829798820891323,
+        "r2": 0.9989399305921908,
+        "oscillatory_variance_explained": 0.34313163291407633,
+        "normalized_residual": 0.032558707096708744
+      },
+      "shadow_tip": {
+        "sigma": 0.22176993277966472,
+        "frequency": 1.9151618327213782,
+        "amplitude": 8.03662259804543e-05,
+        "center_time": 1.2259095069999155,
+        "phase": -2.351729326226574,
+        "r2": 0.9989136873077129,
+        "oscillatory_variance_explained": 0.3380339501669324,
+        "normalized_residual": 0.03295925806639299
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.21225231833387945,
+          "frequency": 1.9130212410555536,
+          "amplitude": 0.19841391427822566,
+          "center_time": 1.2259095069999155,
+          "phase": -2.5121444568712397,
+          "r2": 0.9980701653180414,
+          "oscillatory_variance_explained": 0.9980263120534546,
+          "normalized_residual": 0.04392988370071844
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.20637708339981412,
+          "frequency": 1.917951346278458,
+          "amplitude": 0.2004465436042028,
+          "center_time": 1.2259095069999155,
+          "phase": -2.518655871500646,
+          "r2": 0.9990043084795168,
+          "oscillatory_variance_explained": 0.9990040482909376,
+          "normalized_residual": 0.03155458002387526
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.20525603702402948,
+          "frequency": 1.915523700437771,
+          "amplitude": 0.20248054848104086,
+          "center_time": 1.2259095069999155,
+          "phase": -2.506907466614627,
+          "r2": 0.9996421351376343,
+          "oscillatory_variance_explained": 0.9996302957878068,
+          "normalized_residual": 0.018917316468402428
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.22176993277966472,
+          "frequency": 1.9151618327213782,
+          "amplitude": 0.198338760483562,
+          "center_time": 1.2259095069999155,
+          "phase": -2.5126301314385504,
+          "r2": 0.9981703182299713,
+          "oscillatory_variance_explained": 0.9981202110378684,
+          "normalized_residual": 0.042774779602339254
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.19998091725641143,
+          "frequency": 1.9162342367347271,
+          "amplitude": 0.20115513568757087,
+          "center_time": 1.2259095069999155,
+          "phase": -2.5206645176429703,
+          "r2": 0.9991245264319669,
+          "oscillatory_variance_explained": 0.9990674629330148,
+          "normalized_residual": 0.029588402593467053
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.21599971638872914,
+          "frequency": 1.9175384889365812,
+          "amplitude": 0.2032698824183348,
+          "center_time": 1.2259095069999155,
+          "phase": -2.5100190554181108,
+          "r2": 0.9997668331617373,
+          "oscillatory_variance_explained": 0.9997291790310384,
+          "normalized_residual": 0.015269801513533809
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.22704081744592589,
+          "frequency": 1.914595710873306,
+          "amplitude": 0.19860780710116813,
+          "center_time": 1.2259095069999155,
+          "phase": -2.5102712242369907,
+          "r2": 0.9982109462089914,
+          "oscillatory_variance_explained": 0.9980433033691796,
+          "normalized_residual": 0.04229720783938989
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.1701959971152836,
+          "frequency": 1.9203136591852805,
+          "amplitude": 0.2026196845038121,
+          "center_time": 1.2259095069999155,
+          "phase": -2.511609460506134,
+          "r2": 0.9998404161015405,
+          "oscillatory_variance_explained": 0.9998228736609206,
+          "normalized_residual": 0.012632652075453252
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.13261245128761873,
+          "frequency": 1.9273995144137333,
+          "amplitude": 0.2027973774524074,
+          "center_time": 1.2259095069999155,
+          "phase": -2.5157198428309413,
+          "r2": 0.9999914486158337,
+          "oscillatory_variance_explained": 0.9999899648719802,
+          "normalized_residual": 0.002924274981312446
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.028068457687012938,
+      "delta_frequency_vs_primary_1g": -0.013649203616235006,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 1.4702812588212866
+    },
+    {
+      "campaign": "primary",
+      "velocity": 66.75,
+      "nominal_n": 1.0,
+      "dt": 0.01,
+      "saved_dt": 0.019999999999999574,
+      "reference_release": 13.0,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p00p00_qcmd_p00p00_nnom_01p00_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p00p00_qcmd_p00p00_nnom_01p00_excited.nc",
+      "direct": {
+        "sigma": 0.40193036237010904,
+        "frequency": 1.9027902223758317,
+        "amplitude": 0.2300689323832295,
+        "center_time": 1.229999999999741,
+        "phase": -2.5687188444011824,
+        "r2": 0.9990864841334928,
+        "oscillatory_variance_explained": 0.9990596468179274,
+        "normalized_residual": 0.03022442499878664
+      },
+      "joint_q_qdot": {
+        "sigma": 0.42675871764199264,
+        "frequency": 1.9076027150566928,
+        "amplitude": 0.2286160246677747,
+        "center_time": 1.229999999999741,
+        "phase": -2.575325918010654,
+        "r2": 0.998862919849,
+        "oscillatory_variance_explained": 0.9988295146505197,
+        "normalized_residual": 0.04284365149287295
+      },
+      "tip": {
+        "sigma": 0.4014110535686463,
+        "frequency": 1.902868377792501,
+        "amplitude": 0.01518326257283077,
+        "center_time": 1.229999999999741,
+        "phase": 0.5757540966847712,
+        "r2": 0.9990994513499669,
+        "oscillatory_variance_explained": 0.9990728077212527,
+        "normalized_residual": 0.030009142774045598
+      },
+      "pitch_rate": {
+        "sigma": 0.4621841756011375,
+        "frequency": 1.9119398985062879,
+        "amplitude": 0.03608363675728677,
+        "center_time": 1.229999999999741,
+        "phase": 0.25019271118747344,
+        "r2": 0.995877448856731,
+        "oscillatory_variance_explained": 0.995837192042323,
+        "normalized_residual": 0.0642070957392483
+      },
+      "peak_to_trough": {
+        "times": [
+          0.9299999999997475,
+          1.4499999999997364
+        ],
+        "amplitudes": [
+          0.20639965444151875,
+          0.253973728925475
+        ],
+        "sigma": 0.3988778324106287
+      },
+      "old_hilbert_sigma": -0.09615868873805593,
+      "shadow_q": {
+        "sigma": 0.40193036237010904,
+        "frequency": 1.9027902223758317,
+        "amplitude": 0.0017072765698620514,
+        "center_time": 1.229999999999741,
+        "phase": -0.9940788331261187,
+        "r2": 0.9650324591159612,
+        "oscillatory_variance_explained": 0.9457718362791087,
+        "normalized_residual": 0.18699609857973415
+      },
+      "shadow_tip": {
+        "sigma": 0.40193036237010904,
+        "frequency": 1.9027902223758317,
+        "amplitude": 0.0001126479147765948,
+        "center_time": 1.229999999999741,
+        "phase": 2.1511206813073698,
+        "r2": 0.960282827959574,
+        "oscillatory_variance_explained": 0.9387274614706924,
+        "normalized_residual": 0.19929167579311124
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.3967601541845833,
+          "frequency": 1.9015378480137994,
+          "amplitude": 0.23018588118983227,
+          "center_time": 1.229999999999741,
+          "phase": -2.5682552717658074,
+          "r2": 0.9990563058661672,
+          "oscillatory_variance_explained": 0.9990351460016672,
+          "normalized_residual": 0.03071960504031272
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.386674912120437,
+          "frequency": 1.9059132108299892,
+          "amplitude": 0.23194072062856022,
+          "center_time": 1.229999999999741,
+          "phase": -2.574972373258796,
+          "r2": 0.9996633913094818,
+          "oscillatory_variance_explained": 0.9996632995505029,
+          "normalized_residual": 0.018346898662122496
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.3767299689625222,
+          "frequency": 1.903116863817484,
+          "amplitude": 0.23316691548374996,
+          "center_time": 1.2299999999997409,
+          "phase": -2.5694872284580286,
+          "r2": 0.9998416371348711,
+          "oscillatory_variance_explained": 0.99983538044613,
+          "normalized_residual": 0.012584230811968746
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.40193036237010904,
+          "frequency": 1.9027902223758317,
+          "amplitude": 0.2300689323832295,
+          "center_time": 1.229999999999741,
+          "phase": -2.5687188444011824,
+          "r2": 0.9990864841334928,
+          "oscillatory_variance_explained": 0.9990596468179274,
+          "normalized_residual": 0.03022442499878664
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.3810330942032217,
+          "frequency": 1.9040215890419137,
+          "amplitude": 0.23291321689419292,
+          "center_time": 1.229999999999741,
+          "phase": -2.5766297105750486,
+          "r2": 0.9998052742391369,
+          "oscillatory_variance_explained": 0.999791423947597,
+          "normalized_residual": 0.013954417252723618
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.38747620861502097,
+          "frequency": 1.905153231714326,
+          "amplitude": 0.23395567655178046,
+          "center_time": 1.2299999999997409,
+          "phase": -2.5721150807684046,
+          "r2": 0.9999397107462519,
+          "oscillatory_variance_explained": 0.9999284685122283,
+          "normalized_residual": 0.007764615492611882
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.39967152091528874,
+          "frequency": 1.9029581731550231,
+          "amplitude": 0.2299699337495175,
+          "center_time": 1.229999999999741,
+          "phase": -2.5697791471740765,
+          "r2": 0.999093289700252,
+          "oscillatory_variance_explained": 0.9989955184295685,
+          "normalized_residual": 0.0301116306391392
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.36628218283120967,
+          "frequency": 1.9060122000621844,
+          "amplitude": 0.23362624245427507,
+          "center_time": 1.229999999999741,
+          "phase": -2.5729494739471717,
+          "r2": 0.9999431059353951,
+          "oscillatory_variance_explained": 0.9999373477497402,
+          "normalized_residual": 0.007542815429587474
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.34084092448721104,
+          "frequency": 1.909984057269932,
+          "amplitude": 0.23381330964363353,
+          "center_time": 1.2299999999997409,
+          "phase": -2.57609938531964,
+          "r2": 0.9999973238656276,
+          "oscillatory_variance_explained": 0.9999967466806855,
+          "normalized_residual": 0.001635889474405855
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.0,
+      "delta_frequency_vs_primary_1g": 0.0,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 1.0
+    },
+    {
+      "campaign": "primary",
+      "velocity": 66.75,
+      "nominal_n": 1.3,
+      "dt": 0.01,
+      "saved_dt": 0.019999999999999574,
+      "reference_release": 13.557741537,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p05p12_qcmd_p02p53_nnom_01p30_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p05p12_qcmd_p02p53_nnom_01p30_excited.nc",
+      "direct": {
+        "sigma": 0.43780279346078876,
+        "frequency": 1.9001391047214615,
+        "amplitude": 0.24355424565177744,
+        "center_time": 1.222258462999729,
+        "phase": -2.6060725490524344,
+        "r2": 0.9991061724261175,
+        "oscillatory_variance_explained": 0.9990834370397923,
+        "normalized_residual": 0.029896949240390932
+      },
+      "joint_q_qdot": {
+        "sigma": 0.4599508180646883,
+        "frequency": 1.9045472166282185,
+        "amplitude": 0.24209105807305725,
+        "center_time": 1.222258462999729,
+        "phase": -2.6128593480903968,
+        "r2": 0.9989183407893796,
+        "oscillatory_variance_explained": 0.9988908277200312,
+        "normalized_residual": 0.04280310592127931
+      },
+      "tip": {
+        "sigma": 0.4372349229243222,
+        "frequency": 1.9002200389669621,
+        "amplitude": 0.016072867820445702,
+        "center_time": 1.222258462999729,
+        "phase": 0.5383696277423988,
+        "r2": 0.9991166023753878,
+        "oscillatory_variance_explained": 0.9990939549924118,
+        "normalized_residual": 0.029722005729966704
+      },
+      "pitch_rate": {
+        "sigma": 0.49134915988697486,
+        "frequency": 1.9095706532109435,
+        "amplitude": 0.037607193649422575,
+        "center_time": 1.222258462999729,
+        "phase": 0.21810410567628352,
+        "r2": 0.9958579541427304,
+        "oscillatory_variance_explained": 0.995827073148166,
+        "normalized_residual": 0.06435872790282288
+      },
+      "peak_to_trough": {
+        "times": [
+          0.9222584629997357,
+          1.4422584629997246
+        ],
+        "amplitudes": [
+          0.21662688874901231,
+          0.2720053103952661
+        ],
+        "sigma": 0.4377790819996304
+      },
+      "old_hilbert_sigma": -0.049674255526421345,
+      "shadow_q": {
+        "sigma": 0.43780279346078876,
+        "frequency": 1.9001391047214615,
+        "amplitude": 0.0033482780070399967,
+        "center_time": 1.222258462999729,
+        "phase": 2.4508510534457653,
+        "r2": 0.9982039935127361,
+        "oscillatory_variance_explained": 0.9691783906730093,
+        "normalized_residual": 0.04237931673899364
+      },
+      "shadow_tip": {
+        "sigma": 0.43780279346078876,
+        "frequency": 1.9001391047214615,
+        "amplitude": 0.00022099043606078387,
+        "center_time": 1.222258462999729,
+        "phase": -0.6871592814017938,
+        "r2": 0.9979822532244935,
+        "oscillatory_variance_explained": 0.9658285449597507,
+        "normalized_residual": 0.044919336320858046
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.43271429712932064,
+          "frequency": 1.8988007293519957,
+          "amplitude": 0.24369374215454317,
+          "center_time": 1.222258462999729,
+          "phase": -2.6055333095184654,
+          "r2": 0.9990735583668275,
+          "oscillatory_variance_explained": 0.9990562280317639,
+          "normalized_residual": 0.03043750372767863
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.424280794216947,
+          "frequency": 1.9028598373452597,
+          "amplitude": 0.2455259045497881,
+          "center_time": 1.2222584629997295,
+          "phase": -2.6115270843366956,
+          "r2": 0.9996110208998077,
+          "oscillatory_variance_explained": 0.9996106428826939,
+          "normalized_residual": 0.01972255308504345
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.417792519842382,
+          "frequency": 1.9005725845008854,
+          "amplitude": 0.24693775239221114,
+          "center_time": 1.2222584629997293,
+          "phase": -2.6046161875069282,
+          "r2": 0.9998367748535945,
+          "oscillatory_variance_explained": 0.999830453982371,
+          "normalized_residual": 0.012775959705853133
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.43780279346078876,
+          "frequency": 1.9001391047214615,
+          "amplitude": 0.24355424565177744,
+          "center_time": 1.222258462999729,
+          "phase": -2.6060725490524344,
+          "r2": 0.9991061724261175,
+          "oscillatory_variance_explained": 0.9990834370397923,
+          "normalized_residual": 0.029896949240390932
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.4198927698670784,
+          "frequency": 1.90115972965757,
+          "amplitude": 0.2464582255637621,
+          "center_time": 1.2222584629997295,
+          "phase": -2.6127984193151685,
+          "r2": 0.9997223431747398,
+          "oscillatory_variance_explained": 0.9997005391446155,
+          "normalized_residual": 0.016663037696054508
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.4276736307213226,
+          "frequency": 1.9025371575169006,
+          "amplitude": 0.24771436730455948,
+          "center_time": 1.2222584629997293,
+          "phase": -2.6069530375030454,
+          "r2": 0.9999201231183485,
+          "oscillatory_variance_explained": 0.9999047146723663,
+          "normalized_residual": 0.008937386735030525
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.4376190105765375,
+          "frequency": 1.9001508203241064,
+          "amplitude": 0.24354692007811085,
+          "center_time": 1.222258462999729,
+          "phase": -2.606159506079921,
+          "r2": 0.999106216197159,
+          "oscillatory_variance_explained": 0.9990180748620412,
+          "normalized_residual": 0.02989621719952195
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.4007748959195508,
+          "frequency": 1.9036147532931658,
+          "amplitude": 0.24735985358750412,
+          "center_time": 1.2222584629997295,
+          "phase": -2.608248990138745,
+          "r2": 0.9999340648817149,
+          "oscillatory_variance_explained": 0.999927412661888,
+          "normalized_residual": 0.008120044229261379
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.3720126456649279,
+          "frequency": 1.9078794117350397,
+          "amplitude": 0.24760717093465603,
+          "center_time": 1.2222584629997293,
+          "phase": -2.6118097550066275,
+          "r2": 0.9999968333576685,
+          "oscillatory_variance_explained": 0.9999961125529885,
+          "normalized_residual": 0.0017795062043761294
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.035872431090679724,
+      "delta_frequency_vs_primary_1g": -0.0026511176543702053,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 1.961780087088658
+    },
+    {
+      "campaign": "primary",
+      "velocity": 66.75,
+      "nominal_n": 1.6,
+      "dt": 0.01,
+      "saved_dt": 0.019999999999999574,
+      "reference_release": 16.115483074,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p10p23_qcmd_p05p05_nnom_01p60_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p10p23_qcmd_p05p05_nnom_01p60_excited.nc",
+      "direct": {
+        "sigma": 0.43566029248147353,
+        "frequency": 1.8903350320632049,
+        "amplitude": 0.24442216056692181,
+        "center_time": 1.224516925999911,
+        "phase": -2.558116078773892,
+        "r2": 0.9987075868179854,
+        "oscillatory_variance_explained": 0.9986766593978594,
+        "normalized_residual": 0.035950148567350966
+      },
+      "joint_q_qdot": {
+        "sigma": 0.4572223440308668,
+        "frequency": 1.8934872952396196,
+        "amplitude": 0.24283141729975322,
+        "center_time": 1.224516925999911,
+        "phase": -2.5644623176926835,
+        "r2": 0.9985595013680497,
+        "oscillatory_variance_explained": 0.9985250302662371,
+        "normalized_residual": 0.051708013020423604
+      },
+      "tip": {
+        "sigma": 0.4349628468018814,
+        "frequency": 1.8904364636674222,
+        "amplitude": 0.01612888972582559,
+        "center_time": 1.224516925999911,
+        "phase": 0.5863016007237819,
+        "r2": 0.9987124138780124,
+        "oscillatory_variance_explained": 0.9986813663349848,
+        "normalized_residual": 0.035882950296592116
+      },
+      "pitch_rate": {
+        "sigma": 0.4837766295672882,
+        "frequency": 1.901295093278009,
+        "amplitude": 0.037204492232557465,
+        "center_time": 1.224516925999911,
+        "phase": 0.27772651617538185,
+        "r2": 0.9949629898406298,
+        "oscillatory_variance_explained": 0.9949245204439203,
+        "normalized_residual": 0.07097189696894281
+      },
+      "peak_to_trough": {
+        "times": [
+          0.924516925999864,
+          1.4445169259999453
+        ],
+        "amplitudes": [
+          0.21500648746535914,
+          0.2739657484815014
+        ],
+        "sigma": 0.46602863673520933
+      },
+      "old_hilbert_sigma": -0.03617364833087061,
+      "shadow_q": {
+        "sigma": 0.43566029248147353,
+        "frequency": 1.8903350320632049,
+        "amplitude": 0.0043171999485955865,
+        "center_time": 1.224516925999911,
+        "phase": 2.015755071116333,
+        "r2": 0.9993598703056095,
+        "oscillatory_variance_explained": 0.9043354935528358,
+        "normalized_residual": 0.025300784461960373
+      },
+      "shadow_tip": {
+        "sigma": 0.43566029248147353,
+        "frequency": 1.8903350320632049,
+        "amplitude": 0.0002849139569959572,
+        "center_time": 1.224516925999911,
+        "phase": -1.121707260138642,
+        "r2": 0.9993388169243157,
+        "oscillatory_variance_explained": 0.9023437546565001,
+        "normalized_residual": 0.02571348042728319
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.42930933076087224,
+          "frequency": 1.8887869135629853,
+          "amplitude": 0.24461547178474566,
+          "center_time": 1.224516925999911,
+          "phase": -2.557583325521527,
+          "r2": 0.9986614235274582,
+          "oscillatory_variance_explained": 0.9986361669381626,
+          "normalized_residual": 0.03658656136536754
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.43307101113364554,
+          "frequency": 1.8918693739473085,
+          "amplitude": 0.24631924123481047,
+          "center_time": 1.224516925999911,
+          "phase": -2.561380020530293,
+          "r2": 0.9990585931868945,
+          "oscillatory_variance_explained": 0.999057356736432,
+          "normalized_residual": 0.030682353447960276
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.4329707247216401,
+          "frequency": 1.8910174653032699,
+          "amplitude": 0.24873190501658407,
+          "center_time": 1.224516925999911,
+          "phase": -2.54902761439527,
+          "r2": 0.9997339705590768,
+          "oscillatory_variance_explained": 0.9997226044994414,
+          "normalized_residual": 0.01631040897473888
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.43566029248147353,
+          "frequency": 1.8903350320632049,
+          "amplitude": 0.24442216056692181,
+          "center_time": 1.224516925999911,
+          "phase": -2.558116078773892,
+          "r2": 0.9987075868179854,
+          "oscillatory_variance_explained": 0.9986766593978594,
+          "normalized_residual": 0.035950148567350966
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.430226877624947,
+          "frequency": 1.890823298809611,
+          "amplitude": 0.24692702637570701,
+          "center_time": 1.224516925999911,
+          "phase": -2.5623640132845114,
+          "r2": 0.999106128027343,
+          "oscillatory_variance_explained": 0.9990350418688426,
+          "normalized_residual": 0.029897691761354765
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.4408736379410073,
+          "frequency": 1.8924382888514324,
+          "amplitude": 0.24923952449099845,
+          "center_time": 1.224516925999911,
+          "phase": -2.550789017340761,
+          "r2": 0.9997754587740312,
+          "oscillatory_variance_explained": 0.99973290735816,
+          "normalized_residual": 0.0149846997290163
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.4445270627047006,
+          "frequency": 1.8897043158257945,
+          "amplitude": 0.24488186257741223,
+          "center_time": 1.224516925999911,
+          "phase": -2.5535918815693384,
+          "r2": 0.9988279662653488,
+          "oscillatory_variance_explained": 0.9987101924982896,
+          "normalized_residual": 0.03423497823354465
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.3922231585554373,
+          "frequency": 1.8961979555214452,
+          "amplitude": 0.2487674556102002,
+          "center_time": 1.224516925999911,
+          "phase": -2.5543974599443353,
+          "r2": 0.999885928875056,
+          "oscillatory_variance_explained": 0.9998743962045592,
+          "normalized_residual": 0.010680408463348594
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.3484851410721623,
+          "frequency": 1.9024525606269862,
+          "amplitude": 0.24887791076759957,
+          "center_time": 1.224516925999911,
+          "phase": -2.5594516187599474,
+          "r2": 0.999992550991509,
+          "oscillatory_variance_explained": 0.9999908209246996,
+          "normalized_residual": 0.002729287176359269
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.03372993011136449,
+      "delta_frequency_vs_primary_1g": -0.012455190312626874,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 2.5292430628742952
+    },
+    {
+      "campaign": "primary",
+      "velocity": 67.25,
+      "nominal_n": 1.0,
+      "dt": 0.01,
+      "saved_dt": 0.019999999999999574,
+      "reference_release": 13.0,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_067p250_n_1p000_bank_p00p00_pitch_p00p00_qcmd_p00p00_nnom_01p00_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_067p250_n_1p000_bank_p00p00_pitch_p00p00_qcmd_p00p00_nnom_01p00_excited.nc",
+      "direct": {
+        "sigma": 0.6328780151103418,
+        "frequency": 1.8756603450920557,
+        "amplitude": 0.2884427458656329,
+        "center_time": 1.229999999999741,
+        "phase": -2.6883850508973115,
+        "r2": 0.9994982093705894,
+        "oscillatory_variance_explained": 0.99948955165069,
+        "normalized_residual": 0.022400683681768112
+      },
+      "joint_q_qdot": {
+        "sigma": 0.6507089724981735,
+        "frequency": 1.8796389883321238,
+        "amplitude": 0.28681572337824734,
+        "center_time": 1.229999999999741,
+        "phase": -2.69417396691609,
+        "r2": 0.9993712579029895,
+        "oscillatory_variance_explained": 0.9993604098068996,
+        "normalized_residual": 0.033025071926852334
+      },
+      "tip": {
+        "sigma": 0.6324357815508069,
+        "frequency": 1.875718742127757,
+        "amplitude": 0.019032428818433905,
+        "center_time": 1.229999999999741,
+        "phase": 0.45608642281336753,
+        "r2": 0.9995058479243243,
+        "oscillatory_variance_explained": 0.999497218024106,
+        "normalized_residual": 0.022229531611703553
+      },
+      "pitch_rate": {
+        "sigma": 0.6719719834162057,
+        "frequency": 1.8827828474966406,
+        "amplitude": 0.045562938749681765,
+        "center_time": 1.229999999999741,
+        "phase": 0.15016233578191884,
+        "r2": 0.9974740486505137,
+        "oscillatory_variance_explained": 0.9974684051730269,
+        "normalized_residual": 0.05025884349531257
+      },
+      "peak_to_trough": {
+        "times": [
+          0.9299999999997475,
+          1.469999999999736
+        ],
+        "amplitudes": [
+          0.24206306985063342,
+          0.3387349032429999
+        ],
+        "sigma": 0.6222583216844529
+      },
+      "old_hilbert_sigma": 0.2196351720728996,
+      "shadow_q": {
+        "sigma": 0.6328780151103418,
+        "frequency": 1.8756603450920557,
+        "amplitude": 0.001705803806178548,
+        "center_time": 1.229999999999741,
+        "phase": -1.7176549229712064,
+        "r2": 0.9512762383930176,
+        "oscillatory_variance_explained": 0.9506016698784424,
+        "normalized_residual": 0.22073459540131166
+      },
+      "shadow_tip": {
+        "sigma": 0.6328780151103418,
+        "frequency": 1.8756603450920557,
+        "amplitude": 0.00011261074990533334,
+        "center_time": 1.229999999999741,
+        "phase": 1.4277653127539258,
+        "r2": 0.94486168359633,
+        "oscillatory_variance_explained": 0.9441047229094576,
+        "normalized_residual": 0.23481549438581636
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.6313182337325711,
+          "frequency": 1.8751635363607249,
+          "amplitude": 0.288539253828266,
+          "center_time": 1.229999999999741,
+          "phase": -2.6881109777773418,
+          "r2": 0.9994944054199738,
+          "oscillatory_variance_explained": 0.9994881043301121,
+          "normalized_residual": 0.022485430394505453
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.6255599776112469,
+          "frequency": 1.878083425930714,
+          "amplitude": 0.29001963117082746,
+          "center_time": 1.229999999999741,
+          "phase": -2.6926966212221397,
+          "r2": 0.9997647900346466,
+          "oscillatory_variance_explained": 0.9997631076140501,
+          "normalized_residual": 0.015336556502467331
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.6166374933665084,
+          "frequency": 1.875592162654703,
+          "amplitude": 0.2913672060593882,
+          "center_time": 1.2299999999997409,
+          "phase": -2.6872453510756857,
+          "r2": 0.9999107430122097,
+          "oscillatory_variance_explained": 0.9999070077012324,
+          "normalized_residual": 0.009447591639686635
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.6328780151103418,
+          "frequency": 1.8756603450920557,
+          "amplitude": 0.2884427458656329,
+          "center_time": 1.229999999999741,
+          "phase": -2.6883850508973115,
+          "r2": 0.9994982093705894,
+          "oscillatory_variance_explained": 0.99948955165069,
+          "normalized_residual": 0.022400683681768112
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.6233962063291498,
+          "frequency": 1.8765166642499147,
+          "amplitude": 0.29114115686842307,
+          "center_time": 1.229999999999741,
+          "phase": -2.6933529269341205,
+          "r2": 0.9998652685454266,
+          "oscillatory_variance_explained": 0.9998503221449573,
+          "normalized_residual": 0.01160738793068512
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.6257311547580664,
+          "frequency": 1.8775715502458892,
+          "amplitude": 0.2920132648326356,
+          "center_time": 1.2299999999997409,
+          "phase": -2.6890065342618095,
+          "r2": 0.9999623120384838,
+          "oscillatory_variance_explained": 0.9999544071919962,
+          "normalized_residual": 0.006139052167573271
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.6324657942583715,
+          "frequency": 1.8756689845024448,
+          "amplitude": 0.2884311842821402,
+          "center_time": 1.229999999999741,
+          "phase": -2.6885999692382594,
+          "r2": 0.9994984500577718,
+          "oscillatory_variance_explained": 0.9994543394372944,
+          "normalized_residual": 0.02239531071961716
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.6062048660008597,
+          "frequency": 1.8785181201846937,
+          "amplitude": 0.2918796831228055,
+          "center_time": 1.229999999999741,
+          "phase": -2.6907372845219566,
+          "r2": 0.9999716334323158,
+          "oscillatory_variance_explained": 0.9999683538588784,
+          "normalized_residual": 0.005326027382977128
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.5815056944230742,
+          "frequency": 1.8810250415967777,
+          "amplitude": 0.29213342777631657,
+          "center_time": 1.2299999999997409,
+          "phase": -2.6937042549713195,
+          "r2": 0.9999984738211548,
+          "oscillatory_variance_explained": 0.9999980403099142,
+          "normalized_residual": 0.0012353861117768861
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.0,
+      "delta_frequency_vs_primary_1g": 0.0,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 1.0
+    },
+    {
+      "campaign": "primary",
+      "velocity": 67.25,
+      "nominal_n": 1.3,
+      "dt": 0.01,
+      "saved_dt": 0.019999999999999574,
+      "reference_release": 13.538724871,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_067p250_n_1p000_bank_p00p00_pitch_p05p08_qcmd_p02p51_nnom_01p30_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_067p250_n_1p000_bank_p00p00_pitch_p05p08_qcmd_p02p51_nnom_01p30_excited.nc",
+      "direct": {
+        "sigma": 0.654198515265327,
+        "frequency": 1.8718105099002011,
+        "amplitude": 0.30340578275295915,
+        "center_time": 1.2212751289997303,
+        "phase": -2.6664754149011274,
+        "r2": 0.999388503578382,
+        "oscillatory_variance_explained": 0.9993778562005485,
+        "normalized_residual": 0.024728453684327783
+      },
+      "joint_q_qdot": {
+        "sigma": 0.6725623831909353,
+        "frequency": 1.8756475185203783,
+        "amplitude": 0.30161008577073384,
+        "center_time": 1.2212751289997303,
+        "phase": -2.6721260084377247,
+        "r2": 0.9992645173181656,
+        "oscillatory_variance_explained": 0.9992517110911352,
+        "normalized_residual": 0.035837213192946756
+      },
+      "tip": {
+        "sigma": 0.6537040324951964,
+        "frequency": 1.871881016479303,
+        "amplitude": 0.020019259501927622,
+        "center_time": 1.2212751289997303,
+        "phase": 0.4779632813108118,
+        "r2": 0.9993949133387419,
+        "oscillatory_variance_explained": 0.9993842514576095,
+        "normalized_residual": 0.024598509330001263
+      },
+      "pitch_rate": {
+        "sigma": 0.6930950842951304,
+        "frequency": 1.8789375285364835,
+        "amplitude": 0.04726446767020049,
+        "center_time": 1.2212751289997303,
+        "phase": 0.17833279318245945,
+        "r2": 0.997222422426801,
+        "oscillatory_variance_explained": 0.9972152354681492,
+        "normalized_residual": 0.05270272832784845
+      },
+      "peak_to_trough": {
+        "times": [
+          0.9212751289997367,
+          1.4612751289997252
+        ],
+        "amplitudes": [
+          0.25200917068978856,
+          0.35894030672223165
+        ],
+        "sigma": 0.6549826289771399
+      },
+      "old_hilbert_sigma": 0.2455200304396951,
+      "shadow_q": {
+        "sigma": 0.654198515265327,
+        "frequency": 1.8718105099002011,
+        "amplitude": 0.0022436699453029225,
+        "center_time": 1.2212751289997303,
+        "phase": 1.846944727323284,
+        "r2": 0.9923681895762713,
+        "oscillatory_variance_explained": 0.7698369023894482,
+        "normalized_residual": 0.0873602336519806
+      },
+      "shadow_tip": {
+        "sigma": 0.654198515265327,
+        "frequency": 1.8718105099002011,
+        "amplitude": 0.0001481814178239968,
+        "center_time": 1.2212751289997303,
+        "phase": -1.2903170627811085,
+        "r2": 0.9921214394561969,
+        "oscillatory_variance_explained": 0.7659615728066335,
+        "normalized_residual": 0.08876125587103399
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.6534830554304752,
+          "frequency": 1.8715910115226644,
+          "amplitude": 0.3034537795654997,
+          "center_time": 1.2212751289997303,
+          "phase": -2.666353669225865,
+          "r2": 0.9993877549701394,
+          "oscillatory_variance_explained": 0.9993801707378187,
+          "normalized_residual": 0.024743585630635948
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.6536549757296202,
+          "frequency": 1.8741052476205626,
+          "amplitude": 0.30489391942266936,
+          "center_time": 1.2212751289997303,
+          "phase": -2.6699351958241233,
+          "r2": 0.9995993994082104,
+          "oscillatory_variance_explained": 0.9995961302938109,
+          "normalized_residual": 0.020015009162866436
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.644802603818676,
+          "frequency": 1.871747598171038,
+          "amplitude": 0.3068091934859898,
+          "center_time": 1.2212751289997303,
+          "phase": -2.662386154269307,
+          "r2": 0.9998611317130736,
+          "oscillatory_variance_explained": 0.9998548797822877,
+          "normalized_residual": 0.011784238920116787
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.654198515265327,
+          "frequency": 1.8718105099002011,
+          "amplitude": 0.30340578275295915,
+          "center_time": 1.2212751289997303,
+          "phase": -2.6664754149011274,
+          "r2": 0.999388503578382,
+          "oscillatory_variance_explained": 0.9993778562005485,
+          "normalized_residual": 0.024728453684327783
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.6513272330301414,
+          "frequency": 1.8724003986209958,
+          "amplitude": 0.3061914518005308,
+          "center_time": 1.2212751289997303,
+          "phase": -2.6707127984364862,
+          "r2": 0.9997214536984539,
+          "oscillatory_variance_explained": 0.9996909602786234,
+          "normalized_residual": 0.016689706454762736
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.655953967240799,
+          "frequency": 1.8740384424422336,
+          "amplitude": 0.30755047500132066,
+          "center_time": 1.2212751289997303,
+          "phase": -2.664495897887698,
+          "r2": 0.9999294331298844,
+          "oscillatory_variance_explained": 0.9999145419093621,
+          "normalized_residual": 0.008400408925499259
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.6575109405858066,
+          "frequency": 1.8717414012069788,
+          "amplitude": 0.3035156195096413,
+          "center_time": 1.2212751289997303,
+          "phase": -2.664713812582078,
+          "r2": 0.9994047240310414,
+          "oscillatory_variance_explained": 0.9993505688021967,
+          "normalized_residual": 0.02439827799166454
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.6255696976552149,
+          "frequency": 1.8755783808613584,
+          "amplitude": 0.3073866887550841,
+          "center_time": 1.2212751289997303,
+          "phase": -2.6671154974426274,
+          "r2": 0.9999566448187496,
+          "oscillatory_variance_explained": 0.9999517147937994,
+          "normalized_residual": 0.006584465145361003
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.5953932856934994,
+          "frequency": 1.8790593012741288,
+          "amplitude": 0.30769911222890084,
+          "center_time": 1.2212751289997303,
+          "phase": -2.671177370131444,
+          "r2": 0.9999975359671007,
+          "oscillatory_variance_explained": 0.9999968106179387,
+          "normalized_residual": 0.0015697238289715013
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.02132050015498521,
+      "delta_frequency_vs_primary_1g": -0.003849835191854556,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 1.3158727559186498
+    },
+    {
+      "campaign": "primary",
+      "velocity": 67.25,
+      "nominal_n": 1.6,
+      "dt": 0.01,
+      "saved_dt": 0.019999999999999574,
+      "reference_release": 16.077449743,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_067p250_n_1p000_bank_p00p00_pitch_p10p15_qcmd_p05p01_nnom_01p60_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_067p250_n_1p000_bank_p00p00_pitch_p10p15_qcmd_p05p01_nnom_01p60_excited.nc",
+      "direct": {
+        "sigma": 0.6628484738200902,
+        "frequency": 1.8627686872906462,
+        "amplitude": 0.309487267121727,
+        "center_time": 1.2225502569999058,
+        "phase": -2.6758986407820635,
+        "r2": 0.998981012985259,
+        "oscillatory_variance_explained": 0.998969730743571,
+        "normalized_residual": 0.031921576006535356
+      },
+      "joint_q_qdot": {
+        "sigma": 0.6791722555878865,
+        "frequency": 1.8654128159933983,
+        "amplitude": 0.30780667170923315,
+        "center_time": 1.2225502569999058,
+        "phase": -2.6809849898027474,
+        "r2": 0.9988978767412369,
+        "oscillatory_variance_explained": 0.9988856740136304,
+        "normalized_residual": 0.04390100278377123
+      },
+      "tip": {
+        "sigma": 0.6621897841266607,
+        "frequency": 1.8628367449604109,
+        "amplitude": 0.02041954857366102,
+        "center_time": 1.2225502569999058,
+        "phase": 0.4685096555218815,
+        "r2": 0.9989836780915242,
+        "oscillatory_variance_explained": 0.9989722520217902,
+        "normalized_residual": 0.031879804084651235
+      },
+      "pitch_rate": {
+        "sigma": 0.6886398074580681,
+        "frequency": 1.8721243590301482,
+        "amplitude": 0.0474612676582541,
+        "center_time": 1.2225502569999058,
+        "phase": 0.17739307935117657,
+        "r2": 0.9963776786420204,
+        "oscillatory_variance_explained": 0.996375239463949,
+        "normalized_residual": 0.06018572387185866
+      },
+      "peak_to_trough": {
+        "times": [
+          0.9225502569998589,
+          1.4625502569999433
+        ],
+        "amplitudes": [
+          0.25557002685127606,
+          0.3693952424180863
+        ],
+        "sigma": 0.6821680345931657
+      },
+      "old_hilbert_sigma": 0.2660908359447811,
+      "shadow_q": {
+        "sigma": 0.6628484738200902,
+        "frequency": 1.8627686872906462,
+        "amplitude": 0.008740038809455038,
+        "center_time": 1.2225502569999058,
+        "phase": 1.4794286968711075,
+        "r2": 0.9992145356573559,
+        "oscillatory_variance_explained": 0.969722053297312,
+        "normalized_residual": 0.028026136777017978
+      },
+      "shadow_tip": {
+        "sigma": 0.6628484738200902,
+        "frequency": 1.8627686872906462,
+        "amplitude": 0.0005761862243180512,
+        "center_time": 1.2225502569999058,
+        "phase": -1.6597703301032218,
+        "r2": 0.9991907120689744,
+        "oscillatory_variance_explained": 0.9690403351047948,
+        "normalized_residual": 0.028447986414256034
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.6596457792260243,
+          "frequency": 1.8617197432410224,
+          "amplitude": 0.3097319106551081,
+          "center_time": 1.2225502569999058,
+          "phase": -2.6753348244655824,
+          "r2": 0.9989640233991891,
+          "oscillatory_variance_explained": 0.9989554590797949,
+          "normalized_residual": 0.032186590388093364
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.6746956208640272,
+          "frequency": 1.863709540249875,
+          "amplitude": 0.31115463624311906,
+          "center_time": 1.2225502569999058,
+          "phase": -2.67631457297059,
+          "r2": 0.9991673754156569,
+          "oscillatory_variance_explained": 0.9991577782404142,
+          "normalized_residual": 0.02885523495560411
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.6709652118996544,
+          "frequency": 1.863796686957899,
+          "amplitude": 0.3137453391563071,
+          "center_time": 1.2225502569999058,
+          "phase": -2.6641341927032243,
+          "r2": 0.9997991588842264,
+          "oscillatory_variance_explained": 0.999790113325529,
+          "normalized_residual": 0.014171842356362001
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.6628484738200902,
+          "frequency": 1.8627686872906462,
+          "amplitude": 0.309487267121727,
+          "center_time": 1.2225502569999058,
+          "phase": -2.6758986407820635,
+          "r2": 0.998981012985259,
+          "oscillatory_variance_explained": 0.998969730743571,
+          "normalized_residual": 0.031921576006535356
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.6737162204407721,
+          "frequency": 1.8627479636804014,
+          "amplitude": 0.31193433626352524,
+          "center_time": 1.2225502569999058,
+          "phase": -2.676761525179491,
+          "r2": 0.9992091553967279,
+          "oscillatory_variance_explained": 0.9991100047039881,
+          "normalized_residual": 0.02812195944937087
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.6785293310342372,
+          "frequency": 1.8653651870550296,
+          "amplitude": 0.31420957454354187,
+          "center_time": 1.2225502569999058,
+          "phase": -2.6655127488955337,
+          "r2": 0.9998277600342091,
+          "oscillatory_variance_explained": 0.9997913317790367,
+          "normalized_residual": 0.01312402246991776
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.6740580623908545,
+          "frequency": 1.862618888786708,
+          "amplitude": 0.309901868584805,
+          "center_time": 1.2225502569999058,
+          "phase": -2.6694945304876816,
+          "r2": 0.9991949772558565,
+          "oscillatory_variance_explained": 0.9991337056080197,
+          "normalized_residual": 0.028372922728255326
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.6255972298292662,
+          "frequency": 1.868590052048227,
+          "amplitude": 0.3140825409303739,
+          "center_time": 1.2225502569999058,
+          "phase": -2.6710126002577845,
+          "r2": 0.9999235728697843,
+          "oscillatory_variance_explained": 0.99991388006291,
+          "normalized_residual": 0.00874226116148975
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.5810536383763487,
+          "frequency": 1.8733871101007864,
+          "amplitude": 0.3144295327948942,
+          "center_time": 1.2225502569999058,
+          "phase": -2.6766380696426677,
+          "r2": 0.9999950076634363,
+          "oscillatory_variance_explained": 0.9999934793240653,
+          "normalized_residual": 0.0022343537239336315
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.02997045870974835,
+      "delta_frequency_vs_primary_1g": -0.01289165780140955,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 5.116618305112295
+    },
+    {
+      "campaign": "timestep",
+      "velocity": 66.75,
+      "nominal_n": 1.6,
+      "dt": 0.005,
+      "saved_dt": 0.010000000000001563,
+      "reference_release": 16.115483074,
+      "source_shadow": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/timestep/cases/timestep__dt_0p0050__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p10p23_qcmd_p05p05_nnom_01p60_shadow.nc",
+      "source_excited": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/timestep/cases/timestep__dt_0p0050__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p10p23_qcmd_p05p05_nnom_01p60_excited.nc",
+      "direct": {
+        "sigma": 0.43157697100029535,
+        "frequency": 1.8884461621381234,
+        "amplitude": 0.24396231148105485,
+        "center_time": 1.2295169260008336,
+        "phase": -2.600522655637766,
+        "r2": 0.9987659289081334,
+        "oscillatory_variance_explained": 0.9987395658056314,
+        "normalized_residual": 0.03512934801368492
+      },
+      "joint_q_qdot": {
+        "sigma": 0.45416784708362035,
+        "frequency": 1.8921723552574314,
+        "amplitude": 0.24220185714179837,
+        "center_time": 1.2295169260008336,
+        "phase": -2.607263465306109,
+        "r2": 0.9985868714758636,
+        "oscillatory_variance_explained": 0.9985566832214138,
+        "normalized_residual": 0.05137642822865712
+      },
+      "tip": {
+        "sigma": 0.4308595107397924,
+        "frequency": 1.888533246009252,
+        "amplitude": 0.016098544512658935,
+        "center_time": 1.2295169260008336,
+        "phase": 0.5438858244158997,
+        "r2": 0.9987732787955635,
+        "oscillatory_variance_explained": 0.998746856165173,
+        "normalized_residual": 0.03502458000371189
+      },
+      "pitch_rate": {
+        "sigma": 0.4759009282538106,
+        "frequency": 1.9000163228328744,
+        "amplitude": 0.03705969376858674,
+        "center_time": 1.2295169260008336,
+        "phase": 0.2367068633767784,
+        "r2": 0.9948544062576482,
+        "oscillatory_variance_explained": 0.994824245943269,
+        "normalized_residual": 0.07173279405092071
+      },
+      "peak_to_trough": {
+        "times": [
+          0.9245169260008943,
+          1.4545169260007889
+        ],
+        "amplitudes": [
+          0.216921177610243,
+          0.2732165642386162
+        ],
+        "sigma": 0.43534095391078126
+      },
+      "old_hilbert_sigma": -0.020076641776601734,
+      "shadow_q": {
+        "sigma": 0.43157697100029535,
+        "frequency": 1.8884461621381234,
+        "amplitude": 0.0029082982774552906,
+        "center_time": 1.2295169260008336,
+        "phase": -2.291424639660417,
+        "r2": 0.9975148938567006,
+        "oscillatory_variance_explained": 0.5506577199702827,
+        "normalized_residual": 0.04985083894278426
+      },
+      "shadow_tip": {
+        "sigma": 0.43157697100029535,
+        "frequency": 1.8884461621381234,
+        "amplitude": 0.00019209202120730234,
+        "center_time": 1.2295169260008336,
+        "phase": 0.8534963403481067,
+        "r2": 0.9974989224304356,
+        "oscillatory_variance_explained": 0.5519441607390437,
+        "normalized_residual": 0.05001077453473876
+      },
+      "window_trend_sensitivity": [
+        {
+          "degree": 1,
+          "trim_each_end": 0.0,
+          "sigma": 0.42862379588782507,
+          "frequency": 1.8876581456456802,
+          "amplitude": 0.2440570251018832,
+          "center_time": 1.2295169260008336,
+          "phase": -2.6002462904462456,
+          "r2": 0.9987545403832562,
+          "oscillatory_variance_explained": 0.998733851488369,
+          "normalized_residual": 0.03529106992914547
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.1,
+          "sigma": 0.4262746194571759,
+          "frequency": 1.8908752718008512,
+          "amplitude": 0.24572232089221482,
+          "center_time": 1.2295169260008336,
+          "phase": -2.603961094926589,
+          "r2": 0.9991602833021245,
+          "oscillatory_variance_explained": 0.9991589006437945,
+          "normalized_residual": 0.028977865654246128
+        },
+        {
+          "degree": 1,
+          "trim_each_end": 0.2,
+          "sigma": 0.41956537378869885,
+          "frequency": 1.8885478001227844,
+          "amplitude": 0.24794945441670765,
+          "center_time": 1.2295169260008334,
+          "phase": -2.5923938616408178,
+          "r2": 0.9997409518430866,
+          "oscillatory_variance_explained": 0.9997308670305209,
+          "normalized_residual": 0.016094973032390526
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.0,
+          "sigma": 0.43157697100029535,
+          "frequency": 1.8884461621381234,
+          "amplitude": 0.24396231148105485,
+          "center_time": 1.2295169260008336,
+          "phase": -2.600522655637766,
+          "r2": 0.9987659289081334,
+          "oscillatory_variance_explained": 0.9987395658056314,
+          "normalized_residual": 0.03512934801368492
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.1,
+          "sigma": 0.4221826152914193,
+          "frequency": 1.8892034622157283,
+          "amplitude": 0.24669728997132215,
+          "center_time": 1.2295169260008336,
+          "phase": -2.6053674375329434,
+          "r2": 0.9992794894198092,
+          "oscillatory_variance_explained": 0.9992181617632933,
+          "normalized_residual": 0.026842328144012793
+        },
+        {
+          "degree": 2,
+          "trim_each_end": 0.2,
+          "sigma": 0.4294435890818325,
+          "frequency": 1.8905078647462412,
+          "amplitude": 0.24863643243792682,
+          "center_time": 1.2295169260008334,
+          "phase": -2.5945788636225076,
+          "r2": 0.9998123067353542,
+          "oscillatory_variance_explained": 0.9997772661193225,
+          "normalized_residual": 0.013700119147140127
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.0,
+          "sigma": 0.437937261588857,
+          "frequency": 1.8880477983723374,
+          "amplitude": 0.24425879069986317,
+          "center_time": 1.2295169260008336,
+          "phase": -2.59724816309769,
+          "r2": 0.9988273191822691,
+          "oscillatory_variance_explained": 0.998720404438232,
+          "normalized_residual": 0.03424442754275316
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.1,
+          "sigma": 0.3869430709672722,
+          "frequency": 1.8937327230792855,
+          "amplitude": 0.2482452936710665,
+          "center_time": 1.2295169260008336,
+          "phase": -2.5980333344584654,
+          "r2": 0.9998973112396238,
+          "oscillatory_variance_explained": 0.9998867616921634,
+          "normalized_residual": 0.010133546288255314
+        },
+        {
+          "degree": 3,
+          "trim_each_end": 0.2,
+          "sigma": 0.34299643908147665,
+          "frequency": 1.8990174376298952,
+          "amplitude": 0.24837269408962573,
+          "center_time": 1.2295169260008334,
+          "phase": -2.602521271332683,
+          "r2": 0.9999921394319118,
+          "oscillatory_variance_explained": 0.9999903509654797,
+          "normalized_residual": 0.002803670467122556
+        }
+      ],
+      "delta_sigma_vs_primary_1g": 0.02964660863018631,
+      "delta_frequency_vs_primary_1g": -0.01434406023770829,
+      "shadow_tip_amplitude_ratio_vs_primary_1g": 1.705242583391467
+    }
+  ],
+  "causal_controls": {
+    "status": "pending",
+    "missing": [
+      "sham_release",
+      "pullup_sas_continuous",
+      "sham_sas_continuous"
+    ],
+    "cases": [
+      {
+        "name": "pullup_release",
+        "path": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_067p250_n_1p000_bank_p00p00_pitch_p10p15_qcmd_p05p01_nnom_01p60_shadow.nc",
+        "metrics": {
+          "pre_release": {
+            "sigma": 0.0,
+            "frequency": 1.8627686872906462,
+            "amplitude": 0.0009418441902366875,
+            "center_time": -0.9574497430002769,
+            "phase": 0.00913290319952054,
+            "r2": 0.13142875272829013,
+            "oscillatory_variance_explained": 0.10283376871821737,
+            "normalized_residual": 0.9319716987504015,
+            "amplitude_mm": 0.9418441902366874
+          },
+          "post_release": {
+            "sigma": 0.6628484738200902,
+            "frequency": 1.8627686872906462,
+            "amplitude": 0.0005789138574432762,
+            "center_time": 1.2325502569999074,
+            "phase": -1.5471994727327558,
+            "r2": 0.9992235717053505,
+            "oscillatory_variance_explained": 0.9707508916862968,
+            "normalized_residual": 0.02786446293488449,
+            "amplitude_mm": 0.5789138574432763
+          }
+        }
+      }
+    ],
+    "warning": "Continuous-SAS amplitudes are projections onto the open-loop BFF signature, not an identified closed-loop flutter pole."
+  },
+  "limitations": [
+    "Finite-window effective pole, not a stationary eigenvalue certificate.",
+    "DLM calibration and constant structural stiffness retained.",
+    "Shadow contains maneuver history and possible SAS-release transients; causal controls distinguish their combined effects.",
+    "Window/trend spreads are robustness diagnostics, not statistical confidence intervals."
+  ]
+}

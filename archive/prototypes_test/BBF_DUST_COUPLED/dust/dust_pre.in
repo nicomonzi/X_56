@@ -1,0 +1,5 @@
+! X-56 panel geometry inherited from TESI/DUST and enabled for coupling.
+comp_name = X_56
+geo_file = parametric_mesh.in
+ref_tag = centerbody
+file_name = geo_input.h5

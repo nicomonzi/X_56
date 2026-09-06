@@ -1,0 +1,32 @@
+basename = output/production/dust/case
+geometry_file = output/production/geo_input.h5
+reference_file = model/dust/References.in
+precice_config = output/production/precice-config.xml
+
+tstart = 0.0
+tend = 9.50
+dt = 0.002
+dt_out = 0.02
+output_start = F
+ndt_update_wake = 1
+
+rho_inf = 9.7284e-8
+a_inf = 13385.8267716535
+P_inf = 14.6959487755
+u_inf = (/2395.358267716535, 0.0, 0.0/)
+
+! 9.5 s of convection at 60.8421 m/s is about 22756 in.
+particles_box_min = (/-1000.0, -1500.0, -1500.0/)
+particles_box_max = (/25000.0, 1500.0, 1500.0/)
+fmm = T
+box_length = 500.0
+n_box = (/52, 6, 6/)
+octree_origin = (/-1000.0, -1500.0, -1500.0/)
+n_octree_levels = 4
+min_octree_part = 10
+multipole_degree = 2
+vortstretch = T
+diffusion = T
+n_wake_panels = 40
+n_wake_particles = 1500000
+Kvortex_rad = 1.0

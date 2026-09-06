@@ -1,0 +1,61 @@
+{
+  "velocity_mps": 66.25,
+  "nominal_load_factor": 1.6,
+  "reused_pullup_release": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p10p31_qcmd_p05p09_nnom_01p60_shadow.nc",
+  "cases": [
+    {
+      "name": "sham_release",
+      "group": "causal/V_66p250_n_1p600",
+      "input_path": "/home/nicomonzi/X_56/workflows/maneuver_bff/sweep_pullup_v3/inputs/causal/V_66p250_n_1p600/V_66p250_n_1p600__sham_release.mbd",
+      "prefix": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/pullup_bff_sweep_v3/causal/V_66p250_n_1p600/cases/V_66p250_n_1p600__sham_release",
+      "input_sha256": "a8f269a56aa62cd31681b13ec57f8c3178e2f09ed15f3ac57b91196821abd9c1",
+      "required_final_s": 18.224090493,
+      "reference_release_s": 16.154090493,
+      "velocity_mps": 66.25,
+      "nominal_load_factor": 1.6,
+      "control": "sham_release",
+      "maneuver": false,
+      "sas_release": true,
+      "dt": 0.01,
+      "excited": false,
+      "source": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p10p31_qcmd_p05p09_nnom_01p60_shadow.mbd",
+      "source_sha256": "c42e1cbc60796606f888e968a6f5ff59b4516581196791b585daf32b4b748df9"
+    },
+    {
+      "name": "pullup_sas_continuous",
+      "group": "causal/V_66p250_n_1p600",
+      "input_path": "/home/nicomonzi/X_56/workflows/maneuver_bff/sweep_pullup_v3/inputs/causal/V_66p250_n_1p600/V_66p250_n_1p600__pullup_sas_continuous.mbd",
+      "prefix": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/pullup_bff_sweep_v3/causal/V_66p250_n_1p600/cases/V_66p250_n_1p600__pullup_sas_continuous",
+      "input_sha256": "71056c45d4b5c0d0bf7f7c7639d55bb71cef813ff95cc1cf8a506c83d38c938a",
+      "required_final_s": 18.224090493,
+      "reference_release_s": 16.154090493,
+      "velocity_mps": 66.25,
+      "nominal_load_factor": 1.6,
+      "control": "pullup_sas_continuous",
+      "maneuver": true,
+      "sas_release": false,
+      "dt": 0.01,
+      "excited": false,
+      "source": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p10p31_qcmd_p05p09_nnom_01p60_shadow.mbd",
+      "source_sha256": "c42e1cbc60796606f888e968a6f5ff59b4516581196791b585daf32b4b748df9"
+    },
+    {
+      "name": "sham_sas_continuous",
+      "group": "causal/V_66p250_n_1p600",
+      "input_path": "/home/nicomonzi/X_56/workflows/maneuver_bff/sweep_pullup_v3/inputs/causal/V_66p250_n_1p600/V_66p250_n_1p600__sham_sas_continuous.mbd",
+      "prefix": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/pullup_bff_sweep_v3/causal/V_66p250_n_1p600/cases/V_66p250_n_1p600__sham_sas_continuous",
+      "input_sha256": "638f71f9b50ca9415fcfe14a81153a00d5705992fe3406c883435e3b9a2e801d",
+      "required_final_s": 18.224090493,
+      "reference_release_s": 16.154090493,
+      "velocity_mps": 66.25,
+      "nominal_load_factor": 1.6,
+      "control": "sham_sas_continuous",
+      "maneuver": false,
+      "sas_release": false,
+      "dt": 0.01,
+      "excited": false,
+      "source": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p10p31_qcmd_p05p09_nnom_01p60_shadow.mbd",
+      "source_sha256": "c42e1cbc60796606f888e968a6f5ff59b4516581196791b585daf32b4b748df9"
+    }
+  ]
+}

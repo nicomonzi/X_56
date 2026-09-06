@@ -1,0 +1,58 @@
+{
+  "campaigns": [
+    {
+      "campaign": "primary",
+      "expected_inputs": 18,
+      "prepared_inputs": 18,
+      "paired_conditions": 9,
+      "integration_steps": 29332,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "campaign": "timestep",
+      "expected_inputs": 2,
+      "prepared_inputs": 2,
+      "paired_conditions": 1,
+      "integration_steps": 7270,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "campaign": "stiffness_screen",
+      "expected_inputs": 8,
+      "prepared_inputs": 8,
+      "paired_conditions": 4,
+      "integration_steps": 13304,
+      "errors": [],
+      "ok": true
+    }
+  ],
+  "optimization": {
+    "optimized_trajectories": 28,
+    "superseded_trajectories": 78,
+    "trajectory_reduction_percent": 64.1025641025641,
+    "optimized_integration_steps": 49906,
+    "superseded_integration_steps": 235443,
+    "integration_step_reduction_percent": 78.8033621725853,
+    "estimated_serial_wall_hours": 4.774391348982222,
+    "runtime_reference": {
+      "source": "26 completed local MBDyn trajectories",
+      "median_wall_seconds_per_integration_step": 0.344403656,
+      "superseded_trajectory_count": 78,
+      "superseded_integration_steps": 235443
+    }
+  },
+  "source_sha256": {
+    "campaign_generator": "c4a5d01b4d06b068766ec1b44385e441fcc81794d62b571969bbaaee6bf463a7",
+    "campaign_config": "8b87e728cd3395d11bff73139fdf99100219cb80246d61228ffdb287cfe1be77",
+    "maneuver_case": "05e77fbef5a2ed8e4403089866b7665c712ae9ee58f5917e9bd0ab5a3ec0af4f",
+    "study_config": "f37dfedca9eff653a6d437bd3ba4eda126fc878ca30808c53f1e667e5842f0ef",
+    "baseline_run_case": "415787cf43e7bc015efa5f351dd3ad107daf4f8b44ed54dd896a108a4856ccd6",
+    "baseline_main": "fa516fbd3a90449d7b4c498a0920e5fb2f423dd7227dde89b31f19e2b5d2cfd7",
+    "fem": "63e23dc991d2f458d7665412abda8ad34ddbb1654822bfc0867e6512a1df252b"
+  },
+  "modal_joint_status": "linear_reduced_stiffness_only",
+  "record_group_19_present": false,
+  "all_checks_passed": true
+}

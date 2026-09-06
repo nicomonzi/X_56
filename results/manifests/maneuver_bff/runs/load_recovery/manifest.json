@@ -1,0 +1,36 @@
+{
+  "purpose": "MBDyn shadow load recovery for physical prestress",
+  "source_sha256": {
+    "campaign_generator": "c4a5d01b4d06b068766ec1b44385e441fcc81794d62b571969bbaaee6bf463a7",
+    "campaign_config": "8b87e728cd3395d11bff73139fdf99100219cb80246d61228ffdb287cfe1be77",
+    "maneuver_case": "05e77fbef5a2ed8e4403089866b7665c712ae9ee58f5917e9bd0ab5a3ec0af4f",
+    "study_config": "f37dfedca9eff653a6d437bd3ba4eda126fc878ca30808c53f1e667e5842f0ef",
+    "baseline_run_case": "415787cf43e7bc015efa5f351dd3ad107daf4f8b44ed54dd896a108a4856ccd6",
+    "baseline_main": "fa516fbd3a90449d7b4c498a0920e5fb2f423dd7227dde89b31f19e2b5d2cfd7",
+    "fem": "63e23dc991d2f458d7665412abda8ad34ddbb1654822bfc0867e6512a1df252b"
+  },
+  "cases": [
+    {
+      "case_index": 1,
+      "velocity_mps": 66.75,
+      "nominal_load_factor": 1.0,
+      "time_step_s": 0.01,
+      "excited": false,
+      "stem": "load_recovery__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p00p00_qcmd_p00p00_nnom_01p00_shadow",
+      "input_sha256": "c6fae2884bb8965bacd8822580960a1ec70f3e70466295fff66bf1fcf8f015ce",
+      "status": "prepared",
+      "message": "input prepared"
+    },
+    {
+      "case_index": 2,
+      "velocity_mps": 66.75,
+      "nominal_load_factor": 1.6,
+      "time_step_s": 0.01,
+      "excited": false,
+      "stem": "load_recovery__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p10p23_qcmd_p05p05_nnom_01p60_shadow",
+      "input_sha256": "77443ac9339595ab4a29d9a3db824f4bb0d08d8f390f866fc01d50b70cbc33ff",
+      "status": "prepared",
+      "message": "input prepared"
+    }
+  ]
+}

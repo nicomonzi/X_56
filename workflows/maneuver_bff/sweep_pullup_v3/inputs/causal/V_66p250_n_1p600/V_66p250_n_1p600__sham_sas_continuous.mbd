@@ -1,0 +1,739 @@
+# PULLUP_SWEEP_V3 {"control": "sham_sas_continuous", "dt": 0.01, "excited": false, "maneuver": false, "nominal_load_factor": 1.6, "sas_release": false, "source": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary/cases/primary__dt_0p0100__f7_1p000__dive_pullup_V_066p250_n_1p000_bank_p00p00_pitch_p10p31_qcmd_p05p09_nnom_01p60_shadow.mbd", "source_sha256": "c42e1cbc60796606f888e968a6f5ff59b4516581196791b585daf32b4b748df9", "velocity_mps": 66.25}
+# ============================================================================
+# X-56 BFF full-surface-hold open-loop observation
+# ============================================================================
+
+
+begin: data;
+    problem: initial value;
+end: data;
+
+# STIFFNESS_STUDY_METADATA {"campaign": "causal_controls", "excited": false, "mode7_frequency_scale": 1.0, "model_revision": "manouver_stifness_v2_reduced_window_and_output", "modification": "sham_sas_continuous", "nominal_load_factor": 1.0, "pitch_amplitude_deg": 0.0, "pitch_rate_command_deg_s": 0.0, "stiffness_delta_k7": 0.0, "time_step_s": 0.01, "velocity_mps": 66.25}
+# MANEUVER_MODEL_REVISION dive_pullup_surface_hold_v4_n1_dt01
+set: const real MANEUVER_LOAD_FACTOR = 1.0000000000e+00;
+set: const real MANEUVER_BANK_ANGLE = 0.0000000000e+00*deg2rad;
+set: const real MANEUVER_ENABLE = 1.0;
+set: const real PULLUP_ENABLE = 0.0;
+set: const real PULLUP_ANGLE_ENABLE = 0.0;
+set: const real DIVE_PULLUP_ENABLE = 1.0;
+set: const real ROLL_ENABLE = 0.0;
+set: const real PULLUP_Q_TARGET = 0.0000000000e+00;
+set: const real PULLUP_PITCH_ANGLE = 0.;
+set: const real DIVE_PITCH_RATE_COMMAND = 0.;
+set: const real DIVE_NOMINAL_LOAD_CLASS = 1.;
+set: const real MANEUVER_FLAP_INCREMENT = 0.0000000000e+00;
+set: const real MANEUVER_START = 8.0000000000e+00;
+set: const real MANEUVER_RISE_TIME = 5.1540904935e+00;
+set: const real MANEUVER_RETURN_START = 3.2076211151e+01;
+set: const real MANEUVER_FALL_TIME = 5.1540904935e+00;
+set: const real DIVE_END = 1.3154090493e+01;
+set: const real DIVE_PULLUP_START = 1.4154090493e+01;
+set: const real DIVE_PULLUP_END = 1.8204090493e+01;
+set: const real DIVE_RECOVERY_END = 1.8204090493e+01;
+set: const real DIVE_MANEUVER_END = 2.5076211151e+01;
+set: const real DIVE_CONTROL_RECOVERY_END = 2.8076211151e+01;
+set: const integer MANEUVER_PROFILE_DRIVE = 12001;
+set: const integer MANEUVER_PITCH_COMMAND_DRIVE = 12002;
+set: const integer MANEUVER_Q_COMMAND_DRIVE = 12003;
+set: const integer MANEUVER_ROLL_COMMAND_DRIVE = 12004;
+set: const integer MANEUVER_FLAP_DRIVE = 12005;
+set: const integer MANEUVER_ALTITUDE_GATE_DRIVE = 12006;
+set: const integer MANEUVER_ANGLE_PROFILE_DRIVE = 12007;
+set: const integer MANEUVER_VZ_GATE_DRIVE = 12008;
+set: const integer DIVE_PULLUP_PROFILE_DRIVE = 12009;
+set: const integer DIVE_PULLUP_RATE_DRIVE = 12010;
+set: const integer DIVE_TRAJECTORY_GATE_DRIVE = 12011;
+set: const real V_INF = 66.25000000;
+
+set: const integer GROUND = 0;
+set: const integer BFLjoint = 1;
+set: const integer BFRjoint = 2;
+set: const integer WFLjoint = 3;
+set: const integer WFRjoint = 4;
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 5;
+set: const real STUDY_OUTPUT_PREHISTORY = 4.000000000000000e+00;
+set: const real STUDY_OUTPUT_SAMPLE_STEP = 1.000000000000000e-02;
+
+
+set: const real X_CG = 163.187383385809;
+set: const real Y_CG = 0.110529571088;
+set: const real Z_CG = 101.239797358848;
+set: const real RHO_AIR = 9.7284e-8;
+set: const real C_SOUND = 340.*m2in;
+set: const real GRAVITY = 9.81*m2in;
+set: const real VINF = V_INF*m2in;
+set: const real Q_DYN = 0.5*RHO_AIR*VINF*VINF;
+
+set: const real SAS_Q_REF = 0.5*RHO_AIR*(60.*m2in)*(60.*m2in);  #scalatura pressione e velocità
+set: const real SAS_Q_SCALE = 1.5*SAS_Q_REF/(Q_DYN + 0.5*SAS_Q_REF);
+
+
+set: const real TRIM_SCALE = (1.146e-7/RHO_AIR)*(63./V_INF)*(63./V_INF);
+# Physical aeroelastic pitch reached after closed-loop convergence.  Unlike
+# surface end states, attitude contains no controller-integrator contribution
+# and is therefore safe to use as the scheduled pitch reference (50--70 m/s).
+set: const real TRIM_PITCH = (
+    -4.52589945e-05*V_INF*V_INF*V_INF
+    +9.90399208e-03*V_INF*V_INF
+    -7.64540531e-01*V_INF
+    +2.10173790e+01)*deg2rad;
+set: const real TRIM_SURFACE = -0.32834*TRIM_SCALE*deg2rad;
+set: const real LONG_TRIM_BIAS = 0.*deg2rad;
+set: const real BODY_TRIM_CORRECTION = 0.*deg2rad;
+set: const real BODY_TRIM_SURFACE = 0.03593*TRIM_SCALE*deg2rad;
+
+set: const real TRIM_FRAME_X =  X_CG - cos(TRIM_PITCH)*X_CG - sin(TRIM_PITCH)*Z_CG;
+set: const real TRIM_FRAME_Y = 0.;
+set: const real TRIM_FRAME_Z = Z_CG + sin(TRIM_PITCH)*X_CG - cos(TRIM_PITCH)*Z_CG;
+
+set: const real Q_INIT_7 = -5.033945862198e-01 + 1.616213139584e-05*V_INF*V_INF - 3.2850e-02*TRIM_SCALE;
+set: const real Q_INIT_8 = -2.562292005110e-03 - 3.306551722320e-09*V_INF*V_INF + 1.5170e-03*TRIM_SCALE;
+set: const real Q_INIT_9 = -2.428866391792e-02 + 1.644734988211e-07*V_INF*V_INF - 5.1500e-04*TRIM_SCALE;
+set: const real Q_INIT_10 = 5.354679238553e-02 - 1.961594597194e-06*V_INF*V_INF + 2.8260e-03*TRIM_SCALE;
+set: const real Q_INIT_11 = -1.206861316869e-02 + 1.029764665218e-06*V_INF*V_INF - 9.0000e-06*TRIM_SCALE;
+set: const real Q_INIT_12 = -7.936600053275e-05 + 7.471808861059e-08*V_INF*V_INF - 4.8000e-05*TRIM_SCALE;
+
+# Values rendered by run_case.py from a documented 50--70 m/s schedule.
+# Modal mass is unity in mbdyn_modal.fem.  Positive K7/C7 reduce the
+# sectional model's effective modal stiffness/damping and recover the
+# released NASTRAN SOL 145 point-7 trend.  They are not SAS gains.
+set: const real NASTRAN_DLM_ROM_K7 = 1.4850000000e+02;
+set: const real NASTRAN_DLM_ROM_C7 = 9.8350000000e+00;
+set: const real NASTRAN_DLM_ROM_Q7_EQ = -4.1967439005e-01;
+set: const real NASTRAN_DLM_ROM_RAMP_TIME = 5.;
+set: const integer NASTRAN_DLM_ROM_FORCE = 9501;
+
+set: const real LP_A1 = 1.946697540756184e+00;
+set: const real LP_A2 = -9.480817061067398e-01;
+set: const real LP_B0 = 3.460413376391039e-04;
+set: const real LP_B1 = 6.920826752782078e-04;
+set: const real LP_B2 = 3.460413376391039e-04;
+
+# First-order low-pass filters at dt=0.01 s: altitude 0.15 Hz, Vz and q 1 Hz.
+# The former Vz cutoff of 0.35 Hz added excessive phase lag to the flight-path
+# mode and prevented the aircraft from becoming stationary before release.
+set: const real ALT_LP_A1 = 9.906193578364677e-01;
+set: const real ALT_LP_B0 = 4.690321081766102e-03;
+set: const real ALT_LP_B1 = 4.690321081766102e-03;
+set: const real VZ_LP_A1 = 9.390625058174924e-01;
+set: const real VZ_LP_B0 = 3.046874709125383e-02;
+set: const real VZ_LP_B1 = 3.046874709125383e-02;
+set: const real Q_LP_A1 = 9.390625058174924e-01;
+set: const real Q_LP_B0 = 3.046874709125383e-02;
+set: const real Q_LP_B1 = 3.046874709125383e-02;
+
+# Attuatori Tustin del primo ordine, tau=0.01 s e dt=0.01 s.
+set: const real ACT_A1 = 3.333333333333334e-01;
+set: const real ACT_B0 = 3.333333333333334e-01;
+set: const real ACT_B1 = 3.333333333333334e-01;
+set: const real SURFACE_CORRECTION_LIMIT = 8.*deg2rad;
+# Il mantenimento della traiettoria usa le superfici alari interne con una
+# banda molto piu' bassa del BFF durante settling e recupero. I suoi stati
+# continuano a evolvere, ma l'uscita al plant e' congelata durante SAS-off.
+set: const real LIFT_HOLD_GAIN = -0.58;
+set: const real LIFT_CORRECTION_LIMIT = 4.*deg2rad;
+# Closed-loop-only generalized damping.  A value of 60 destabilized the
+# coupled rigid/flexible settling transient at 65 m/s; 16 completed the same
+# case without dominating the flight-path controller.
+set: const real SAS_MODAL_DAMPING = 2.4000000000e+01;
+
+
+set: const integer ALT_PID = 9101;
+set: const integer VZ_PID = 9102;
+set: const integer PITCH_PID = 9103;
+set: const integer Q_PID = 9104;
+set: const integer ROLL_PID = 9201;
+set: const integer P_PID = 9202;
+set: const integer YAW_PID = 9301;
+set: const integer R_PID = 9302;
+set: const integer VY_PID = 9303;
+
+set: const integer ALT_DRIVE = 10101;
+set: const integer ALT_RAW_DRIVE = 10100;
+set: const integer VZ_DRIVE = 10102;
+set: const integer PITCH_DRIVE = 10103;
+set: const integer Q_DRIVE = 10104;
+set: const integer LONG_RAW_DRIVE = 10105;
+set: const integer LONG_LIMIT_DRIVE = 10106;
+set: const integer LONG_ACT_DRIVE = 10107;
+set: const integer ROLL_DRIVE = 10201;
+set: const integer P_DRIVE = 10202;
+set: const integer LAT_RAW_DRIVE = 10203;
+set: const integer LAT_LIMIT_DRIVE = 10204;
+set: const integer LAT_ACT_DRIVE = 10205;
+set: const integer YAW_DRIVE = 10301;
+set: const integer R_DRIVE = 10302;
+set: const integer DIR_RAW_DRIVE = 10303;
+set: const integer DIR_LIMIT_DRIVE = 10304;
+set: const integer DIR_ACT_DRIVE = 10305;
+set: const integer VY_DRIVE = 10306;
+set: const integer BFF_RAP_RAW_DRIVE = 10501;
+set: const integer BFF_RAP_ACT_DRIVE = 10502;
+set: const integer OPEN_LOOP_SAMPLE_TRIGGER = 10503;
+set: const integer LIFT_RAW_DRIVE = 10601;
+set: const integer LIFT_LIMIT_DRIVE = 10602;
+set: const integer LIFT_ACT_DRIVE = 10603;
+set: const integer SAS_MODAL_DAMPER_FORCE = 9502;
+# Comandi totali live e sample-and-hold delle dieci superfici.
+set: const integer BFL_LIVE_DRIVE = 11001;
+set: const integer BFL_HOLD_DRIVE = 11002;
+set: const integer BFR_LIVE_DRIVE = 11003;
+set: const integer BFR_HOLD_DRIVE = 11004;
+set: const integer WF1L_LIVE_DRIVE = 11005;
+set: const integer WF1L_HOLD_DRIVE = 11006;
+set: const integer WF1R_LIVE_DRIVE = 11007;
+set: const integer WF1R_HOLD_DRIVE = 11008;
+set: const integer WF2L_LIVE_DRIVE = 11009;
+set: const integer WF2L_HOLD_DRIVE = 11010;
+set: const integer WF2R_LIVE_DRIVE = 11011;
+set: const integer WF2R_HOLD_DRIVE = 11012;
+set: const integer WF3L_LIVE_DRIVE = 11013;
+set: const integer WF3L_HOLD_DRIVE = 11014;
+set: const integer WF3R_LIVE_DRIVE = 11015;
+set: const integer WF3R_HOLD_DRIVE = 11016;
+set: const integer WF4L_LIVE_DRIVE = 11017;
+set: const integer WF4L_HOLD_DRIVE = 11018;
+set: const integer WF4R_LIVE_DRIVE = 11019;
+set: const integer WF4R_HOLD_DRIVE = 11020;
+set: const integer WF4L_COMMAND_DRIVE = 11021;
+set: const integer WF4R_COMMAND_DRIVE = 11022;
+
+
+# Time
+set: const real FINAL_TIME = 1.822409049300000e+01;
+set: const real SETTLING_END = 1.5654090493e+01;
+# NASA-style test: enter the point fully settled closed-loop, freeze every
+# control surface, observe enough free cycles for a reliable local pole, then
+# recover closed-loop.  The longer settling is required by the Wagner states.
+set: const real SAS_OFF_START = 1.6154090493e+01;
+set: const real SAS_OFF_DURATION = 2.0500000000e+00;
+set: const real SAS_ON_START = SAS_OFF_START + SAS_OFF_DURATION;
+set: const real BFF_RAP_START = SAS_OFF_START + 0.05;
+# Refined NASTRAN point-7 frequency, rendered by run_case.py over 50--70 m/s.
+# For a symmetric square doublet the spectral maximum is f_peak ~= 0.742/T,
+# hence this duration concentrates the rap on BFF instead of exciting the
+# 5--9 Hz modes.
+set: const real BFF_RAP_TARGET_FREQUENCY = 2.0568466000e+00;
+set: const real BFF_RAP_DURATION = 0.742/BFF_RAP_TARGET_FREQUENCY;
+set: const real BFF_RAP_AMPLITUDE = 0.0000000000e+00;
+set: const real BFF_RAP_END = BFF_RAP_START + BFF_RAP_DURATION;
+set: const real IDENTIFICATION_START = BFF_RAP_END + 0.05;
+set: const real IDENTIFICATION_END = SAS_ON_START - 0.05;
+set: const real SURFACE_HOLD_TOLERANCE_DEG = 0.001;
+set: const real TIME_STEP = 1.000000000000000e-02;
+
+
+
+begin: initial value;
+    initial time: 0.;
+    final time: FINAL_TIME;
+    time step: TIME_STEP;
+    max iterations: 300;
+    tolerance: 1.e-3, test, relnorm;
+    derivatives tolerance: 1.;
+    derivatives max iterations: 100;
+    linear solver: lapack;
+    method: ms, cosine, 0., pi/0.1, 0.6/2, half, 0.;
+    output: counter;
+end: initial value;
+
+begin: control data;
+    # Production output: fixed physical sampling, only near release.
+    default output: none;
+    output meter: closest next, 7., forever, const, STUDY_OUTPUT_SAMPLE_STEP;
+    print: dof stats;
+    skip initial joint assembly;
+    structural nodes: 56;
+    aerodynamic elements: 58;
+    forces: 2;
+    loadable elements: 9;
+    joints: 12;
+    gravity;
+    air properties;
+    default orientation: orientation vector;
+    default aerodynamic output: position, velocity, force, moment;
+    output results: netcdf, no text;
+end: control data;
+
+include: "/home/nicomonzi/X_56/workflows/bff_open_loop/INCLUDE/reference.mbd";
+
+begin: nodes;
+    include: "/home/nicomonzi/X_56/workflows/bff_open_loop/INCLUDE/node.mbd";
+    output: structural, 990000;
+    output: structural, 990020;
+    output: structural, 991020;
+    output: structural, 990004;
+    output: structural, 991004;
+    output: structural, 880004;
+    output: structural, 881004;
+end: nodes;
+
+begin: elements;
+    gravity: uniform, 0., 0., -1., const, GRAVITY;
+    include: "/home/nicomonzi/X_56/workflows/bff_open_loop/INCLUDE/modaljoint.mbd";
+    module load: "libmodule-pid";
+
+    joint: 1, total pin joint,
+        BASE_NODE,
+        position, reference, node, null,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position, reference, global, X_CG, Y_CG, Z_CG,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position constraint, active, active, inactive, null,
+        orientation constraint, inactive, inactive, inactive, null;
+
+
+    # Actual time-domain maneuver commands.  Gravity remains physical (1 g).
+    drive caller: MANEUVER_PROFILE_DRIVE,
+        ramp, 0., 1./MANEUVER_RISE_TIME, MANEUVER_START, 1.;
+    drive caller: MANEUVER_ANGLE_PROFILE_DRIVE,
+        double ramp,
+            1./MANEUVER_RISE_TIME,
+            MANEUVER_START, MANEUVER_START + MANEUVER_RISE_TIME,
+            -1./MANEUVER_FALL_TIME,
+            MANEUVER_RETURN_START, MANEUVER_RETURN_START + MANEUVER_FALL_TIME,
+            0.;
+    # Normalized balanced trajectory: 0 -> -1 (dive) -> +1 (recovery) -> 0.
+    drive caller: DIVE_PULLUP_PROFILE_DRIVE, string,
+        "-((Time-MANEUVER_START)/(DIVE_END-MANEUVER_START))*((Time>=MANEUVER_START)&&(Time<DIVE_END))-((Time>=DIVE_END)&&(Time<DIVE_PULLUP_START))+(-1.+2.*(Time-DIVE_PULLUP_START)/(DIVE_PULLUP_END-DIVE_PULLUP_START))*((Time>=DIVE_PULLUP_START)&&(Time<DIVE_PULLUP_END))+((Time>=DIVE_PULLUP_END)&&(Time<DIVE_RECOVERY_END))+(1.-(Time-DIVE_RECOVERY_END)/(DIVE_MANEUVER_END-DIVE_RECOVERY_END))*((Time>=DIVE_RECOVERY_END)&&(Time<DIVE_MANEUVER_END))";
+    drive caller: DIVE_PULLUP_RATE_DRIVE, string,
+        "-((Time>=MANEUVER_START)&&(Time<DIVE_END))/(DIVE_END-MANEUVER_START)+2.*((Time>=DIVE_PULLUP_START)&&(Time<DIVE_PULLUP_END))/(DIVE_PULLUP_END-DIVE_PULLUP_START)-((Time>=DIVE_RECOVERY_END)&&(Time<DIVE_MANEUVER_END))/(DIVE_MANEUVER_END-DIVE_RECOVERY_END)";
+    # Re-engage altitude/Vz smoothly after the attitude command has returned
+    # to trim; a hard 0->1 switch creates a spurious rigid-body transient.
+    drive caller: DIVE_TRAJECTORY_GATE_DRIVE, string,
+        "((Time>=DIVE_MANEUVER_END)&&(Time<DIVE_CONTROL_RECOVERY_END))*(Time-DIVE_MANEUVER_END)/(DIVE_CONTROL_RECOVERY_END-DIVE_MANEUVER_END)+(Time>=DIVE_CONTROL_RECOVERY_END)";
+    drive caller: MANEUVER_Q_COMMAND_DRIVE, string,
+        "PULLUP_ENABLE*PULLUP_Q_TARGET*model::drive(MANEUVER_PROFILE_DRIVE,Time)+PULLUP_ANGLE_ENABLE*PULLUP_PITCH_ANGLE*(1./MANEUVER_RISE_TIME)*((Time>=MANEUVER_START)&&(Time<MANEUVER_START+MANEUVER_RISE_TIME))-PULLUP_ANGLE_ENABLE*PULLUP_PITCH_ANGLE*(1./MANEUVER_FALL_TIME)*((Time>=MANEUVER_RETURN_START)&&(Time<MANEUVER_RETURN_START+MANEUVER_FALL_TIME))+DIVE_PULLUP_ENABLE*PULLUP_PITCH_ANGLE*model::drive(DIVE_PULLUP_RATE_DRIVE,Time)";
+    drive caller: MANEUVER_PITCH_COMMAND_DRIVE, string,
+        "TRIM_PITCH+PULLUP_ENABLE*PULLUP_Q_TARGET*((Time>MANEUVER_START)*(Time-MANEUVER_START)-0.5*(Time>MANEUVER_START+MANEUVER_RISE_TIME)*MANEUVER_RISE_TIME-0.5*((Time>MANEUVER_START)&&(Time<MANEUVER_START+MANEUVER_RISE_TIME))*(Time-MANEUVER_START)*(2.-(Time-MANEUVER_START)/MANEUVER_RISE_TIME))+PULLUP_ANGLE_ENABLE*PULLUP_PITCH_ANGLE*model::drive(MANEUVER_ANGLE_PROFILE_DRIVE,Time)+DIVE_PULLUP_ENABLE*PULLUP_PITCH_ANGLE*model::drive(DIVE_PULLUP_PROFILE_DRIVE,Time)";
+    drive caller: MANEUVER_ROLL_COMMAND_DRIVE, mult,
+        const, ROLL_ENABLE*MANEUVER_BANK_ANGLE, reference, MANEUVER_PROFILE_DRIVE;
+    drive caller: MANEUVER_FLAP_DRIVE, mult,
+        const, MANEUVER_ENABLE*MANEUVER_FLAP_INCREMENT,
+        reference, MANEUVER_PROFILE_DRIVE;
+    drive caller: MANEUVER_ALTITUDE_GATE_DRIVE, string,
+        "(1.-PULLUP_ENABLE*model::drive(MANEUVER_PROFILE_DRIVE,Time))*(1.-PULLUP_ANGLE_ENABLE*(Time>=MANEUVER_START))*(1.-DIVE_PULLUP_ENABLE+DIVE_PULLUP_ENABLE*model::drive(DIVE_TRAJECTORY_GATE_DRIVE,Time))";
+    drive caller: MANEUVER_VZ_GATE_DRIVE, string,
+        "(1.-max(PULLUP_ENABLE*model::drive(MANEUVER_PROFILE_DRIVE,Time),PULLUP_ANGLE_ENABLE*model::drive(MANEUVER_ANGLE_PROFILE_DRIVE,Time)))*(1.-DIVE_PULLUP_ENABLE+DIVE_PULLUP_ENABLE*model::drive(DIVE_TRAJECTORY_GATE_DRIVE,Time))";
+
+    user defined: ALT_PID, pid,
+        setpoint, const, Z_CG,
+        measure, node, BASE_NODE, structural, string, "X[3]", direct,
+        # Outer loop lento: genera un riferimento di pitch e non insegue il
+        # modo longitudinale rigido. Lo scheduling conserva autorita' alle
+        # basse velocita' senza rendere aggressivo il caso ad alto q.
+        Kp, 0.00040*SAS_Q_SCALE,
+        Ki, 0.0000100*SAS_Q_SCALE,
+        Kd, 0., Ii0, 0.,
+        Ks, 1.,
+        Ymin, -2.*deg2rad, Ymax, 2.*deg2rad;
+
+    drive caller: ALT_RAW_DRIVE,
+        element, ALT_PID, loadable, string, "yout", direct;
+
+    drive caller: ALT_DRIVE,
+        discrete filter, 1, ALT_LP_A1, ALT_LP_B0, 1, ALT_LP_B1,
+            reference, ALT_RAW_DRIVE;
+
+    user defined: VZ_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter, 1, VZ_LP_A1, VZ_LP_B0, 1, VZ_LP_B1,
+                node, BASE_NODE, structural, string, "XP[3]", direct,
+        Kp, 0.00120*SAS_Q_SCALE, 
+        Ki, 0., 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -2.*deg2rad, Ymax, 2.*deg2rad;
+
+    drive caller: VZ_DRIVE,
+        element, VZ_PID, loadable, string, "yout", direct;
+
+    drive caller: LIFT_RAW_DRIVE, array, 3,
+        mult, const, LIFT_HOLD_GAIN,
+            mult, reference, MANEUVER_ALTITUDE_GATE_DRIVE, reference, ALT_DRIVE,
+        mult, const, LIFT_HOLD_GAIN,
+            mult, reference, MANEUVER_VZ_GATE_DRIVE, reference, VZ_DRIVE,
+        reference, MANEUVER_FLAP_DRIVE;
+
+    drive caller: LIFT_LIMIT_DRIVE, string,
+        "max(-LIFT_CORRECTION_LIMIT,min(LIFT_CORRECTION_LIMIT,model::drive(LIFT_RAW_DRIVE,Time)))";
+
+    drive caller: LIFT_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, LIFT_LIMIT_DRIVE;
+
+    # Attitude SAS: pitch and pitch-rate are deliberately decoupled from the
+    # flight-path loop.  Feeding ALT/Vz both here and to the symmetric wing
+    # flaps created two competing paths and a large rigid-body limit cycle.
+    user defined: PITCH_PID, pid,
+        setpoint, reference, MANEUVER_PITCH_COMMAND_DRIVE,
+        measure, node, BASE_NODE, structural, string, "E[2]", direct,
+        Kp, -0.60*SAS_Q_SCALE,
+        Ki, 0.,
+        Kd, 0., Ii0, 0.,
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    drive caller: PITCH_DRIVE,
+        element, PITCH_PID, loadable, string, "yout", direct;
+
+    user defined: Q_PID, pid,
+        setpoint, reference, MANEUVER_Q_COMMAND_DRIVE,
+        measure,
+            discrete filter, 1, Q_LP_A1, Q_LP_B0, 1, Q_LP_B1,
+                node, BASE_NODE, structural, string, "Omega[2]", direct,
+        Kp, -0.75*SAS_Q_SCALE, 
+        Ki, 0., 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    include: "/home/nicomonzi/X_56/workflows/bff_open_loop/INCLUDE/driver.mbd";
+
+    user defined: ROLL_PID, pid,
+        setpoint, reference, MANEUVER_ROLL_COMMAND_DRIVE,
+        measure, node, BASE_NODE, structural, string, "E[1]", direct,
+        Kp, -0.80,
+        Ki, -0.080,
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    drive caller: ROLL_DRIVE,
+        element, ROLL_PID, loadable, string, "yout", direct;
+
+    user defined: P_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "Omega[1]", direct,
+        # Il rate loop e' volutamente meno aggressivo del loop di angolo: il
+        # precedente Kp=-0.80 alimentava un piccolo modo laterale a 5.4 Hz.
+        Kp, -0.40, 
+        Ki, 0., 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    drive caller: P_DRIVE,
+        element, P_PID, loadable, string, "yout", direct;
+
+    drive caller: LAT_RAW_DRIVE, array, 2,
+        reference, ROLL_DRIVE, reference, P_DRIVE;
+
+    # Roll-angle e roll-rate restano calcolati durante tutta la prova, cosi'
+    # il rientro e' continuo. Durante SAS-off il loro comando al plant viene
+    # pero' escluso dal sample-and-hold comune a tutte le superfici.
+    drive caller: LAT_LIMIT_DRIVE, string,
+        "max(-SURFACE_CORRECTION_LIMIT,min(SURFACE_CORRECTION_LIMIT,model::drive(LAT_RAW_DRIVE,Time)))";
+
+    drive caller: LAT_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, LAT_LIMIT_DRIVE;
+
+    
+    user defined: YAW_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "E[3]", direct,
+        Kp, 1.80, 
+        Ki, 0.150, 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -4.*deg2rad, Ymax, 4.*deg2rad;
+
+    drive caller: YAW_DRIVE,
+        element, YAW_PID, loadable, string, "yout", direct;
+
+    user defined: R_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "Omega[3]", direct,
+        Kp, 3.00, 
+        Ki, 0., 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -4.*deg2rad, Ymax, 4.*deg2rad;
+
+    drive caller: R_DRIVE,
+        element, R_PID, loadable, string, "yout", direct;
+
+    user defined: VY_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter, 2, LP_A1, LP_A2, LP_B0, 2, LP_B1, LP_B2,
+                node, BASE_NODE, structural, string, "XP[2]", direct,
+        Kp, 0.00060, 
+        Ki, 0.000020, 
+        Kd, 0., Ii0, 0., 
+        Ks, 1.,
+        Ymin, -3.*deg2rad, Ymax, 3.*deg2rad;
+
+    drive caller: VY_DRIVE,
+        element, VY_PID, loadable, string, "yout", direct;
+
+    drive caller: DIR_RAW_DRIVE, array, 3,
+        reference, YAW_DRIVE, reference, R_DRIVE, reference, VY_DRIVE;
+
+    # Come per il laterale, il direzionale e' osservato ma disconnesso.
+    drive caller: DIR_LIMIT_DRIVE, const, 0.;
+
+    drive caller: DIR_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, DIR_LIMIT_DRIVE;
+
+    # Rap/doublet simmetrico WF4: +A per meta' durata, poi -A. Non dipende
+    # dalla frequenza BFF di riferimento. Il filtro e' la dinamica attuatore.
+    drive caller: BFF_RAP_RAW_DRIVE, string,
+        "BFF_RAP_AMPLITUDE*((Time>=BFF_RAP_START)&&(Time<BFF_RAP_START+0.5*BFF_RAP_DURATION))-BFF_RAP_AMPLITUDE*((Time>=BFF_RAP_START+0.5*BFF_RAP_DURATION)&&(Time<BFF_RAP_END))";
+    drive caller: BFF_RAP_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, BFF_RAP_RAW_DRIVE;
+
+    # Un unico trigger congela BFL/BFR e WF1--WF4 al valore raggiunto al
+    # rilascio. Durante SAS-off nessun feedback raggiunge il plant; l'unica
+    # eccezione e' il rap noto, sommato al valore congelato di WF4.
+    drive caller: OPEN_LOOP_SAMPLE_TRIGGER, string,
+        "1.";
+
+    # MANEUVER_CONTROL: all aerodynamic surfaces held at release
+# ==============================================================================
+# Control surfaces: full-surface open-loop hold window
+# ==============================================================================
+
+# All ten aerodynamic surfaces are sampled at SAS_OFF_START and held until
+# SAS_ON_START.  WF4 receives the prescribed rap on top of its held release
+# value; once the rap ends it returns exactly to that held value.
+
+drive caller: BFL_LIVE_DRIVE, array, 3,
+    const, BODY_TRIM_SURFACE,
+    reference, LONG_ACT_DRIVE,
+    reference, DIR_ACT_DRIVE;
+drive caller: BFR_LIVE_DRIVE, array, 3,
+    const, BODY_TRIM_SURFACE,
+    reference, LONG_ACT_DRIVE,
+    mult, const, -1., reference, DIR_ACT_DRIVE;
+drive caller: WF1L_LIVE_DRIVE, array, 3,
+    const, TRIM_SURFACE,
+    reference, LAT_ACT_DRIVE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF1R_LIVE_DRIVE, array, 3,
+    const, TRIM_SURFACE,
+    mult, const, -1., reference, LAT_ACT_DRIVE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF2L_LIVE_DRIVE, array, 3,
+    const, TRIM_SURFACE,
+    reference, LAT_ACT_DRIVE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF2R_LIVE_DRIVE, array, 3,
+    const, TRIM_SURFACE,
+    mult, const, -1., reference, LAT_ACT_DRIVE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF3L_LIVE_DRIVE, array, 2,
+    const, TRIM_SURFACE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF3R_LIVE_DRIVE, array, 2,
+    const, TRIM_SURFACE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF4L_LIVE_DRIVE, const, TRIM_SURFACE;
+drive caller: WF4R_LIVE_DRIVE, const, TRIM_SURFACE;
+
+drive caller: BFL_HOLD_DRIVE, sample and hold,
+    reference, BFL_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, BODY_TRIM_SURFACE;
+drive caller: BFR_HOLD_DRIVE, sample and hold,
+    reference, BFR_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, BODY_TRIM_SURFACE;
+drive caller: WF1L_HOLD_DRIVE, sample and hold,
+    reference, WF1L_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF1R_HOLD_DRIVE, sample and hold,
+    reference, WF1R_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF2L_HOLD_DRIVE, sample and hold,
+    reference, WF2L_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF2R_HOLD_DRIVE, sample and hold,
+    reference, WF2R_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF3L_HOLD_DRIVE, sample and hold,
+    reference, WF3L_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF3R_HOLD_DRIVE, sample and hold,
+    reference, WF3R_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF4L_HOLD_DRIVE, sample and hold,
+    reference, WF4L_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF4R_HOLD_DRIVE, sample and hold,
+    reference, WF4R_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+
+drive caller: WF4L_COMMAND_DRIVE, array, 2,
+    reference, WF4L_HOLD_DRIVE,
+    reference, BFF_RAP_ACT_DRIVE;
+drive caller: WF4R_COMMAND_DRIVE, array, 2,
+    reference, WF4R_HOLD_DRIVE,
+    reference, BFF_RAP_ACT_DRIVE;
+# BFL
+joint: 1004, total joint,
+    990004,
+        position, reference, GROUND, 160.14999390 + 12.2, -31.37999916, 101.47000120,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, BFLjoint, eye,
+    880004,
+        position, reference, GROUND, 160.14999390 + 12.2, -31.37999916, 101.47000120,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, BFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, BFL_HOLD_DRIVE, 0.;
+
+# WF1L
+joint: 1008, total joint,
+    990008,
+        position, reference, GROUND, 166.77999880 + 5.16, -66.86000061, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    880008,
+        position, reference, GROUND, 166.77999880 + 5.16, -66.86000061, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF1L_HOLD_DRIVE, 0.;
+
+# WF2L
+joint: 1011, total joint,
+    990011,
+        position, reference, GROUND, 176.74000550 + 5.16, -92.13999939, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    880011,
+        position, reference, GROUND, 176.74000550 + 5.16, -92.13999939, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF2L_HOLD_DRIVE, 0.;
+
+# WF3L
+joint: 1014, total joint,
+    990014,
+        position, reference, GROUND, 186.69999690 + 5.16, -117.43000030, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    880014,
+        position, reference, GROUND, 186.69999690 + 5.16, -117.43000030, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF3L_HOLD_DRIVE, 0.;
+
+# WF4L
+joint: 1017, total joint,
+    990017,
+        position, reference, GROUND, 196.64999390 + 5.16, -142.71000670, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    880017,
+        position, reference, GROUND, 196.64999390 + 5.16, -142.71000670, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF4L_COMMAND_DRIVE, 0.;
+
+# BFR
+joint: 2004, total joint,
+    991004,
+        position, reference, GROUND, 160.14999390 + 12.2, 31.37999916, 101.47000120,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, BFRjoint, eye,
+    881004,
+        position, reference, GROUND, 160.14999390 + 12.2, 31.37999916, 101.47000120,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, BFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, BFR_HOLD_DRIVE, 0.;
+
+# WF1R
+joint: 2008, total joint,
+    991008,
+        position, reference, GROUND, 166.77999880 + 5.16, 66.86000061, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    881008,
+        position, reference, GROUND, 166.77999880 + 5.16, 66.86000061, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF1R_HOLD_DRIVE, 0.;
+
+# WF2R
+joint: 2011, total joint,
+    991011,
+        position, reference, GROUND, 176.74000550 + 5.16, 92.13999939, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    881011,
+        position, reference, GROUND, 176.74000550 + 5.16, 92.13999939, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF2R_HOLD_DRIVE, 0.;
+
+# WF3R
+joint: 2014, total joint,
+    991014,
+        position, reference, GROUND, 186.69999690 + 5.16, 117.43000030, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    881014,
+        position, reference, GROUND, 186.69999690 + 5.16, 117.43000030, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF3R_HOLD_DRIVE, 0.;
+
+# WF4R
+joint: 2017, total joint,
+    991017,
+        position, reference, GROUND, 196.64999390 + 5.16, 142.71000670, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    881017,
+        position, reference, GROUND, 196.64999390 + 5.16, 142.71000670, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF4R_COMMAND_DRIVE, 0.;
+
+
+    # Reduced-order correction of the sectional Theodorsen model using the
+    # released X-56A SOL 145 point-7 branch.  This is an aerodynamic model
+    # term, not a controller: it remains present with SAS off and all control
+    # surfaces held.  The stiffness term acts on the perturbation from the
+    # scheduled trimmed modal coordinate, so it cannot inject a static trim
+    # load at the release instant.
+    force: NASTRAN_DLM_ROM_FORCE, modal, MODAL_JOINT,
+        list, 1, 7,
+        array, 2,
+            element, MODAL_JOINT, joint, string, "q[7]",
+                string, "min(1.,Time/NASTRAN_DLM_ROM_RAMP_TIME)*NASTRAN_DLM_ROM_K7*(Var-NASTRAN_DLM_ROM_Q7_EQ)",
+            element, MODAL_JOINT, joint, string, "qP[7]",
+                string, "min(1.,Time/NASTRAN_DLM_ROM_RAMP_TIME)*NASTRAN_DLM_ROM_C7*Var",
+        output, no;
+
+    # Idealized active modal damper representing the closed-loop flutter
+    # suppression used only to enter and recover the test point.  It is
+    # identically zero throughout SAS-off, so it cannot change the identified
+    # open-loop pole.  A surface-based replacement needs the generalized
+    # control-effectiveness matrices not contained in the released F06.
+    force: SAS_MODAL_DAMPER_FORCE, modal, MODAL_JOINT,
+        list, 1, 7,
+        element, MODAL_JOINT, joint, string, "qP[7]",
+            string, "-SAS_MODAL_DAMPING*1.*Var",
+        output, no;
+
+    air properties: RHO_AIR, C_SOUND,
+        1., 0., 0., const, VINF;
+    include: "/home/nicomonzi/X_56/workflows/bff_open_loop/INCLUDE/aerobody.mbd";
+    output: joint, 5;
+end: elements;

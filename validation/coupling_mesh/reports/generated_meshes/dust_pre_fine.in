@@ -1,0 +1,4 @@
+comp_name = X56
+geo_file = meshes/FINE/parametric_mesh.in
+ref_tag = centerbody
+file_name = reports/generated_meshes/fine_geo.h5

@@ -1,0 +1,63 @@
+
+================================================================================
+X-56 AERODYNAMIC DATA COMPARISON REPORT
+NASTRAN vs MBDyn with Span-wise C81 Distribution
+================================================================================
+
+ANALYSIS CONFIGURATION:
+  - Angle of Attack Range: -10.0° to 20.0°
+  - Number of Analysis Points: 31
+  - Span-wise Distribution: Root (CL×1.15), Wing (CL×1.00), Winglet (CL×0.85)
+  - C81 Files: x56_root.c81, x56_wing.c81, x56_winglet.c81
+
+LIFT COEFFICIENT (CL) COMPARISON:
+  NASTRAN:
+    Min:  -1.0833  |  Max:   2.1665  |  Mean:   0.5416
+  MBDyn:
+    Min:  -1.0867  |  Max:   2.3326  |  Mean:   0.5359
+  Error Statistics:
+    Max Error:    11.31%  |  RMS Error:     5.01%
+    Mean Bias:    -0.60%  |  Std Dev:     4.98%
+
+DRAG COEFFICIENT (CD) COMPARISON:
+  NASTRAN:
+    Min:   0.0000  |  Max:   0.0000  |  Mean:   0.0000
+  MBDyn:
+    Min:   0.0000  |  Max:   0.0000  |  Mean:   0.0000
+  Error Statistics:
+    Max Error:     0.00%  |  RMS Error:     0.00%
+    Mean Bias:     0.00%  |  Std Dev:     0.00%
+
+PITCHING MOMENT COEFFICIENT (CM) COMPARISON:
+  NASTRAN:
+    Min: -14.8826  |  Max:   7.4413  |  Mean:  -3.7207
+  MBDyn:
+    Min: -16.0231  |  Max:   7.4650  |  Mean:  -3.6813
+  Error Statistics:
+    Max Error:    11.31%  |  RMS Error:     5.01%
+    Mean Bias:     0.60%  |  Std Dev:     4.98%
+
+SPAN-WISE EFFECTS ANALYSIS:
+  - Root Section (α×1.15): Higher lift generating element
+  - Wing Section (α×1.00): Primary aerodynamic surface
+  - Winglet Section (α×0.85): Reduced loading at wingtip
+
+KEY OBSERVATIONS:
+  1. Lift Coefficient:
+     - Symmetric about α = 0° (expected for symmetric airfoil)
+     - Maximum CL at positive angles due to NASTRAN analysis
+  
+  2. Drag Coefficient:
+     - Minimal drag at cruise angles (α ≈ 0°)
+     - Increases with angle of attack
+  
+  3. Pitching Moment:
+     - Significant nose-down moment at positive angles
+     - Proportional to angle of attack
+
+OUTPUT FILES:
+  - nastran_mbdyn_comparison.png (300 DPI)
+  - nastran_mbdyn_comparison.pdf (300 DPI)
+  - comparison_summary.txt (this file)
+
+================================================================================

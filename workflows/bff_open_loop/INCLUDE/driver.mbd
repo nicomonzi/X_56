@@ -1,0 +1,16 @@
+    # Longitudinale usato soltanto per il settling. Nessun notch e nessun
+    # safety controller: il sample-and-hold delle superfici apre fisicamente
+    # il loop nell'intervallo SAS_OFF_START--SAS_ON_START.
+    drive caller: Q_DRIVE,
+        element, Q_PID, loadable, string, "yout", direct;
+
+    drive caller: LONG_RAW_DRIVE, array, 2,
+        reference, PITCH_DRIVE,
+        reference, Q_DRIVE;
+
+    drive caller: LONG_LIMIT_DRIVE, string,
+        "max(-SURFACE_CORRECTION_LIMIT,min(SURFACE_CORRECTION_LIMIT,model::drive(LONG_RAW_DRIVE,Time)))";
+
+    drive caller: LONG_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, LONG_LIMIT_DRIVE;

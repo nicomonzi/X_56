@@ -1,0 +1,99 @@
+#==================================================================================================
+#                                   Aerodinamic bodys
+#==================================================================================================
+# Aerodynamic bodies are defined as follows:
+# 1 --> 20 : Left Aerodynamic bodies,
+# 21 --> 40 : Right aerodynamic bodies,
+# 41 -->45 : Left control surfaces, BFL, WF1L, WF2L, WF3L, WF4L,
+# 45 --> 50 : Right control surfaces, BFR, WF1R, WF2R, WF3R, WF4R.
+
+# The aerodinamic body is structured as follows:
+# aerodynamic body: <aerobody_id>, <node_id>,
+#         reference, node, <x>, <y>, <z>, offset from the node,
+#         reference, node, 1, <x>, <y>, <z>, 2, <x>, <y>, <z>, orientation of the aerodynamic body,
+#         <span>, linear, <chord at root>, <chord at tip>, linear, <AC at root>, <AC at tip>, const, 0., const, 0.,
+#         3(gauss integration points), c81, 12(NACA0012), jacobian, yes;
+
+    c81 data: 1, "./x56_root.c81";
+
+    aerodynamic body: 1, 990001,
+        reference, node, 0., -2.7600, 0., 
+        reference, node, 1, -1., 0., 0., 2, 0., 0., 1.,
+        5.5200, linear, 79.3366, 90.4550, linear, 29.6557, 35.7723, const, 0., const, 0.,
+        3, c81, 1, jacobian, yes;
+    
+    aerodynamic body: 2, 990002,
+        reference, node, null, 
+        reference, node, 1, -1., 0., 0., 2, 0., 0., 1.,
+        11.0350, linear, 57.1099, 79.3366, linear, 17.4282, 29.6557, const, 0., const, 0.,
+        3, c81, 1, jacobian, yes;
+
+    aerodynamic body: 3, 990003,
+        reference, node, 0., 0.45, 0.6,
+        reference, node, 1, -1., 0., 0., 2, 0., 0.1393-0.01,0.9902,
+        10.1700, linear, 42.9921- 7.2, 57.1099- 7.2, linear, 10.9341+ 1.725, 17.4282+ 1.725, const, 0., const, 0., #42.9921, 57.1099  - 7.2
+        3, c81, 1, jacobian, yes;  
+ 
+    aerodynamic body: 4, 990004,
+        reference, node, 0., 0.05, 0.6, 
+        reference, node, 1, -1., 0., 0., 2, 0., 0.1393,0.9902,
+        9.400, linear, 35.4683  - 7.2, 42.9921 - 7.2, linear, 9.0392+ 1.725, 10.9341+ 1.725, const, 0., const, 0.,
+        3, c81, 1, jacobian, yes;
+
+    aerodynamic body: 5, 990005,
+        reference, node, 0., -0.1, 0.6, 
+        reference, node, 1, -1., 0., 0., 2, 0., 0.1393,0.9902,
+        9.6+0.1, linear, 27.9444 - 7.2, 35.4683 - 7.2, linear, 7.1443+ 1.725, 9.0392+ 1.725, const, 0., const, 0.,
+        3, c81, 1, jacobian, yes;
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # ================= ALA DESTRA (DX) =================
+
+
+
+
+
+
+        #reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#AERO SUPERFICI CONTROLO SX
+
+
+
+
+
+
+#AERO SUPERFICI CONTROLO DX
+
+
+
+
+

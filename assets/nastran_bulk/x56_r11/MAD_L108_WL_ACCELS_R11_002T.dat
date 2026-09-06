@@ -1,0 +1,7 @@
+$   Accels: Winglet Only
+$       Taken from MAD_L108_CONM2s_R10_021.dat
+$       (Offsets removed -- diff between 002 and 002x: 002x =003)
+$
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0 
+CONM2   101007  120276          0.022710
+CONM2   101014  220276          0.018471

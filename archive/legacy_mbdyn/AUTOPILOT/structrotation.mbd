@@ -1,0 +1,688 @@
+# MBDYN AERO MODEL
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: const integer GROUND = 0; 
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 2; 
+
+set: const real VINF  = 20 * m2in;               # [in/s]
+set: const real VBASE = 0* m2in;                # [in/s] 
+set: const real ALPHA_DEG  = 7.0;                # [deg] 
+set: const real ALPHA  = ALPHA_DEG * deg2rad;    # [rad]
+set: const real RHO_AIR = 1.146e-7;              # [slinch/in^3]
+set: const real C_SOUND = 340.0 * m2in;          # [in/s]                      
+
+begin: initial value;
+    initial time: 0.;
+    final time: 0.01;
+    time step: 1.e-3;
+
+    method: ms, .6;
+    nonlinear solver: newton raphson, modified, 5;
+    linear solver: lapack;
+    tolerance: 1.e-6;
+    max iterations: 20;
+    
+    /*
+    eigenanalysis: 0.1,
+        parameter, 1.e-6,
+        output matrices,
+        output eigenvectors,
+        output geometry;
+    */
+
+    derivatives coefficient: auto;
+    derivatives tolerance: 1.e-6;
+    derivatives max iterations: 20;
+
+    threads: disable;
+    
+    output: counter; 
+
+end: initial value;
+
+begin: control data;
+
+    print: dof stats;
+    skip initial joint assembly;
+
+    structural nodes: 46;       
+     
+    joints:2;
+
+    gravity;
+    default orientation: orientation vector;
+    output results: netcdf, sync, no text;
+    air properties;
+    aerodynamic elements: 40; 
+
+end: control data;
+
+reference: GROUND,
+    reference, global, null,
+    reference, global, eye,
+    reference, global, null,
+    reference, global, null;
+
+begin: nodes;
+
+   structural: BASE_NODE, modal, 
+        reference, global, 0.0, 0.0, 0.0,
+        reference, global, eye,
+        reference, global, -VBASE * cos(ALPHA), 0., VBASE * sin(ALPHA),
+        reference, global, null;
+
+    # ================= NODI STRUTTURALI SX =================
+    
+    # Root
+    structural: 990001, dynamic, 
+        reference, GROUND, 160.14999390,    0.00000000, 100.16000370, 
+        reference, GROUND, 1, 0., 1., 0., 2, -1., 0., 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    # Straight
+    structural: 990002, dynamic,
+        reference, GROUND, 160.14999390,  -11.03999996, 100.16000370,
+        reference, GROUND, 1, 0., 1., 0., 2, -1., 0., 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990003, dynamic,
+        reference, GROUND, 160.14999390,  -22.06999969, 100.16000370,
+        reference, GROUND, 1, 0., 1., 0., 2, -1., 0., 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    # Dihedral
+    structural: 990004, dynamic,
+        reference, GROUND, 160.14999390,  -31.37999916, 101.47000120,
+        reference, GROUND, 1, 0., 0.9902, -0.1393, 2, -1., 0., 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990005, dynamic,
+        reference, GROUND, 160.14999390,  -40.68999863, 102.77999880,
+        reference, GROUND, 1, 0., 0.9902, -0.1393, 2, -1., 0., 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990006, dynamic, 
+        reference, GROUND, 160.14999390,  -50.00000000, 104.08999630,
+        reference, GROUND, 1, 0., 0.9902, -0.1393, 2, -1., 0., 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    # Sweep
+    structural: 990007, dynamic,
+        reference, GROUND, 163.46000670,  -58.43000031, 104.08999630,
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990008, dynamic, 
+        reference, GROUND, 166.77999880,  -66.86000061, 104.08999630,
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+        
+    structural: 990009, dynamic, 
+        reference, GROUND, 170.10000610,  -75.29000092, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990010, dynamic, 
+        reference, GROUND, 173.41999820,  -83.70999908, 104.08999630,
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990011, dynamic, 
+        reference, GROUND, 176.74000550,  -92.13999939, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990012, dynamic, 
+        reference, GROUND, 180.05999760, -100.56999970, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990013, dynamic,
+        reference, GROUND, 183.38000490, -109.00000000,  104.08999630,
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990014, dynamic,
+        reference, GROUND, 186.69999690, -117.43000030, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990015, dynamic,
+        reference, GROUND, 190.02000430, -125.86000060, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990016, dynamic,
+        reference, GROUND, 193.33000180, -134.28999330, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990017, dynamic,
+        reference, GROUND, 196.64999390, -142.71000670, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990018, dynamic,
+        reference, GROUND, 199.97000120, -151.13999940, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990019, dynamic,
+        reference, GROUND, 203.28999330, -159.57000730, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990020, dynamic,
+        reference, GROUND, 206.61000060, -168.00000000, 104.08999630, 
+        reference, GROUND, 1, -0.3664, 0.9304, 0., 2, -0.9304, -0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    # Winglets SX
+    structural: 990021, dynamic,
+        reference, GROUND, 213.47000120, -168.00000000, 110.36000060, 
+        reference, GROUND, 1, -0.7381, 0., -0.6747, 2, -0.6747, 0., 0.7381, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990022, dynamic,
+        reference, GROUND, 220.33000180, -168.00000000, 116.62999730, 
+        reference, GROUND, 1, -0.7381, 0., -0.6747, 2, -0.6747, 0., 0.7381, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 990023, dynamic,
+        reference, GROUND, 227.19000240, -168.00000000, 122.90000150,
+        reference, GROUND, 1, -0.7381, 0., -0.6747, 2, -0.6747, 0., 0.7381, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    # ================= NODI STRUTTURALI DX =================
+
+    # Straight
+    structural: 991002, dynamic,
+        reference, GROUND, 160.14999390,  11.03999996,  100.16000370,
+        reference, GROUND, 1, 0., 1., 0., 2, -1., 0., 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991003, dynamic, 
+        reference, GROUND, 160.14999390,  22.06999969,  100.16000370,
+        reference, GROUND, 1, 0., 1., 0., 2, -1., 0., 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    # Dihedral
+    structural: 991004, dynamic, 
+        reference, GROUND, 160.14999390,  31.37999916,  101.47000120,
+        reference, GROUND, 1, 0., 0.9902, 0.1393, 2, -1., 0., 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991005, dynamic,
+        reference, GROUND, 160.14999390,  40.68999863,  102.77999880,
+        reference, GROUND, 1, 0., 0.9902, 0.1393, 2, -1., 0., 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991006, dynamic,
+        reference, GROUND, 160.14999390,  50.00000000,  104.08999630,
+        reference, GROUND, 1, 0., 0.9902, 0.1393, 2, -1., 0., 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    # Sweep
+    structural: 991007, dynamic, 
+        reference, GROUND, 163.46000670,  58.43000031,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991008, dynamic,
+        reference, GROUND, 166.77999880,  66.86000061,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991009, dynamic, 
+        reference, GROUND, 170.10000610,  75.29000092,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991010, dynamic, 
+        reference, GROUND, 173.41999820,  83.70999908,  104.08999630, 
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991011, dynamic,
+        reference, GROUND, 176.74000550,  92.13999939,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991012, dynamic, 
+        reference, GROUND, 180.05999760, 100.56999970,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991013, dynamic,
+        reference, GROUND, 183.38000490, 109.00000000,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991014, dynamic,
+        reference, GROUND, 186.69999690, 117.43000030,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991015, dynamic,
+        reference, GROUND, 190.02000430, 125.86000060,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991016, dynamic,
+        reference, GROUND, 193.33000180, 134.28999330,  104.08999630, 
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991017, dynamic,
+        reference, GROUND, 196.64999390, 142.71000670,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991018, dynamic,
+        reference, GROUND, 199.97000120, 151.13999940,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0.,
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991019, dynamic, 
+        reference, GROUND, 203.28999330, 159.57000730,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991020, dynamic,
+        reference, GROUND, 206.61000060, 168.00000000,  104.08999630,
+        reference, GROUND, 1, 0.3664, 0.9304, 0., 2, -0.9304, 0.3664, 0., 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    # Winglets DX
+    structural: 991021, dynamic,
+        reference, GROUND, 213.47000120, 168.00000000,  110.36000060,
+        reference, GROUND, 1, 0.7381, 0., 0.6747, 2, -0.6747, 0., 0.7381, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991022, dynamic,
+        reference, GROUND, 220.33000180, 168.00000000,  116.62999730,
+        reference, GROUND, 1, 0.7381, 0., 0.6747, 2, -0.6747, 0., 0.7381, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+
+    structural: 991023, dynamic,
+        reference, GROUND, 227.19000240, 168.00000000,  122.90000150,
+        reference, GROUND, 1, 0.7381, 0., 0.6747, 2, -0.6747, 0., 0.7381, 
+        reference, GROUND, null, 
+        reference, GROUND, null;
+    
+
+
+end: nodes;
+
+
+
+end: nodes;
+
+begin: elements;
+    
+    gravity: uniform, 0., 0., -1., const, 386.4; 
+
+    joint: 1, clamp, BASE_NODE, node, node;  
+
+    joint: MODAL_JOINT, modal, 
+        BASE_NODE, 
+        #10, 
+        #list, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+        34, 
+        list, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+        8527,             
+        #single factor damping, 0.01,                           
+        "mbdyn_modal.fem",
+        #"nsvibe_test.fem",                      
+        45,                                       
+            990001,      990001,    null, 
+            990002,      990002,    null,
+            990003,      990003,    null,
+            990004,      990004,    null,
+            990005,      990005,    null,
+            990006,      990006,    null,
+            990007,      990007,    null,
+            990008,      990008,    null,
+            990009,      990009,    null,
+            990010,      990010,    null,
+            990011,      990011,    null,
+            990012,      990012,    null,
+            990013,      990013,    null,
+            990014,      990014,    null,
+            990015,      990015,    null,
+            990016,      990016,    null,
+            990017,      990017,    null,
+            990018,      990018,    null,
+            990019,      990019,    null,
+            990020,      990020,    null,
+            990021,      990021,    null,
+            990022,      990022,    null,
+            990023,      990023,    null,
+            991002,      991002,    null,
+            991003,      991003,    null,
+            991004,      991004,    null,
+            991005,      991005,    null,
+            991006,      991006,    null,
+            991007,      991007,    null,
+            991008,      991008,    null,
+            991009,      991009,    null,
+            991010,      991010,    null,
+            991011,      991011,    null,
+            991012,      991012,    null,
+            991013,      991013,    null,
+            991014,      991014,    null,
+            991015,      991015,    null,
+            991016,      991016,    null,
+            991017,      991017,    null,
+            991018,      991018,    null,
+            991019,      991019,    null,
+            991020,      991020,    null,
+            991021,      991021,    null,
+            991022,      991022,    null,
+            991023,      991023,    null;
+
+    air properties: RHO_AIR, C_SOUND,
+        #1.,0.,0.,      
+        cos(ALPHA), 0., sin(ALPHA),
+        #tanh, 0.0, VINF, 0.2, 0.;
+        #tanh, 0.0, VINF, 0.5, 0.01;
+        const, VINF;
+    
+    c81 data: 12, "./naca0012.c81";
+    
+    aerodynamic body: 1, 990001,
+        reference, node, -2.7600, 0., 0., 
+        reference, node, 1, 0., 1., 0., 2, 0., 0., 1.,
+        5.5200, linear, 79.3366, 90.4550, linear, 29.6557, 35.7723, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 2, 990002,
+        reference, node, 0.0025, 0., 0., 
+        reference, node, 1, 0., 1., 0., 2, 0., 0., 1.,
+        11.0350, linear, 57.1099, 79.3366, linear, 17.4282, 29.6557, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 3, 990003,
+        reference, node, 0.4300, 0., 0., 
+        reference, node, 1, 0., 1., 0., 2, 0., 0., 1.,
+        10.1700, linear, 42.9921, 57.1099, linear, 10.9341, 17.4282, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 4, 990004,
+        reference, node, null, 
+        reference, node, 1, 0., 1., 0., 2, -0.1393, 0., 0.9902,
+        9.3100, linear, 35.4683, 42.9921, linear, 9.0392, 10.9341, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 5, 990005,
+        reference, node, null, 
+        reference, node, 1, 0., 1., 0., 2, -0.1393, 0., 0.9902,
+        9.3100, linear, 27.9444, 35.4683, linear, 7.1443, 9.0392, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 6, 990006,
+        reference, node, 0.2200, 0., 0., 
+        reference, node, 1, 0., 1., 0., 2, -0.1393, 0., 0.9902,
+        8.8700, linear, 24.1757, 27.9444, linear, 4.4890, 7.1443, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 7, 990007,
+        reference, node, null, 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.1621, 24.1757, linear, 4.3834, 7.7990, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 8, 990008,
+        reference, node, null, 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.1486, 24.1621, linear, 4.2879, 7.7034, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 9, 990009,
+        reference, node, 0.0025, 0., 0., 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4250, linear, 24.1351, 24.1486, linear, 4.1943, 7.6079, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 10, 990010,
+        reference, node, -0.0025, 0., 0., 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4250, linear, 24.1215, 24.1351, linear, 4.1007, 7.5143, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 11, 990011,
+        reference, node, null, 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.1080, 24.1215, linear, 4.0052, 7.4207, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 12, 990012,
+        reference, node, null, 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0945, 24.1080, linear, 3.9096, 7.3252, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 13, 990013,
+        reference, node, null, 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0809, 24.0945, linear, 3.8140, 7.2296, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 14, 990014,
+        reference, node, null, 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0674, 24.0809, linear, 3.7184, 7.1340, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 15, 990015,
+        reference, node, null, 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0539, 24.0674, linear, 3.6228, 7.0384, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 16, 990016,
+        reference, node, 0.0025, 0., 0., 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4250, linear, 24.0404, 24.0539, linear, 3.5193, 6.9328, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 17, 990017,
+        reference, node, -0.0025, 0., 0., 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4250, linear, 24.0268, 24.0404, linear, 3.4257, 6.8393, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 18, 990018,
+        reference, node, null, 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0133, 24.0268, linear, 3.3301, 6.7457, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 19, 990019,
+        reference, node, null, 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 23.9998, 24.0133, linear, 3.2345, 6.6501, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 20, 990020,
+        reference, node, 2.1075, 0., 0., 
+        reference, node, 1, 0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        4.2150, linear, 23.9930, 23.9998, linear, 4.8468, 6.5545, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    # ================= ALA DESTRA (DX) =================
+
+    aerodynamic body: 40, 990001,
+        reference, node, 2.7600, 0., 0., 
+        reference, node, 1, 0., 1., 0., 2, 0., 0., 1.,
+        5.5200, linear, 90.4550, 79.3366, linear, 35.7723, 29.6557, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 21, 991002,
+        reference, node, -0.0025, 0., 0., 
+        reference, node, 1, 0., 1., 0., 2, 0., 0., 1.,
+        11.0350, linear, 79.3366, 57.1099, linear, 29.6557, 17.4282, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 22, 991003,
+        reference, node, -0.4300, 0., 0., 
+        #reference, node, 1, 0., 1., 0., 2, 0.1393, 0., 0.9902,
+        reference, node, 1, 0., 1., 0., 2, 0., 0., 1.,
+        10.1700, linear, 57.1099, 42.9921, linear, 17.4282, 10.9341, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 23, 991004,
+        reference, node, null, 
+        reference, node, 1, 0., 1., 0., 2, 0.1393, 0., 0.9902,
+        9.3100, linear, 42.9921, 35.4683, linear, 10.9341, 9.0392, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 24, 991005,
+        reference, node, null, 
+        reference, node, 1, 0., 1., 0., 2, 0.1393, 0., 0.9902,
+        9.3100, linear, 35.4683, 27.9444, linear, 9.0392, 7.1443, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 25, 991006,
+        reference, node, null,
+        #reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        reference, node, 1, 0., 1., 0., 2, 0.1393, 0., 0.9902,
+        8.8700, linear, 27.9444, 24.1757, linear, 7.1443, 4.4890, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 26, 991007,
+        reference, node, null, 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.1757, 24.1621, linear, 7.7990, 4.3834, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 27, 991008,
+        reference, node, null, 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.1621, 24.1486, linear, 7.7034, 4.2879, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 28, 991009,
+        reference, node, -0.0025, 0., 0., 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4250, linear, 24.1486, 24.1351, linear, 7.6079, 4.1943, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 29, 991010,
+        reference, node, 0.0025, 0., 0., 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4250, linear, 24.1351, 24.1215, linear, 7.5143, 4.1007, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 30, 991011,
+        reference, node, null, 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.1215, 24.1080, linear, 7.4207, 4.0052, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 31, 991012,
+        reference, node, null, 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.1080, 24.0945, linear, 7.3252, 3.9096, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 32, 991013,
+        reference, node, null, 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0945, 24.0809, linear, 7.2296, 3.8140, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 33, 991014,
+        reference, node, null, 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0809, 24.0674, linear, 7.1340, 3.7184, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 34, 991015,
+        reference, node, null, 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0674, 24.0539, linear, 7.0384, 3.6228, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 35, 991016,
+        reference, node, -0.0025, 0., 0., 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4250, linear, 24.0539, 24.0404, linear, 6.9328, 3.5193, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 36, 991017,
+        reference, node, 0.0025, 0., 0., 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4250, linear, 24.0404, 24.0268, linear, 6.8393, 3.4257, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 37, 991018,
+        reference, node, null, 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0268, 24.0133, linear, 6.7457, 3.3301, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 38, 991019,
+        reference, node, null, 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        8.4300, linear, 24.0133, 23.9998, linear, 6.6501, 3.2345, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+
+    aerodynamic body: 39, 991020,
+        reference, node, -2.1075, 0., 0., 
+        reference, node, 1, -0.3664, 0.9304, 0., 2, 0., 0., 1.,
+        4.2150, linear, 23.9998, 23.9930, linear, 6.5545, 4.8468, const, 0., const, 0.,
+        3, c81, 12, jacobian, yes;
+        
+
+end: elements;
+
+

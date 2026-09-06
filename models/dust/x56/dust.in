@@ -1,0 +1,9 @@
+basename = ./Output/sim
+tstart = 0.0
+tend = 1.0
+timesteps = 1
+dt_out = 1.0
+output_start = T
+reference_file = References.in
+geometry_file = ./geo_input.h5
+fmm = F

@@ -1,0 +1,39 @@
+$
+$  ASET for Accels -- needed for SSM
+$
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+$                ABCDEF
+$ Centerline Nx - AB003
+ASET1   1       9000001
+$ Centerline Fwd Nz - AB002
+ASET1   3       9001003
+$ Centerline Aft Nz - AB001
+ASET1   3       9002003
+$ Left Mid Fwd Nz - AW005
+ASET1   3       9211003
+$ Left Mid Aft Nz - AW007
+ASET1   3       9212003
+$ Left Tip Nx - AW009
+ASET1   1       9220001
+$ Left Tip Fwd Nz - AW001
+$   Added add'l points to account for Accel Failure
+ASET1   3       9221003
+ASET1   3       9221004
+$ Left Tip Aft Nz - AW003
+ASET1   3       9222003
+$ Left Winglet Ny - AW011
+ASET1   2       120276
+$ Right Mid Fwd Nz - AW006
+ASET1   3       9111003
+$ Right Mid Aft Nz - AW008
+ASET1   3       9112003
+$ Right Tip Nx - AW010
+ASET1   1       9120001
+$ Right Tip Fwd Nz - AW002
+$   Added add'l points to account for Accel Failure
+ASET1   3       9121003
+ASET1   3       9121004
+$ Right Tip Aft Nz - AW004
+ASET1   3       9122003
+$ Right Winglet Ny - AW012
+ASET1   2       220276

@@ -1,0 +1,353 @@
+NASTRAN Q4TAPER=0.7,T3SKEW=3.0
+INIT MASTER(S)
+
+SOL 103
+CEND
+$
+$
+TITLE=NASA MUTT FLEX - CONSISTENT COUPLED MASS MATRIX
+SUBTITLE=PARAM COUPMASS = 1
+ECHO=NONE
+SET 901 = 990001 THRU 990023, 991002 THRU 991023
+DISPLACEMENT(SORT1,REAL,PRINT,PLOT)=901
+VECTOR(SORT1,REAL,PRINT,PLOT)=901
+METHOD=1
+BEGIN BULK
+
+EIGRL          1                      60       0                    MASS
+PARAM,COUPMASS,1
+
+INCLUDE 'rbe3s.bdf'
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+$
+$
+$_______________    S T R U C T U R A L    M O D E L    ________________$      
+$
+$  
+$ Aset DOF 
+$
+$INCLUDE '../BULK/MAD_L108_ASET_F_R11_002A.dat'
+$INCLUDE '../BULK/MAD_L108_ASET_RT_R11_001.dat'
+$INCLUDE '../BULK/MAD_L108_ASET_LT_R11_001.dat'
+$INCLUDE '../BULK/MAD_L108_ASET_A_R11_003.dat'
+$INCLUDE '../BULK/MAD_L108_ASET_WLA_R11_002.dat'
+$
+$ Coordinate systems and materials
+$
+INCLUDE '../BULK/MAD_L108_COORD_R11_001.dat'
+$ NOTE: ../BULK/MAD_L108_MAT_R11_002.dat has S-2 glass material removed
+INCLUDE '../BULK/MAD_L108_MAT_R11_004T.dat'
+INCLUDE '../BULK/MAD_L108_MAT_ADD_R11_001.dat'
+$
+$-----------------------------------------------------------------------
+$
+$ MID 100: S-2 / T-Epoxy 6781 Gl/Ep Fabric  (tply = 0.0101)
+$
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+MAT8    100     4.10E6  4.10E6  0.129   1.0715E60.34E6  3.4367E50.064
+        5.0E-6  5.0E-6  75.0    1.67E-2 1.61E-2 1.67E-2 1.61E-2 0.0146
+                        1.0   
+$
+$-----------------------------------------------------------------------
+$
+$ Fuselage
+$
+INCLUDE '../BULK/MAD_L108_GRIDS_FUSE_R11_004.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_R11_002.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_UBM_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_E_R11_003T.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_LG_R11_009.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_INT_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_MOD_U_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_MOD_L_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_BRSIN_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_CAVB_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_PID_R11_016.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_PAN_GRID_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_PANELS_R11_003.dat'
+INCLUDE '../BULK/MAD_L108_BOOM_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_WA_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_MLG_R11_011.dat'
+$
+$ Wing
+$
+INCLUDE '../BULK/MAD_L108_GRIDS_WING_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_ONLY_FLEX_R11_006T.dat'
+INCLUDE '../BULK/MAD_L108_ACT_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_FLEX_SO_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_FLEX_SPL_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_FLEX_INT_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_AAP_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_FLEX_AAF_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_FLEX_LE_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_LE_RIBLET_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_WA_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_WLA_R11_003T.dat'
+$
+$ Control Surface Hinge Bolts
+INCLUDE '../BULK/MAD_L108_WING_CS_BUSH_R11_001.dat'
+$
+$ Optional Wing Attach Fairings
+$  THIS CONTAINS BOTH UPPER AND LOWER FAIRINGS FOR COMPARISON TO
+$  MEASURED WEIGHTS
+$  REMOVE LOWER BUNS FOR FLIGHT !!!!
+INCLUDE '../BULK/MAD_L108_WING_FAIR_R11_002.dat'
+$
+$ Winglet
+$
+INCLUDE '../BULK/MAD_L108_WINGLET_LT_R11_002T.dat'
+INCLUDE '../BULK/MAD_L108_WINGLET_RT_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WINGLET_PROP_R11_002T.dat'
+$
+$ Control Surfaces
+$
+INCLUDE '../BULK/MAD_L108_PROP_CS_R11_001.dat'
+$
+$ Control Surface Mass Property Adjustments
+INCLUDE '../BULK/MAD_L108_CS_FLEX1_ADJ_R11_002T.dat'
+$
+$ Left Body Flap
+INCLUDE '../BULK/MAD_L108_GRIDS_LBF_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_LBF_R11_001.dat'
+$
+$ Left CS1
+INCLUDE '../BULK/MAD_L108_GRIDS_LCS1_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_LCS1_R11_001.dat'
+$
+$ Left CS2
+INCLUDE '../BULK/MAD_L108_GRIDS_LCS2_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_LCS2_R11_001.dat'
+$
+$ Left CS3
+INCLUDE '../BULK/MAD_L108_GRIDS_LCS3_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_LCS3_R11_001.dat'
+$
+$ Left CS4
+INCLUDE '../BULK/MAD_L108_GRIDS_LCS4_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_LCS4_R11_001.dat'
+$
+$ Right Body Flap
+INCLUDE '../BULK/MAD_L108_GRIDS_RBF_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_RBF_R11_001.dat'
+$
+$ Right CS1
+INCLUDE '../BULK/MAD_L108_GRIDS_RCS1_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_RCS1_R11_001.dat'
+$
+$ Right CS2
+INCLUDE '../BULK/MAD_L108_GRIDS_RCS2_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_RCS2_R11_001.dat'
+$
+$ Right CS3
+INCLUDE '../BULK/MAD_L108_GRIDS_RCS3_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_RCS3_R11_001.dat'
+$
+$ Right CS4
+INCLUDE '../BULK/MAD_L108_GRIDS_RCS4_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_CS_RCS4_R11_001.dat'
+$
+$ Concentrated masses
+$
+$ Fuselage Only
+INCLUDE '../BULK/MAD_L108_FUEL_F_R11_RT_001.dat'
+INCLUDE '../BULK/MAD_L108_FUEL_F_R11_LT_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_ACCELS_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_FUSE_CONM2S_R11_011.dat'
+$
+$ Wing Attach Bolts
+INCLUDE '../BULK/MAD_L108_WAB_R11_001.dat'
+$
+$ Wing Only
+$ INCLUDE '../BULK/MAD_L108_CONM2S_WP_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_SG_FLEX_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_STIFF_ACCEL_R11_002.dat'
+INCLUDE '../BULK/MAD_L108_WING_WIRES_R11_001.dat'
+INCLUDE '../BULK/MAD_L108_WING_CONM2S_R11_004.dat'
+$
+$ Winglet Only
+INCLUDE '../BULK/MAD_L108_WL_ACCELS_R11_002T.dat'
+INCLUDE '../BULK/MAD_L108_WL_WIRES_R11_002T.dat'
+$
+$ NASA PreFlight Weight Adjustment per LM NL Sim
+$
+INCLUDE '../BULK/MAD_L108_NASA_MA_R11_24611.dat'
+$
+$
+$ Fuel Weight
+$
+INCLUDE '../BULK/MAD_L108_FUEL_R11_RT10_NASA.dat'
+INCLUDE '../BULK/MAD_L108_FUEL_R11_LT10_NASA.dat'
+$
+$-----------------------------------------------------------------------      
+$------------------------------------------------------------------------
+$
+$ CONM2s for CG Adjustment
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+$ Forward Ballast
+$ Note: 910009 must have 0.041 added to it (from boom mount CONM2 164009)
+$ and 910005 must have 0.032 lbs added to it (from boom mount CONM2 164010)
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+CONM2   910009  10009           0.041
+$CONM2   910009  10009           0.869
+CONM2   910005  10005           0.032
+$CONM2   910005  10005           0.860
+$CONM2   910014  10014           0.671
+$CONM2   910010  10010           0.671
+$
+$ Aft Ballast
+$ Note: 918000 and 918005 must have 0.045 added due to Fuel Foam CONM2s 
+$ 318000 and 318005 respectively
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+CONM2   918000  18000           0.045
+$CONM2   918004  18004           0.294
+CONM2   918005  18005           0.045
+$CONM2   918009  18009           0.294
+$
+$-----------------------------------------------------------------------                
+$ Actuator Stiffness
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+$ CS 1 Pair
+PBUSH   1750    K       1.0E6   1.0E6   1.0E6   9865.5121.0E4   1.0E4
+$ CS 2 Pair
+PBUSH   1751    K       1.0E6   1.0E6   1.0E6   9050.1331.0E4   1.0E4
+$ CS 3 Pair
+PBUSH   1752    K       1.0E6   1.0E6   1.0E6   11733.751.0E4   1.0E4
+$ CS 4 Pair
+PBUSH   1753    K       1.0E6   1.0E6   1.0E6   11459.121.0E4   1.0E4
+$ BF Pair
+PBUSH   1754    K       1.0E6   1.0E6   1.0E6   9874.6011.0E4   1.0E4
+$
+$-----------------------------------------------------------------------
+$-----------------------------------------------------------------------
+$ ---> WING ATTACHMENT BOLTS (5/16 inch) <----
+$
+$      PID 305 --> Wing Attach Bolts
+$
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+PBUSH   305     K       1.4E5   9.0642E61.4E5
+$-----------------------------------------------------------------------
+$
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+CBUSH   30500   305     1000    2000                            0
+CBUSH   30501   305     1001    2001                            0
+CBUSH   30502   305     1002    2002                            0
+CBUSH   30503   305     1003    2003                            0
+CBUSH   30504   305     1004    2004                            0
+CBUSH   30505   305     1005    2005                            0
+CBUSH   30506   305     1006    2006                            0
+CBUSH   30507   305     1007    2007                            0
+CBUSH   30508   305     1008    2008                            0
+CBUSH   30509   305     1009    2009                            0
+CBUSH   30510   305     1010    2010                            0
+CBUSH   30511   305     1011    2011                            0
+$
+$
+$-----------------------------------------------------------------------
+$-----------------------------------------------------------------------
+$
+$ ---> WINGLET ATTACHMENT <----
+$
+$      PID 970 --> WINGLET BOLTS
+$
+$ NOTE: PBUSH 970 R3 CHANGED FROM 1.0E5 to 4.512E4
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+PBUSH   970     K       9.6E5   4.2E5   4.2E4                   4.512E4
+$
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+$ Left
+CBUSH   97000   970     110000  111000                          0  
+CBUSH   97001   970     110001  111001                          0 
+CBUSH   97002   970     110002  111002                          0
+CBUSH   97003   970     110003  111003                          0
+$ Right                    
+CBUSH   97500   970     210000  211000                          0
+CBUSH   97501   970     210001  211001                          0
+CBUSH   97502   970     210002  211002                          0
+CBUSH   97503   970     210003  211003                          0
+$
+$
+$ Left Winglet Lower Ballast
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+CONM2   8120000 120000  0       0.074278-0.056  0.000   0.37
+CONM2   120028  120028  0       0.184823-0.056  0.000   0.37
+CONM2   120056  120056  0       0.215934-0.056  0.000   0.37
+CONM2   120084  120084  0       0.209732-0.056  0.000   0.37
+CONM2   8120112 120112  0       0.202399-0.056  0.000   0.37
+CONM2   120140  120140  0       0.198151-0.056  0.000   0.37
+CONM2   120168  120168  0       0.194063-0.056  0.000   0.37
+CONM2   8120203 120203  0       0.190538-0.056  0.000   0.37
+CONM2   8120238 120238  0       0.188921-0.056  0.000   0.37
+CONM2   8120277 120277  0       0.097988-0.056  0.000   0.37
+$
+$-----------------------------------------------------------------------
+$-----------------------------------------------------------------------                
+$ Left Aft Winglet Ballast
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+$ Tip Ballast
+CONM2   120034  120034  0       0.145643-0.103  0.000   -0.163
+CONM2   120035  120035  0       0.146268-0.103  0.000   -0.163
+CONM2   120036  120036  0       0.146868-0.103  0.000   -0.163
+CONM2   120037  120037  0       0.147531-0.103  0.000   -0.163
+CONM2   120038  120038  0       0.148196-0.103  0.000   -0.163
+CONM2   120039  120039  0       0.149001-0.103  0.000   -0.163
+CONM2   120040  120040  0       0.150861-0.103  0.000   -0.163
+$
+$ Right Winglet Lower Ballast
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+CONM2   8220000 220000  0       0.073909-0.056  0.000   0.37
+CONM2   8220028 220028  0       0.186189-0.056  0.000   0.37
+CONM2   8220056 220056  0       0.223215-0.056  0.000   0.37
+CONM2   8220084 220084  0       0.221028-0.056  0.000   0.37
+CONM2   8220112 220112  0       0.214377-0.056  0.000   0.37
+CONM2   8220140 220140  0       0.210267-0.056  0.000   0.37
+CONM2   8220168 220168  0       0.204150-0.056  0.000   0.37
+CONM2   8220203 220203  0       0.197281-0.056  0.000   0.37
+CONM2   8220238 220238  0       0.190270-0.056  0.000   0.37
+CONM2   8220277 220277  0       0.096645-0.056  0.000   0.37
+$
+$-----------------------------------------------------------------------
+$-----------------------------------------------------------------------                
+$ Right Aft Winglet Ballast
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+$ Tip Ballast
+CONM2   8220034 220034  0       0.146246-0.103  0.000   -0.163
+CONM2   8220035 220035  0       0.144489-0.103  0.000   -0.163
+CONM2   8220036 220036  0       0.144106-0.103  0.000   -0.163
+CONM2   8220037 220037  0       0.143579-0.103  0.000   -0.163
+CONM2   8220038 220038  0       0.142931-0.103  0.000   -0.163
+CONM2   8220039 220039  0       0.143137-0.103  0.000   -0.163
+CONM2   8220040 220040  0       0.142111-0.103  0.000   -0.163
+$
+$-----------------------------------------------------------------------
+$-----------------------------------------------------------------------
+$              
+$_____________   A N A L Y S I S   P A R A M E T E R S   _______________$
+$
+$
+$ GROUND POINT FOR WEIGHT GENERATION
+PARAM     GRDPNT       0
+$ PRE_PROPVERT WEIGHT TO MASS (1/386)  
+PARAM     WTMASS .002591
+$ PRE_PROPVERT FROM IN/SEC TO KNOTS
+PARAM       VREF  20.254
+$ DISABLE AUTO RESEQUENCING
+PARAM     OLDSEQ      -1
+$ SET LIST FOR ALL DOF's (Row format - internal sequence) 
+$ PARAM    USETPRT       0 
+$ PARAM    USETSEL       0 
+$ PARAM   USETSTR1       A 
+$ ELIMINATE SHELL NORMAL ROTATION SIGULARITIES
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0
+PARAM      K6ROT   100.0          
+$ TURN ON AUTOSPC GENERATION  *** TURNED ON ***
+PARAM    AUTOSPC     YES          
+$ PATRAN OUTPUT
+PARAM    POST         -1
+$ Output Single Element Strain
+PARAM   NOCOMPS -1
+
+PARAM,PRGPST,YES
+PARAM,OGEOM,YES $ Ensure GEOM1 in OP2 for femgen
+
+
+ENDDATA

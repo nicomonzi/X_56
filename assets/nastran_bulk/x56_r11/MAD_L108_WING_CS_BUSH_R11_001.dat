@@ -1,0 +1,64 @@
+$
+$  Wing to Control Surface Pins (Bushings)
+$
+$  Taken from MAD_L108_WING_ONLY_FLEX_R10_005.dat on 10/29/12
+$
+$ Hinge Connect
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+$ Body flap to wing connect
+CBUSH   121000  1250    50302   50303                           5
+CBUSH   121001  1260    50304   50305                           5
+CBUSH   121002  1250    50802   50803                           10   
+CBUSH   121003  1260    50804   50805                           10
+$
+$ Wing control surface to wing connect
+CBUSH   131000  1350    51850   51860                           15   
+CBUSH   131001  1360    51870   51880                           15   
+CBUSH   131002  1350    51950   51960                           20   
+CBUSH   131003  1360    51970   51980                           20   
+$
+$ Wing control surface to wing connect
+CBUSH   141000  1350    52400   52401                           15   
+CBUSH   141001  1360    52402   52403                           15   
+CBUSH   141002  1350    52900   52901                           20   
+CBUSH   141003  1360    52902   52903                           20 
+$
+$ Wing control surface to wing connect
+CBUSH   151000  1350    53300   53301                           15   
+CBUSH   151001  1360    53302   53303                           15   
+CBUSH   151002  1350    53800   53801                           20   
+CBUSH   151003  1360    53802   53803                           20   
+$
+$ Wing control surface to wing connect
+CBUSH   161000  1350    54300   54301                           15   
+CBUSH   161001  1360    54302   54303                           15   
+CBUSH   161002  1350    54800   54801                           20   
+CBUSH   161003  1360    54802   54803                           20   
+$
+$ Actuator Path Bushings
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+CBUSH   170006  1735    60003   60004                           30
+CBUSH   170016  1735    60013   60014                           30
+CBUSH   170026  1735    60023   60024                           30
+CBUSH   170036  1735    60033   60034                           30
+CBUSH   170046  1735    60043   60044                           40
+$
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+CBUSH   170506  1735    60503   60504                           35
+CBUSH   170516  1735    60513   60514                           35
+CBUSH   170526  1735    60523   60524                           35
+CBUSH   170536  1735    60533   60534                           35
+CBUSH   170546  1735    60543   60544                           45
+$-----------------------------------------------------------------------
+$ Properties
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+$ Body flap inboard hinge wing-surface connect
+PBUSH   1250    K       1.8E6   1.06E5  1.06E5
+$ Body flap outboard hinge wing-surface connect
+PBUSH   1260    K               1.06E5  1.06E5
+$.......2.......3.......4.......5.......6.......7.......8.......9.......
+$ Wing control surface inboard hinge wing-surface connect
+PBUSH   1350    K       1.8E6   1.06E5  1.06E5
+$ Wing control surface outboard hinge wing-surface connect
+PBUSH   1360    K               1.06E5  1.06E5
+

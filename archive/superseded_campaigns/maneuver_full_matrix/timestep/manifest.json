@@ -1,0 +1,45 @@
+{
+  "source_sha256": {
+    "campaign_generator": "c4a5d01b4d06b068766ec1b44385e441fcc81794d62b571969bbaaee6bf463a7",
+    "campaign_config": "118e097e19be1ae8a60dd23811dd5a601c4335421d303fea70e9caf8b7f1b667",
+    "maneuver_case": "05e77fbef5a2ed8e4403089866b7665c712ae9ee58f5917e9bd0ab5a3ec0af4f",
+    "study_config": "f37dfedca9eff653a6d437bd3ba4eda126fc878ca30808c53f1e667e5842f0ef",
+    "baseline_run_case": "415787cf43e7bc015efa5f351dd3ad107daf4f8b44ed54dd896a108a4856ccd6",
+    "baseline_main": "fa516fbd3a90449d7b4c498a0920e5fb2f423dd7227dde89b31f19e2b5d2cfd7",
+    "fem": "63e23dc991d2f458d7665412abda8ad34ddbb1654822bfc0867e6512a1df252b"
+  },
+  "cases": [
+    {
+      "case_index": 1,
+      "campaign": "timestep",
+      "velocity_mps": 66.75,
+      "nominal_load_factor": 1.6,
+      "time_step_s": 0.005,
+      "mode7_frequency_scale": 1.0,
+      "excited": false,
+      "pitch_rate_command_deg_s": 5.05232896200753,
+      "pitch_amplitude_deg": 10.230966148065248,
+      "stiffness_delta_k7": 0.0,
+      "stem": "timestep__dt_0p0050__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p10p23_qcmd_p05p05_nnom_01p60_shadow",
+      "input_sha256": "10baac687a1748e499193553c5ee6f21e4078ede8f9ec1e6415925e88df8a402",
+      "status": "prepared",
+      "message": "input MBDyn generated; no solver run"
+    },
+    {
+      "case_index": 2,
+      "campaign": "timestep",
+      "velocity_mps": 66.75,
+      "nominal_load_factor": 1.6,
+      "time_step_s": 0.005,
+      "mode7_frequency_scale": 1.0,
+      "excited": true,
+      "pitch_rate_command_deg_s": 5.05232896200753,
+      "pitch_amplitude_deg": 10.230966148065248,
+      "stiffness_delta_k7": 0.0,
+      "stem": "timestep__dt_0p0050__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p10p23_qcmd_p05p05_nnom_01p60_excited",
+      "input_sha256": "a2530d56dcccc1545c6fd7ad2ffb5de7f6b0294d5a7f888df82fb948c3d745f3",
+      "status": "prepared",
+      "message": "input MBDyn generated; no solver run"
+    }
+  ]
+}

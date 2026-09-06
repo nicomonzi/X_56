@@ -1,0 +1,4 @@
+comp_name = X56
+geo_file = meshes/MEDIUM/parametric_mesh.in
+ref_tag = centerbody
+file_name = reports/generated_meshes/medium_geo.h5

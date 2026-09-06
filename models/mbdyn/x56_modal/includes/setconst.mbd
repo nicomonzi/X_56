@@ -1,0 +1,133 @@
+set: const real SAS_Q_REF = 0.5*RHO_AIR*(60.*m2in)*(60.*m2in);  #scalatura pressione e velocità
+set: const real SAS_Q_SCALE = 1.5*SAS_Q_REF/(Q_DYN + 0.5*SAS_Q_REF);
+
+
+set: const real TRIM_SCALE = (1.146e-7/RHO_AIR)*(63./V_INF)*(63./V_INF);
+# Physical aeroelastic pitch reached after closed-loop convergence.  Unlike
+# surface end states, attitude contains no controller-integrator contribution
+# and is therefore safe to use as the scheduled pitch reference (50--70 m/s).
+set: const real TRIM_PITCH = (
+    -4.52589945e-05*V_INF*V_INF*V_INF
+    +9.90399208e-03*V_INF*V_INF
+    -7.64540531e-01*V_INF
+    +2.10173790e+01)*deg2rad;
+set: const real TRIM_SURFACE = -0.32834*TRIM_SCALE*deg2rad;
+set: const real LONG_TRIM_BIAS = 0.*deg2rad;
+set: const real BODY_TRIM_CORRECTION = 0.*deg2rad;
+set: const real BODY_TRIM_SURFACE = 0.03593*TRIM_SCALE*deg2rad;
+
+set: const real TRIM_FRAME_X =  X_CG - cos(TRIM_PITCH)*X_CG - sin(TRIM_PITCH)*Z_CG;
+set: const real TRIM_FRAME_Y = 0.;
+set: const real TRIM_FRAME_Z = Z_CG + sin(TRIM_PITCH)*X_CG - cos(TRIM_PITCH)*Z_CG;
+
+set: const real Q_INIT_7 = -5.033945862198e-01 + 1.616213139584e-05*V_INF*V_INF - 3.2850e-02*TRIM_SCALE;
+set: const real Q_INIT_8 = -2.562292005110e-03 - 3.306551722320e-09*V_INF*V_INF + 1.5170e-03*TRIM_SCALE;
+set: const real Q_INIT_9 = -2.428866391792e-02 + 1.644734988211e-07*V_INF*V_INF - 5.1500e-04*TRIM_SCALE;
+set: const real Q_INIT_10 = 5.354679238553e-02 - 1.961594597194e-06*V_INF*V_INF + 2.8260e-03*TRIM_SCALE;
+set: const real Q_INIT_11 = -1.206861316869e-02 + 1.029764665218e-06*V_INF*V_INF - 9.0000e-06*TRIM_SCALE;
+set: const real Q_INIT_12 = -7.936600053275e-05 + 7.471808861059e-08*V_INF*V_INF - 4.8000e-05*TRIM_SCALE;
+
+# Values rendered by run_case.py from a documented 50--70 m/s schedule.
+# Modal mass is unity in mbdyn_modal.fem.  Positive K7/C7 reduce the
+# sectional model's effective modal stiffness/damping and recover the
+# released NASTRAN SOL 145 point-7 trend.  They are not SAS gains.
+set: const real NASTRAN_DLM_ROM_K7 = 146.37892000;
+set: const real NASTRAN_DLM_ROM_C7 = 3.67894000;
+set: const real NASTRAN_DLM_ROM_Q7_EQ = -0.4304727364;
+set: const real NASTRAN_DLM_ROM_RAMP_TIME = 5.;
+set: const integer NASTRAN_DLM_ROM_FORCE = 9501;
+
+set: const real LP_A1 = 1.946697540756183;
+set: const real LP_A2 = -0.948081706106740;
+set: const real LP_B0 = 0.000346041337639;
+set: const real LP_B1 = 0.000692082675278;
+set: const real LP_B2 = 0.000346041337639;
+
+# First-order low-pass filters at dt=0.01 s: altitude 0.15 Hz, Vz and q 1 Hz.
+# The former Vz cutoff of 0.35 Hz added excessive phase lag to the flight-path
+# mode and prevented the aircraft from becoming stationary before release.
+set: const real ALT_LP_A1 = 0.990619357836468;
+set: const real ALT_LP_B0 = 0.004690321081766;
+set: const real ALT_LP_B1 = 0.004690321081766;
+set: const real VZ_LP_A1 = 0.939101367424293;
+set: const real VZ_LP_B0 = 0.030449316287854;
+set: const real VZ_LP_B1 = 0.030449316287854;
+set: const real Q_LP_A1 = 0.939101367424293;
+set: const real Q_LP_B0 = 0.030449316287854;
+set: const real Q_LP_B1 = 0.030449316287854;
+
+# Attuatori Tustin del primo ordine, tau=0.01 s e dt=0.01 s.
+set: const real ACT_A1 = 0.333333333333333;
+set: const real ACT_B0 = 0.333333333333333;
+set: const real ACT_B1 = 0.333333333333333;
+set: const real SURFACE_CORRECTION_LIMIT = 8.*deg2rad;
+# Il mantenimento della traiettoria usa le superfici alari interne con una
+# banda molto piu' bassa del BFF durante settling e recupero. I suoi stati
+# continuano a evolvere, ma l'uscita al plant e' congelata durante SAS-off.
+set: const real LIFT_HOLD_GAIN = -0.58;
+set: const real LIFT_CORRECTION_LIMIT = 4.*deg2rad;
+# Closed-loop-only generalized damping.  A value of 60 destabilized the
+# coupled rigid/flexible settling transient at 65 m/s; 16 completed the same
+# case without dominating the flight-path controller.
+set: const real SAS_MODAL_DAMPING = 16.;
+
+
+set: const integer ALT_PID = 9101;
+set: const integer VZ_PID = 9102;
+set: const integer PITCH_PID = 9103;
+set: const integer Q_PID = 9104;
+set: const integer ROLL_PID = 9201;
+set: const integer P_PID = 9202;
+set: const integer YAW_PID = 9301;
+set: const integer R_PID = 9302;
+set: const integer VY_PID = 9303;
+
+set: const integer ALT_DRIVE = 10101;
+set: const integer ALT_RAW_DRIVE = 10100;
+set: const integer VZ_DRIVE = 10102;
+set: const integer PITCH_DRIVE = 10103;
+set: const integer Q_DRIVE = 10104;
+set: const integer LONG_RAW_DRIVE = 10105;
+set: const integer LONG_LIMIT_DRIVE = 10106;
+set: const integer LONG_ACT_DRIVE = 10107;
+set: const integer ROLL_DRIVE = 10201;
+set: const integer P_DRIVE = 10202;
+set: const integer LAT_RAW_DRIVE = 10203;
+set: const integer LAT_LIMIT_DRIVE = 10204;
+set: const integer LAT_ACT_DRIVE = 10205;
+set: const integer YAW_DRIVE = 10301;
+set: const integer R_DRIVE = 10302;
+set: const integer DIR_RAW_DRIVE = 10303;
+set: const integer DIR_LIMIT_DRIVE = 10304;
+set: const integer DIR_ACT_DRIVE = 10305;
+set: const integer VY_DRIVE = 10306;
+set: const integer BFF_RAP_RAW_DRIVE = 10501;
+set: const integer BFF_RAP_ACT_DRIVE = 10502;
+set: const integer OPEN_LOOP_SAMPLE_TRIGGER = 10503;
+set: const integer LIFT_RAW_DRIVE = 10601;
+set: const integer LIFT_LIMIT_DRIVE = 10602;
+set: const integer LIFT_ACT_DRIVE = 10603;
+set: const integer SAS_MODAL_DAMPER_FORCE = 9502;
+# Comandi totali live e sample-and-hold delle dieci superfici.
+set: const integer BFL_LIVE_DRIVE = 11001;
+set: const integer BFL_HOLD_DRIVE = 11002;
+set: const integer BFR_LIVE_DRIVE = 11003;
+set: const integer BFR_HOLD_DRIVE = 11004;
+set: const integer WF1L_LIVE_DRIVE = 11005;
+set: const integer WF1L_HOLD_DRIVE = 11006;
+set: const integer WF1R_LIVE_DRIVE = 11007;
+set: const integer WF1R_HOLD_DRIVE = 11008;
+set: const integer WF2L_LIVE_DRIVE = 11009;
+set: const integer WF2L_HOLD_DRIVE = 11010;
+set: const integer WF2R_LIVE_DRIVE = 11011;
+set: const integer WF2R_HOLD_DRIVE = 11012;
+set: const integer WF3L_LIVE_DRIVE = 11013;
+set: const integer WF3L_HOLD_DRIVE = 11014;
+set: const integer WF3R_LIVE_DRIVE = 11015;
+set: const integer WF3R_HOLD_DRIVE = 11016;
+set: const integer WF4L_LIVE_DRIVE = 11017;
+set: const integer WF4L_HOLD_DRIVE = 11018;
+set: const integer WF4R_LIVE_DRIVE = 11019;
+set: const integer WF4R_HOLD_DRIVE = 11020;
+set: const integer WF4L_COMMAND_DRIVE = 11021;
+set: const integer WF4R_COMMAND_DRIVE = 11022;

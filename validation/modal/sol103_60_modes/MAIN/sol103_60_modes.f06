@@ -1,0 +1,808 @@
+1
+ 
+ 
+ 
+ 
+                      Warning: This computer program is protected by copyright law and international treaties.       
+                  Unauthorized use, reproduction or distribution of this computer program, or any portion of it, may 
+                                          result in severe civil and criminal penalties.                             
+                         Copyright (C) 2024 Hexagon AB and/or its subsidiaries. All rights reserved.                 
+ 
+ 
+                                              * * * * * * * * * * * * * * * * * * * *
+                                              * * * * * * * * * * * * * * * * * * * *
+                                              * *                                 * *
+                                              * *           Hexagon AB            * *
+                                              * *                                 * *
+                                              * *                                 * *
+                                              * *      M S C   N a s t r a n      * *
+                                              * *                                 * *
+                                              * *                                 * *
+                                              * *                                 * *
+                                              * *     Version 2024.1-CL942729     * *
+                                              * *                                 * *
+                                              * *                                 * *
+                                              * *                                 * *
+                                              * *          MAY 13, 2024           * *
+                                              * *                                 * *
+                                              * *       x86-64 Based System       * *
+                                              * *MODEL Intel Intel(R) Xeon(R) Gol * *
+                                              * *     Linux 6.8.0-136-generic     * *
+                                              * *       Compiled for x8664        * *
+                                              * *                                 * *
+                                              * * * * * * * * * * * * * * * * * * * *
+                                              * * * * * * * * * * * * * * * * * * * *
+1News file
+  
+               Welcome to MSC Nastran 2024.1
+  
+   MSC Nastran brings powerful new features and enhancements for engineering
+   solutions in several releases through the year. Key enhancements in
+   Version 2024.1 are summarized below. Addtional details can be found in
+   the MSC Nastran Version 2024.1 Release Guide.
+  
+     MSC Nastran 2024.1 Features and Enhancements
+  
+     High Performance Computing
+     - Reduced runtime for linear statics with large number of load cases,
+       particularly when MAXMIN is requested (PARAM,PRTMAXIM)
+     - New DOMAINSOLVER option: STATRED
+       - Uses Automatic Multi-level Static Reduction to compute A-set
+         (boundary) static reduction
+       - Available for External Superelements and External Modules in
+         static analysis
+     - MUMPS solver out-of-core capability available for large models
+     - MUMPS solver DMP capability integrated into Lanczos - both normal modes
+       and buckling
+     - Faster Coupled Modes method
+       - Available in SOLs 103, 111 and 200
+       - Also available for External Superelement analysis
+  
+     High Performance SOL 400 (NLPERF)
+     - MUMPS solver added with both SMP and DMP parallel scalability
+     - SMP scalability up to 32 threads
+     - New Convergence monitor for job monitoring during analysis
+     - Contact support enabled with the Arc-Length Method
+  
+     Rotordynamics
+     - SOL 128 post processing improvements to output iterative outputs for
+       displacements and nonlinear load in CSV format. Provide outputs for
+       selected frequencies of interest.
+  
+     HDF5 Module output control
+     - Module model data and results may be optionally appended to an existing
+       HDF5 file for results grouping
+     - MDSET Case Control command provides a means to select specific modules
+       for data recovery when there are duplicate element or grid IDs across
+       modules
+  
+     NVH
+     - Single-step Transfer Path Analysis (TPA) in SOL 111 for Simplified
+       Estimation and Ranking of Noise and Vibration contributions via the
+       different Transmission Paths in a Structure or Structure-Cavity System
+     - Reduced disk space requirements and faster solution time for models
+       with poroelastic materials (PEM)
+1    - PEAKOUT capability extended for Equivalent Radiated Power (ERP) at
+       peak frequencies.
+     - Modeling of glue lines in linear solutions using cohesive elements
+  
+     ADAMS MNF Enhancement
+     - Fluid modes at acoustic grids can now be included in the MNF to
+       facilitate the recovery of acoustic pressure directly in Adams
+     - Rotordynamic effects can now be included in the MNF to allow Adams to
+       capture rotordynamic effects
+  
+     Documentation
+     - The complete documentation set is provided in a separate installer and
+       when installed is available at: MSC_DOC_DIR/doc/pdf_nastran directory,
+       where MSC_DOC_DIR is the directory where documentation was installed.
+       This help set includes cross references between documents, and links to
+       how-to videos, and example files
+  
+     Individual MSC Nastran documents are available for download from the
+       Simcompanion Website at:
+       http://simcompanion.hexagon.com/
+  
+     The documentation set includes the following:
+  
+         1.  MSC Nastran 2024.1 Installation and Operations Guide
+         2.  MSC Nastran 2024.1 Quick Reference Guide
+         3.  MSC Nastran 2024.1 Release Guide
+         4.  MSC Nastran 2024.1 Linear Statics Analysis User's Guide
+         5.  MSC Nastran 2024.1 Dynamic Analysis User's Guide
+         6.  MSC Nastran 2024.1 Superelements User's Guide
+         7.  MSC Nastran 2024.1 Rotordynamics User's Guide
+         8.  MSC Nastran 2024.1 Demonstration Problems Manual
+         9.  MSC Nastran 2024.1 Nastran Embedded Fatigue User's Guide
+        10.  MSC Nastran 2024.1 Design Sensitivity and Optimization
+        11.  MSC Nastran 2024.1 Nonlinear User's Guide SOL 400
+        12.  MSC Nastran 2024.1 DMAP Programmer's Guide
+        13.  MSC Nastran 2024.1 High Performance Computing User's Guide
+        14.  MSC Nastran 2024.1 New Verification Manual
+        15.  MSC Nastran 2024.1 DEMATD Guide
+        16.  MSC Nastran 2024.1 Explicit Nonlinear (SOL 700) User's Guide
+        17.  MSC Nastran 2024.1 ACMS User's Guide
+  
+   Please refer to  MSC_DOC_DIR/doc/pdf_nastran/nastran_library.pdf
+   for the complete document set:
+  
+  
+   Additional information about the release can be found at the MSC Nastran
+   Product Support page: http://simcompanion.hexagon.com
+  
+   The support page provides links to these valuable information:
+      * A searchable Knowledge Base containing examples and answers to thousands
+1       of frequently asked questions written by MSC Software subject-matter
+        experts.
+      * Peer-to-peer Discussion Forums enabling you to post questions for your
+        MSC Software products and receive answers from other users worldwide.
+      * A list of known issues with the product and any workarounds.
+      * Instructions on how to contact technical support
+      * A mechanism for sending us product feedback or enhancement requests.
+      * Hardware and software requirements.
+      * Examples and Tutorials
+      * and much more.
+  
+   For information on training, please visit our Training web site
+  
+      https://hexagon.com/support-success/manufacturing-intelligence/
+      design-engineering-support/training-materials
+  
+1                                                                            AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE     1
+                                                                                                                                    
+0        N A S T R A N    F I L E    A N D    S Y S T E M    P A R A M E T E R    E C H O                                           
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+     NASTRAN BUFFSIZE=65537 $(/USR/LOCAL/MSC_NASTRAN/2024.1/CONF/NAST20241RC[4])     
+     $ $(/USR/LOCAL/MSC_NASTRAN/2024.1/CONF/NAST20241RC[6])                          
+     $ $(/USR/LOCAL/MSC_NASTRAN/2024.1/CONF/NAST20241RC[11])                         
+     $ END $(/USR/LOCAL/MSC_NASTRAN/2024.1/CONF/NAST20241RC[13])                     
+     NASTRAN Q4TAPER=0.7,T3SKEW=3.0                                                  
+     INIT MASTER(S)                                                                  
+     $INCLUDE ./MBDyn_ALTER_103.nas                                                  
+     $ $HEADER$                                                                      
+     $ ALTER FOR MSC/NASTRAN 2024.1 SOL 103                                          
+     $ SOL 103 MODAL ANALYSIS - OUTPUT USING STANDARD OP2                            
+     $                                                                               
+     $ MBDYN (C) IS A MULTIBODY ANALYSIS CODE.                                       
+     $ HTTP://WWW.MBDYN.ORG                                                          
+     $                                                                               
+     $ USAGE:                                                                        
+     $   IN YOUR BDF FILE:                                                           
+     $     INCLUDE 'MBDYN_NASTRAN_ALTER_SOL103_2024.NAS'                             
+     $     CEND                                                                      
+     $                                                                               
+     $   ENABLE STANDARD .OP2 OUTPUT IN CASE CONTROL:                                
+     $     DISPLACEMENT(PLOT) = ALL                                                  
+     $     VECTOR(PLOT) = ALL                                                        
+     $                                                                               
+     $   ENABLE .OP2 OUTPUT WITH GEOMETRY IN THE BULK DATA:                          
+     $     PARAM,OGEOM,YES                                                           
+     $     PARAM,POST,-1                                                             
+     $                                                                               
+     $ OUTPUT FILES:                                                                 
+     $   MBDYN_MODAL.MAT : MODAL MATRICES (MHH, KHH, LUMPMS) VIA OUTPUT4             
+     $   <MODEL>.OP2     : GEOMETRY (GEOM1) AND MODE SHAPES (OUG1) - STANDARD NASTRAN
+     $                                                                               
+     $ RUNNING FEMGEN:                                                               
+     $   FEMGEN MYMODEL              -> READS MYMODEL.OP2, MBDYN_MODAL.MAT -> MYMODEL
+     $   FEMGEN MYMODEL -O OUTPUT    -> READS MYMODEL.OP2, MBDYN_MODAL.MAT -> OUTPUT.
+     $                                                                               
+     $ NOTE: FEMGEN AUTOMATICALLY FINDS MBDYN_MODAL.MAT IF <MODEL>.MAT DOESN'T EXIST 
+     $                                                                               
+     $--------------------------------------------------------------------------     
+     ASSIGN OUTPUT4='mbdyn_modal.mat' STATUS=UNKNOWN UNIT=15                         
+1                                                                            AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE     2
+                                                                                                                                    
+0        N A S T R A N    E X E C U T I V E    C O N T R O L    E C H O                                                             
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+     SOL 103                                                                                 
+     TIME 500                                                                                
+     $ OUTPUT MODAL MATRICES AFTER XREAD COMPUTES THEM                                       
+     COMPILE      XREAD                                                                      
+     ALTER        131                                                                        
+     $ RENAME MIX TO MHH (MODAL MASS) FOR FEMGEN COMPATIBILITY                               
+     EQUIVX       MIX/MHH/-1 $                                                               
+     $ BUILD KHH (DIAGONAL EIGENVALUES MATRIX) FROM LAMA TABLE                               
+     LAMX         , ,LAMA/KHH/-1 $                                                           
+     $ OUTPUT MHH AND KHH TO MBDYN_MODAL.MAT (CONTINUE WRITING, DON'T CLOSE)                 
+     OUTPUT4      MHH,KHH,,//-1/15 $                                                         
+     ENDALTER                                                                                
+     $ OUTPUT LUMPED MASS FROM SEDRCVR (CONTINUE WRITING, FILE STAYS OPEN)                   
+     COMPILE      SEDRCVR                                                                    
+     ALTER        2700                                                                       
+     DIAGONAL     MGG/LUMPMS/'COLUMN'/1.  $                                                  
+     OUTPUT4      LUMPMS,,,//-2/15 $                                                         
+     ENDALTER                                                                                
+     $END OF INCLUDE FILE ./MBDyn_ALTER_103.nas                                              
+     CEND                                                                                    
+ *** USER WARNING MESSAGE 408 (CTYPE)
+     PARAMETER PREFDB HAS BEEN PREVIOUSLY DEFINED TO THE VPS (PARAMETER) TABLE. THIS DEFINITION IS IGNORED.
+     USER INFORMATION: THIS PARAMETER MAY BE EITHER A PERMANENT VPS TABLE ENTRY, OR DEFINED BY A PREVIOUS TYPE STATEMENT.
+ *** USER WARNING MESSAGE 409 (CTYPE)
+     THE PARAMETER PREFDB IS IGNORED BECAUSE IT HAS BEEN PREVIOUSLY DEFINED IN A  TYPE DMAP  STATEMENT
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE     3
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+0                                        C A S E    C O N T R O L    E C H O                                                        
+                 COMMAND                                                                                                            
+                 COUNT                                                                                                              
+                  1      $                                                                                       
+                  2      $                                                                                       
+                  3      TITLE=NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                         
+                  4      SUBTITLE=10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                      
+                  5      ECHO=NONE                                                                               
+                  6      $ FEMGEN REQUIRES COMPLETE EIGENVECTORS FOR ALL 8527 GRIDS IN THE OP2.                  
+                  7      $ FREQUENCIES REMAIN AVAILABLE IN THE F06 EIGENVALUE SUMMARY.                           
+                  8      DISPLACEMENT(PLOT)=ALL                                                                  
+                  9      VECTOR(PLOT)=ALL                                                                        
+ *** USER WARNING MESSAGE 602 (IFP1D)
+     TWO OR MORE OF THE ABOVE CARD TYPES DETECTED WHERE ONLY ONE IS
+     LEGAL.   THE LAST FOUND WILL BE USED.
+                 10      METHOD=1                                                                                
+                 11      BEGIN BULK                                                                              
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE     4
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+                                              I N P U T   B U L K   D A T A   E C H O                                               
+                 ENTRY                                                                                                              
+                 COUNT        .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
+                              $INCLUDE "./rbe3s.bdf"
+                              $END OF INCLUDE "./rbe3s.bdf"
+                              $INCLUDE "../BULK/MAD_L108_COORD_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_COORD_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_MAT_R11_004T.dat"
+ *** USER INFORMATION MESSAGE 9991 (SDLWIF)
+     Messages are being generated at include level 1.
+     File: ../BULK/MAD_L108_MAT_R11_004T.dat
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=210 near line 22
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=310 near line 61
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+                              $END OF INCLUDE "../BULK/MAD_L108_MAT_R11_004T.dat"
+                              $INCLUDE "../BULK/MAD_L108_MAT_ADD_R11_001.dat"
+ *** USER INFORMATION MESSAGE 9991 (SDLWIF)
+     Messages are being generated at include level 1.
+     File: ../BULK/MAD_L108_MAT_ADD_R11_001.dat
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=402 near line 6
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=800 near line 74
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=501 near line 82
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=502 near line 83
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=503 near line 84
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=504 near line 85
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=505 near line 87
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+ *** USER WARNING MESSAGE 9994 (BULFUN)
+     MAT1 with MID=450 near line 121
+     User information:  Material has unreasonable or inconsistent values of E, G or NU.
+                              $END OF INCLUDE "../BULK/MAD_L108_MAT_ADD_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_FUSE_R11_004.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_FUSE_R11_004.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_R11_002.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_R11_002.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_UBM_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_UBM_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_E_R11_003T.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_E_R11_003T.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_LG_R11_009.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_LG_R11_009.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_INT_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_INT_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_MOD_U_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_MOD_U_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_MOD_L_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_MOD_L_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_BRSIN_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_BRSIN_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_CAVB_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_CAVB_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_PID_R11_016.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_PID_R11_016.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_PAN_GRID_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_PAN_GRID_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_PANELS_R11_003.dat"
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE     5
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+                                              I N P U T   B U L K   D A T A   E C H O                                               
+                 ENTRY                                                                                                              
+                 COUNT        .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_PANELS_R11_003.dat"
+                              $INCLUDE "../BULK/MAD_L108_BOOM_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_BOOM_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_WA_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_WA_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_MLG_R11_011.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_MLG_R11_011.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_WING_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_WING_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_ONLY_FLEX_R11_006T.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_ONLY_FLEX_R11_006T.dat"
+                              $INCLUDE "../BULK/MAD_L108_ACT_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_ACT_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_FLEX_SO_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_FLEX_SO_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_FLEX_SPL_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_FLEX_SPL_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_FLEX_INT_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_FLEX_INT_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_AAP_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_AAP_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_FLEX_AAF_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_FLEX_AAF_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_FLEX_LE_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_FLEX_LE_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_LE_RIBLET_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_LE_RIBLET_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_WA_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_WA_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_WLA_R11_003T.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_WLA_R11_003T.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_CS_BUSH_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_CS_BUSH_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_FAIR_R11_002.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_FAIR_R11_002.dat"
+                              $INCLUDE "../BULK/MAD_L108_WINGLET_LT_R11_002T.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WINGLET_LT_R11_002T.dat"
+                              $INCLUDE "../BULK/MAD_L108_WINGLET_RT_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WINGLET_RT_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WINGLET_PROP_R11_002T.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WINGLET_PROP_R11_002T.dat"
+                              $INCLUDE "../BULK/MAD_L108_PROP_CS_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_PROP_CS_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_FLEX1_ADJ_R11_002T.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_FLEX1_ADJ_R11_002T.dat"
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE     6
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+                                              I N P U T   B U L K   D A T A   E C H O                                               
+                 ENTRY                                                                                                              
+                 COUNT        .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_LBF_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_LBF_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_LBF_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_LBF_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_LCS1_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_LCS1_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_LCS1_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_LCS1_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_LCS2_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_LCS2_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_LCS2_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_LCS2_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_LCS3_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_LCS3_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_LCS3_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_LCS3_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_LCS4_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_LCS4_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_LCS4_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_LCS4_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_RBF_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_RBF_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_RBF_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_RBF_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_RCS1_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_RCS1_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_RCS1_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_RCS1_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_RCS2_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_RCS2_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_RCS2_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_RCS2_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_RCS3_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_RCS3_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_RCS3_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_RCS3_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_GRIDS_RCS4_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_GRIDS_RCS4_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_CS_RCS4_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_CS_RCS4_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUEL_F_R11_RT_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUEL_F_R11_RT_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUEL_F_R11_LT_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUEL_F_R11_LT_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_ACCELS_R11_001.dat"
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE     7
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+                                              I N P U T   B U L K   D A T A   E C H O                                               
+                 ENTRY                                                                                                              
+                 COUNT        .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_ACCELS_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUSE_CONM2S_R11_011.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUSE_CONM2S_R11_011.dat"
+                              $INCLUDE "../BULK/MAD_L108_WAB_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WAB_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_SG_FLEX_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_SG_FLEX_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_STIFF_ACCEL_R11_002.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_STIFF_ACCEL_R11_002.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_WIRES_R11_001.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_WIRES_R11_001.dat"
+                              $INCLUDE "../BULK/MAD_L108_WING_CONM2S_R11_004.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WING_CONM2S_R11_004.dat"
+                              $INCLUDE "../BULK/MAD_L108_WL_ACCELS_R11_002T.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WL_ACCELS_R11_002T.dat"
+                              $INCLUDE "../BULK/MAD_L108_WL_WIRES_R11_002T.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_WL_WIRES_R11_002T.dat"
+                              $INCLUDE "../BULK/MAD_L108_NASA_MA_R11_24611.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_NASA_MA_R11_24611.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUEL_R11_RT10_NASA.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUEL_R11_RT10_NASA.dat"
+                              $INCLUDE "../BULK/MAD_L108_FUEL_R11_LT10_NASA.dat"
+                              $END OF INCLUDE "../BULK/MAD_L108_FUEL_R11_LT10_NASA.dat"
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE     8
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+                                        M O D E L   S U M M A R Y          BULK = 0
+                                   ENTRY NAME        NUMBER OF ENTRIES
+                                   ----------        -----------------
+                                         CBAR                     1682
+                                        CBEAM                      222
+                                        CBUSH                      181
+                                        CHEXA                      316
+                                        CONM2                      639
+                                       CORD1R                        1
+                                       CORD2R                       23
+                                       CPENTA                      158
+                                       CQUAD4                     8668
+                                       CQUADR                       88
+                                         CROD                       14
+                                       CTRIA3                      325
+                                       CTRIAR                       40
+                                        EIGRL                        2
+                                         GRID                     8527
+                                         MAT1                       18
+                                         MAT2                       11
+                                         MAT8                       10
+                                         MAT9                        1
+                                        PARAM                       10
+                                         PBAR                      127
+                                        PBARL                        1
+                                        PBEAM                        6
+                                        PBUSH                       27
+                                        PCOMP                      127
+                                         PROD                        2
+                                       PSHELL                       42
+                                       PSOLID                        2
+                                         RBE2                        7
+                                         RBE3                       61
+
+ ^^^     
+ ^^^ >>> IFP OPERATIONS COMPLETE <<< 
+ ^^^     
+ *** USER INFORMATION MESSAGE 4109 (OUTPX2)
+     THE LABEL IS XXXXXXXX FOR FORTRAN UNIT    12
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =          7 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          8 RECORDS.)
+                (TOTAL DATA WRITTEN FOR LABEL =         17 WORDS.)
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE     9
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK GEOM1X   WRITTEN ON FORTRAN UNIT    12 IN BINARY (LTLEND) FORMAT USING NDDL DESCRIPTION FOR GEOM168, TRL =
+                    101                 0             18432                 8                 0                 0                 0
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS GEOM1   
+        (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =      131074 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =       68219 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          30 RECORDS.)
+           (TOTAL DATA WRITTEN FOR DATA BLOCK =       68569 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK GEOM2X   WRITTEN ON FORTRAN UNIT    12 IN BINARY (LTLEND) FORMAT USING NDDL DESCRIPTION FOR GEOM201, TRL =
+                    102                 2               324               128              9248               129                16
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS GEOM2   
+        (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =      131074 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      121355 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          70 RECORDS.)
+           (TOTAL DATA WRITTEN FOR DATA BLOCK =      178876 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK GEOM4X   WRITTEN ON FORTRAN UNIT    12 IN BINARY (LTLEND) FORMAT USING NDDL DESCRIPTION FOR GEOM4705, TRL =
+                    104                 0                 0                 0                 0              2560                 0
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS GEOM4   
+        (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =      131074 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =        1934 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          25 RECORDS.)
+           (TOTAL DATA WRITTEN FOR DATA BLOCK =        2009 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK EPTX     WRITTEN ON FORTRAN UNIT    12 IN BINARY (LTLEND) FORMAT USING NDDL DESCRIPTION FOR EPT01, TRL =
+                    105               132              4896                 0              1024                 0                32
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS EPT     
+        (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =      131074 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =        2571 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          55 RECORDS.)
+           (TOTAL DATA WRITTEN FOR DATA BLOCK =        8646 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK MPTS     WRITTEN ON FORTRAN UNIT    12 IN BINARY (LTLEND) FORMAT USING NDDL DESCRIPTION FOR MPTS, TRL =
+                    101             49152               192                 0                 0                 0                 0
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS MPT     
+        (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =      131074 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =       10675 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          35 RECORDS.)
+           (TOTAL DATA WRITTEN FOR DATA BLOCK =       11189 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK DYNAMICS WRITTEN ON FORTRAN UNIT    12 IN BINARY (LTLEND) FORMAT USING NDDL DESCRIPTION FOR DYNAMICS, TRL =
+                    103               256                 0                 0                 0                 0                 0
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS DYNAMICS
+        (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =      131074 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =          57 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          20 RECORDS.)
+           (TOTAL DATA WRITTEN FOR DATA BLOCK =          88 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK CASESO   WRITTEN ON FORTRAN UNIT    12 IN BINARY (LTLEND) FORMAT USING NDDL DESCRIPTION FOR CASES, TRL =
+                    101                 1                 0              1000                 0                 0                 0
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS CASECC  
+        (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =      131074 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =        1000 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          15 RECORDS.)
+           (TOTAL DATA WRITTEN FOR DATA BLOCK =        1024 WORDS.)
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE    10
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK CSTMS    WRITTEN ON FORTRAN UNIT    12 IN BINARY (LTLEND) FORMAT USING NDDL DESCRIPTION FOR CSTMS, TRL =
+                    102              8527                24                 1                 2               288                 0
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS CSTM    
+        (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =      131074 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =         288 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          20 RECORDS.)
+           (TOTAL DATA WRITTEN FOR DATA BLOCK =         412 WORDS.)
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE    11
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+                           O U T P U T   F R O M   G R I D   P O I N T   W E I G H T   G E N E R A T O R
+0                                                     REFERENCE POINT =        0
+                                                                M O
+                      *  4.191477E+02  4.209802E-16 -4.696573E-17 -5.284980E-14  4.243368E+04 -4.964304E+01 *
+                      *  4.619661E-16  4.191477E+02  1.050344E-18 -4.243368E+04  5.329725E-14  6.840382E+04 *
+                      *  9.814783E-18  1.300496E-18  4.191477E+02  4.964304E+01 -6.840382E+04 -9.490969E-16 *
+                      * -5.036169E-14 -4.243368E+04  4.964304E+01  5.912664E+06 -6.094331E+03 -6.938089E+06 *
+                      *  4.243368E+04  4.164535E-14 -6.840382E+04 -6.094331E+03  1.569757E+07 -4.288733E+03 *
+                      * -4.964304E+01  6.840382E+04  2.283340E-16 -6.938089E+06 -4.288733E+03  1.299487E+07 *
+                                                                 S
+                                           *  1.000000E+00  0.000000E+00  0.000000E+00 *
+                                           *  0.000000E+00  1.000000E+00  0.000000E+00 *
+                                           *  0.000000E+00  0.000000E+00  1.000000E+00 *
+                               DIRECTION
+                          MASS AXIS SYSTEM (S)     MASS              X-C.G.        Y-C.G.        Z-C.G.
+                                  X            4.191477E+02     -1.260887E-16  1.184380E-01  1.012380E+02
+                                  Y            4.191477E+02      1.631974E+02  1.271562E-16  1.012380E+02
+                                  Z            4.191477E+02      1.631974E+02  1.184380E-01 -2.264349E-18
+                                                                I(S)
+                                           *  1.616757E+06 -2.007283E+03  1.302301E+04 *
+                                           * -2.007283E+03  2.383475E+05 -7.370287E+02 *
+                                           *  1.302301E+04 -7.370287E+02  1.831537E+06 *
+                                                                I(Q)
+                                           *  1.832324E+06                             *
+                                           *                2.383443E+05               *
+                                           *                              1.615974E+06 *
+                                                                 Q
+                                           *  6.030355E-02 -1.460710E-03  9.981790E-01 *
+                                           * -3.856014E-04  9.999988E-01  1.486668E-03 *
+                                           * -9.981800E-01 -4.745506E-04  6.030291E-02 *
+
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE    12
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE    13
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+0 RESULTANTS ABOUT ORIGIN OF SUPERELEMENT BASIC COORDINATE SYSTEM IN SUPERELEMENT BASIC SYSTEM COORDINATES.
+
+0                                                  OLOAD    RESULTANT       
+  SUBCASE/    LOAD
+  DAREA ID    TYPE       T1            T2            T3            R1            R2            R3
+0        1     FX    0.000000E+00     ----          ----          ----       0.000000E+00  0.000000E+00                             
+               FY       ----       0.000000E+00     ----       0.000000E+00     ----       0.000000E+00                             
+               FZ       ----          ----       0.000000E+00  0.000000E+00  0.000000E+00     ----                                  
+               MX       ----          ----          ----       0.000000E+00     ----          ----                                  
+               MY       ----          ----          ----          ----       0.000000E+00     ----                                  
+               MZ       ----          ----          ----          ----          ----       0.000000E+00                             
+             TOTALS  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE    14
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+0                                         G R I D   P O I N T   S I N G U L A R I T Y   T A B L E
+0                             POINT    TYPE   FAILED      STIFFNESS       OLD USET           NEW USET
+                               ID            DIRECTION      RATIO     EXCLUSIVE  UNION   EXCLUSIVE  UNION
+                           990024        G      1         0.00E+00          B        F         SB       SB   *
+                           990024        G      2         0.00E+00          B        F         SB       SB   *
+                           990024        G      3         0.00E+00          B        F         SB       SB   *
+                           990024        G      4         0.00E+00          B        F         SB       SB   *
+                           990024        G      5         0.00E+00          B        F         SB       SB   *
+                           990024        G      6         0.00E+00          B        F         SB       SB   *
+                           991024        G      1         0.00E+00          B        F         SB       SB   *
+                           991024        G      2         0.00E+00          B        F         SB       SB   *
+                           991024        G      3         0.00E+00          B        F         SB       SB   *
+                           991024        G      4         0.00E+00          B        F         SB       SB   *
+                           991024        G      5         0.00E+00          B        F         SB       SB   *
+                           991024        G      6         0.00E+00          B        F         SB       SB   *
+ *** USER INFORMATION MESSAGE 5010 (LNCILS)
+     STURM SEQUENCE DATA FOR EIGENVALUE EXTRACTION.
+     TRIAL EIGENVALUE = 1.678345D+01, CYCLES = 6.520197D-01 THE STURM COUNT = 6
+ *** USER INFORMATION MESSAGE 5010 (LNCILS)
+     STURM SEQUENCE DATA FOR EIGENVALUE EXTRACTION.
+     TRIAL EIGENVALUE = 1.573399D+05, CYCLES = 6.313054D+01 THE STURM COUNT = 60
+
+ TABLE OF SHIFTS:  (LNNRIGL)
+ SHIFT #        SHIFT VALUE         FREQUENCY, CYCLES     # EIGENVALUES BELOW    # NEW EIGENVALUES FOUND
+     1.        1.6783446E+01          6.5201968E-01                 6                       72
+     2.        1.5733987E+05          6.3130543E+01                60                        0
+
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE    15
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+0
+
+
+                          E I G E N V A L U E  A N A L Y S I S   S U M M A R Y   (READ MODULE) 
+
+
+
+                                     BLOCK SIZE USED ......................     7
+
+                                     NUMBER OF DECOMPOSITIONS .............     2
+
+                                     NUMBER OF ROOTS FOUND ................    60
+
+                                     NUMBER OF SOLVES REQUIRED ............    26
+
+ *** USER INFORMATION MESSAGE 4106 (OUTPT4)
+     DATA BLOCK MHH WRITTEN ON FORTRAN UNIT 15 FROM DMAP MODULE OUTPUT4 IN BINARY (LTLEND) FORMAT 
+     TRAILER=      101       60       60        6        1        1      167
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS MHH
+ *** USER INFORMATION MESSAGE 4106 (OUTPT4)
+     DATA BLOCK KHH WRITTEN ON FORTRAN UNIT 15 FROM DMAP MODULE OUTPUT4 IN BINARY (LTLEND) FORMAT 
+     TRAILER=      102        5       60        2        1       60    10000
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS KHH
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE    16
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+ 
+                                              R E A L   E I G E N V A L U E S
+   MODE    EXTRACTION      EIGENVALUE            RADIANS             CYCLES            GENERALIZED         GENERALIZED
+    NO.       ORDER                                                                       MASS              STIFFNESS
+        1         1       -1.330873E-06        1.153635E-03        1.836067E-04        1.000000E+00       -1.330873E-06
+        2         2       -6.288178E-07        7.929803E-04        1.262067E-04        1.000000E+00       -6.288178E-07
+        3         3       -2.486334E-07        4.986315E-04        7.935967E-05        1.000000E+00       -2.486334E-07
+        4         4        8.812955E-07        9.387734E-04        1.494104E-04        1.000000E+00        8.812955E-07
+        5         5        3.052939E-06        1.747266E-03        2.780860E-04        1.000000E+00        3.052939E-06
+        6         6        1.845733E-05        4.296199E-03        6.837614E-04        1.000000E+00        1.845733E-05
+        7         7        4.085998E+02        2.021385E+01        3.217134E+00        1.000000E+00        4.085998E+02
+        8         8        1.110090E+03        3.331802E+01        5.302727E+00        1.000000E+00        1.110090E+03
+        9         9        2.991642E+03        5.469590E+01        8.705123E+00        1.000000E+00        2.991642E+03
+       10        10        4.920367E+03        7.014533E+01        1.116398E+01        1.000000E+00        4.920367E+03
+       11        11        5.931062E+03        7.701339E+01        1.225706E+01        1.000000E+00        5.931062E+03
+       12        12        6.426694E+03        8.016666E+01        1.275892E+01        1.000000E+00        6.426694E+03
+       13        13        7.061219E+03        8.403106E+01        1.337396E+01        1.000000E+00        7.061219E+03
+       14        14        7.893851E+03        8.884735E+01        1.414049E+01        1.000000E+00        7.893851E+03
+       15        15        1.031583E+04        1.015669E+02        1.616487E+01        1.000000E+00        1.031583E+04
+       16        16        1.266788E+04        1.125517E+02        1.791316E+01        1.000000E+00        1.266788E+04
+       17        17        1.311934E+04        1.145397E+02        1.822956E+01        1.000000E+00        1.311934E+04
+       18        18        1.359779E+04        1.166095E+02        1.855899E+01        1.000000E+00        1.359779E+04
+       19        19        1.509552E+04        1.228638E+02        1.955439E+01        1.000000E+00        1.509552E+04
+       20        20        1.734728E+04        1.317091E+02        2.096215E+01        1.000000E+00        1.734728E+04
+       21        21        1.996113E+04        1.412839E+02        2.248602E+01        1.000000E+00        1.996113E+04
+       22        22        2.074622E+04        1.440355E+02        2.292396E+01        1.000000E+00        2.074622E+04
+       23        23        2.366013E+04        1.538185E+02        2.448098E+01        1.000000E+00        2.366013E+04
+       24        24        2.472685E+04        1.572477E+02        2.502676E+01        1.000000E+00        2.472685E+04
+       25        25        2.660678E+04        1.631159E+02        2.596070E+01        1.000000E+00        2.660678E+04
+       26        26        2.880745E+04        1.697276E+02        2.701298E+01        1.000000E+00        2.880745E+04
+       27        27        2.891547E+04        1.700455E+02        2.706358E+01        1.000000E+00        2.891547E+04
+       28        28        3.368865E+04        1.835447E+02        2.921204E+01        1.000000E+00        3.368865E+04
+       29        29        3.911677E+04        1.977796E+02        3.147760E+01        1.000000E+00        3.911677E+04
+       30        30        5.224176E+04        2.285646E+02        3.637718E+01        1.000000E+00        5.224176E+04
+       31        31        5.395852E+04        2.322897E+02        3.697006E+01        1.000000E+00        5.395852E+04
+       32        32        5.497743E+04        2.344727E+02        3.731748E+01        1.000000E+00        5.497743E+04
+       33        33        6.180295E+04        2.486020E+02        3.956624E+01        1.000000E+00        6.180295E+04
+       34        34        7.476468E+04        2.734313E+02        4.351794E+01        1.000000E+00        7.476468E+04
+       35        35        8.098505E+04        2.845787E+02        4.529211E+01        1.000000E+00        8.098505E+04
+       36        36        8.627543E+04        2.937268E+02        4.674807E+01        1.000000E+00        8.627543E+04
+       37        37        8.983630E+04        2.997270E+02        4.770304E+01        1.000000E+00        8.983630E+04
+       38        38        9.089712E+04        3.014915E+02        4.798386E+01        1.000000E+00        9.089712E+04
+       39        39        9.165723E+04        3.027495E+02        4.818407E+01        1.000000E+00        9.165723E+04
+       40        40        9.376256E+04        3.062067E+02        4.873431E+01        1.000000E+00        9.376256E+04
+       41        41        9.541750E+04        3.088972E+02        4.916252E+01        1.000000E+00        9.541750E+04
+       42        42        9.991126E+04        3.160874E+02        5.030688E+01        1.000000E+00        9.991126E+04
+       43        43        1.012993E+05        3.182755E+02        5.065511E+01        1.000000E+00        1.012993E+05
+       44        44        1.027434E+05        3.205361E+02        5.101491E+01        1.000000E+00        1.027434E+05
+       45        45        1.034368E+05        3.216159E+02        5.118676E+01        1.000000E+00        1.034368E+05
+       46        46        1.072529E+05        3.274950E+02        5.212244E+01        1.000000E+00        1.072529E+05
+       47        47        1.088625E+05        3.299432E+02        5.251210E+01        1.000000E+00        1.088625E+05
+       48        48        1.175270E+05        3.428221E+02        5.456184E+01        1.000000E+00        1.175270E+05
+       49        49        1.194997E+05        3.456873E+02        5.501785E+01        1.000000E+00        1.194997E+05
+       50        50        1.200357E+05        3.464617E+02        5.514110E+01        1.000000E+00        1.200357E+05
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE    17
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+ 
+                                              R E A L   E I G E N V A L U E S
+   MODE    EXTRACTION      EIGENVALUE            RADIANS             CYCLES            GENERALIZED         GENERALIZED
+    NO.       ORDER                                                                       MASS              STIFFNESS
+       51        51        1.219800E+05        3.492564E+02        5.558588E+01        1.000000E+00        1.219800E+05
+       52        52        1.283262E+05        3.582265E+02        5.701351E+01        1.000000E+00        1.283262E+05
+       53        53        1.344757E+05        3.667093E+02        5.836360E+01        1.000000E+00        1.344757E+05
+       54        54        1.351415E+05        3.676160E+02        5.850790E+01        1.000000E+00        1.351415E+05
+       55        55        1.414247E+05        3.760648E+02        5.985257E+01        1.000000E+00        1.414247E+05
+       56        56        1.446941E+05        3.803868E+02        6.054045E+01        1.000000E+00        1.446941E+05
+       57        57        1.478484E+05        3.845106E+02        6.119677E+01        1.000000E+00        1.478484E+05
+       58        58        1.511380E+05        3.887648E+02        6.187383E+01        1.000000E+00        1.511380E+05
+       59        59        1.541895E+05        3.926697E+02        6.249533E+01        1.000000E+00        1.541895E+05
+       60        60        1.560003E+05        3.949687E+02        6.286122E+01        1.000000E+00        1.560003E+05
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OUG1     WRITTEN ON FORTRAN UNIT    12 IN BINARY (LTLEND) FORMAT USING NDDL DESCRIPTION FOR OUG1, TRL =
+                    101                 0           4092960                 0                 0                 0                 2
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS OUG1    
+        (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =      131074 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =       68216 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =         610 RECORDS.)
+           (TOTAL DATA WRITTEN FOR DATA BLOCK =     4102225 WORDS.)
+ *** USER INFORMATION MESSAGE 4106 (OUTPT4)
+     DATA BLOCK LUMPMS WRITTEN ON FORTRAN UNIT 15 FROM DMAP MODULE OUTPUT4 IN BINARY (LTLEND) FORMAT 
+     TRAILER=      101        1    51162        2        1    25321     4949
+     NAME OF DATA BLOCK WRITTEN ON FORTRAN UNIT IS LUMPMS
+ *** USER INFORMATION MESSAGE 4110 (OUTPX2)
+                                 END-OF-DATA SIMULATION ON FORTRAN UNIT    12
+                                 (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      1 WORDS.)
+                                       (NUMBER OF FORTRAN RECORDS WRITTEN =      1 RECORDS.)
+                                       (TOTAL DATA WRITTEN FOR EOF MARKER =      1 WORDS.)
+1   NASA MUTT FLEX - 60 MODE EXPORT FOR MBDYN                                AUGUST   5, 2026  MSC Nastran  5/13/24   PAGE    18
+     10 LB FUEL/0 LB H2O - CONFIGURATION 24611                                                                                      
+0                                                                                                                                   
+ * * * *  D B D I C T   P R I N T  * * * *      SUBDMAP = PRTSUM  ,  DMAP STATEMENT NO.     75
+
+
+
+0                                   * * * *  A N A L Y S I S  S U M M A R Y  T A B L E  * * * *
+0 SEID  PEID PROJ VERS APRCH      SEMG SEMR SEKR SELG SELR MODES DYNRED SOLLIN SOLNL LOOPID DESIGN CYCLE SENSITIVITY
+ -------------------------------------------------------------------------------------------------------------------
+     0     0    1    1 '        '    T    T    T    T    T     T      F      T     F     -1            0           F
+0SEID = SUPERELEMENT ID.
+ PEID = PRIMARY SUPERELEMENT ID OF IMAGE SUPERELEMENT.
+ PROJ = PROJECT ID NUMBER.
+ VERS = VERSION ID.
+ APRCH = BLANK FOR STRUCTURAL ANALYSIS.  HEAT FOR HEAT TRANSFER ANALYSIS.
+ SEMG = STIFFNESS AND MASS MATRIX GENERATION STEP.
+ SEMR = MASS MATRIX REDUCTION STEP (INCLUDES EIGENVALUE SOLUTION FOR MODES).
+ SEKR = STIFFNESS MATRIX REDUCTION STEP.
+ SELG = LOAD MATRIX GENERATION STEP.
+ SELR = LOAD MATRIX REDUCTION STEP. 
+ MODES = T (TRUE) IF NORMAL MODES OR BUCKLING MODES CALCULATED.
+ DYNRED = T (TRUE) MEANS GENERALIZED DYNAMIC AND/OR COMPONENT MODE REDUCTION PERFORMED.
+ SOLLIN = T (TRUE) IF LINEAR SOLUTION EXISTS IN DATABASE.
+ LOOPID = THE LAST LOOPID VALUE USED IN THE NONLINEAR ANALYSIS.  USEFUL FOR RESTARTS.
+ SOLNL = T (TRUE) IF NONLINEAR SOLUTION EXISTS IN DATABASE.
+ DESIGN CYCLE = THE LAST DESIGN CYCLE (ONLY VALID IN OPTIMIZATION).
+ SENSITIVITY = SENSITIVITY MATRIX GENERATION FLAG.
+ 
+ No PARAM values were set in the Control File.
+ 
+1                                        * * * END OF JOB * * *
+ 
+ 
+ No Symbolic Replacement variables or values were specified.
+

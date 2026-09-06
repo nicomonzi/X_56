@@ -1,0 +1,13 @@
+fem_mode,frequency_hz,description
+7,3.21713,first symmetric wing bending (SWB1; identified from symmetric mode shape)
+8,5.30273,elastic mode 2
+9,8.70512,elastic mode 3
+10,11.16398,elastic mode 4
+11,12.25706,elastic mode 5
+12,12.75892,elastic mode 6
+13,13.37396,elastic mode 7
+14,14.14049,elastic mode 8
+15,16.16487,elastic mode 9
+16,17.91316,elastic mode 10
+17,18.22956,elastic mode 11
+18,18.55899,elastic mode 12

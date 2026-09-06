@@ -1,0 +1,68 @@
+reference: GROUND,
+    reference, global, null,
+    reference, global, vector, 0., THETA_PITCH, 0., 
+    reference, global, null,
+    reference, global, null;
+
+reference: BFLjoint,
+    reference, GROUND, null,
+    reference, GROUND,
+        1, 0.939692620785908, -0.338691653303867, 0.047600055005831,
+        2, 0.342020143325668,  0.930547607314207, -0.130779743431326,
+    reference, GROUND, null,
+    reference, GROUND, null;
+
+
+reference: BFRjoint,
+    reference, GROUND, null,
+    reference, GROUND,
+        1,  0.9396926, 0.3386916, 0.0476001,
+        2, -0.3420201, 0.9305476, 0.1307797,
+    reference, GROUND, null,
+    reference, GROUND, null;
+
+
+reference: WFLjoint,
+    reference, GROUND, null,
+    reference, GROUND,
+        1,  0.9396926, 0.3420201, 0.,
+        2, -0.3420201, 0.9396926, 0.,
+    reference, GROUND, null,
+    reference, GROUND, null;
+
+
+reference: WFRjoint,
+    reference, GROUND, null,
+    reference, GROUND,
+        1, 0.9396926, -0.3420201, 0.,
+        2, 0.3420201,  0.9396926, 0.,
+    reference, GROUND, null,
+    reference, GROUND, null;
+
+
+/*
+reference: BFLjoint,
+    reference, global, null,
+    reference, global, 1, 0.939692620785908, -0.338691653303867, 0.047600055005831, 2, 0.342020143325668, 0.930547607314207, -0.130779743431326,
+    reference, global, null,
+    reference, global, null;
+
+reference: BFRjoint,
+    reference, global, null,
+    reference, global, 1, 0.9396926, 0.3386916, 0.0476001, 2, -0.3420201, 0.9305476, 0.1307797,
+    reference, global, null,
+    reference, global, null;
+
+reference: WFLjoint,
+    reference, global, null,
+    reference, global, 1, 0.9396926, 0.3420201, 0., 2, -0.3420201, 0.9396926, 0.,
+    reference, global, null,
+    reference, global, null;
+
+reference: WFRjoint,
+    reference, global, null,
+    reference, global, 1, 0.9396926, -0.3420201, 0., 2, 0.3420201, 0.9396926, 0.,
+    reference, global, null,
+    reference, global, null;
+
+*/

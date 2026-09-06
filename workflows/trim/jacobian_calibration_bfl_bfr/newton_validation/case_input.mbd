@@ -1,0 +1,209 @@
+# =============================================================================
+# X-56 treim
+# =============================================================================
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: const real V_INF = 63;
+set: const real RHO_AIR = 1.146e-07;
+
+set: const integer GROUND = 0;
+set: const integer BFLjoint = 1;
+set: const integer BFRjoint = 2;
+set: const integer WFLjoint = 3;
+set: const integer WFRjoint = 4;
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 5;
+set: const integer TRIM_JOINT = 23;
+
+set: const integer TRIM_PITCH_PID = 9101;
+set: const integer TRIM_ELEVATOR_PID = 9102;
+set: const integer TRIM_PITCH_LIVE_DRIVE = 9201;
+set: const integer TRIM_ELEVATOR_LIVE_DRIVE = 9202;
+set: const integer TRIM_PITCH_HOLD_DRIVE = 9203;
+set: const integer TRIM_ELEVATOR_HOLD_DRIVE = 9204;
+set: const integer ATTITUDE_RAW_DRIVE = 9312;
+
+set: const real X_CG = 163.187383385809;
+set: const real Y_CG = 0.110529571088;
+set: const real Z_CG = 101.239797358848;
+set: const real VINF = V_INF*m2in;
+set: const real C_SOUND = 340.*m2in;
+set: const real GRAVITY = 9.81*m2in;
+
+set: const real TRIM_ENABLE_START = 1.;
+set: const real TRIM_ENABLE_END = 2.;
+set: const real TRIM_FREEZE_TIME = 20.;
+set: const real FINAL_TIME = 24.;
+set: const real TIME_STEP = 0.02;
+
+
+set: const real TRIM_REFERENCE_SPEED = 63.;
+set: const real TRIM_REFERENCE_DENSITY = 1.146e-7;
+set: const real TRIM_JINV_SCALE =
+    (TRIM_REFERENCE_DENSITY/RHO_AIR)*
+    (TRIM_REFERENCE_SPEED/V_INF)*(TRIM_REFERENCE_SPEED/V_INF);
+
+set: const real TRIM_JINV_11 = 3.14902367e-6;
+set: const real TRIM_JINV_12 = 7.26435291e-7;
+set: const real TRIM_JINV_21 = 2.40115928e-5;
+set: const real TRIM_JINV_22 = -1.13665309e-5;
+set: const real TRIM_JINV_11_SCALED = TRIM_JINV_SCALE*TRIM_JINV_11;
+set: const real TRIM_JINV_12_SCALED = TRIM_JINV_SCALE*TRIM_JINV_12;
+set: const real TRIM_JINV_21_SCALED = TRIM_JINV_SCALE*TRIM_JINV_21;
+set: const real TRIM_JINV_22_SCALED = TRIM_JINV_SCALE*TRIM_JINV_22;
+set: const real TRIM_RESPONSE_RATE = 0;
+
+
+set: const real TRIM_PITCH_INITIAL =
+    0.004341890188510483;
+set: const real TRIM_ELEVATOR_INITIAL =
+    0.05504533488465353;
+
+# Butterworth ordine 2, fc=0.25 Hz, dt=0.02 s.
+set: const real BW_A1 = 1.955578240315035;
+set: const real BW_A2 = -0.956543676511203;
+set: const real BW_B0 = 0.000241359049041961;
+set: const real BW_B1 = 0.000482718098083923;
+set: const real BW_B2 = 0.000241359049041961;
+
+begin: initial value;
+    initial time: 0.;
+    final time: FINAL_TIME;
+    time step: TIME_STEP;
+    max iterations: 300;
+    tolerance: 1.e-3, test, relnorm;
+    derivatives tolerance: 1.;
+    derivatives max iterations: 100;
+    linear solver: lapack;
+    method: ms, cosine, 0., pi/0.1, 0.6/2, half, 0.;
+    output: counter;
+end: initial value;
+
+begin: control data;
+    print: dof stats;
+    structural nodes: 56;
+    aerodynamic elements: 50;
+    loadable elements: 2;
+    joints: 13;
+    gravity;
+    air properties;
+    default orientation: orientation vector;
+    output precision: 12;
+    output results: netcdf, sync, no text;
+end: control data;
+
+include: "./INCLUDE/reference.mbd";
+
+begin: nodes;
+    include: "./INCLUDE/node.mbd";
+end: nodes;
+
+begin: elements;
+    gravity: uniform, 0., 0., -1., const, GRAVITY;
+
+    # X/Y e roll/yaw sono separati dal giunto che misura Fz/My
+    joint: 1, total pin joint,
+        BASE_NODE,
+        position, reference, node, null,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position, reference, global, X_CG, Y_CG, Z_CG,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position constraint, active, active, inactive, null,
+        orientation constraint, active, inactive, active, null;
+
+    joint: TRIM_JOINT, total pin joint,
+        BASE_NODE,
+        position, reference, node, null,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, node, eye,
+        position, reference, global, X_CG, Y_CG, Z_CG,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position constraint, inactive, inactive, active, null,
+        orientation constraint, inactive, active, inactive,
+            component,
+                0.,
+                postponed, TRIM_PITCH_HOLD_DRIVE,
+                0.;
+
+    module load: "libmodule-pid";
+
+    user defined: TRIM_PITCH_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter,
+                2, BW_A1, BW_A2,
+                BW_B0,
+                2, BW_B1, BW_B2,
+                mult,
+                    step5, TRIM_ENABLE_START, 0., TRIM_ENABLE_END, 1.,
+                    array, 2,
+                        element, TRIM_JOINT, joint, string, "Fz",
+                            linear, 0., TRIM_JINV_11_SCALED,
+                        element, TRIM_JOINT, joint, string, "My",
+                            linear, 0., TRIM_JINV_12_SCALED,
+        Kp, 0., 
+        Ki, TRIM_RESPONSE_RATE, 
+        Kd, 0.,
+        Ii0, TRIM_PITCH_INITIAL, 
+        Ks, 1.,
+        Ymin, -15.*deg2rad, Ymax, 15.*deg2rad;
+
+    drive caller: TRIM_PITCH_LIVE_DRIVE,
+        mult,
+            step5, 0., 0., TRIM_ENABLE_START, 1.,
+            element, TRIM_PITCH_PID, loadable, string, "yout", direct;
+
+    user defined: TRIM_ELEVATOR_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter,
+                2, BW_A1, BW_A2,
+                BW_B0,
+                2, BW_B1, BW_B2,
+                mult,
+                    step5, TRIM_ENABLE_START, 0., TRIM_ENABLE_END, 1.,
+                    array, 2,
+                        element, TRIM_JOINT, joint, string, "Fz",
+                            linear, 0., TRIM_JINV_21_SCALED,
+                        element, TRIM_JOINT, joint, string, "My",
+                            linear, 0., TRIM_JINV_22_SCALED,
+        Kp, 0., 
+        Ki, TRIM_RESPONSE_RATE,
+        Kd, 0.,
+        Ii0, TRIM_ELEVATOR_INITIAL, Ks, 1.,
+        Ymin, -10.*deg2rad, Ymax, 10.*deg2rad;
+
+    drive caller: TRIM_ELEVATOR_LIVE_DRIVE,
+        mult,
+            step5, 0., 0., TRIM_ENABLE_START, 1.,
+            element, TRIM_ELEVATOR_PID, loadable, string, "yout", direct;
+
+    drive caller: TRIM_PITCH_HOLD_DRIVE,
+        sample and hold,
+            reference, TRIM_PITCH_LIVE_DRIVE,
+            string, "Time < TRIM_FREEZE_TIME",
+            initial value, 0.;
+
+    drive caller: TRIM_ELEVATOR_HOLD_DRIVE,
+        sample and hold,
+            reference, TRIM_ELEVATOR_LIVE_DRIVE,
+            string, "Time < TRIM_FREEZE_TIME",
+            initial value, 0.;
+
+    drive caller: ATTITUDE_RAW_DRIVE, const, 0.;
+
+    include: "./INCLUDE/control_surfaces.mbd";
+    include: "./INCLUDE/modaljoint.mbd";
+
+    air properties: RHO_AIR, C_SOUND,
+        1., 0., 0.,
+        const, VINF;
+
+    include: "./INCLUDE/aerobody.mbd";
+end: elements;

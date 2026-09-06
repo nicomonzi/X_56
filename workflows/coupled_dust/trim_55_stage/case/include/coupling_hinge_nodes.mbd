@@ -1,0 +1,69 @@
+# Two aerodynamic coupling points are required for every DUST hinge.
+# They are massless dynamic nodes placed at the physical hinge endpoints.
+# MBDyn external structural forces accept dynamic nodes only; every one of
+# these six-DOF nodes is fully constrained by its companion rigid joint.
+# The companion joints make each pair follow its MBDyn control-surface node.
+
+# Right control surfaces: BFR, WF1R, WF2R, WF3R, WF4R.
+structural: 882001, dynamic,
+    reference, GROUND, 176.52569045, 16.8300, 100.16000370,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882002, dynamic,
+    reference, GROUND, 164.96848785, 45.9300, 103.51738800,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882003, dynamic,
+    reference, GROUND, 165.45650376, 54.2175, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882004, dynamic,
+    reference, GROUND, 176.20391485, 79.5000, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882005, dynamic,
+    reference, GROUND, 176.20391485, 79.5000, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882006, dynamic,
+    reference, GROUND, 186.95238867, 104.7850, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882007, dynamic,
+    reference, GROUND, 186.95238867, 104.7850, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882008, dynamic,
+    reference, GROUND, 197.70086249, 130.0700, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882009, dynamic,
+    reference, GROUND, 197.70086249, 130.0700, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882010, dynamic,
+    reference, GROUND, 208.44721085, 155.3500, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+# Left control surfaces: BFL, WF1L, WF2L, WF3L, WF4L.
+structural: 882011, dynamic,
+    reference, GROUND, 164.96848785, -45.9300, 103.51738800,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882012, dynamic,
+    reference, GROUND, 176.52569045, -16.8300, 100.16000370,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882013, dynamic,
+    reference, GROUND, 176.20391485, -79.5000, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882014, dynamic,
+    reference, GROUND, 165.45650376, -54.2175, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882015, dynamic,
+    reference, GROUND, 186.95238867, -104.7850, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882016, dynamic,
+    reference, GROUND, 176.20391485, -79.5000, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882017, dynamic,
+    reference, GROUND, 197.70086249, -130.0700, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882018, dynamic,
+    reference, GROUND, 186.95238867, -104.7850, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882019, dynamic,
+    reference, GROUND, 208.44721085, -155.3500, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+structural: 882020, dynamic,
+    reference, GROUND, 197.70086249, -130.0700, 104.08999630,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;

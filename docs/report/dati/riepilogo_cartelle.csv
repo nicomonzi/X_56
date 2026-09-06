@@ -1,0 +1,18 @@
+cartella,file_regolari,byte,file_tracciati_git,file_non_tracciati_o_ignorati,gruppi_duplicati_interni,copie_extra_interne,byte_recuperabili_interni_massimi,estensioni_principali
+BFF_DUST_55,1750,239486236,48,1702,70,983,118400060,.dat:626; .in:380; .h5:292; .log:228; .vtu:84; .mbd:35; .py:22; .pyc:16; .md:7; .xml:7; .pvd:6; .csv:6
+BFF_maneuver_envelope,21,154969026,18,3,1,1,159,.py:5; .pyc:3; .log:2; .mbd:2; .nc:2; .out:2; .stdout:2; [senza_estensione]:1; .md:1; .json:1
+BFF_open_loop,35,57898931,35,0,0,0,0,.pyc:9; .py:9; .mbd:8; .md:4; .c81:2; .fem:1; .sh:1; .bat:1
+DUST,15,21470,15,0,0,0,0,.dat:9; .in:5; .py:1
+GRAFICI,349,157059873,349,0,11,15,45220,.dat:170; .png:83; .vtu:31; .pdf:11; .log:6; .py:5; .mbd:5; .pyc:4; .out:4; .bdf:4; .svg:4; .nc:3
+MANOUVER_STIFNESS,195,5692260,184,11,31,31,970337,.mbd:136; .json:20; .py:12; .pyc:11; .csv:10; .md:4; [senza_estensione]:1; .png:1
+MBDYN,217,821974355,217,0,14,46,351127101,.mbd:47; .py:20; .dat:20; .fem:19; .log:17; .nc:16; .out:16; .jpg:11; .c81:8; .bylog:4; .ine:4; .jnt:4
+NASTRAN,8882,585987481,8882,0,123,250,66496752,.py:3530; .pyc:3527; .dat:377; .pyi:287; .so:154; .png:125; .mat:114; [senza_estensione]:108; .txt:61; .afm:61; .f90:49; .sav:47
+NASTRAN_SIMULATIONS,643,477071950,643,0,87,226,60917764,.dat:255; .log:112; .mbd:56; .nc:54; .out:54; .png:32; .pdf:21; .pyc:12; .py:12; .csv:9; .bdf:7; .sh:4
+TEST,846,1885911078,846,0,65,80,40817195,.mod:81; .log:65; .h5:61; .o:59; .stamp:55; .build:55; .mbd:48; .out:38; .nc:34; .png:32; .csv:27; .aer:26
+TRIM,43,197310558,43,0,0,0,0,.mbd:13; .log:12; .nc:6; .out:6; .py:3; .md:1; .csv:1; .json:1
+X56_AERO_POLAR,131,131813272,131,0,3,3,16598,.dat:87; .mbd:18; .py:7; .c81:5; .txt:3; .fem:2; .sh:1; .bdf:1; .f06:1; .log:1; .op2:1; .md:1
+_trim_coupled_stage,31,57573389,31,0,0,0,0,.dat:9; .in:7; .mbd:7; .py:2; .md:1; .pyc:1; .patch:1; .fem:1; .xml:1; .txt:1
+bbf_manouver,44,256244260,44,0,1,3,477,.mbd:15; .log:5; .nc:5; .out:5; .py:4; .stdout:4; .md:2; .bylog:2; .fem:1; .c81:1
+bff_eigenalaisy,28,66582703,28,0,0,0,0,.mbd:9; .py:3; .png:3; .md:2; .pyc:2; .csv:2; .fem:1; .c81:1; .log:1; .nc:1; .out:1; .stdout:1
+bff_longitudinal,18,57765881,18,0,0,0,0,.mbd:8; .pyc:3; .py:3; .md:2; .fem:1; .c81:1
+results,8,1040658,8,0,0,0,0,.png:5; .csv:3

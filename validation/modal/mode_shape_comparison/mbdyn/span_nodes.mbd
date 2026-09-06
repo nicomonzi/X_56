@@ -1,0 +1,54 @@
+structural: 990000, modal,
+    reference, global, null,
+    reference, global, eye,
+    reference, global, null,
+    reference, global, null;
+
+# Left wing and winglet interpolation line.
+structural: 990001, dynamic, 160.14999390,    0.00000000, 100.16000370, eye, null, null;
+structural: 990002, dynamic, 160.14999390,  -11.03999996, 100.16000370, eye, null, null;
+structural: 990003, dynamic, 160.14999390,  -22.06999969, 100.16000370, eye, null, null;
+structural: 990004, dynamic, 160.14999390,  -31.37999916, 101.47000120, eye, null, null;
+structural: 990005, dynamic, 160.14999390,  -40.68999863, 102.77999880, eye, null, null;
+structural: 990006, dynamic, 160.14999390,  -50.00000000, 104.08999630, eye, null, null;
+structural: 990007, dynamic, 163.46000670,  -58.43000031, 104.08999630, eye, null, null;
+structural: 990008, dynamic, 166.77999880,  -66.86000061, 104.08999630, eye, null, null;
+structural: 990009, dynamic, 170.10000610,  -75.29000092, 104.08999630, eye, null, null;
+structural: 990010, dynamic, 173.41999820,  -83.70999908, 104.08999630, eye, null, null;
+structural: 990011, dynamic, 176.74000550,  -92.13999939, 104.08999630, eye, null, null;
+structural: 990012, dynamic, 180.05999760, -100.56999970, 104.08999630, eye, null, null;
+structural: 990013, dynamic, 183.38000490, -109.00000000, 104.08999630, eye, null, null;
+structural: 990014, dynamic, 186.69999690, -117.43000030, 104.08999630, eye, null, null;
+structural: 990015, dynamic, 190.02000430, -125.86000060, 104.08999630, eye, null, null;
+structural: 990016, dynamic, 193.33000180, -134.28999330, 104.08999630, eye, null, null;
+structural: 990017, dynamic, 196.64999390, -142.71000670, 104.08999630, eye, null, null;
+structural: 990018, dynamic, 199.97000120, -151.13999940, 104.08999630, eye, null, null;
+structural: 990019, dynamic, 203.28999330, -159.57000730, 104.08999630, eye, null, null;
+structural: 990020, dynamic, 206.61000060, -168.00000000, 104.08999630, eye, null, null;
+structural: 990021, dynamic, 213.47000120, -168.00000000, 110.36000060, eye, null, null;
+structural: 990022, dynamic, 220.33000180, -168.00000000, 116.62999730, eye, null, null;
+structural: 990023, dynamic, 227.19000240, -168.00000000, 122.90000150, eye, null, null;
+
+# Right wing and winglet interpolation line.
+structural: 991002, dynamic, 160.14999390,  11.03999996, 100.16000370, eye, null, null;
+structural: 991003, dynamic, 160.14999390,  22.06999969, 100.16000370, eye, null, null;
+structural: 991004, dynamic, 160.14999390,  31.37999916, 101.47000120, eye, null, null;
+structural: 991005, dynamic, 160.14999390,  40.68999863, 102.77999880, eye, null, null;
+structural: 991006, dynamic, 160.14999390,  50.00000000, 104.08999630, eye, null, null;
+structural: 991007, dynamic, 163.46000670,  58.43000031, 104.08999630, eye, null, null;
+structural: 991008, dynamic, 166.77999880,  66.86000061, 104.08999630, eye, null, null;
+structural: 991009, dynamic, 170.10000610,  75.29000092, 104.08999630, eye, null, null;
+structural: 991010, dynamic, 173.41999820,  83.70999908, 104.08999630, eye, null, null;
+structural: 991011, dynamic, 176.74000550,  92.13999939, 104.08999630, eye, null, null;
+structural: 991012, dynamic, 180.05999760, 100.56999970, 104.08999630, eye, null, null;
+structural: 991013, dynamic, 183.38000490, 109.00000000, 104.08999630, eye, null, null;
+structural: 991014, dynamic, 186.69999690, 117.43000030, 104.08999630, eye, null, null;
+structural: 991015, dynamic, 190.02000430, 125.86000060, 104.08999630, eye, null, null;
+structural: 991016, dynamic, 193.33000180, 134.28999330, 104.08999630, eye, null, null;
+structural: 991017, dynamic, 196.64999390, 142.71000670, 104.08999630, eye, null, null;
+structural: 991018, dynamic, 199.97000120, 151.13999940, 104.08999630, eye, null, null;
+structural: 991019, dynamic, 203.28999330, 159.57000730, 104.08999630, eye, null, null;
+structural: 991020, dynamic, 206.61000060, 168.00000000, 104.08999630, eye, null, null;
+structural: 991021, dynamic, 213.47000120, 168.00000000, 110.36000060, eye, null, null;
+structural: 991022, dynamic, 220.33000180, 168.00000000, 116.62999730, eye, null, null;
+structural: 991023, dynamic, 227.19000240, 168.00000000, 122.90000150, eye, null, null;

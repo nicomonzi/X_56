@@ -1,0 +1,1016 @@
+{
+  "scope": "Diagnostic only; existing decks and previous artifacts unmodified.",
+  "nastran": [
+    {
+      "source": "/home/nicomonzi/ZENO/prestress_loads/n1p0/prestressed_modes_nodlm.f06",
+      "sha256": "a65752c158482c7d3c582f6c4ce6ea8974016950241ae2639776e895b7c49282",
+      "roots": [
+        {
+          "mode": 1,
+          "eigenvalue_s_minus_2": 0.3114289,
+          "printed_cycles_hz": 0.08881771,
+          "negative": false
+        },
+        {
+          "mode": 2,
+          "eigenvalue_s_minus_2": 4.095245,
+          "printed_cycles_hz": 0.3220773,
+          "negative": false
+        },
+        {
+          "mode": 3,
+          "eigenvalue_s_minus_2": 66.02695,
+          "printed_cycles_hz": 1.293245,
+          "negative": false
+        },
+        {
+          "mode": 4,
+          "eigenvalue_s_minus_2": 301.443,
+          "printed_cycles_hz": 2.763266,
+          "negative": false
+        },
+        {
+          "mode": 5,
+          "eigenvalue_s_minus_2": 1499.222,
+          "printed_cycles_hz": 6.162445,
+          "negative": false
+        },
+        {
+          "mode": 6,
+          "eigenvalue_s_minus_2": 2977.654,
+          "printed_cycles_hz": 8.684749,
+          "negative": false
+        },
+        {
+          "mode": 7,
+          "eigenvalue_s_minus_2": 4690.685,
+          "printed_cycles_hz": 10.9003,
+          "negative": false
+        },
+        {
+          "mode": 8,
+          "eigenvalue_s_minus_2": 5176.498,
+          "printed_cycles_hz": 11.45086,
+          "negative": false
+        },
+        {
+          "mode": 9,
+          "eigenvalue_s_minus_2": 6492.324,
+          "printed_cycles_hz": 12.8239,
+          "negative": false
+        },
+        {
+          "mode": 10,
+          "eigenvalue_s_minus_2": 6956.001,
+          "printed_cycles_hz": 13.27394,
+          "negative": false
+        },
+        {
+          "mode": 11,
+          "eigenvalue_s_minus_2": 7936.52,
+          "printed_cycles_hz": 14.17866,
+          "negative": false
+        },
+        {
+          "mode": 12,
+          "eigenvalue_s_minus_2": 9740.267,
+          "printed_cycles_hz": 15.70745,
+          "negative": false
+        },
+        {
+          "mode": 13,
+          "eigenvalue_s_minus_2": 12563.81,
+          "printed_cycles_hz": 17.83942,
+          "negative": false
+        },
+        {
+          "mode": 14,
+          "eigenvalue_s_minus_2": 13105.58,
+          "printed_cycles_hz": 18.21999,
+          "negative": false
+        },
+        {
+          "mode": 15,
+          "eigenvalue_s_minus_2": 13523.33,
+          "printed_cycles_hz": 18.5081,
+          "negative": false
+        },
+        {
+          "mode": 16,
+          "eigenvalue_s_minus_2": 14776.37,
+          "printed_cycles_hz": 19.34657,
+          "negative": false
+        },
+        {
+          "mode": 17,
+          "eigenvalue_s_minus_2": 17003.52,
+          "printed_cycles_hz": 20.75342,
+          "negative": false
+        },
+        {
+          "mode": 18,
+          "eigenvalue_s_minus_2": 19939.31,
+          "printed_cycles_hz": 22.47373,
+          "negative": false
+        },
+        {
+          "mode": 19,
+          "eigenvalue_s_minus_2": 20055.14,
+          "printed_cycles_hz": 22.53892,
+          "negative": false
+        },
+        {
+          "mode": 20,
+          "eigenvalue_s_minus_2": 23884.59,
+          "printed_cycles_hz": 24.59683,
+          "negative": false
+        },
+        {
+          "mode": 21,
+          "eigenvalue_s_minus_2": 24340.45,
+          "printed_cycles_hz": 24.83044,
+          "negative": false
+        },
+        {
+          "mode": 22,
+          "eigenvalue_s_minus_2": 26079.08,
+          "printed_cycles_hz": 25.70196,
+          "negative": false
+        },
+        {
+          "mode": 23,
+          "eigenvalue_s_minus_2": 28357.41,
+          "printed_cycles_hz": 26.80115,
+          "negative": false
+        },
+        {
+          "mode": 24,
+          "eigenvalue_s_minus_2": 28680.03,
+          "printed_cycles_hz": 26.95318,
+          "negative": false
+        },
+        {
+          "mode": 25,
+          "eigenvalue_s_minus_2": 31096.47,
+          "printed_cycles_hz": 28.06569,
+          "negative": false
+        },
+        {
+          "mode": 26,
+          "eigenvalue_s_minus_2": 37261.72,
+          "printed_cycles_hz": 30.72215,
+          "negative": false
+        },
+        {
+          "mode": 27,
+          "eigenvalue_s_minus_2": 52193.64,
+          "printed_cycles_hz": 36.36042,
+          "negative": false
+        },
+        {
+          "mode": 28,
+          "eigenvalue_s_minus_2": 52746.51,
+          "printed_cycles_hz": 36.55249,
+          "negative": false
+        },
+        {
+          "mode": 29,
+          "eigenvalue_s_minus_2": 54649.86,
+          "printed_cycles_hz": 37.20614,
+          "negative": false
+        },
+        {
+          "mode": 30,
+          "eigenvalue_s_minus_2": 61066.63,
+          "printed_cycles_hz": 39.32983,
+          "negative": false
+        }
+      ],
+      "negative_roots_without_frequency_filter": [],
+      "interpretation": "Sign reported without suppression; physical cause not diagnosed."
+    },
+    {
+      "source": "/home/nicomonzi/ZENO/prestress_loads/n1p0/prestressed_modes_with_dlm.f06",
+      "sha256": "4da9d7bfe10b5cbce44f097f138f7432ffda6f7a323e6245d4ecb27b081cb9a4",
+      "roots": [
+        {
+          "mode": 1,
+          "eigenvalue_s_minus_2": 0.311698,
+          "printed_cycles_hz": 0.08885607,
+          "negative": false
+        },
+        {
+          "mode": 2,
+          "eigenvalue_s_minus_2": 4.094464,
+          "printed_cycles_hz": 0.3220466,
+          "negative": false
+        },
+        {
+          "mode": 3,
+          "eigenvalue_s_minus_2": 66.0273,
+          "printed_cycles_hz": 1.293248,
+          "negative": false
+        },
+        {
+          "mode": 4,
+          "eigenvalue_s_minus_2": 301.4448,
+          "printed_cycles_hz": 2.763275,
+          "negative": false
+        },
+        {
+          "mode": 5,
+          "eigenvalue_s_minus_2": 1499.213,
+          "printed_cycles_hz": 6.162427,
+          "negative": false
+        },
+        {
+          "mode": 6,
+          "eigenvalue_s_minus_2": 2977.654,
+          "printed_cycles_hz": 8.684748,
+          "negative": false
+        },
+        {
+          "mode": 7,
+          "eigenvalue_s_minus_2": 4690.648,
+          "printed_cycles_hz": 10.90025,
+          "negative": false
+        },
+        {
+          "mode": 8,
+          "eigenvalue_s_minus_2": 5176.509,
+          "printed_cycles_hz": 11.45087,
+          "negative": false
+        },
+        {
+          "mode": 9,
+          "eigenvalue_s_minus_2": 6492.287,
+          "printed_cycles_hz": 12.82387,
+          "negative": false
+        },
+        {
+          "mode": 10,
+          "eigenvalue_s_minus_2": 6955.979,
+          "printed_cycles_hz": 13.27392,
+          "negative": false
+        },
+        {
+          "mode": 11,
+          "eigenvalue_s_minus_2": 7936.483,
+          "printed_cycles_hz": 14.17863,
+          "negative": false
+        },
+        {
+          "mode": 12,
+          "eigenvalue_s_minus_2": 9740.233,
+          "printed_cycles_hz": 15.70742,
+          "negative": false
+        },
+        {
+          "mode": 13,
+          "eigenvalue_s_minus_2": 12563.8,
+          "printed_cycles_hz": 17.83942,
+          "negative": false
+        },
+        {
+          "mode": 14,
+          "eigenvalue_s_minus_2": 13105.58,
+          "printed_cycles_hz": 18.21999,
+          "negative": false
+        },
+        {
+          "mode": 15,
+          "eigenvalue_s_minus_2": 13523.23,
+          "printed_cycles_hz": 18.50803,
+          "negative": false
+        },
+        {
+          "mode": 16,
+          "eigenvalue_s_minus_2": 14776.39,
+          "printed_cycles_hz": 19.34659,
+          "negative": false
+        },
+        {
+          "mode": 17,
+          "eigenvalue_s_minus_2": 17003.56,
+          "printed_cycles_hz": 20.75344,
+          "negative": false
+        },
+        {
+          "mode": 18,
+          "eigenvalue_s_minus_2": 19939.31,
+          "printed_cycles_hz": 22.47373,
+          "negative": false
+        },
+        {
+          "mode": 19,
+          "eigenvalue_s_minus_2": 20055.11,
+          "printed_cycles_hz": 22.53889,
+          "negative": false
+        },
+        {
+          "mode": 20,
+          "eigenvalue_s_minus_2": 23884.6,
+          "printed_cycles_hz": 24.59683,
+          "negative": false
+        },
+        {
+          "mode": 21,
+          "eigenvalue_s_minus_2": 24340.44,
+          "printed_cycles_hz": 24.83044,
+          "negative": false
+        },
+        {
+          "mode": 22,
+          "eigenvalue_s_minus_2": 26079.1,
+          "printed_cycles_hz": 25.70197,
+          "negative": false
+        },
+        {
+          "mode": 23,
+          "eigenvalue_s_minus_2": 28357.59,
+          "printed_cycles_hz": 26.80124,
+          "negative": false
+        },
+        {
+          "mode": 24,
+          "eigenvalue_s_minus_2": 28680.31,
+          "printed_cycles_hz": 26.95331,
+          "negative": false
+        },
+        {
+          "mode": 25,
+          "eigenvalue_s_minus_2": 31096.48,
+          "printed_cycles_hz": 28.06569,
+          "negative": false
+        },
+        {
+          "mode": 26,
+          "eigenvalue_s_minus_2": 37261.22,
+          "printed_cycles_hz": 30.72194,
+          "negative": false
+        },
+        {
+          "mode": 27,
+          "eigenvalue_s_minus_2": 52193.6,
+          "printed_cycles_hz": 36.36041,
+          "negative": false
+        },
+        {
+          "mode": 28,
+          "eigenvalue_s_minus_2": 52746.47,
+          "printed_cycles_hz": 36.55248,
+          "negative": false
+        },
+        {
+          "mode": 29,
+          "eigenvalue_s_minus_2": 54649.83,
+          "printed_cycles_hz": 37.20613,
+          "negative": false
+        },
+        {
+          "mode": 30,
+          "eigenvalue_s_minus_2": 61065.75,
+          "printed_cycles_hz": 39.32955,
+          "negative": false
+        }
+      ],
+      "negative_roots_without_frequency_filter": [],
+      "interpretation": "Sign reported without suppression; physical cause not diagnosed."
+    },
+    {
+      "source": "/home/nicomonzi/ZENO/prestress_loads/n1p0/supported_unloaded.f06",
+      "sha256": "23db99a29e8710e9c618ae03ca9773590c5f8241faa43bdd55173d6ab8bcd469",
+      "roots": [
+        {
+          "mode": 1,
+          "eigenvalue_s_minus_2": 0.3772218,
+          "printed_cycles_hz": 0.09775039,
+          "negative": false
+        },
+        {
+          "mode": 2,
+          "eigenvalue_s_minus_2": 3.669897,
+          "printed_cycles_hz": 0.3048927,
+          "negative": false
+        },
+        {
+          "mode": 3,
+          "eigenvalue_s_minus_2": 66.05505,
+          "printed_cycles_hz": 1.29352,
+          "negative": false
+        },
+        {
+          "mode": 4,
+          "eigenvalue_s_minus_2": 302.5612,
+          "printed_cycles_hz": 2.768387,
+          "negative": false
+        },
+        {
+          "mode": 5,
+          "eigenvalue_s_minus_2": 1496.454,
+          "printed_cycles_hz": 6.156754,
+          "negative": false
+        },
+        {
+          "mode": 6,
+          "eigenvalue_s_minus_2": 2977.643,
+          "printed_cycles_hz": 8.684733,
+          "negative": false
+        },
+        {
+          "mode": 7,
+          "eigenvalue_s_minus_2": 4681.54,
+          "printed_cycles_hz": 10.88966,
+          "negative": false
+        },
+        {
+          "mode": 8,
+          "eigenvalue_s_minus_2": 5177.324,
+          "printed_cycles_hz": 11.45177,
+          "negative": false
+        },
+        {
+          "mode": 9,
+          "eigenvalue_s_minus_2": 6481.685,
+          "printed_cycles_hz": 12.81339,
+          "negative": false
+        },
+        {
+          "mode": 10,
+          "eigenvalue_s_minus_2": 6942.473,
+          "printed_cycles_hz": 13.26103,
+          "negative": false
+        },
+        {
+          "mode": 11,
+          "eigenvalue_s_minus_2": 7930.141,
+          "printed_cycles_hz": 14.17296,
+          "negative": false
+        },
+        {
+          "mode": 12,
+          "eigenvalue_s_minus_2": 9750.162,
+          "printed_cycles_hz": 15.71542,
+          "negative": false
+        },
+        {
+          "mode": 13,
+          "eigenvalue_s_minus_2": 12563.47,
+          "printed_cycles_hz": 17.83918,
+          "negative": false
+        },
+        {
+          "mode": 14,
+          "eigenvalue_s_minus_2": 13105.89,
+          "printed_cycles_hz": 18.22021,
+          "negative": false
+        },
+        {
+          "mode": 15,
+          "eigenvalue_s_minus_2": 13512.97,
+          "printed_cycles_hz": 18.50101,
+          "negative": false
+        },
+        {
+          "mode": 16,
+          "eigenvalue_s_minus_2": 14781.45,
+          "printed_cycles_hz": 19.3499,
+          "negative": false
+        },
+        {
+          "mode": 17,
+          "eigenvalue_s_minus_2": 17001.3,
+          "printed_cycles_hz": 20.75206,
+          "negative": false
+        },
+        {
+          "mode": 18,
+          "eigenvalue_s_minus_2": 19939.17,
+          "printed_cycles_hz": 22.47365,
+          "negative": false
+        },
+        {
+          "mode": 19,
+          "eigenvalue_s_minus_2": 20047.06,
+          "printed_cycles_hz": 22.53437,
+          "negative": false
+        },
+        {
+          "mode": 20,
+          "eigenvalue_s_minus_2": 23888.05,
+          "printed_cycles_hz": 24.59861,
+          "negative": false
+        },
+        {
+          "mode": 21,
+          "eigenvalue_s_minus_2": 24337.34,
+          "printed_cycles_hz": 24.82885,
+          "negative": false
+        },
+        {
+          "mode": 22,
+          "eigenvalue_s_minus_2": 26086.7,
+          "printed_cycles_hz": 25.70571,
+          "negative": false
+        },
+        {
+          "mode": 23,
+          "eigenvalue_s_minus_2": 28445.61,
+          "printed_cycles_hz": 26.8428,
+          "negative": false
+        },
+        {
+          "mode": 24,
+          "eigenvalue_s_minus_2": 28807.69,
+          "printed_cycles_hz": 27.01309,
+          "negative": false
+        },
+        {
+          "mode": 25,
+          "eigenvalue_s_minus_2": 31113.54,
+          "printed_cycles_hz": 28.07339,
+          "negative": false
+        },
+        {
+          "mode": 26,
+          "eigenvalue_s_minus_2": 37093.55,
+          "printed_cycles_hz": 30.65274,
+          "negative": false
+        },
+        {
+          "mode": 27,
+          "eigenvalue_s_minus_2": 52166.65,
+          "printed_cycles_hz": 36.35102,
+          "negative": false
+        },
+        {
+          "mode": 28,
+          "eigenvalue_s_minus_2": 52719.45,
+          "printed_cycles_hz": 36.54311,
+          "negative": false
+        },
+        {
+          "mode": 29,
+          "eigenvalue_s_minus_2": 54621.07,
+          "printed_cycles_hz": 37.19634,
+          "negative": false
+        },
+        {
+          "mode": 30,
+          "eigenvalue_s_minus_2": 60799.49,
+          "printed_cycles_hz": 39.24371,
+          "negative": false
+        }
+      ],
+      "negative_roots_without_frequency_filter": [],
+      "interpretation": "Sign reported without suppression; physical cause not diagnosed."
+    },
+    {
+      "source": "/home/nicomonzi/ZENO/prestress_loads/n1p6/prestressed_modes_nodlm.f06",
+      "sha256": "b6d53a8918bc73ad5b238b154e26c2689ce6d5a61baa06cd4720eb4a002d9e2c",
+      "roots": [
+        {
+          "mode": 1,
+          "eigenvalue_s_minus_2": -0.03927591,
+          "printed_cycles_hz": 0.03154157,
+          "negative": true
+        },
+        {
+          "mode": 2,
+          "eigenvalue_s_minus_2": 2.229324,
+          "printed_cycles_hz": 0.237633,
+          "negative": false
+        },
+        {
+          "mode": 3,
+          "eigenvalue_s_minus_2": 65.70878,
+          "printed_cycles_hz": 1.290125,
+          "negative": false
+        },
+        {
+          "mode": 4,
+          "eigenvalue_s_minus_2": 299.1648,
+          "printed_cycles_hz": 2.752805,
+          "negative": false
+        },
+        {
+          "mode": 5,
+          "eigenvalue_s_minus_2": 1499.03,
+          "printed_cycles_hz": 6.162051,
+          "negative": false
+        },
+        {
+          "mode": 6,
+          "eigenvalue_s_minus_2": 2977.548,
+          "printed_cycles_hz": 8.684594,
+          "negative": false
+        },
+        {
+          "mode": 7,
+          "eigenvalue_s_minus_2": 4695.291,
+          "printed_cycles_hz": 10.90565,
+          "negative": false
+        },
+        {
+          "mode": 8,
+          "eigenvalue_s_minus_2": 5174.948,
+          "printed_cycles_hz": 11.44915,
+          "negative": false
+        },
+        {
+          "mode": 9,
+          "eigenvalue_s_minus_2": 6497.353,
+          "printed_cycles_hz": 12.82887,
+          "negative": false
+        },
+        {
+          "mode": 10,
+          "eigenvalue_s_minus_2": 6964.614,
+          "printed_cycles_hz": 13.28216,
+          "negative": false
+        },
+        {
+          "mode": 11,
+          "eigenvalue_s_minus_2": 7938.37,
+          "printed_cycles_hz": 14.18031,
+          "negative": false
+        },
+        {
+          "mode": 12,
+          "eigenvalue_s_minus_2": 9731.146,
+          "printed_cycles_hz": 15.70009,
+          "negative": false
+        },
+        {
+          "mode": 13,
+          "eigenvalue_s_minus_2": 12561.64,
+          "printed_cycles_hz": 17.83788,
+          "negative": false
+        },
+        {
+          "mode": 14,
+          "eigenvalue_s_minus_2": 13102.98,
+          "printed_cycles_hz": 18.21819,
+          "negative": false
+        },
+        {
+          "mode": 15,
+          "eigenvalue_s_minus_2": 13526.9,
+          "printed_cycles_hz": 18.51055,
+          "negative": false
+        },
+        {
+          "mode": 16,
+          "eigenvalue_s_minus_2": 14772.36,
+          "printed_cycles_hz": 19.34395,
+          "negative": false
+        },
+        {
+          "mode": 17,
+          "eigenvalue_s_minus_2": 17002.23,
+          "printed_cycles_hz": 20.75263,
+          "negative": false
+        },
+        {
+          "mode": 18,
+          "eigenvalue_s_minus_2": 19939.36,
+          "printed_cycles_hz": 22.47376,
+          "negative": false
+        },
+        {
+          "mode": 19,
+          "eigenvalue_s_minus_2": 20057.51,
+          "printed_cycles_hz": 22.54025,
+          "negative": false
+        },
+        {
+          "mode": 20,
+          "eigenvalue_s_minus_2": 23886.32,
+          "printed_cycles_hz": 24.59772,
+          "negative": false
+        },
+        {
+          "mode": 21,
+          "eigenvalue_s_minus_2": 24341.89,
+          "printed_cycles_hz": 24.83118,
+          "negative": false
+        },
+        {
+          "mode": 22,
+          "eigenvalue_s_minus_2": 26073.64,
+          "printed_cycles_hz": 25.69928,
+          "negative": false
+        },
+        {
+          "mode": 23,
+          "eigenvalue_s_minus_2": 28301.68,
+          "printed_cycles_hz": 26.7748,
+          "negative": false
+        },
+        {
+          "mode": 24,
+          "eigenvalue_s_minus_2": 28602.03,
+          "printed_cycles_hz": 26.9165,
+          "negative": false
+        },
+        {
+          "mode": 25,
+          "eigenvalue_s_minus_2": 31084.23,
+          "printed_cycles_hz": 28.06016,
+          "negative": false
+        },
+        {
+          "mode": 26,
+          "eigenvalue_s_minus_2": 37354.62,
+          "printed_cycles_hz": 30.76042,
+          "negative": false
+        },
+        {
+          "mode": 27,
+          "eigenvalue_s_minus_2": 52210.52,
+          "printed_cycles_hz": 36.3663,
+          "negative": false
+        },
+        {
+          "mode": 28,
+          "eigenvalue_s_minus_2": 52763.46,
+          "printed_cycles_hz": 36.55836,
+          "negative": false
+        },
+        {
+          "mode": 29,
+          "eigenvalue_s_minus_2": 54667.95,
+          "printed_cycles_hz": 37.2123,
+          "negative": false
+        },
+        {
+          "mode": 30,
+          "eigenvalue_s_minus_2": 61212.27,
+          "printed_cycles_hz": 39.37671,
+          "negative": false
+        }
+      ],
+      "negative_roots_without_frequency_filter": [
+        {
+          "mode": 1,
+          "eigenvalue_s_minus_2": -0.03927591,
+          "printed_cycles_hz": 0.03154157,
+          "negative": true
+        }
+      ],
+      "interpretation": "Sign reported without suppression; physical cause not diagnosed."
+    },
+    {
+      "source": "/home/nicomonzi/ZENO/prestress_loads/n1p6/prestressed_modes_with_dlm.f06",
+      "sha256": "ab6b90f425d3a4d206e7b01edc29127529a8f588d13d68fabac2232fec2c1f4b",
+      "roots": [
+        {
+          "mode": 1,
+          "eigenvalue_s_minus_2": -0.079552,
+          "printed_cycles_hz": 0.0448896,
+          "negative": true
+        },
+        {
+          "mode": 2,
+          "eigenvalue_s_minus_2": 2.263225,
+          "printed_cycles_hz": 0.239433,
+          "negative": false
+        },
+        {
+          "mode": 3,
+          "eigenvalue_s_minus_2": 65.66914,
+          "printed_cycles_hz": 1.289736,
+          "negative": false
+        },
+        {
+          "mode": 4,
+          "eigenvalue_s_minus_2": 298.9827,
+          "printed_cycles_hz": 2.751967,
+          "negative": false
+        },
+        {
+          "mode": 5,
+          "eigenvalue_s_minus_2": 1499.534,
+          "printed_cycles_hz": 6.163087,
+          "negative": false
+        },
+        {
+          "mode": 6,
+          "eigenvalue_s_minus_2": 2977.559,
+          "printed_cycles_hz": 8.68461,
+          "negative": false
+        },
+        {
+          "mode": 7,
+          "eigenvalue_s_minus_2": 4697.977,
+          "printed_cycles_hz": 10.90877,
+          "negative": false
+        },
+        {
+          "mode": 8,
+          "eigenvalue_s_minus_2": 5173.757,
+          "printed_cycles_hz": 11.44783,
+          "negative": false
+        },
+        {
+          "mode": 9,
+          "eigenvalue_s_minus_2": 6500.044,
+          "printed_cycles_hz": 12.83152,
+          "negative": false
+        },
+        {
+          "mode": 10,
+          "eigenvalue_s_minus_2": 6966.305,
+          "printed_cycles_hz": 13.28377,
+          "negative": false
+        },
+        {
+          "mode": 11,
+          "eigenvalue_s_minus_2": 7941.023,
+          "printed_cycles_hz": 14.18268,
+          "negative": false
+        },
+        {
+          "mode": 12,
+          "eigenvalue_s_minus_2": 9733.457,
+          "printed_cycles_hz": 15.70195,
+          "negative": false
+        },
+        {
+          "mode": 13,
+          "eigenvalue_s_minus_2": 12562.02,
+          "printed_cycles_hz": 17.83816,
+          "negative": false
+        },
+        {
+          "mode": 14,
+          "eigenvalue_s_minus_2": 13103.03,
+          "printed_cycles_hz": 18.21822,
+          "negative": false
+        },
+        {
+          "mode": 15,
+          "eigenvalue_s_minus_2": 13534.14,
+          "printed_cycles_hz": 18.5155,
+          "negative": false
+        },
+        {
+          "mode": 16,
+          "eigenvalue_s_minus_2": 14770.87,
+          "printed_cycles_hz": 19.34297,
+          "negative": false
+        },
+        {
+          "mode": 17,
+          "eigenvalue_s_minus_2": 16998.69,
+          "printed_cycles_hz": 20.75047,
+          "negative": false
+        },
+        {
+          "mode": 18,
+          "eigenvalue_s_minus_2": 19939.34,
+          "printed_cycles_hz": 22.47375,
+          "negative": false
+        },
+        {
+          "mode": 19,
+          "eigenvalue_s_minus_2": 20060.11,
+          "printed_cycles_hz": 22.5417,
+          "negative": false
+        },
+        {
+          "mode": 20,
+          "eigenvalue_s_minus_2": 23885.55,
+          "printed_cycles_hz": 24.59732,
+          "negative": false
+        },
+        {
+          "mode": 21,
+          "eigenvalue_s_minus_2": 24342.35,
+          "printed_cycles_hz": 24.83141,
+          "negative": false
+        },
+        {
+          "mode": 22,
+          "eigenvalue_s_minus_2": 26072.37,
+          "printed_cycles_hz": 25.69866,
+          "negative": false
+        },
+        {
+          "mode": 23,
+          "eigenvalue_s_minus_2": 28286.94,
+          "printed_cycles_hz": 26.76783,
+          "negative": false
+        },
+        {
+          "mode": 24,
+          "eigenvalue_s_minus_2": 28581.01,
+          "printed_cycles_hz": 26.90661,
+          "negative": false
+        },
+        {
+          "mode": 25,
+          "eigenvalue_s_minus_2": 31082.76,
+          "printed_cycles_hz": 28.0595,
+          "negative": false
+        },
+        {
+          "mode": 26,
+          "eigenvalue_s_minus_2": 37386.6,
+          "printed_cycles_hz": 30.77359,
+          "negative": false
+        },
+        {
+          "mode": 27,
+          "eigenvalue_s_minus_2": 52213.15,
+          "printed_cycles_hz": 36.36722,
+          "negative": false
+        },
+        {
+          "mode": 28,
+          "eigenvalue_s_minus_2": 52765.68,
+          "printed_cycles_hz": 36.55914,
+          "negative": false
+        },
+        {
+          "mode": 29,
+          "eigenvalue_s_minus_2": 54669.17,
+          "printed_cycles_hz": 37.21272,
+          "negative": false
+        },
+        {
+          "mode": 30,
+          "eigenvalue_s_minus_2": 61269.29,
+          "printed_cycles_hz": 39.39504,
+          "negative": false
+        }
+      ],
+      "negative_roots_without_frequency_filter": [
+        {
+          "mode": 1,
+          "eigenvalue_s_minus_2": -0.079552,
+          "printed_cycles_hz": 0.0448896,
+          "negative": true
+        }
+      ],
+      "interpretation": "Sign reported without suppression; physical cause not diagnosed."
+    }
+  ],
+  "dlm_load_recovery": [
+    {
+      "netcdf": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/load_recovery/cases/load_recovery__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p00p00_qcmd_p00p00_nnom_01p00_shadow.nc",
+      "netcdf_sha256": "2512c707ac62d7d90406dd7f533569eb1f5c04b6e1e1c301782424b8338e6dd2",
+      "deck": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/load_recovery/cases/load_recovery__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p00p00_qcmd_p00p00_nnom_01p00_shadow.mbd",
+      "deck_sha256": "d2280a0ef79d408319c8a850501595154de89da2feae9e59243f9e746d0fd16b",
+      "actual_coefficients": {
+        "K7": 147.1,
+        "C7": 10.381,
+        "q7_eq": -0.41888588052,
+        "ramp_time_s": 5.0
+      },
+      "legacy_coefficients": {
+        "K7": 146.37892,
+        "C7": 3.67894,
+        "q7_eq": -0.4304727364
+      },
+      "window_s": [
+        13.249999999999762,
+        14.78999999999973
+      ],
+      "samples": 78,
+      "legacy_Q7_mean": 0.7950826271152435,
+      "actual_Q7_mean": -0.8911319842610266,
+      "actual_Q7_std": 0.28104553585938846,
+      "actual_minus_legacy_Q7_mean": -1.6862146113762702,
+      "absolute_difference_over_actual_mean_percent": 189.22164630580147
+    },
+    {
+      "netcdf": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/load_recovery/cases/load_recovery__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p10p23_qcmd_p05p05_nnom_01p60_shadow.nc",
+      "netcdf_sha256": "3cd7593aa7c1cd91435c3e1d12f1ef307c46095166162701d4f4756612b924b3",
+      "deck": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/load_recovery/cases/load_recovery__dt_0p0100__f7_1p000__dive_pullup_V_066p750_n_1p000_bank_p00p00_pitch_p10p23_qcmd_p05p05_nnom_01p60_shadow.mbd",
+      "deck_sha256": "4669c00b3d6f979f28e5234579c1a62c8ce4217f77f3c85ae678c4f092dc16b6",
+      "actual_coefficients": {
+        "K7": 147.1,
+        "C7": 10.381,
+        "q7_eq": -0.41888588052,
+        "ramp_time_s": 5.0
+      },
+      "legacy_coefficients": {
+        "K7": 146.37892,
+        "C7": 3.67894,
+        "q7_eq": -0.4304727364
+      },
+      "window_s": [
+        16.37999999999976,
+        17.9
+      ],
+      "samples": 77,
+      "legacy_Q7_mean": -60.133822161084275,
+      "actual_Q7_mean": -62.61033561933403,
+      "actual_Q7_std": 5.003086023538226,
+      "actual_minus_legacy_Q7_mean": -2.476513458249755,
+      "absolute_difference_over_actual_mean_percent": 3.9554387207038215
+    }
+  ],
+  "decision": "Previous stable/robust-to-DLM gate not established; resolve audit findings first."
+}

@@ -1,0 +1,207 @@
+# ==============================================================================
+# Control surfaces: full-surface open-loop hold window
+# ==============================================================================
+
+# All ten aerodynamic surfaces are sampled at SAS_OFF_START and held until
+# SAS_ON_START.  WF4 receives the prescribed rap on top of its held release
+# value; once the rap ends it returns exactly to that held value.
+
+drive caller: BFL_LIVE_DRIVE, array, 3,
+    const, BODY_TRIM_SURFACE,
+    reference, LONG_ACT_DRIVE,
+    reference, DIR_ACT_DRIVE;
+drive caller: BFR_LIVE_DRIVE, array, 3,
+    const, BODY_TRIM_SURFACE,
+    reference, LONG_ACT_DRIVE,
+    mult, const, -1., reference, DIR_ACT_DRIVE;
+drive caller: WF1L_LIVE_DRIVE, array, 3,
+    const, TRIM_SURFACE,
+    reference, LAT_ACT_DRIVE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF1R_LIVE_DRIVE, array, 3,
+    const, TRIM_SURFACE,
+    mult, const, -1., reference, LAT_ACT_DRIVE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF2L_LIVE_DRIVE, array, 3,
+    const, TRIM_SURFACE,
+    reference, LAT_ACT_DRIVE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF2R_LIVE_DRIVE, array, 3,
+    const, TRIM_SURFACE,
+    mult, const, -1., reference, LAT_ACT_DRIVE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF3L_LIVE_DRIVE, array, 2,
+    const, TRIM_SURFACE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF3R_LIVE_DRIVE, array, 2,
+    const, TRIM_SURFACE,
+    reference, LIFT_ACT_DRIVE;
+drive caller: WF4L_LIVE_DRIVE, const, TRIM_SURFACE;
+drive caller: WF4R_LIVE_DRIVE, const, TRIM_SURFACE;
+
+drive caller: BFL_HOLD_DRIVE, sample and hold,
+    reference, BFL_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, BODY_TRIM_SURFACE;
+drive caller: BFR_HOLD_DRIVE, sample and hold,
+    reference, BFR_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, BODY_TRIM_SURFACE;
+drive caller: WF1L_HOLD_DRIVE, sample and hold,
+    reference, WF1L_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF1R_HOLD_DRIVE, sample and hold,
+    reference, WF1R_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF2L_HOLD_DRIVE, sample and hold,
+    reference, WF2L_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF2R_HOLD_DRIVE, sample and hold,
+    reference, WF2R_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF3L_HOLD_DRIVE, sample and hold,
+    reference, WF3L_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF3R_HOLD_DRIVE, sample and hold,
+    reference, WF3R_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF4L_HOLD_DRIVE, sample and hold,
+    reference, WF4L_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+drive caller: WF4R_HOLD_DRIVE, sample and hold,
+    reference, WF4R_LIVE_DRIVE, reference, OPEN_LOOP_SAMPLE_TRIGGER,
+    initial value, TRIM_SURFACE;
+
+drive caller: WF4L_COMMAND_DRIVE, array, 2,
+    reference, WF4L_HOLD_DRIVE,
+    reference, BFF_RAP_ACT_DRIVE;
+drive caller: WF4R_COMMAND_DRIVE, array, 2,
+    reference, WF4R_HOLD_DRIVE,
+    reference, BFF_RAP_ACT_DRIVE;
+# BFL
+joint: 1004, total joint,
+    990004,
+        position, reference, GROUND, 160.14999390 + 12.2, -31.37999916, 101.47000120,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, BFLjoint, eye,
+    880004,
+        position, reference, GROUND, 160.14999390 + 12.2, -31.37999916, 101.47000120,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, BFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, BFL_HOLD_DRIVE, 0.;
+
+# WF1L
+joint: 1008, total joint,
+    990008,
+        position, reference, GROUND, 166.77999880 + 5.16, -66.86000061, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    880008,
+        position, reference, GROUND, 166.77999880 + 5.16, -66.86000061, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF1L_HOLD_DRIVE, 0.;
+
+# WF2L
+joint: 1011, total joint,
+    990011,
+        position, reference, GROUND, 176.74000550 + 5.16, -92.13999939, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    880011,
+        position, reference, GROUND, 176.74000550 + 5.16, -92.13999939, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF2L_HOLD_DRIVE, 0.;
+
+# WF3L
+joint: 1014, total joint,
+    990014,
+        position, reference, GROUND, 186.69999690 + 5.16, -117.43000030, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    880014,
+        position, reference, GROUND, 186.69999690 + 5.16, -117.43000030, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF3L_HOLD_DRIVE, 0.;
+
+# WF4L
+joint: 1017, total joint,
+    990017,
+        position, reference, GROUND, 196.64999390 + 5.16, -142.71000670, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    880017,
+        position, reference, GROUND, 196.64999390 + 5.16, -142.71000670, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFLjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF4L_COMMAND_DRIVE, 0.;
+
+# BFR
+joint: 2004, total joint,
+    991004,
+        position, reference, GROUND, 160.14999390 + 12.2, 31.37999916, 101.47000120,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, BFRjoint, eye,
+    881004,
+        position, reference, GROUND, 160.14999390 + 12.2, 31.37999916, 101.47000120,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, BFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, BFR_HOLD_DRIVE, 0.;
+
+# WF1R
+joint: 2008, total joint,
+    991008,
+        position, reference, GROUND, 166.77999880 + 5.16, 66.86000061, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    881008,
+        position, reference, GROUND, 166.77999880 + 5.16, 66.86000061, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF1R_HOLD_DRIVE, 0.;
+
+# WF2R
+joint: 2011, total joint,
+    991011,
+        position, reference, GROUND, 176.74000550 + 5.16, 92.13999939, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    881011,
+        position, reference, GROUND, 176.74000550 + 5.16, 92.13999939, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF2R_HOLD_DRIVE, 0.;
+
+# WF3R
+joint: 2014, total joint,
+    991014,
+        position, reference, GROUND, 186.69999690 + 5.16, 117.43000030, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    881014,
+        position, reference, GROUND, 186.69999690 + 5.16, 117.43000030, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF3R_HOLD_DRIVE, 0.;
+
+# WF4R
+joint: 2017, total joint,
+    991017,
+        position, reference, GROUND, 196.64999390 + 5.16, 142.71000670, 104.08999630,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    881017,
+        position, reference, GROUND, 196.64999390 + 5.16, 142.71000670, 104.08999630,
+        position orientation, reference, other node, eye,
+        rotation orientation, reference, WFRjoint, eye,
+    position constraint, 1, 1, 1, null,
+    orientation constraint, 1, 1, 1, component, 0., reference, WF4R_COMMAND_DRIVE, 0.;

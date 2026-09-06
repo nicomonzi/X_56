@@ -1,0 +1,42 @@
+! DUST is run in the same coherent IPS units used by the structural model:
+! length [in], time [s], density [lbf s^2/in^4], velocity [in/s].
+basename = ./Output/case
+geometry_file = geo_input.h5
+reference_file = References.in
+! run_coupled.py launches DUST from the project root shared with MBDyn.
+precice_config = ./precice-config.xml
+
+tstart = 0.0
+tend = 29.75
+dt = 0.02
+dt_out = 0.02
+output_start = T
+ndt_update_wake = 1
+
+rho_inf = 1.146e-7
+! Atmospheric properties converted consistently to IPS.
+a_inf = 13385.8267716535
+P_inf = 14.6959487755
+! 30 m/s converted exactly to in/s; run_coupled.py replaces this value for
+! other physical velocities while keeping every other input unchanged.
+u_inf = (/1181.1023622047244, 0.0, 0.0/)
+
+! This DUST version allocates a dense octree. The domain retains roughly
+! 6.8 s of downstream wake in either x direction while keeping memory finite.
+particles_box_min = (/-8000.0, -400.0, -400.0/)
+particles_box_max = (/ 8000.0,  400.0,  400.0/)
+fmm = T
+box_length = 400.0
+n_box = (/40, 2, 2/)
+octree_origin = (/-8000.0, -400.0, -400.0/)
+! 160 root boxes and five levels give 655360 finest cells, comparable to
+! the official coupled-wing example without multi-gigabyte allocation.
+n_octree_levels = 5
+min_octree_part = 10
+multipole_degree = 2
+vortstretch = T
+diffusion = T
+
+n_wake_panels = 5
+n_wake_particles = 250000
+Kvortex_rad = 1.0

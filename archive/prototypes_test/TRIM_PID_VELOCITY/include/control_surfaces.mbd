@@ -1,0 +1,175 @@
+# ==============================================================================
+#                       Control surface joints
+# ==============================================================================    
+
+    
+    
+    # BFL
+    joint: 1004, total joint,
+        990004, 
+            position, reference, global, 160.14999390 + 12.2, -31.37999916, 101.47000120,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, BFLjoint, eye,
+        880004,
+            position, reference, global, 160.14999390 + 12.2, -31.37999916, 101.47000120,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, BFLjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+            component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;
+    # WF1L
+    joint: 1008, total joint,
+        990008, 
+            position, reference, global, 166.77999880 + 5.16, -66.86000061, 104.08999630,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, WFLjoint, eye,
+        880008,
+            position, reference, global, 166.77999880 + 5.16, -66.86000061, 104.08999630,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, WFLjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+            component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;
+
+
+    # WF2L
+    joint: 1011, total joint,
+        990011, 
+            position, reference, global, 176.74000550 + 5.16, -92.13999939, 104.08999630,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, WFLjoint, eye,
+        880011,
+            position, reference, global, 176.74000550 + 5.16, -92.13999939, 104.08999630,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, WFLjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+            component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;
+
+    # WF3L
+    joint: 1014, total joint,
+        990014, 
+            position, reference, global, 186.69999690 + 5.16, -117.43000030, 104.08999630,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, WFLjoint, eye,
+        880014,
+            position, reference, global, 186.69999690 + 5.16, -117.43000030, 104.08999630,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, WFLjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+                component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;
+
+    # WF4L 
+    joint: 1017, total joint,
+        990017, 
+            position, reference, global, 196.64999390 + 5.16, -142.71000670, 104.08999630,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, WFLjoint, eye,
+        880017,
+            position, reference, global, 196.64999390 + 5.16, -142.71000670, 104.08999630,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, WFLjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+            component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;
+
+    # BFR 
+    joint: 2004, total joint,
+        991004, 
+            position, reference, global, 160.14999390 + 12.2, 31.37999916, 101.47000120,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, BFRjoint, eye,
+        881004,
+            position, reference, global, 160.14999390 + 12.2, 31.37999916, 101.47000120,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, BFRjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+            component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;
+
+    # WF1R 
+    joint: 2008, total joint,
+        991008, 
+            position, reference, global, 166.77999880 + 5.16, 66.86000061, 104.08999630,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, WFRjoint, eye,
+        881008,
+            position, reference, global, 166.77999880 + 5.16, 66.86000061, 104.08999630,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, WFRjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+            component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;
+
+    # WF2R 
+    joint: 2011, total joint,
+        991011, 
+            position, reference, global, 176.74000550 + 5.16, 92.13999939, 104.08999630,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, WFRjoint, eye,
+        881011,
+            position, reference, global, 176.74000550 + 5.16, 92.13999939, 104.08999630,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, WFRjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+            component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;
+
+    # WF3R
+    joint: 2014, total joint,
+        991014, 
+            position, reference, global, 186.69999690 + 5.16, 117.43000030, 104.08999630,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, WFRjoint, eye,
+        881014,
+            position, reference, global, 186.69999690 + 5.16, 117.43000030, 104.08999630,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, WFRjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+            component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;
+
+    # WF4R
+    joint: 2017, total joint,
+        991017, 
+            position, reference, global, 196.64999390 + 5.16, 142.71000670, 104.08999630,
+            position orientation, reference, node, eye,
+            rotation orientation, reference, WFRjoint, eye,
+        881017,
+            position, reference, global, 196.64999390 + 5.16, 142.71000670, 104.08999630,
+            position orientation, reference, other node, eye,
+            rotation orientation, reference, WFRjoint, eye,
+        position constraint, 1, 1, 1, null, 
+        orientation constraint, 1, 1, 1, 
+            component,
+                0.,
+                reference, ELEVATOR_DRIVE,
+                0.;

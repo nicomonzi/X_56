@@ -1,0 +1,101 @@
+# Single-mode physical reconstruction using the established 10 lb modal joint.
+# Change MODE_TO_EXCITE to any flexible Nastran/FEM mode from 7 through 18.
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 2;
+set: const integer MODAL_FORCE = 3;
+set: const integer MODE_TO_EXCITE = 7;
+
+begin: initial value;
+    initial time: 0.;
+    final time: 2.e-2;
+    time step: 2.e-3;
+    method: ms, 0.6;
+    nonlinear solver: newton raphson, modified, 5;
+    linear solver: lapack;
+    tolerance: 1.e-8;
+    max iterations: 20;
+    derivatives coefficient: auto;
+    derivatives tolerance: 1.e-8;
+    derivatives max iterations: 20;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+    structural nodes: 46;
+    joints: 2;
+    forces: 1;
+    default orientation: orientation vector;
+end: control data;
+
+begin: nodes;
+    include: "span_nodes.mbd";
+end: nodes;
+
+begin: elements;
+    joint: 1, clamp, BASE_NODE, node, node;
+
+    joint: MODAL_JOINT, modal,
+        BASE_NODE,
+        1,
+        list, MODE_TO_EXCITE,
+        8527,
+        single factor damping, 0.01,
+        "../../NASTRAN/FEMGEN40/mbdyn_modal.fem",
+        45,
+            990001, 990001, null,
+            990002, 990002, null,
+            990003, 990003, null,
+            990004, 990004, null,
+            990005, 990005, null,
+            990006, 990006, null,
+            990007, 990007, null,
+            990008, 990008, null,
+            990009, 990009, null,
+            990010, 990010, null,
+            990011, 990011, null,
+            990012, 990012, null,
+            990013, 990013, null,
+            990014, 990014, null,
+            990015, 990015, null,
+            990016, 990016, null,
+            990017, 990017, null,
+            990018, 990018, null,
+            990019, 990019, null,
+            990020, 990020, null,
+            990021, 990021, null,
+            990022, 990022, null,
+            990023, 990023, null,
+            991002, 991002, null,
+            991003, 991003, null,
+            991004, 991004, null,
+            991005, 991005, null,
+            991006, 991006, null,
+            991007, 991007, null,
+            991008, 991008, null,
+            991009, 991009, null,
+            991010, 991010, null,
+            991011, 991011, null,
+            991012, 991012, null,
+            991013, 991013, null,
+            991014, 991014, null,
+            991015, 991015, null,
+            991016, 991016, null,
+            991017, 991017, null,
+            991018, 991018, null,
+            991019, 991019, null,
+            991020, 991020, null,
+            991021, 991021, null,
+            991022, 991022, null,
+            991023, 991023, null;
+
+    # Generalized unit load on the selected mode. Since only this modal DOF
+    # is active, every physical-node displacement has exactly that mode shape.
+    force: MODAL_FORCE, modal, MODAL_JOINT,
+        list, 1, MODE_TO_EXCITE,
+        const, 1.;
+end: elements;

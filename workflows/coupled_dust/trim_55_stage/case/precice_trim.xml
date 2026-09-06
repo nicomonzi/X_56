@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<precice-configuration>
+  <log><sink filter="(%Severity% > info)" enabled="true"/></log>
+  <data:vector name="Position"/><data:vector name="Rotation"/>
+  <data:vector name="Velocity"/><data:vector name="AngularVelocity"/>
+  <data:vector name="Force"/><data:vector name="Moment"/>
+  <mesh name="MBDynNodes" dimensions="3">
+    <use-data name="Position"/><use-data name="Rotation"/><use-data name="Velocity"/>
+    <use-data name="AngularVelocity"/><use-data name="Force"/><use-data name="Moment"/>
+  </mesh>
+  <mesh name="dust_mesh" dimensions="3">
+    <use-data name="Position"/><use-data name="Rotation"/><use-data name="Velocity"/>
+    <use-data name="AngularVelocity"/><use-data name="Force"/><use-data name="Moment"/>
+  </mesh>
+  <participant name="MBDyn">
+    <provide-mesh name="MBDynNodes"/>
+    <write-data name="Position" mesh="MBDynNodes"/><write-data name="Rotation" mesh="MBDynNodes"/>
+    <write-data name="Velocity" mesh="MBDynNodes"/><write-data name="AngularVelocity" mesh="MBDynNodes"/>
+    <read-data name="Force" mesh="MBDynNodes"/><read-data name="Moment" mesh="MBDynNodes"/>
+  </participant>
+  <participant name="dust">
+    <provide-mesh name="dust_mesh"/><receive-mesh name="MBDynNodes" from="MBDyn"/>
+    <write-data name="Force" mesh="dust_mesh"/><write-data name="Moment" mesh="dust_mesh"/>
+    <read-data name="Position" mesh="dust_mesh"/><read-data name="Rotation" mesh="dust_mesh"/>
+    <read-data name="Velocity" mesh="dust_mesh"/><read-data name="AngularVelocity" mesh="dust_mesh"/>
+    <mapping:nearest-neighbor direction="read" from="MBDynNodes" to="dust_mesh" constraint="consistent"/>
+    <mapping:nearest-neighbor direction="write" from="dust_mesh" to="MBDynNodes" constraint="conservative"/>
+  </participant>
+  <m2n:sockets exchange-directory="precice-run" acceptor="MBDyn" connector="dust"/>
+  <coupling-scheme:serial-explicit>
+    <participants first="MBDyn" second="dust"/><max-time value="__FINAL_TIME__"/>
+    <time-window-size value="-1" method="first-participant"/>
+    <exchange data="Position" from="MBDyn" mesh="MBDynNodes" to="dust"/>
+    <exchange data="Rotation" from="MBDyn" mesh="MBDynNodes" to="dust"/>
+    <exchange data="Velocity" from="MBDyn" mesh="MBDynNodes" to="dust"/>
+    <exchange data="AngularVelocity" from="MBDyn" mesh="MBDynNodes" to="dust"/>
+    <exchange data="Force" from="dust" mesh="MBDynNodes" to="MBDyn"/>
+    <exchange data="Moment" from="dust" mesh="MBDynNodes" to="MBDyn"/>
+  </coupling-scheme:serial-explicit>
+</precice-configuration>

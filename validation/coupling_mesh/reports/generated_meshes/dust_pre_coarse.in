@@ -1,0 +1,4 @@
+comp_name = X56
+geo_file = meshes/COARSE/parametric_mesh.in
+ref_tag = centerbody
+file_name = reports/generated_meshes/coarse_geo.h5

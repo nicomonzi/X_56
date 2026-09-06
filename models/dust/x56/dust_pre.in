@@ -1,0 +1,4 @@
+comp_name = X_56
+geo_file = parametric_mesh.in
+ref_tag = centerbody
+file_name = ./geo_input.h5

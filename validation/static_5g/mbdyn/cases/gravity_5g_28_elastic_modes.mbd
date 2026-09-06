@@ -1,0 +1,104 @@
+# NASA MUTT modal model: static-equivalent response to 5 g in global -Z.
+# This file is instantiated by generate_cases.py; do not replace the @...@ tokens manually.
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 2;
+set: const integer MASS_ID = 3;
+
+begin: initial value;
+    initial time: 0.;
+    final time: 6.;
+    time step: 1.e-2;
+    method: ms, 0.6;
+    nonlinear solver: newton raphson, modified, 5;
+    linear solver: lapack;
+    tolerance: 1.e-7;
+    max iterations: 20;
+    derivatives coefficient: auto;
+    derivatives tolerance: 1.e-7;
+    derivatives max iterations: 20;
+    threads: disable;
+    output: counter;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+    structural nodes: 46;
+    joints: 2;
+    gravity;
+    default orientation: orientation vector;
+    output results: netcdf, sync, no text;
+end: control data;
+
+begin: nodes;
+    include: "../span_nodes.mbd";
+end: nodes;
+
+begin: elements;
+    # 5*386.4 = 1932 in/s^2. The 2 s ramp limits transient contamination.
+    gravity: uniform, 0., 0., -1., ramp, 966., 0., 2., 0.;
+
+    # Same physical root condition as Nastran SPC at reference GRID 990001.
+    joint: 1, clamp, 990001, node, node;
+
+    joint: MODAL_JOINT, modal,
+        BASE_NODE,
+        28,
+        list, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34,
+        8527,
+        single factor damping, 0.20,
+        "../mbdyn_modal.fem",
+        45,
+            990001, 990001, null,
+            990002, 990002, null,
+            990003, 990003, null,
+            990004, 990004, null,
+            990005, 990005, null,
+            990006, 990006, null,
+            990007, 990007, null,
+            990008, 990008, null,
+            990009, 990009, null,
+            990010, 990010, null,
+            990011, 990011, null,
+            990012, 990012, null,
+            990013, 990013, null,
+            990014, 990014, null,
+            990015, 990015, null,
+            990016, 990016, null,
+            990017, 990017, null,
+            990018, 990018, null,
+            990019, 990019, null,
+            990020, 990020, null,
+            990021, 990021, null,
+            990022, 990022, null,
+            990023, 990023, null,
+            991002, 991002, null,
+            991003, 991003, null,
+            991004, 991004, null,
+            991005, 991005, null,
+            991006, 991006, null,
+            991007, 991007, null,
+            991008, 991008, null,
+            991009, 991009, null,
+            991010, 991010, null,
+            991011, 991011, null,
+            991012, 991012, null,
+            991013, 991013, null,
+            991014, 991014, null,
+            991015, 991015, null,
+            991016, 991016, null,
+            991017, 991017, null,
+            991018, 991018, null,
+            991019, 991019, null,
+            991020, 991020, null,
+            991021, 991021, null,
+            991022, 991022, null,
+            991023, 991023, null;
+
+    # Exposes the modal-joint mass to the uniform gravity element.
+    inertia: MASS_ID, name, "modal mass", joint, MODAL_JOINT;
+end: elements;

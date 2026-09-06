@@ -1,0 +1,7 @@
+numpy
+scipy
+matplotlib
+netCDF4
+h5py
+cycler
+pyNastran

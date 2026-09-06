@@ -1,0 +1,109 @@
+set: const real SAS_Q_REF = 0.5*RHO_AIR*(60.*m2in)*(60.*m2in);  #scalatura pressione e velocità
+set: const real SAS_Q_SCALE = 1.5*SAS_Q_REF/(Q_DYN + 0.5*SAS_Q_REF);
+
+
+# Il caso manovra parte geometricamente indeformato e senza pre-trim:
+# assetto, superfici e coordinate elastiche iniziali sono tutti nulli.
+# Il trim viene trovato nel dominio del tempo dagli integratori quota/pitch/roll/yaw.
+set: const real TRIM_SCALE = (1.146e-7/RHO_AIR)*(63./V_INF)*(63./V_INF);
+# Solo stima dell'assetto rigido; non introduce deformazione elastica.
+set: const real TRIM_PITCH = (0.90540*TRIM_SCALE - 0.81056131 + 0.1300*(TRIM_SCALE - 1.2))*deg2rad;
+set: const real TRIM_SURFACE = 0.;
+set: const real LONG_TRIM_BIAS = 0.;
+set: const real BODY_TRIM_CORRECTION = 0.;
+set: const real BODY_TRIM_SURFACE = 0.;
+
+set: const real TRIM_FRAME_X = X_CG - cos(TRIM_PITCH)*X_CG - sin(TRIM_PITCH)*Z_CG;
+set: const real TRIM_FRAME_Y = 0.;
+set: const real TRIM_FRAME_Z = Z_CG + sin(TRIM_PITCH)*X_CG - cos(TRIM_PITCH)*Z_CG;
+
+set: const real Q_INIT_7 = 0.;
+set: const real Q_INIT_8 = 0.;
+set: const real Q_INIT_9 = 0.;
+set: const real Q_INIT_10 = 0.;
+set: const real Q_INIT_11 = 0.;
+set: const real Q_INIT_12 = 0.;
+
+# Filtri dt=0.02 s notch e' centrato sul riferimento NASTRAN 2.0597 Hz (Q=3).
+set: const real NOTCH_A1 = 1.853379259531933;
+set: const real NOTCH_A2 = -0.917242175082742;
+set: const real NOTCH_B0 = 0.958621087541371;
+set: const real NOTCH_B1 = -1.853379259531933;
+set: const real NOTCH_B2 = 0.958621087541371;
+set: const real LP_A1 = 1.858043298700259;
+set: const real LP_A2 = -0.867472133791669;
+set: const real LP_B0 = 0.002357208772852;
+set: const real LP_B1 = 0.004714417545705;
+set: const real LP_B2 = 0.002357208772852;
+
+# Butterworth 0.15 Hz; Vz 0.35 Hz
+set: const real ALT_LP_A1 = 0.981325890492688;
+set: const real ALT_LP_B0 = 0.009337054753656;
+set: const real ALT_LP_B1 = 0.009337054753656;
+set: const real VZ_LP_A1 = 0.956957321922681;
+set: const real VZ_LP_B0 = 0.021521339038659;
+set: const real VZ_LP_B1 = 0.021521339038659;
+
+# Attuatori del primo ordine, tau=0.01 s dt=0.02 s
+set: const real ACT_A1 = 0.;
+set: const real ACT_B0 = 0.5;
+set: const real ACT_B1 = 0.5;
+set: const real SURFACE_CORRECTION_LIMIT = 8.*deg2rad;
+
+
+set: const integer ALT_PID = 9101;
+set: const integer VZ_PID = 9102;
+set: const integer PITCH_PID = 9103;
+set: const integer Q_PID = 9104;
+set: const integer ROLL_PID = 9201;
+set: const integer P_PID = 9202;
+set: const integer YAW_PID = 9301;
+set: const integer R_PID = 9302;
+set: const integer VY_PID = 9303;
+set: const integer FZ_TRIM_PID = 9401;
+set: const integer MY_TRIM_PID = 9402;
+set: const integer MX_TRIM_PID = 9403;
+set: const integer MZ_TRIM_PID = 9404;
+
+set: const integer ALT_DRIVE = 10101;
+set: const integer ALT_RAW_DRIVE = 10100;
+set: const integer VZ_DRIVE = 10102;
+set: const integer PITCH_DRIVE = 10103;
+set: const integer Q_DRIVE = 10104;
+set: const integer LONG_RAW_DRIVE = 10105;
+set: const integer LONG_LIMIT_DRIVE = 10106;
+set: const integer LONG_ACT_DRIVE = 10107;
+set: const integer ROLL_DRIVE = 10201;
+set: const integer P_DRIVE = 10202;
+set: const integer LAT_RAW_DRIVE = 10203;
+set: const integer LAT_LIMIT_DRIVE = 10204;
+set: const integer LAT_ACT_DRIVE = 10205;
+set: const integer YAW_DRIVE = 10301;
+set: const integer R_DRIVE = 10302;
+set: const integer DIR_RAW_DRIVE = 10303;
+set: const integer DIR_LIMIT_DRIVE = 10304;
+set: const integer DIR_ACT_DRIVE = 10305;
+set: const integer VY_DRIVE = 10306;
+set: const integer BURST_CARRIER_DRIVE = 10501;
+set: const integer BURST_WINDOW_DRIVE = 10502;
+set: const integer BFF_EXCITATION_DRIVE = 10503;
+set: const integer LIFT_RAW_DRIVE = 10601;
+set: const integer LIFT_LIMIT_DRIVE = 10602;
+set: const integer LIFT_ACT_DRIVE = 10603;
+set: const integer SAFETY_Q_SENSOR_DRIVE = 10701;
+set: const integer SAFETY_PITCH_SENSOR_DRIVE = 10702;
+set: const integer SAFETY_ARM_DRIVE = 10703;
+set: const integer SAFETY_RAW_DRIVE = 10704;
+set: const integer SAFETY_LIMIT_DRIVE = 10705;
+set: const integer SAFETY_ACT_DRIVE = 10706;
+
+# Comandi di manovra. Le ampiezze ENABLE vengono impostate dal main o da
+# run_manouver.py; non sono forze esterne ma riferimenti per il SAS.
+set: const integer MANEUVER_PROFILE_DRIVE = 10801;
+set: const integer PULLUP_COMMAND_DRIVE = 10802;
+set: const integer ROLL_COMMAND_DRIVE = 10803;
+set: const integer PULLUP_VZ_COMMAND_DRIVE = 10804;
+set: const integer FZ_TRIM_DRIVE = 10901;
+set: const integer MY_TRIM_DRIVE = 10902;
+set: const integer MX_TRIM_DRIVE = 10903;
+set: const integer MZ_TRIM_DRIVE = 10904;

@@ -1,0 +1,92 @@
+diff --git a/src/dust.f90 b/src/dust.f90
+index 69b24ca..385e3d2 100644
+--- a/src/dust.f90
++++ b/src/dust.f90
+@@ -1175,7 +1175,11 @@ end if
+     call precicef_is_coupling_ongoing(precice%is_ongoing)
+     if (precice%is_ongoing .eq. 1) then
+       call precicef_advance( precice%dt_precice )
++      ! preCICE 3 may end coupling inside advance(). Refresh the state before
++      ! attempting another write; terminal data would not be consumed.
++      call precicef_is_coupling_ongoing(precice%is_ongoing)
+     end if
++    if (precice%is_ongoing .eq. 0) exit
+ 
+     !> Write force and moments to structural solver
+     do i = 1, size(precice%fields)
+diff --git a/src/precice/mod_precice.f90 b/src/precice/mod_precice.f90
+index b82309f..2f1e9d0 100644
+--- a/src/precice/mod_precice.f90
++++ b/src/precice/mod_precice.f90
+@@ -1145,6 +1145,14 @@ subroutine update_elems( this, geo, elems, elems_virtual, te )
+                                     ( 1.0_wp - comp%hinge(ih)%rot%span_wei(i))
+               geo%points_vel(:,ip) = geo%points_vel(:,ip) * &
+                                     ( 1.0_wp - comp%hinge(ih)%rot%span_wei(i))
++
++              ip = comp%i_points_virtual( &
++                   comp%hinge(ih)%rot%node_id(i) )
++              geo%points_virtual(:,ip) = geo%points_virtual(:,ip) * &
++                                    ( 1.0_wp - comp%hinge(ih)%rot%span_wei(i))
++              geo%points_vel_virtual(:,ip) = &
++                   geo%points_vel_virtual(:,ip) * &
++                                    ( 1.0_wp - comp%hinge(ih)%rot%span_wei(i))
+             end do
+ 
+             !> From motion of hinge nodes to surface motion
+@@ -1193,6 +1201,18 @@ subroutine update_elems( this, geo, elems, elems_virtual, te )
+                      comp%hinge(ih)%rot%n2h(i)%s2h(ib) * &
+                      comp%hinge(ih)%rot%n2h(i)%w2h(ib) * &
+                     ( comp%hinge(ih) % act % rr(:,i) + matmul( transpose(Rot), chord ) )
++
++                ! Apply the identical rigid hinge motion to DUST's virtual
++                ! grid, which is used for panel geometry and wake collision.
++                ii = comp%hinge(ih)%rot%n2h(i)%p2h(ib)
++                chord = comp%loc_points_virtual(:,ii) - &
++                        comp%hinge(ih)%nodes(:,i)
++                ip = comp%i_points_virtual(ii)
++                geo%points_virtual(:,ip) = geo%points_virtual(:,ip) + &
++                     comp%hinge(ih)%rot%n2h(i)%s2h(ib) * &
++                     comp%hinge(ih)%rot%n2h(i)%w2h(ib) * &
++                    ( comp%hinge(ih)%act%rr(:,i) + &
++                      matmul(transpose(Rot), chord) )
+               end do
+ 
+               !> 1.2. Chordwise blending region
+@@ -1228,6 +1248,22 @@ subroutine update_elems( this, geo, elems, elems_virtual, te )
+                              comp%hinge(ih)%blen%n2h(i)%w2h(ib) * &
+                            ( xqp * comp%hinge(ih)%act%v(:,i) + &
+                              yqp * comp%hinge(ih)%act%n(:,i) )
++
++                  ip = comp%i_points_virtual(ii)
++                  xq = sum((geo%points_virtual(:,ip) - &
++                       comp%hinge(ih)%act%rr(:,i))*comp%hinge(ih)%act%v(:,i))
++                  yq = sum((geo%points_virtual(:,ip) - &
++                       comp%hinge(ih)%act%rr(:,i))*comp%hinge(ih)%act%n(:,i))
++                  thp = 0.5_wp*(xq + comp%hinge(ih)%offset) / &
++                                      comp%hinge(ih)%offset*th1
++                  xqp = yc*sin(thp) - comp%hinge(ih)%offset - &
++                        yq*sin(thp) - xq
++                  yqp = yc*(1.0_wp-cos(thp)) + yq*cos(thp) - yq
++                  geo%points_virtual(:,ip) = geo%points_virtual(:,ip) + &
++                             comp%hinge(ih)%blen%n2h(i)%s2h(ib) * &
++                             comp%hinge(ih)%blen%n2h(i)%w2h(ib) * &
++                           ( xqp*comp%hinge(ih)%act%v(:,i) + &
++                             yqp*comp%hinge(ih)%act%n(:,i) )
+                 ! else do nothing
+                 end if
+ 
+@@ -1304,6 +1340,14 @@ subroutine update_elems( this, geo, elems, elems_virtual, te )
+                     ( vel + cross( omega, &
+                           geo%points(:,il) - comp%hinge(ih)%act%rr(:,i) ) )
+ 
++                il = comp%i_points_virtual(ip)
++                geo%points_vel_virtual(:,il) = &
++                     geo%points_vel_virtual(:,il) + &
++                     comp%hinge(ih)%rot%n2h(i)%s2h(ib) * &
++                     comp%hinge(ih)%rot%n2h(i)%w2h(ib) * &
++                    ( vel + cross(omega, geo%points_virtual(:,il) - &
++                                           comp%hinge(ih)%act%rr(:,i)) )
++
+               end do
+ 
+               !!> 2.2. Chordwise blending region

@@ -1,0 +1,89 @@
+{
+  "model": {
+    "maneuver_directory": ".",
+    "baseline_directory": "../bff_open_loop",
+    "mbdyn_executable": "/usr/local/mbdyn/bin/mbdyn",
+    "fem_file": "../bff_open_loop/INCLUDE/mbdyn_modal.fem",
+    "modal_joint_file": "../bff_open_loop/INCLUDE/modaljoint.mbd",
+    "main_mbd_file": "../bff_open_loop/main_bff_open_loop.mbd",
+    "femgen_source": "/home/nicomonzi/src/mbdyn/utils/femgen.f90",
+    "mbdyn_modal_source": "/home/nicomonzi/src/mbdyn/mbdyn/struct/modal.cc",
+    "mbdyn_modal_ad_source": "/home/nicomonzi/src/mbdyn/mbdyn/struct/modalad.cc",
+    "mbdyn_modal_manual": "/home/nicomonzi/src/mbdyn/manual/tecman/tecman-modal.tex",
+    "fem_format_manual": "/home/nicomonzi/src/mbdyn/manual/input/modal-fem-format.tex",
+    "dominant_fem_mode": 7,
+    "dominant_mode_frequency_hz": 3.217134,
+    "dominant_mode_modal_stiffness": 408.59979239,
+    "selected_fem_modes": [7, 8, 9, 10, 11, 12]
+  },
+  "physics": {
+    "gravity_m_s2": 9.81,
+    "bff_rap_amplitude_deg": 0.2,
+    "sas_off_duration_s": 2.05,
+    "sigma_resolution_per_s": 0.05,
+    "frequency_screen_interpretation": "parametric sensitivity of FEM mode 7; it is not a prestressed finite-element solution"
+  },
+  "digital_systems": {
+    "second_order_lowpass_hz": 0.6,
+    "altitude_lowpass_hz": 0.15,
+    "vertical_speed_lowpass_hz": 1.0,
+    "pitch_rate_lowpass_hz": 1.0,
+    "actuator_time_constant_s": 0.01
+  },
+  "execution": {
+    "output_root": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2",
+    "windows_output_root": "C:\\Users\\Utente\\Desktop\\BFF_PULLUP_V2",
+    "final_time_policy": "identification_window_only",
+    "post_sas_off_margin_steps": 2,
+    "output_prehistory_s": 4.0,
+    "output_sample_step_s": 0.01,
+    "output_structural_nodes": [990000, 990020, 991020, 990004, 991004, 880004, 881004],
+    "output_joints": [5],
+    "runtime_reference": {
+      "source": "26 completed local MBDyn trajectories",
+      "median_wall_seconds_per_integration_step": 0.344403656,
+      "superseded_trajectory_count": 78,
+      "superseded_integration_steps": 235443
+    },
+    "note": "The production sweep ends immediately after the SAS-off identification window and writes only analysis variables. Recovery is outside the inferred pole and was already checked by the precursor campaign."
+  },
+  "campaigns": {
+    "primary": {
+      "description": "Reduced three-point paired onset map, bracketed from the completed 65/66/67 m/s precursor sweep",
+      "velocities_mps": [66.25, 66.75, 67.25],
+      "nominal_load_factors": [1.0, 1.3, 1.6],
+      "time_steps_s": [0.01],
+      "mode7_frequency_scales": [1.0]
+    },
+    "timestep": {
+      "description": "Fine-step increment at the highest accepted maneuver load; dt=0.01 reference is reused from primary",
+      "velocities_mps": [66.75],
+      "nominal_load_factors": [1.6],
+      "time_steps_s": [0.005],
+      "mode7_frequency_scales": [1.0],
+      "reference_campaigns": ["primary"]
+    },
+    "stiffness_screen": {
+      "description": "Centered local mode-7 stiffness derivative; zero-shift references are reused from primary",
+      "velocities_mps": [66.75],
+      "nominal_load_factors": [1.0, 1.6],
+      "time_steps_s": [0.01],
+      "mode7_frequency_scales": [0.99, 1.01],
+      "reference_campaigns": ["primary"]
+    }
+  },
+  "acceptance": {
+    "maximum_abs_nominal_n_error": 0.2,
+    "maximum_n_standard_deviation": 0.18,
+    "maximum_abs_n_slope_per_s": 0.3,
+    "maximum_tas_mean_error_mps": 1.0,
+    "maximum_tas_standard_deviation_mps": 0.5,
+    "maximum_pitch_rate_absolute_error_deg_s": 0.75,
+    "maximum_pitch_rate_relative_error": 0.3,
+    "maximum_pitch_rate_standard_deviation_deg_s": 1.5,
+    "maximum_mode_tip_sigma_difference_per_s": 0.25,
+    "maximum_surface_bff_leakage_deg": 0.025,
+    "maximum_timestep_sigma_difference_per_s": 0.05,
+    "maximum_timestep_n_difference": 0.03
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "reference_speed_mps": 63.0,
+  "reference_density_ips": 1.146e-07,
+  "pitch_step_deg": 0.25,
+  "elevator_step_deg": 0.5,
+  "jacobian_rows": [
+    "Fz_lbf",
+    "My_lbfin"
+  ],
+  "jacobian_columns": [
+    "pitch_rad",
+    "BFL_BFR_rad"
+  ],
+  "jacobian": [
+    [
+      153631.23293243413,
+      -4616.394228390672
+    ],
+    [
+      359199.22216307995,
+      -30149.398714716877
+    ]
+  ],
+  "inverse_jacobian": [
+    [
+      1.0138736293684741e-05,
+      -1.5524158260076531e-06
+    ],
+    [
+      0.00012079266405503656,
+      -5.166360271109743e-05
+    ]
+  ],
+  "condition_number": 51.619244700491336,
+  "baseline_residual": [
+    -71.10118191381254,
+    631.2887662476558
+  ],
+  "one_step_newton_trim_deg": [
+    0.24877198291091204,
+    3.153865370774887
+  ],
+  "validation_residual": [
+    1.517992234635721,
+    1.0995923389430036
+  ],
+  "validation_standard_deviation": [
+    1.9132451450892127,
+    13.083435328192268
+  ]
+}

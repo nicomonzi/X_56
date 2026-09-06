@@ -1,0 +1,52 @@
+$.......2.......3.......4.......5.......6.......7.......8.......9.......0       
+$===========================================================================    
+$                           AEROELASTIC TRIM DATA                                       
+$===========================================================================    
+
+EIGRL, 110, -0.1, , 31, 0, , , MASS
+
+PARAM   VREF    21.9849 
+PARAM   AERODOF 123456 
+PARAM   OPPHIPA 1 
+$
+$ AERO definisce: ACSID, VELOCITY, REFC, RHOREF, SYMXZ, SYMXY 
+AERO, 990, , 24.0, 9.7284-8, 0, 0
+$ AEROS definisce: ACSID, RCSID, REFC, REFB, REFS, SYMXZ, SYMXY
+AEROS, 990, 0, 24.0, 336.0, 8064.0, 0, 0
+
+CORD2R  990             163.50  0.00    104.00  163.50  0.00    105.00  +       
++       164.50  0.00    104.50                                                  
+$                                                                               
+$=====================================================================          
+$                    TRIM AND AESTAT Cards
+$=====================================================================          
+AESTAT, 10, ANGLEA
+AESTAT, 11, PITCH
+AESTAT, 12, URDD3
+$
+$ Trim 1g: Mach 0.087, q = 0.0677 psi, Accelerazione = 386.4 in/s2
+TRIM, 10, 0.087, 0.0677, URDD3, 386.4, PITCH, 0.0
+$
+$ID degli AELIST estratti dalla geometria
+AESURF, 101, BFLAP, 990, 831, 990, 931
+AESURF, 102, CS1,   990, 834, 990, 934
+AESURF, 103, CS2,   990, 837, 990, 937
+AESURF, 104, CS3,   990, 840, 990, 940
+AESURF, 105, CS4,   990, 843, 990, 943
+$
+$Tutti i flap seguono il movimento del BFLAP
+$ AELINK: ID_Link, Var_Dipendente, Var_Indipendente, Moltiplicatore
+AELINK, 10, CS1, BFLAP, 1.0
+AELINK, 10, CS2, BFLAP, 1.0
+AELINK, 10, CS3, BFLAP, 1.0
+AELINK, 10, CS4, BFLAP, 1.0
+$
+SUPORT1, 250, 10062, 35
+$
+SPC1, 100001, 1246, 10062
+$                                                                               
+$-----------------------------------------------------------------------        
+$                   DEFINE AERO GEOMETRY                                        
+$-----------------------------------------------------------------------        
+$ Load file with Aerodynamic Moldline                                           
+INCLUDE 'X56A-NASTRAN-GEOM.dat'
