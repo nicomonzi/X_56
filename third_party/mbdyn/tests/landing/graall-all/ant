@@ -1,0 +1,160 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/landing/graall-all/ant,v 1.5 2014/12/13 17:15:53 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: real dt = 1.e-4;
+set: real t0 = 0.;
+set: real tf = 1.;
+
+begin: initial value;
+    # abort after: input;
+    # abort after: assembly;
+    # abort after: derivatives;
+
+    time step: dt;
+    initial time: t0;
+    final time: tf;
+
+    tolerance: 1.e-6;
+    max iterations: 10;
+
+    derivatives coefficient: 1.e-6;
+    derivatives tolerance: 1.e6;
+    derivatives max iterations: 1;
+
+    fictitious steps number: 0;
+
+    set: real Rho = .6;
+    method: ms, Rho, Rho;
+threads: disable;
+end: initial value;
+
+begin: control data;
+        skip initial joint assembly;
+        # adams res output: "ant";
+
+        structural nodes:
+                1	# CG
+                +1	# mozzo
+                +1	# ruota
+        ;
+
+        joints:
+                1	# inline per stelo
+                +1	# rod per damper
+                +1	# plane hinge per mozzo
+        ;
+
+        rigid bodies:
+                1	# CG
+                +1	# mozzo (si puo' eliminare)
+                +1	# ruota
+        ;
+
+        loadable elements:
+                1	# ruota
+        ;
+
+        gravity;
+end: control data;
+
+set: integer cg = 100;
+set: integer ruota = 200;
+set: integer gamba = 300;
+
+set: real a_gamba = 0; # 16./180.*pi;
+set: real z0 = 0.5+.718*cos(a_gamba)+.1;
+set: real vy0 = 10.;
+set: real vz0 = -3.;
+set: real omega = 0.;
+
+reference: 1,
+        null,
+        1, 1.,0.,0., 3, 0.,0.,-1.,
+        null,
+        null;
+reference: cg,
+        reference, 1, 0.,0.,z0,
+        reference, 1, eye,
+        reference, 1, vy0,0.,vz0,
+        reference, 1, null;
+reference: gamba,
+        reference, cg, null,
+        reference, cg, 1, 1.,0.,0., 2, 0.,cos(a_gamba),sin(a_gamba),
+        reference, cg, null,
+        reference, cg, null;
+reference: gamba+1,
+        reference, gamba, 0.,0.,-.718,
+        reference, cg, eye,
+        reference, cg, null,
+        reference, cg, null;
+
+begin: nodes;
+        structural: cg,
+                dynamic,
+                reference, cg, null,
+                reference, cg, eye,
+                reference, cg, null,
+                reference, cg, null;
+        structural: ruota,
+                dynamic,
+                reference, gamba+1, null,
+                reference, global, eye,
+                reference, gamba+1, null,
+                reference, gamba+1, omega, 0.,0.;
+        structural: gamba,
+                dynamic,
+                reference, gamba+1, null,
+                reference, gamba+1, eye,
+                reference, gamba+1, null,
+                reference, gamba+1, null;
+end: nodes;
+
+module load: "libmodule-damper-graall.la";
+
+begin: elements;
+        body: ruota,
+                ruota, 7.,
+                null,
+                diag, .0931, .0658, .0658;
+
+        body: gamba,
+                gamba, .01,
+                null,
+                diag, .0001, .0001, .0001;
+
+        body: cg,
+                cg, 250.,
+                null,
+                diag, 100.,100.,100.;
+
+        joint: 1, plane hinge,
+                ruota, reference, gamba+1, null,
+                hinge, reference, gamba+1, 2, 0.,1.,0., 3, 1.,0.,0.,
+                gamba, reference, gamba+1, null,
+                hinge, reference, gamba+1, 2, 0.,1.,0., 3, 1.,0.,0.;
+        joint: 2, inline,
+                cg, reference, gamba, null,
+                reference, gamba, eye,
+                gamba;
+        joint: 3, rod,
+                cg, gamba, from nodes,
+                graall damper, "./graall", .718;
+
+        loadable: 1, "libmodule-wheel.so",
+                ruota, null, reference, gamba+1, 2, 0.,1.,0., 3, 1.,0.,0.,
+                gamba, "./wheel";
+
+        gravity: 0.,0.,1., const, 9.81;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

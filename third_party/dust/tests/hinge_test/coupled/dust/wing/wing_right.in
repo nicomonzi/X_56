@@ -1,0 +1,63 @@
+mesh_file_type = parametric
+el_type = p
+
+!> === Geometry definition === 
+starting_point = (/ -0.0808972  , 0.8312 , 0.0247792/)
+reference_chord_fraction = 0.5
+nelem_chord = 35
+type_chord = cosineLE 
+
+n_hinges = 2
+hinge = {
+    hinge_tag = Flap
+    hinge_nodes_input = parametric
+
+    node_1 = (/ 0.318555, 0.8312, 0.00384512 /)  
+    node_2 = (/ 0.170510, 2.008172, 0.0491917/)
+    n_nodes = 2
+
+    hinge_ref_dir = (/ 1.0, 0.0, 0.0 /)
+    hinge_offset  = 0.05
+    hinge_spanwise_blending = 0.0010
+    hinge_rotation_input = function:const
+    hinge_rotation_function = {
+    amplitude =  10.0    ! deg
+    omega     =  0.1    ! deg
+    phase     =  0.0    ! deg
+    }
+}
+hinge = {
+    hinge_tag = Aileron
+    hinge_nodes_input = parametric
+
+    node_1 = (/ 0.170510, 2.008173, 0.0491917/)
+    node_2 = (/-0.103225, 4.5716, 0.1330380/)
+    n_nodes = 2
+
+    hinge_ref_dir = (/ 1.0, 0.0, 0.0 /)
+    hinge_offset  = 0.05
+    hinge_spanwise_blending = 0.0010
+    ! constant; function:const, :sin, :cos; from_file; coupling
+    hinge_rotation_input = function:const
+    hinge_rotation_function = {
+        amplitude =  -10.0    ! deg
+        omega     =  0.1    ! deg
+        phase     =  0.0    ! deg
+    }
+}
+
+! First section
+chord = 1.6
+twist = 3.0
+airfoil = NACA23012
+! First region
+span = 3.7 !4.9
+sweep = -6.5
+dihed = 2.0
+nelem_span = 35
+type_span = uniform
+
+! Second section
+chord = 1.6
+twist = 3.0
+airfoil = NACA23012

@@ -1,0 +1,374 @@
+/* 
+ * MBDyn (C) is a multibody analysis code. 
+ * http://www.mbdyn.org
+ *
+ * Copyright (C) 1996-2012
+ *
+ * Pierangelo Masarati	<masarati@aero.polimi.it>
+ * Paolo Mantegazza	<mantegazza@aero.polimi.it>
+ *
+ * Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+ * via La Masa, 34 - 20156 Milano, Italy
+ * http://www.aero.polimi.it
+ *
+ * Changing this copyright notice is forbidden.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation (version 2 of the License).
+ * 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ AUTHOR: Reinhard Resch <mbdyn-user@a1.net>
+        Copyright (C) 2011(-2025) all rights reserved.
+
+        The copyright of this code is transferred
+        to Pierangelo Masarati and Paolo Mantegazza
+        for use in the software MBDyn as described
+        in the GNU Public License version 2.1
+*/
+
+set: integer node_id_rotor 				= 1001;
+set: integer node_id_stator				= 1002;
+
+set: integer joint_id_rotor 		        = 3001;
+set: integer joint_id_stator 				= 3002;
+
+set: integer elem_id_bearing				= 4001;
+
+set: integer ref_id_bearing                 = 5000;
+set: integer ref_id_rotor 					= 5001;
+set: integer ref_id_stator 					= 5002;
+
+set: integer drive_id_time_step = 6001;
+
+set: integer drive_id_bearing_min_T = 6002;
+set: integer drive_id_bearing_max_T = 6003;
+set: integer drive_id_bearing_mean_T = 6004;
+
+set: real omega1z = 0. * pi / 30;  
+set: real omega2z = 0;
+
+set: real h1 = 0.2e-5;
+set: real h2 = 1e-5;
+set: real l = 30e-3;
+set: real D2 = 2 * l / pi;
+set: real d1 = D2 - (h1 + h2);
+set: real B = 1e3 * l;
+
+set: real v1z = 0;
+set: real v2z = 0;
+
+set: real t1 = 0.1;
+set: real dt = t1 / 10;
+
+set: real eta0 = 0.002080141;
+set: real Aeta2 = 3.408E+05;
+set: real Aeta3 = 4556.6;
+set: real rho0 = 900;
+set: real gamma = 1.215e-3;
+set: real beta = 2.4e9;
+set: real cp0 = 1.71e6 / rho0;
+set: real Ac1 = 0.47e-9;
+set: real Ac2 = 0.81e-9;
+set: real Ac3 = 9.3e-4;
+set: real Ac4 = 1.4e-9;
+set: real Ac5 = -0.51e-18;
+set: real lambda0 = 0.137;
+set: real Alambda = 2.96e-4;
+set: real T0 = 300;
+set: real T1 = 350;
+set: real T2 = 300;
+set: real p0 = 0.1e5;
+
+set: real p1 = 6000e5;
+set: real p2 = 1e5;
+set: integer M = 3;
+set: integer N = 600;
+set: real epsilon_t0 = (h2 - h1) / (h2 + h1);
+set: real epsilon_t1 = epsilon_t0;
+set: real gamma_t0 = 0;
+set: real gamma_t1 = gamma_t0;
+set: real delta_t0 = 0;
+set: real delta_t1 = delta_t0;
+set: real Phi1x_t0 = atan(gamma_t0 * (D2 - d1) / B);
+set: real Phi1x_t1 = atan(gamma_t1 * (D2 - d1) / B);
+set: real omega1x = (Phi1x_t1 - Phi1x_t0) / t1;
+
+set: real epsilon_dot = (epsilon_t1 - epsilon_t0) / t1;
+set: real delta_dot = (delta_t1 - delta_t0) / t1;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: 0;
+	final time: t1 + 2 * dt;
+	time step: dt;
+        max time step: dt;
+        min time step: 1e-3 * dt;
+        
+        max time step: postponed, drive_id_time_step, hard limit, yes;
+	strategy: factor, 0.5, 2, 2, 2, 3, 6;
+
+        enforce constraint equations: constraint violations;
+
+	max iterations: 100;
+	tolerance: 1e-4, test, minmax, 1e-4, test, minmax;
+    
+    include: "noxsolver.set";
+    linear solver: umfpack, grad, scale, iterative, always, max iterations, 10, verbose, 0;
+    method: implicit euler;
+    output: messages;
+    derivatives tolerance: 1e-4, 1e-2;
+    derivatives max iterations: 10;
+    derivatives coefficient: 1e-3, auto;	
+    output: iterations, solver condition number, stat, yes;
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+    max iterations: 200;
+    tolerance: 1e-4;
+    output meter: closest next, t1, forever, const, dt;
+    use: loadable elements, in assembly;
+    initial stiffness: 1e10;
+    default orientation: euler123;
+	structural nodes: 2;
+	joints: 2;
+	loadable elements: 1;
+	print: dof stats, to file;
+	print: equation description, to file;
+	print: dof description, to file;
+	print: element connection, to file;
+	print: node connection, to file;	
+    output precision: 8;
+use automatic differentiation;
+end: control data;
+
+reference: ref_id_bearing,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+# X1 = (D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * cos(delta_t0 + delta_dot * Time)
+# X2 = (D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * sin(delta_t0 + delta_dot * Time)
+
+# XP1 = (D2 - d1) / 2 * (epsilon_dot * cos(delta_t0) - epsilon_t0 * sin(delta_t0) * delta_dot);
+# X2P = (D2 - d1) / 2 * (epsilon_dot * sin(delta_t0) + epsilon_t0 * cos(delta_t0) * delta_dot);
+
+reference: ref_id_rotor,
+	reference, ref_id_bearing, 
+        (D2 - d1) / 2 * epsilon_t0 * cos(delta_t0), 
+        (D2 - d1) / 2 * epsilon_t0 * sin(delta_t0), 
+        0.,
+	reference, ref_id_bearing, euler123, 
+        Phi1x_t0, 
+        0., 
+        0.,
+	reference, ref_id_bearing, 
+        (D2 - d1) / 2 * (epsilon_dot * cos(delta_t0) - epsilon_t0 * sin(delta_t0) * delta_dot),
+        (D2 - d1) / 2 * (epsilon_dot * sin(delta_t0) + epsilon_t0 * cos(delta_t0) * delta_dot),
+        v1z,
+	reference, ref_id_bearing, 
+        omega1x, 
+        0., 
+        omega1z;
+
+reference: ref_id_stator,
+	reference, ref_id_bearing, null,
+	reference, ref_id_bearing, eye,
+	reference, ref_id_bearing, 
+        0., 
+        0., 
+        v2z,
+	reference, ref_id_bearing, 
+        0.,
+        0.,
+        omega2z;
+
+begin: nodes;
+	structural: node_id_rotor, static,
+		# position
+		reference, ref_id_rotor, null,
+		# orientation
+		reference, ref_id_rotor, eye,
+		# velocity
+		reference, ref_id_rotor, null,
+		# angular velocity
+		reference, ref_id_rotor, null;
+				
+	structural: node_id_stator, static,
+		# position
+		reference, ref_id_stator, null,
+		# orientation
+		reference, ref_id_stator, eye,
+		# velocity
+		reference, ref_id_stator, null,
+		# angular velocity
+		reference, ref_id_stator, null;		
+end: nodes;
+
+begin: elements;		
+	joint: joint_id_rotor, total pin joint,
+		node_id_rotor,
+			position, reference, ref_id_rotor, null,
+			position orientation, reference, ref_id_rotor, eye,
+			rotation orientation, reference, ref_id_rotor, eye,
+		position, reference, ref_id_bearing, null,
+		position orientation, reference, ref_id_bearing, eye,
+		rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            string, "(D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * cos(delta_t0 + delta_dot * Time)",
+            string, "(D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * sin(delta_t0 + delta_dot * Time)",
+            mult, const, v1z,
+                  time,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            array, 2, 
+                const, Phi1x_t0,
+                mult, const, omega1x, time,
+            const, 0.,
+            mult, const, omega1z, 
+                  time;
+
+	joint: joint_id_stator, total pin joint,
+		node_id_stator,
+			position, reference, ref_id_stator, null,
+			position orientation, reference, ref_id_stator, eye,
+			rotation orientation, reference, ref_id_stator, eye,
+		position, reference, ref_id_bearing, null,
+		position orientation, reference, ref_id_bearing, eye,
+		rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            const, 0.,
+            const, 0.,
+            mult, const, v2z,
+                  time,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            const, 0.,
+            const, 0.,
+            mult, const, omega2z, 
+                  time;
+
+    user defined: elem_id_bearing, 
+        hydrodynamic plain bearing2,
+            hydraulic fluid, incompressible,
+                density, rho0,
+                thermal expansion, gamma,
+                viscosity, eta0,
+                pressure, p0,
+                temperature, T0,
+                non isothermal,
+                Aeta2, Aeta2,
+                Aeta3, Aeta3,
+                specific heat capacity, cp0,
+                Ac1, Ac1,
+                Ac2, Ac2,
+                Ac3, Ac3,
+                Ac4, Ac4,
+                Ac5, Ac5,
+                thermal conductivity, lambda0,
+                Alambda, Alambda,
+            mesh, linear finite difference, enable mcp, enable_mcp,
+            geometry, cylindrical,
+                mesh position, at bearing,
+                bearing width, B,
+                shaft diameter, d1,
+                bearing diameter, D2,
+                shaft node,
+                    node_id_rotor,
+                    offset, reference, ref_id_rotor, null,
+                    orientation, reference, ref_id_rotor, eye,
+                bearing node,
+                    node_id_stator,
+                    offset, reference, ref_id_stator, null,
+                    orientation, reference, ref_id_stator, 3, 0., 0., 1.,
+                                                           1, 1., 0., 0.,
+            number of nodes z, M,
+            number of nodes Phi, N,
+            boundary conditions,
+                     pressure, p0,
+                     temperature, T0,
+                     pressure, p0,
+                     temperature, T0,
+           lubrication grooves, 2,
+               at bearing,
+                  pressure, p1,
+                  temperature, T1,
+                  position, 1.75 * l, 0.,
+                  rectangle, width, 0.5000001 * l,
+                  height, B,
+               at bearing,
+                  pressure, p2,
+                  temperature, T2,
+                  position, 1.25 * l, 0.,
+                  rectangle, width, 0.5000001 * l,
+                  height, B,
+            pressure dof scale, max(p1, p2),
+            temperature dof scale, max(T1, T2),
+            energy balance scale, 1,
+            max cfl number, 10000.,
+            output pressure, yes,
+            output temperature, yes,
+            output density, yes,
+            output clearance, yes,
+            output clearance derivative, no,
+            output velocity, yes,
+            output stress, no,
+            output reaction force, yes,
+            output friction loss, yes,
+            output mesh, yes;
+
+   drive caller: drive_id_time_step, name, "timestep",
+        max, 2,
+            const, 1e-6 * dt,
+            min, 2, 
+                const, dt,
+                element, elem_id_bearing, loadable, string, "maxdt", direct;
+
+    drive caller: drive_id_bearing_min_T, name, "minT",
+        element, elem_id_bearing, loadable, string, "minT", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_max_T, name, "maxT",
+        element, elem_id_bearing, loadable, string, "maxT", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_mean_T, name, "meanT",
+        element, elem_id_bearing, loadable, string, "meanT", direct,
+        output trace, yes;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

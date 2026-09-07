@@ -1,0 +1,59 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/scale/scale,v 1.1 2009/09/30 13:55:17 masarati Exp $
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-2;
+
+	# tolerance: 1e-6;
+	tolerance: 1e-6, test, norm, scale;
+
+	max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 2;
+
+	# default scale: structural nodes, 1e-6;
+end: control data;
+
+begin: nodes;
+	structural: 0, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 1, dynamic,
+		1., 0., 0.,
+		eye,
+		1e-3, 0., 0.,
+		null,
+		scale, 1e-6;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+	joint: 1, rod,
+		0, position, reference, node, null,
+		1, position, reference, node, null,
+		from nodes,
+		linear elastic, 1e6;
+	body: 1, 1,
+		1.,
+		null,
+		eye;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

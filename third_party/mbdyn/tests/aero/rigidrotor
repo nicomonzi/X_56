@@ -1,0 +1,274 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/aero/rigidrotor,v 1.12 2014/12/13 17:15:35 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-4;
+
+	method: ms, .6;
+	tolerance: 1.e-3;
+	max iterations: 50;
+
+	derivatives coefficient: 1.e-6;
+	derivatives tolerance: 1.e+4;
+	derivatives max iterations: 20;
+
+	nonlinear solver: newton raphson, modified, 4;
+	# solver: umfpack, cc, block size, 2;
+	linear solver: naive, colamd, mt, 1, pivot factor, 1e-6;
+
+	# output: iterations;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1		# ground
+		+1		# mast
+		+4		# blades
+	;
+	rigid bodies:
+		+4		# blades
+	;
+	joints:
+		+1		# ground
+		+1		# axial rotation
+		+4		# flap hinges
+	;
+	air properties;
+	induced velocity elements:
+		+1		# rotor
+	;
+	aerodynamic elements:
+		+4		# blades
+	;
+end: control data;
+
+set: real omega = 100.;
+set: real theta = 5.*deg2rad;
+set: real m = 2.;
+set: real R = 1.35;
+set: real f = .05;
+set: real dR = R-f;
+
+reference: 1,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: 2,
+	reference, 1, null,
+	reference, 1, eye,
+	reference, 1, null,
+	reference, 1, 0.,0.,omega;
+reference: 101,
+	reference, 2, null,
+	reference, 2, 1, 1.,0.,0., 3, 0.,0.,1.,
+	reference, 2, null,
+	reference, 2, null;
+reference: 100,
+	reference, 101, f,0.,0.,
+	reference, 101, eye,
+	reference, 101, null,
+	reference, 101, null;
+
+reference: 201,
+	reference, 2, null,
+	reference, 2, 1, 0.,-1.,0., 3, 0.,0.,1.,
+	reference, 2, null,
+	reference, 2, null;
+reference: 200,
+	reference, 201, f,0.,0.,
+	reference, 201, eye,
+	reference, 201, null,
+	reference, 201, null;
+
+reference: 301,
+	reference, 2, null,
+	reference, 2, 1, -1.,0.,0., 3, 0.,0.,1.,
+	reference, 2, null,
+	reference, 2, null;
+reference: 300,
+	reference, 301, f,0.,0.,
+	reference, 301, eye,
+	reference, 301, null,
+	reference, 301, null;
+
+reference: 401,
+	reference, 2, null,
+	reference, 2, 1, 0.,1.,0., 3, 0.,0.,1.,
+	reference, 2, null,
+	reference, 2, null;
+reference: 400,
+	reference, 401, f,0.,0.,
+	reference, 401, eye,
+	reference, 401, null,
+	reference, 401, null;
+
+begin: nodes;
+	structural: 1, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 2, static,
+		reference, 2, null,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+	
+	structural: 100, dynamic,
+		reference, 100, dR,0.,0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+	
+	structural: 200, dynamic,
+		reference, 200, dR,0.,0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+	
+	structural: 300, dynamic,
+		reference, 300, dR,0.,0.,
+		reference, 300, eye,
+		reference, 300, null,
+		reference, 300, null;
+	
+	structural: 400, dynamic,
+		reference, 400, dR,0.,0.,
+		reference, 400, eye,
+		reference, 400, null,
+		reference, 400, null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, axial rotation,
+		1, reference, 1, null,
+			hinge, reference, 1, eye,
+		2, reference, 2, null,
+			hinge, reference, 2, eye,
+		const, omega;
+
+	joint: 100, revolute hinge,
+		2, reference, 100, null,
+			hinge, reference, 100, 1, 1.,0.,0., 3, 0.,1.,0.,
+		100, reference, 100, null,
+			hinge, reference, 100, 1, 1.,0.,0., 3, 0.,1.,0.;
+
+	joint: 200, revolute hinge,
+		2, reference, 200, null,
+			hinge, reference, 200, 1, 1.,0.,0., 3, 0.,1.,0.,
+		200, reference, 200, null,
+			hinge, reference, 200, 1, 1.,0.,0., 3, 0.,1.,0.;
+
+	joint: 300, revolute hinge,
+		2, reference, 300, null,
+			hinge, reference, 300, 1, 1.,0.,0., 3, 0.,1.,0.,
+		300, reference, 300, null,
+			hinge, reference, 300, 1, 1.,0.,0., 3, 0.,1.,0.;
+
+	joint: 400, revolute hinge,
+		2, reference, 400, null,
+			hinge, reference, 400, 1, 1.,0.,0., 3, 0.,1.,0.,
+		400, reference, 400, null,
+			hinge, reference, 400, 1, 1.,0.,0., 3, 0.,1.,0.;
+
+	body: 100, 100,
+		m,
+		reference, 100, dR/2.,0.,0.,
+		diag, 1.,m*dR^2/2,m*dR^2/2;
+
+	body: 200, 200,
+		m,
+		reference, 200, dR/2.,0.,0.,
+		diag, 1.,m*dR^2/2,m*dR^2/2;
+
+	body: 300, 300,
+		m,
+		reference, 300, dR/2.,0.,0.,
+		diag, 1.,m*dR^2/2,m*dR^2/2;
+
+	body: 400, 400,
+		m,
+		reference, 400, dR/2.,0.,0.,
+		diag, 1.,m*dR^2/2,m*dR^2/2;
+
+	air properties: 1.225, 340.,
+		# 1.,0.,0., const, 0.;
+		# 1.,0.,0., const, 90.;
+		# 0.,1.,0., const, 90.;
+		0.,1.,0., const, 50.;
+	induced velocity: 1, rotor, 1, 2, induced velocity,
+		# no;
+		# uniform, omega, R /* , correction, 1.2, 1.82 */ ,
+		# glauert, omega, R ,
+		# delay, .5,
+		dynamic inflow, omega, R /* , correction, 1.2, 1.82 */ ,
+		tolerance, 1e-6,
+		max iterations, 10;
+
+	c81data: 1, "naca0012.c81";
+
+	aerodynamic body: 100, 100,
+		induced velocity, 1, # passive,
+		reference, 100, dR/2.,0.,0.,
+		reference, 100, 1, 0.,1.,0., 3, 1.,0.,0.,
+		dR,
+		const, .2,
+		const, 0.,
+		const, 0.,
+		const, theta,
+		3,
+		c81, 1;
+
+	aerodynamic body: 200, 200,
+		induced velocity, 1, # passive,
+		reference, 200, dR/2.,0.,0.,
+		reference, 200, 1, 0.,1.,0., 3, 1.,0.,0.,
+		dR,
+		const, .2,
+		const, 0.,
+		const, 0.,
+		const, theta,
+		3,
+		c81, 1;
+
+	aerodynamic body: 300, 300,
+		induced velocity, 1, # passive,
+		reference, 300, dR/2.,0.,0.,
+		reference, 300, 1, 0.,1.,0., 3, 1.,0.,0.,
+		dR,
+		const, .2,
+		const, 0.,
+		const, 0.,
+		const, theta,
+		3,
+		c81, 1;
+
+	aerodynamic body: 400, 400,
+		induced velocity, 1, # passive,
+		reference, 400, dR/2.,0.,0.,
+		reference, 400, 1, 0.,1.,0., 3, 1.,0.,0.,
+		dR,
+		const, .2,
+		const, 0.,
+		const, 0.,
+		const, theta,
+		3,
+		c81, 1;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

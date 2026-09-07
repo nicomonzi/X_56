@@ -1,0 +1,107 @@
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    set: real dt = .1;
+    set: real T = 360.*dt;
+    initial time: 0.;
+    final time: T;
+    time step: dt;
+    
+    tolerance: 1.e-4;
+    max iterations: 50;
+    
+    method: ms, .6, .6;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives tolerance: 1.e-6;
+    derivatives max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    structural nodes: 2;
+    joints: 2;
+    air properties;
+    aerodynamic elements: 2;
+    max iterations: 10;
+end: control data;
+
+begin: nodes;
+    	structural: 1001, static,
+                reference, global, null,
+                reference, global, eye,
+                reference, global, null,
+                reference, global, null;
+		
+	structural: 2001, static,
+		reference, global, null,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+end: nodes;
+
+begin: elements;
+    joint: 1001, total pin joint,
+           1001,
+               position, null,
+               position orientation, eye,
+               rotation orientation, eye,
+           # ground
+               position, null,
+               position orientation, eye,
+               rotation orientation, eye,
+           position constraint, active, active, active, null,
+           orientation constraint, active, active, active,
+	       single, 0., 1., 0., linear, 0., 1;
+    joint: 2001, total pin joint,
+           2001,
+               position, null,
+               position orientation, eye,
+               rotation orientation, eye,
+           # ground
+               position, null,
+               position orientation, eye,
+               rotation orientation, eye,
+           position constraint, active, active, active, null,
+           orientation constraint, active, active, active,
+	       single, 0., 1., 0., linear, 0., 1;
+
+	set: real Vinf = 100.;
+    	air properties: 1.225, 340.,
+		single, -cos(60./180.*pi),sin(60./180.*pi),0., 
+			const, Vinf;
+			
+	# set: real Chord = 1./29645.;
+	set: real Chord = 1./(1.225*.5*Vinf^2);
+	set: real Span = 1.;
+	c81 data: 1, "naca0012.c81";
+    	aerodynamic body: 1001, 1001,
+           	reference, node, -.25*Chord,0.,0.,
+		reference, node, 1, -1.,0.,0., 2, 0.,0.,1.,
+		Span,
+		const, Chord,
+		const, 0.,
+		const, 0.,
+		const, 0./180.*pi,
+		1,
+		c81, 1;
+		
+	aerodynamic body: 2001, 2001,
+		reference, node, -.25*Chord,0.,0.,
+		reference, node, 1, -1.,0.,0., 2, 0.,0.,1.,
+		Span,
+		const, Chord,
+		const, 0.,
+		const, 0.,
+		const, 0./180.*pi,
+		1,
+		c81, 1;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

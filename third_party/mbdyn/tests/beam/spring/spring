@@ -1,0 +1,82 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/beam/spring/spring,v 1.3 2014/12/13 17:15:36 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-6;
+	max iterations: 10;
+
+	method: ms, .6;
+
+	derivatives coefficient: 1.e-6;
+	derivatives tolerance: 1.e-2;
+	derivatives max iterations: 10;
+
+	linear solver: naive, colamd, mt, 1;
+	nonlinear solver: newton raphson, modified, 5;
+
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+set: integer spring = 1000;
+set: integer spring_top = 2000;
+
+begin: control data;
+	structural nodes:
+		+ 1
+		+ 1
+		+ 101
+	;
+
+	joints:
+		+ 1
+		+ 2
+		+ 1
+		+ 1
+	;
+	rigid bodies:
+		+ 1
+		+ 101
+	;
+	beams:
+		+ 50
+	;
+	gravity;
+end: control data;
+
+reference: spring,
+	null,
+	eye,
+	null,
+	null;
+
+reference: spring_top,
+	reference, spring, 0.,0.,.25,
+	reference, spring, eye,
+	reference, spring, null,
+	reference, spring, null;
+
+begin: nodes;
+	include: "spring.nod";
+end: nodes;
+
+begin: elements;
+	include: "spring.elm";
+
+	gravity: uniform, 0.,0.,-1., const, 9.81;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

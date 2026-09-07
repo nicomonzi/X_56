@@ -1,0 +1,73 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/mechanisms/theojansen/half.nod,v 1.8 2017/01/12 15:05:53 masarati Exp $
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+# Model: Theo Jansen 's Mechanism 
+# From:	<http://il.youtube.com/watch?v=-GgOn66knqA>
+# Data from: <http://www.mechanicalspider.com/elements/jpegs/jansenlinkage.jpg>
+#
+# uses "main_assy_*.ref" computed from the solution of "main_assy"
+
+structural: CURR_BAY + CURR_SIDE + LINK_1, dynamic,
+	reference, CURR_BAY + CURR_SIDE + POINT_DEF, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_DEF, eye,
+	reference, CURR_BAY + CURR_SIDE + POINT_DEF, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_DEF, null;
+
+structural: CURR_BAY + CURR_SIDE + LINK_2, dynamic,
+	reference, CURR_BAY + CURR_SIDE + POINT_ABCD, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_ABCD, eye,
+	reference, CURR_BAY + CURR_SIDE + POINT_ABCD, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_ABCD, null;
+
+structural: CURR_BAY + CURR_SIDE + LINK_3, dynamic,
+	reference, CURR_BAY + CURR_SIDE + POINT_BEJ, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_BEJ, eye,
+	reference, CURR_BAY + CURR_SIDE + POINT_BEJ, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_BEJ, null;
+
+structural: CURR_BAY + CURR_SIDE + LINK_4, dynamic,
+	reference, CURR_BAY + CURR_SIDE + POINT_CGIK, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_CGIK, eye,
+	reference, CURR_BAY + CURR_SIDE + POINT_CGIK, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_CGIK, null;
+
+structural: CURR_BAY + CURR_SIDE + TOP_BODY, dynamic,
+	reference, CURR_BAY + CURR_SIDE + POINT_ABCD, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_ABCD, eye,
+	reference, CURR_BAY + CURR_SIDE + POINT_ABCD, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_ABCD, null;
+
+structural: CURR_BAY + CURR_SIDE + BOTTOM_BODY, dynamic,
+	reference, CURR_BAY + CURR_SIDE + POINT_CGIK, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_CGIK, eye,
+	reference, CURR_BAY + CURR_SIDE + POINT_CGIK, null,
+	reference, CURR_BAY + CURR_SIDE + POINT_CGIK, null;
+
+# vim:ft=mbd

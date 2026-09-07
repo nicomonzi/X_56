@@ -1,0 +1,110 @@
+!./\\\\\\\\\\\...../\\\......./\\\..../\\\\\\\\\..../\\\\\\\\\\\\\.
+!.\/\\\///////\\\..\/\\\......\/\\\../\\\///////\\\.\//////\\\////..
+!..\/\\\.....\//\\\.\/\\\......\/\\\.\//\\\....\///.......\/\\\......
+!...\/\\\......\/\\\.\/\\\......\/\\\..\////\\.............\/\\\......
+!....\/\\\......\/\\\.\/\\\......\/\\\.....\///\\...........\/\\\......
+!.....\/\\\......\/\\\.\/\\\......\/\\\.......\///\\\........\/\\\......
+!......\/\\\....../\\\..\//\\\...../\\\../\\\....\//\\\.......\/\\\......
+!.......\/\\\\\\\\\\\/....\///\\\\\\\\/..\///\\\\\\\\\/........\/\\\......
+!........\///////////........\////////......\/////////..........\///.......
+
+
+This is the code style guide for DUST. 
+
+This guide has the double purpose of trying to keep an uniform aesthetic and 
+readibility of the code and more importantly to promote the use of some coding
+practices which are important for the operation and maintenance of the code.
+
+If you want to contribute to DUST please read this guide and try to adhere to 
+it, even if some of the rules are not actually always 100% enforced in the 
+present version of the code (we are working on it...).
+
+
+
+==> Functional rules:
+
+  => Names
+    * Module names shall begin with "mod_..."
+    * Type names shall begin with "t_..."
+    * Class names shall begin with "c_..."
+    * Pointer types (necessary to have array of pointers, damn Fortran) shall
+      be named "t_..._p" and contain the pointer member named just "p"
+    * Names should be as meaningful as possible in ENGLISH. Yes, it is
+      necessary to remind this. 
+
+  => Type-bound procedures (member functions)
+    * In the type declaration they shall be declard
+      - specifying "pass(this)" in c++ style
+      - with their generic name
+      - pointing to the actual name which should be genericname_typename
+    * The self dummy argument of the type bound procedure should be in first
+      position and should be called "this", again in C++ style
+
+
+  => Modules members exposure/use
+    * All modules shall start with an explicit list of the public members
+      exposed, followed by "private" and then the definition of all the member 
+      subroutines and variables
+    * All the modules MUST be included with the "only" clause, e.g.
+      use mod_x, only: x_a, x_b
+      in this way in each file all the used names are either defined in the 
+      same file, or there is a clear reference to their origin
+
+  => Precision
+    * Do not explicitly define the precision of the floating point variables,
+      but rather use
+        real(wp)
+      in variables definition or
+        3.14_wp
+      when hard-coding a number. The parameter "wp" will change the precision 
+      of the floating point variables at compile time.
+    * When casting to floating points do only use "real(Number,wp)"
+    * Refrain from using old FORTRAN functions which specified the precision.
+      All the modern standard Fortran functions are polymorphic with respect to
+      the precision of the arguments.
+  
+  => Parameters
+    * Refrain as much as possible from explicitly define parameters, lengths
+      etc., but rather use the ones already present in general/mod_param.f90,
+      such as "max_char_len" and "pi". If you feel a general parameter is
+      missing, add it there with a meaningful name.
+
+  => Handling
+    * In order to obtain a maintainable code, try not to use directly fortran
+      handling calls, but rather call the ones provided in 
+      general/mod_handling.f90, e.g.
+      - error to stop the execution with a message
+      - warning to send a warning with a message
+      - info to write information
+      - dust_time to get a omp friendly time stamp
+      - new_file_unit to get a free file unit to write
+      DO NOT USE: write(*,*), stop or similar calls
+
+  => Logical operators
+    * Please use the Fortran comparison operators (.lt., .le., .gt., .ge.) and
+      logical operators (.and. .or. etc..) in their original form, and not
+      using the C style ones (<,>,<=, == etc..).
+
+==> Aesthetic rules:
+
+    * Truncate the lines after 80 columns
+    * Indentate with 2 spaces
+    * Indentate the variables declarations inside the subroutines/functions
+      headers with just one space with respect to the subroutine/function name, 
+      while the subroutine/function content should be normally indented with 2 
+      spaces
+    * Mullets and disco balls are out of fashion. And so are ALL-UPPER-CASE 
+      keywords. Please avoid them.
+    * Separate the subroutines, functions, logical sections of the modules etc.
+      with a series of commented dashes
+
+!----------------------------------------------------------------------
+      up to column 72, as an homage to the old Gods...
+
+
+
+Disclaimer:
+The author likes good ordered code. For his peace of mind and for the sake of
+every poor soul who has to dive into someone else's code.
+Readable code grants good karma. 
+No, the author does not have OCD. His mom got him tested. 

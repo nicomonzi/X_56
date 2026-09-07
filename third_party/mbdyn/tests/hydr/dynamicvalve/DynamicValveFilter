@@ -1,0 +1,295 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2023
+# 
+# Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+# Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+/*
+Controllo in posizione del martinetto tramite un controllore PID
+Aumentando il guadagno integrale si aumenta il valore delle sovraelongazioni
+Aumentando il guadagno derivativo si attenuano le oscillazioni create dalla
+parte proporzionale
+
+Ho tolto la partenza lenta poiche' interferiva con il controllo: la p
+aumetava con un'onda di coseno e il controllo doveva controbilanciare
+aprendo o chiudendo la valvola,ma per avere un buon controllo in fase
+iniziale si penalizzava il progetto con la p costante. Togliendo l'onda di
+coseno si eliminano le oscillazioni iniziale e anche le p non danno problemi.
+Ora vado a regime in 50 iterazioni
+*/
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    # abort after: input;
+    time step: (real dt = 1.e-3);
+    initial time: 0.;
+    final time: 500*dt;
+    newton raphson: modified, 4;
+    method: ms, .6, .6;
+    max iterations: 20;
+    tolerance: 1.e-6;
+
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 20;
+    derivatives tolerance: 1.e-6;
+
+    fictitious steps number: 0;        
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+
+    hydraulic nodes: 6;
+    structural nodes: 2;
+    abstract nodes: 1+1+2;
+    
+    file drivers: 1;
+
+    hydraulic elements: 2+1+1;
+    rigid bodies: 1;
+    joints: 3;
+    gravity;
+    genels: 2+1+1+1;
+    forces: 1+1;
+    
+    electric elements: 1;
+end: control data;
+
+set: real p_0 = 1.01325e5;
+set: real p_lo = 2.e6;
+set: real p_hi = 3.e6;
+
+begin: nodes;
+    structural: 101, static,
+                0.,0.,-1.-.5e-1,
+		eye,
+		null,
+		null;
+
+    structural: 102, dynamic,
+                null,
+		eye,
+		null,
+		null;
+
+    hydraulic: 1, 3.e6;
+    hydraulic: 2, 3.e6;
+    hydraulic: 3, 2.5e6;
+    hydraulic: 6, 2.5e6;
+    hydraulic: 7, 2.e6;
+    hydraulic: 8, 2.e6;
+  
+    abstract: 100, .05, derivative, 0.;
+    abstract: 101, .05;
+    
+    abstract: 200, .0;
+    abstract: 201, .0;
+end: nodes;
+
+begin: drivers;
+    file: 1, socket, 1, port, 5555, noauth;
+end: drivers;
+   
+   set: real d    = .04;                #  m
+   set: real l    = 10.;                #  m
+   set: real rho  = 977;                #  kg/m^3  
+   set: real p0   = 101325.;            #  Pa 
+   set: real nu   = 81.78e-6;           #  m^2/s 
+   set: real mu   = rho*nu;             #  kg /m s 0.0799 
+   set: real c    = 1.413e3;            #  m/s 
+   set: real beta = c*c*rho;            #  Pa 1.95e9  
+   
+hydraulic fluid: 1000,
+                 linear compressible, 
+		 density, rho, beta, p0,
+		 viscosity, mu;
+
+begin: elements;
+    joint: 301, clamp, 101, node, node;
+   
+    joint: 302, inline, 
+           101, null, eye,
+	   102; 
+	    
+    joint: 303, prismatic, 
+           101, 
+	   102;
+
+    body: 402, 102,
+          1.e-1,
+	  null, 
+	  diag, 1.e-6, 1.e-6, 1.e-6;
+   
+    automatic structural: 102,
+                          null,
+			  null,
+			  0.,0.,-9.81*1.e-1,
+			  null;   
+
+    gravity: uniform, 0.,0.,-1., const, 9.81;
+    
+    force: 602, absolute, 102,
+			position, null,
+		0.,0.,-1.,
+                # random, 10.,0.,.1,1000., steps, 20;
+		const, 0.;
+
+    hydraulic: 11, actuator,
+               3, 6,
+               101, 0.,0.,1.,
+	       102, null, 
+	       direction, 0.,0.,1.,
+	       1.e-4,
+	       1.e-4,   
+	       2.e-1,
+	       fluid, reference, 1000,
+	       same;
+
+    hydraulic: 12, dynamic pipe, 1, 2,
+	       d,
+	       #area, d^2*pi/4.,
+	       l,
+               fluid, reference, 1000;
+		    
+    hydraulic: 15, dynamic pipe, 7, 8,
+	       d,
+	       #area,d^2*pi/4.,
+	       l,
+               fluid, reference, 1000;
+	       
+  set: real width = 0.02;
+  set: real s_max =6.*width;
+  set: real start =0.;
+  set: real kp =0.e-5;     /* k del P */
+  set: real kd = 1.e1;    /* k del D */
+  set: real Xend =1.e-1;  /* posizione finale */
+  
+  hydraulic: 16, dynamic control valve,2,3,6,7,
+                # PID regime in 70 iterazioni, con
+                #  sovraelongazione del 8 %
+		/*
+                array, 3,
+		   dof, 200, abstract, algebraic, linear, 0., 30*0.5*1.5e2,
+		   dof, 102, structural, 3, differential, linear, 0.,-3.8e-4*1.5e2/(0.125*0.02),
+		   dof, 201, abstract, algebraic, linear, 0., 0.2*1.5e2/(0.8*0.02),
+		*/
+                array, 3,
+		   dof, 200, abstract, algebraic, linear, 0., 200.,
+		   dof, 101, abstract, differential, linear, 0., 3.7,
+		   dof, 201, abstract, algebraic, linear, 0., 50.,
+		/*
+		 # prova mia PD!
+		 array,3,
+		   dof,102, structural, 3,algebraic,linear,0.,-kp,
+		   const, kp*Xend,
+		   dof, 102, structural, 3, differential, linear, 0.,-kd,
+		*/
+		/*
+		  # Parabola + PID: regime in 100 iterazioni, con
+                  #  sovraelongazione del 8 %
+		   array,3,  
+		  dof, 200, abstract, algebraic, parabolic, 0., 3.e2, 1.e4, 
+		  dof, 102, structural, 3, differential, linear, 0.,-1e-4*1.5e2/(0.125*0.02),
+		  dof, 201, abstract, algebraic, linear, 0., 1.e-1*1.5e2/(0.8*0.02),
+		 */
+		/*
+		  array, 3,
+		      dof, 200, abstract, algebraic, string, "150*tanh(1.*Var)",
+		      dof, 201, abstract, algebraic, linear, 0.,1.e-1*1.5e2/(0.8*0.02),
+		      dof, 102, structural, 3, differential,
+		                               # string, "-.1*tanh(10.*Var)",
+					       const, -0.*1.5e2/(0.125*0.02),
+		*/
+		0.,                # spostamento iniziale 
+		1.e-2,             # corsa massima
+		0.02,              # larghezza del condotto
+		loss,1.e-9,        # area di trafilamento in % sull'area massima
+		0.02,              # diametro della valvola
+		7900,              # densita' del corpo della valvola (acciaio)
+		0.,                # c_spost
+		0.,                # c_vel
+		0.,                #c_acc
+		fluid, reference, 1000;
+   	
+
+/* Prove sul PID
+    kp critico 1.5e2 con cui vedo il periodo dell'oscillazione: 0.02 s
+    P -> 0.6 kpcritica      I -> 0.5   T      D -> 0.125 T
+    */
+
+    genel: 1, clamp, 
+           1, hydraulic, 
+	   const, p_hi;
+	   # cosine, .001, pi/(50.*dt), (p_hi-p_0)/2., -1, p_0;
+   
+    genel: 8, clamp, 
+           8, hydraulic, 
+	   const, p_lo;
+	   # cosine, .001, pi/(50.*dt), (p_lo-p_0)/2., -1, p_0;
+	   
+    genel: 700, spring support,
+           200, abstract, algebraic,
+	        linear elastic, 1.;
+    force: 800, abstract, 200, abstract,
+                array, 3,
+		       # dof, 102, structural, 3, algebraic, linear, 0., -1.,
+		       dof, 101, abstract, algebraic, linear, .05, -1.,
+		       step, 200*dt, 1.e-3, 0.,
+		       file, 1, 1;
+    genel: 701, state space siso,
+           201, abstract, algebraic,
+	   node dof, 200, abstract, algebraic,
+	   1,
+	   matrix A, 0.,
+	   matrix B, 1.,
+	   matrix C, 1.;
+	   
+    electric: 1, displacement,
+              101, 0.,0.,1.,
+	      102, null,
+	      100;
+    set: real pole = 1./(100.*2.*pi);
+    set: real zero = 1./(1000.*2.*pi);
+    genel: 1001, scalar filter,
+           101, abstract, algebraic,
+	   node dof, 100, abstract, algebraic,
+	   2, 2.*pole, pole^2,
+	   2, 1., 2.*zero, zero^2;
+		   
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

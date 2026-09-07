@@ -1,0 +1,127 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 100.;
+	time step: 1e-1;
+
+	linear solver: naive, colamd;
+	# nonlinear solver: newton raphson, modified, 5;
+
+	tolerance: 1e-10;
+	max iterations: 20;
+
+	derivatives coefficient: 1e-12;
+
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	# initial assembly of viscoelastic body is broken
+	skip initial joint assembly;
+
+	structural nodes: 1;
+	rigid bodies: 1;
+	joints: 1;
+
+	gravity;
+	forces: 1;
+end: control data;
+
+set: real V0 = 100.;		# m/s
+set: real S = 4.;		# m
+set: real RHO = 1.225;		# kg/m^3
+set: real CL_ALPHA = 2.*pi;	# 1/radian
+
+set: real L_VZ = .5*RHO*V0*S*CL_ALPHA;	# Ns/m
+set: real M_WY = 1.e2;			# Nms/radian
+
+remark: "Lift_/V_z", L_VZ;
+remark: "Moment/Omega_z", M_WY;
+
+set: real DVZ = .1;		# m/s, perturbation
+set: real DFZ = -160.;		# N, perturbation
+
+reference: 1,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, -V0, 0., DVZ,
+	reference, global, null;
+
+begin: nodes;
+	structural: 1, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	gravity: 0., 0., -1., 9.81;
+
+	# inertia
+	body: 1, 1,
+		1000.,
+		null,
+		diag, 100., 100., 200.;
+
+	# perturbative lift & moment
+	joint: 1, viscous body,
+		1,
+			position, reference, node, .02, 0., 0.,
+			orientation, reference, node, eye,
+		linear viscous generic, matr,
+			0.,     0.,     0.,     0.,     0.,     0.,
+			0.,     0.,     0.,     0.,     0.,     0.,
+			0.,     0.,     L_VZ,   0.,     0.,     0.,
+			0.,     0.,     0.,     0.,     0.,     0.,
+			0.,     0.,     0.,     0.,     M_WY,   0.,
+			0.,     0.,     0.,     0.,     0.,     0.;
+
+	# trim lift & moment
+	force: 1, follower,
+		1,
+		position, reference, node, null,
+		0., 0., 1.,
+		array, 2,
+			const, 9.81*1000.,
+			sine, 10., pi/1., DFZ, one, 0.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

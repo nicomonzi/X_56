@@ -1,0 +1,169 @@
+#./\\\\\\\\\\\...../\\\......./\\\..../\\\\\\\\\..../\\\\\\\\\\\\\.
+#.\/\\\///////\\\..\/\\\......\/\\\../\\\///////\\\.\//////\\\////..
+#..\/\\\.....\//\\\.\/\\\......\/\\\.\//\\\....\///.......\/\\\......
+#...\/\\\......\/\\\.\/\\\......\/\\\..\////\\.............\/\\\......
+#....\/\\\......\/\\\.\/\\\......\/\\\.....\///\\...........\/\\\......
+#.....\/\\\......\/\\\.\/\\\......\/\\\.......\///\\\........\/\\\......
+#......\/\\\....../\\\..\//\\\...../\\\../\\\....\//\\\.......\/\\\......
+#.......\/\\\\\\\\\\\/....\///\\\\\\\\/..\///\\\\\\\\\/........\/\\\......
+#........\///////////........\////////......\/////////..........\///.......
+#==========================================================================
+# 
+# Copyright (C) 2018 - 2022 Politecnico di Milano,
+# with support from A^3 from Airbus
+# and Davide Montagnani,
+# Matteo Tugnoli,
+# Federico Fonte
+# 
+# This file is part of DUST, an aerodynamic solver for complex
+# configurations.
+# 
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+# 
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+# 
+# Authors: Alessandro Cocco, Alberto Savino
+#==========================================================================
+
+
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - test
+  - deploy
+
+variables:
+  WITH_PRECICE: "NO"
+  CMAKE_BUILD_TYPE: "Release"
+  TOL: "1e-8"
+
+before_script:
+  - pip install h5py 
+  - pip install pytest
+  - pip install "pyprecice==2.3.0.1"
+  - export PATH=$PATH:/usr/local/mbdyn/bin
+
+build_dust_alone:       # This job runs in the build stage, which runs first.
+  stage: build
+  script:
+    - mkdir build && cd build 
+    - cmake -DCMAKE_INSTALL_PREFIX=/ -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DWITH_PRECICE=$WITH_PRECICE ../
+    - make DESTDIR=/home/gitlab-runner/.local install -j8
+    - echo "Build $CMAKE_BUILD_TYPE, USE_PRECICE =$WITH_PRECICE completed"
+    - cd ..
+  artifacts:
+    paths:
+      - build/bin/ 
+    untracked: true
+    
+test_mirror_static_components: 
+  stage: test
+  script: 
+    - python tests/mir_test/static/run_mir_static_ll.py -t $TOL
+    - python tests/mir_test/static/run_mir_static_v.py -t $TOL
+    - python tests/mir_test/static/run_mir_static_p.py -t $TOL
+    #- python tests/mir_test/static/run_mir_static_nl_v.py -t $TOL
+  needs:
+    - "build_dust_alone"
+  #artifacts:
+  #  paths:
+  #    - tests/mir_test/static/nl_v/Output/ 
+  #  untracked: true
+
+test_mirror_dynamic_components: 
+  stage: test
+  script: 
+    - python tests/mir_test/dynamic/run_mir_dynamic_ll.py -t $TOL
+    - python tests/mir_test/dynamic/run_mir_dynamic_v.py -t $TOL
+    - python tests/mir_test/dynamic/run_mir_dynamic_p.py -t $TOL
+    #- python tests/mir_test/dynamic/run_mir_dynamic_nl_v.py -t $TOL
+  needs:
+    - "build_dust_alone"
+    - "test_mirror_static_components" 
+
+test_symmetry_static_components: 
+  stage: test
+  script:
+    - python tests/sym_test/static/run_sym_static_ll.py -t $TOL
+    - python tests/sym_test/static/run_sym_static_v.py -t $TOL
+    - python tests/sym_test/static/run_sym_static_p.py -t $TOL
+    #- python tests/sym_test/static/run_sym_static_nl_v.py -t $TOL
+  needs:
+    - "build_dust_alone"
+  #artifacts:
+  #  paths:
+  #    - tests/sym_test/static/nl_v/Output/ 
+  #  untracked: true
+
+
+test_symmetry_dynamic_components: 
+  stage: test
+  script: 
+    - python tests/sym_test/dynamic/run_sym_dynamic_ll.py -t $TOL
+    - python tests/sym_test/dynamic/run_sym_dynamic_v.py -t $TOL
+    - python tests/sym_test/dynamic/run_sym_dynamic_p.py -t $TOL
+    #- python tests/sym_test/dynamic/run_sym_dynamic_nl_v.py -t $TOL
+  needs:
+    - "build_dust_alone"
+    - "test_symmetry_static_components"
+
+build_dust_coupled: 
+  stage: test
+  script: 
+    - rm -rf build
+    - mkdir build && cd build
+    - cmake -DCMAKE_INSTALL_PREFIX=/ -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -DWITH_PRECICE=YES ../
+    - make DESTDIR=/home/gitlab-runner/.local install -j8
+    - echo "Build $CMAKE_BUILD_TYPE, USE_PRECICE=YES completed"
+    - cd ..
+  artifacts:
+    paths:
+      - build/bin/ 
+    untracked: true
+  needs: 
+    - "build_dust_alone"
+    - "test_symmetry_static_components"
+    - "test_mirror_static_components"
+
+test_mirror_coupled_components: 
+  stage: test
+  script:  
+    - python tests/mir_test/coupled/run_mir_coupled_v.py -t $TOL
+    - python tests/mir_test/coupled/run_mir_coupled_p.py -t $TOL
+    - python tests/mir_test/coupled/run_mir_coupled_ll.py -t $TOL
+    #- python tests/mir_test/coupled/run_mir_coupled_nl_v.py -t $TOL
+  needs: 
+    - "build_dust_coupled" 
+    - "test_mirror_static_components"
+
+test_symmetry_coupled_components:
+  stage: test
+  script:  
+    - python tests/sym_test/coupled/run_sym_coupled_v.py -t $TOL
+    - python tests/sym_test/coupled/run_sym_coupled_p.py -t $TOL
+    - python tests/sym_test/coupled/run_sym_coupled_ll.py -t $TOL
+    #- python tests/sym_test/coupled/run_sym_coupled_nl_v.py -t $TOL
+  needs: 
+    - "build_dust_coupled" 
+    - "test_symmetry_static_components"
+
+deploy-job:      # This job runs in the deploy stage.
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  script:
+    - echo "Deploying application..."

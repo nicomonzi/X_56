@@ -1,0 +1,153 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/force/force-old,v 1.2 2014/12/13 17:15:38 masarati Exp $
+
+/*
+ * This test uses structural forces and couples according to the format
+ * defined up to MBDyn 1.3.6.  It is 100% compatible with the one
+ * defined for later versions of MBDyn, with the exception of internal
+ * couples.
+ *
+ * When an internal structural couple is defined using the old syntax,
+ * it is likely to result in an error.  In some cases, the old format
+ * could appear as syntactically valid, although it will result in an
+ * incorrect model.  For this reason, any time an internal couple is used
+ * a warning is printed.
+ *
+ * In any case, a warning is always printed when the old format is used.
+ * Users are encouraged to use the new format.
+ */
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: .001;
+	time step: 1e-4;
+
+	tolerance: 1e-9;
+	max iterations: 10;
+
+	#derivatives tolerance: 10;
+	#derivatives max iterations: 10;
+	#derivatives coefficient: 1.e-6;
+
+	threads: disable;
+
+	output: iterations;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# ground
+		+1	# excited node1
+		+1	# excited node2
+	;
+	joints:
+		+1	# clamp
+		+1	# spring1
+		+1	# spring2
+	;
+	forces:
+		+1	# absolute
+		+1	# follower
+		+1	# absolute couple
+		+1	# follower couple
+		+1	# absolute internal
+		+1	# follower internal
+		+1	# absolute internal couple
+		+1	# follower internal couple
+	;
+end: control data;
+
+begin: nodes;
+	structural: 0, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, static,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+	joint: 1, deformable joint,
+		0,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		1,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		linear elastic isotropic, 1e6;
+	joint: 2, deformable joint,
+		0,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		2,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		linear elastic isotropic, 1e6;
+
+	force: 1, absolute,
+		1,
+		0., 0., 1.,
+		reference, node, 1., 0., 0.,
+		cosine, 0., pi/.1, 9.81/2., half, 0.;
+	force: 2, follower,
+		2,
+		0., 1., 0., 
+		reference, node, 1., 0., 0.,
+		cosine, 0., pi/.1, 5./2., half, 0.;
+
+	couple: 3, absolute,
+		1,
+		0., 0., 1., cosine, 0., pi/.1, 1.5/2., half, 0.;
+	couple: 4, follower,
+		2,
+		0., 1., 0., cosine, 0., pi/.1, 4., half, 0.;
+
+	force: 11, absolute internal,
+		1,
+		0., 0., 1.,
+		reference, node, 0., 1., 0.,
+		2,
+		reference, node, 0., 1., 0.,
+		cosine, 0., pi/.1, 9.81/2., half, 0.;
+	force: 12, follower internal,
+		1,
+		1., 0., 0.,
+		reference, node, 0., 1., 0.,
+		2,
+		reference, node, 0., 1., 0.,
+		cosine, 0., pi/.1, 5./2., half, 0.;
+
+	# FIXME!
+	couple: 13, absolute internal,
+		1,
+		0., 1., 0.,
+		2,
+		cosine, 0., pi/.1, 1.5/2., half, 0.;
+	# FIXME!
+	couple: 14, follower internal,
+		1,
+		1., 0., 0.,
+		2,
+		cosine, 0., pi/.1, 4., half, 0.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

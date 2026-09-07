@@ -1,0 +1,62 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/body/dummy,v 1.1 2009/10/27 11:42:20 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-2;
+
+	method: ms, .6;
+        max iterations: 10;
+        threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1 + 1;
+	rigid bodies: 3;
+	gravity;
+	forces: 1;
+end: control data;
+
+begin: nodes;
+	structural: 1, dynamic,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dummy,
+		1, offset,
+		0.,0.,-1.,
+		eye;
+end: nodes;
+
+begin: elements;
+	body: 1, 1,
+		1.,
+		null,
+		null;
+	body: 2, 1,
+		.6,
+		1.,0.,0.,
+		eye;
+	body: 3, 1,
+		.6,
+		-1.,0.,0.,
+		eye;
+	inertia: 99, body, all;
+	gravity: 0.,0.,-1., 9.81;
+	force: 1, absolute, 1,
+		position, null,
+		1., 0., 0.,
+			node, 2, structural, string, "XPP[3]", linear, 0., 1.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

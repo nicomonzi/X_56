@@ -1,0 +1,112 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/rod/rodprestrain,v 1.9 2017/01/12 15:04:49 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Computes prestrain from actual strain and imposed force
+# Suggested by Rudi Jaeger
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.;
+	time step: 1e-2;
+
+	tolerance: 1.e-6;
+	max iterations: 10;
+
+	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 2;
+	forces: 1;
+end: control data;
+
+set: integer n_hinge = 1;
+set: integer n_mass = 2;
+
+begin: nodes;
+	structural: n_hinge, static,
+		reference, global, null,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	structural: n_mass, dynamic,
+		reference, global, 0.,0.,1.,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+end: nodes;
+
+set: real l_0 = model::distance(n_hinge,n_mass);
+set: real l;
+set: real F;
+set: real EA = 1.0e+0;
+
+scalar function: "scalar_drive",
+	multilinear,
+	-2., 10.,
+	-1., 1.,
+	 0., 0.,
+	 1., 1.,
+	 2., 10.;
+
+begin: elements;
+	body: n_mass, n_mass,
+		1.e-3,
+		null,
+		diag, 1.e-3, 1.e-3, 1.e-3;
+	joint: n_hinge, clamp, n_hinge, node, node;
+	joint: n_mass, rod,
+		n_hinge,
+		n_mass,
+		from nodes,
+		linear elastic, EA,
+		prestrain,
+			string, "F = model::sf::scalar_drive(Time); \
+				l = model::distance(n_hinge,n_mass); \
+				(l-l_0)/l_0 - F/EA";
+	force: n_mass, absolute,
+		n_mass,
+		0., 0., 1.,
+		null,
+		scalar function, "scalar_drive";
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

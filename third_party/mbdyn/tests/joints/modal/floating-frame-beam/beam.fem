@@ -1,0 +1,57 @@
+** MBDyn MODAL DATA FILE: beam
+** NODE SET "ALL" 
+** RECORD GROUP 1, HEADER
+**   REVISION,  NODE,  NORMAL, ATTACHMENT, CONSTRAINT, REJECTED MODES.
+      REV0         2         6         0         0         0
+**
+** RECORD GROUP 2, FINITE ELEMENT NODE LIST
+     A B
+
+**
+** RECORD GROUP 5, NODAL X COORDINATES
+ 0
+ 1
+**
+** RECORD GROUP 6, NODAL Y COORDINATES
+ 0
+ 0
+**
+** RECORD GROUP 7, NODAL Z COORDINATES
+ 0
+ 0
+**
+** RECORD GROUP 8, MODE SHAPES
+**    NORMAL MODE SHAPE #  1
+ 0 0 0 0 0 0
+ 1 0 0 0 0 0
+**    NORMAL MODE SHAPE #  2
+ 0 0 0 0 0 0
+ 0 1 0 0 0 0
+**    NORMAL MODE SHAPE #  3
+ 0 0 0 0 0 0
+ 0 0 1 0 0 0
+**    NORMAL MODE SHAPE #  4
+ 0 0 0 0 0 0
+ 0 0 0 1 0 0
+**    NORMAL MODE SHAPE #  5
+ 0 0 0 0 0 0
+ 0 0 0 0 1 0
+**    NORMAL MODE SHAPE #  6
+ 0 0 0 0 0 0
+ 0 0 0 0 0 1
+**
+** RECORD GROUP 9, MODAL MASS MATRIX
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0 0
+**
+** RECORD GROUP 10, MODAL STIFFNESS MATRIX
+1.e6  0.e0  0.e0  0.e0  0.e0  0.e0
+0.e0 12.e3  0.e0  0.e0  0.e0 -6.e3
+0.e0  0.e0 12.e2  0.e0  6.e2  0.e0
+0.e0  0.e0  0.e0  1.e3  0.e0  0.e0
+0.e0  0.e0  6.e2  0.e0  4.e2  0.e0
+0.e0 -6.e3  0.e0  0.e0  0.e0  4.e3

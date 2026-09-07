@@ -1,0 +1,23 @@
+$Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/total/totaleq/README,v 1.2 2010/02/04 20:53:07 masarati Exp $
+Author: Pierangelo Masarati <masarati@aero.polimi.it>
+
+*** compute_torque
+
+Computes and verifies force based on control constraint.
+
+Steps to reproduce:
+
+- edit "compute_torque.set" and tweak parameters
+- execute "compute_torque"
+- extract computed torque using
+
+	awk '$1==1 {print $2}' <outfile>.jnt > computed_torque.jnt
+
+- execute "verify_torque"
+
+
+*** triangle
+
+execute "triangle"
+execute mbdyn2easyanim.sh -f triangle.awk
+execute EasyAnim

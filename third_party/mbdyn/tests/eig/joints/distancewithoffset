@@ -1,0 +1,105 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/eig/joints/distancewithoffset,v 1.4 2009/04/06 09:27:07 masarati Exp $
+
+/*
+ * Eigenvalue extraction from models containing joints
+ *
+ * expected output:
+
+	- no offset:
+
+            Damp %     Freq Hz
+   -1.45083e-09        0.498488
+   -4.65182e-09        0.498488
+
+	- with offset:
+
+            Damp %     Freq Hz
+    5.97189e-09        0.560344
+     1.6123e-08        0.156787
+    1.00529e-09        0.558776
+    2.00711e-08        0.111176
+
+ */
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e0;
+	tolerance: 1.e-6;
+	max iterations: 10;
+    
+	method: ms, .6, .6;
+	eigenanalysis: 10.,
+		parameter, 1.e-6,
+		use lapack,
+		# balance, permute,
+		output matrices, output eigenvectors;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	joints:
+		+ 1	# clamp
+		+ 1	# joint
+	;
+	rigid bodies: 1;
+	gravity;
+end: control data;
+
+reference: 0,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: 1,
+	reference, 0, 0., 0., 1.,
+	reference, 0, eye,
+	reference, 0, null,
+	reference, 0, null;
+
+begin: nodes;
+	structural: 0, static,
+		reference, 0, null,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+	structural: 1, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+	body: 1, 1,
+		1.,
+		null,
+		# eye;
+		diag, 1., 2., 3.;
+	gravity: 0., 0., 1., 9.81;
+
+	joint: 1, distance with offset,
+		0,
+			position, reference, 0,
+				# null,
+				0., 0., .1,
+		1,
+			position, reference, 1,
+				# null,
+				0., 0., -.1,
+		from nodes;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

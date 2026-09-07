@@ -1,0 +1,172 @@
+/*
+ *               ||
+ *  /|           \/          |/
+ *  /|>o----o----o----o----o<|/
+ *  /|                       |/
+ *
+ *
+ *     4    10   6    9    3
+ *     o----o----o----o----o
+ *     |    |    |    |    |
+ *     o----o----o----o----o
+ *     1    7    5    8    2
+*/
+
+begin: data;
+	problem: initial value;
+end: data;
+
+set: const real E = 7.0e+10;
+set: const real NU = 3.0e-01;
+
+set: const real L = 2;
+set: const real B = 1e0;
+
+set: real G = E/(2*(1 + NU));
+
+set: real PRESTRESS = 1e6/B;
+set: real M = 1.;
+set: real DM = M/8;
+
+remark: "theoretical frequency, Hz", pi/L*sqrt((PRESTRESS*B)/(M/L))/(2*pi);
+
+/*
+ * the model is defined on reference frame REF
+ */
+set: const integer REF = 1;
+reference: REF,
+        reference, global, 0., 0., 0.,
+        reference, global, 1, 1., 0., 0., 3, 0., 0., 1.,
+        # reference, global, 1, 1., 1., 1., 3, -1., -1., 1.,
+        reference, global, null,
+        reference, global, null;
+
+begin: initial value;
+	initial time: 0.;
+	time step: 0.25;
+	final time: 2.;
+
+	tolerance: 1e-2;
+	max iterations: 10;
+
+	derivatives tolerance: 1e-5;
+	derivatives max iterations: 10;
+
+	threads: disable;
+
+	method: ms, .6;
+	# linear solver: umfpack, cc;
+	linear solver: naive, colamd;
+
+	eigenanalysis: 0., use lapack, output eigenvectors, output geometry, lower frequency limit, .1, upper frequency limit, 500;
+
+	# output: iterations;
+	# output: residual;
+	# output: jacobian;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+ 4	# structural
+		+ 6	# structural displacement
+	;
+	rigid bodies:
+		+ 6	# 
+	;
+	joints:
+		+ 4	# clamps
+	;
+	plates:
+		+ 4
+	;
+	default orientation: orientation vector;
+end: control data;
+
+begin: nodes;
+
+	structural: 1, static ,
+		reference, REF, 0., 0., 0.,
+		reference, REF, eye,
+		reference, REF, null,
+		reference, REF, null;
+
+	structural: 2, static ,
+		reference, REF, L, 0., 0.,
+		reference, REF, eye,
+		reference, REF, null,
+		reference, REF, null;
+
+	structural: 3, static ,
+		reference, REF, L, B, 0.,
+		reference, REF, eye,
+		reference, REF, null,
+		reference, REF, null;
+
+	structural: 4, static ,
+		reference, REF, 0., B, 0.,
+		reference, REF, eye,
+		reference, REF, null,
+		reference, REF, null;
+
+	structural: 5, dynamic displacement,
+		reference, REF, .5*L, 0., 0.,
+		reference, REF, null;
+	structural: 6, dynamic displacement,
+		reference, REF, .5*L, B, 0.,
+		reference, REF, null;
+
+	structural: 7, dynamic displacement,
+		reference, REF, 0.25*L, 0., 0.,
+		reference, REF, null;
+	structural: 8, dynamic displacement,
+		reference, REF, 0.75*L, 0., 0.,
+		reference, REF, null;
+	structural: 9, dynamic displacement,
+		reference, REF, 0.75*L, B, 0.,
+		reference, REF, null;
+	structural: 10, dynamic displacement,
+		reference, REF, 0.25*L, B, 0.,
+		reference, REF, null;
+
+end: nodes;
+
+begin: elements;
+
+	joint: 1, clamp, 1, node, node;
+	joint: 2, clamp, 2, node, node;
+	joint: 3, clamp, 3, node, node;
+	joint: 4, clamp, 4, node, node;
+
+	body: 5, 5, DM;
+	body: 6, 6, DM;
+	body: 7, 7, DM;
+	body: 8, 8, DM;
+	body: 9, 9, DM;
+	body: 10, 10, DM;
+
+	membrane4eas: 1,
+		1, 7, 10, 4,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 2,
+		7, 5, 6, 10,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 3,
+		5, 8, 9, 6,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 4,
+		8, 2, 3, 9,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

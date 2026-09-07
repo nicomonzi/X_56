@@ -1,0 +1,29 @@
+This is the increasing list of the debug levels, for reference.
+
+Generally debug levels 1-10 add terminal output, levels 11-99 add file output
+and levels >100 alter the execution of the program (stop at certain locations)
+
+All the levels are CUMULATIVE (i.e. a certain level produced also ALL the lower
+levels effects)
+
+level    effect
+0        Almost no screen output
+
+1        Minimal Screen output (default)
+
+3        Detailed info output with timing
+
+5        Extended verbose screen output
+
+7        Extra warning, can lead to potential false negative warnings
+
+8        Super extra verbose output
+
+15       print out files with debug geometry details at the beginning of the 
+         simulation
+
+16       print out files with debug geometry at each timestep
+
+20       print out the array of debug linear system results
+
+50       dump the whole linear system

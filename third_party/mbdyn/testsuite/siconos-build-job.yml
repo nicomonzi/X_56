@@ -1,0 +1,120 @@
+# MBDyn (C) is a multibody analysis code.
+# http://www.mbdyn.org
+#
+# Copyright (C) 1996-2023
+#
+# Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+# Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+#
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+#
+# Changing this copyright notice is forbidden.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# AUTHOR: Reinhard Resch <mbdyn-user@a1.net>
+# Copyright (C) 2023(-2023) all rights reserved.
+
+# The copyright of this code is transferred
+# to Pierangelo Masarati and Paolo Mantegazza
+# for use in the software MBDyn as described
+# in the GNU Public License version 2.1
+
+siconos-build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  needs:
+      - job: mbdyn-cleanup-job
+      - job: mkl-build-job
+        artifacts: true
+  variables:
+      UMFPACK_INCLUDE_DIR: "/usr/include/suitesparse"
+      UMFPACK_LIBRARY: "/usr/lib64/libumfpack.so"
+  script:
+      - echo "siconos installation job"
+      - SICONOS_INSTALL_PREFIX=${CI_PROJECT_DIR}/${SICONOS_INSTALL_PREFIX}
+      - SICONOS_BUILD_DIR=${CI_PROJECT_DIR}/${SICONOS_BUILD_DIR}
+      - MKL_INSTALL_PREFIX=${HOME}/${MKL_INSTALL_PREFIX}
+      - echo "Detecting MKL ..."
+      - |
+        if test -d "${MKL_INSTALL_PREFIX}"; then
+          echo "Search for ${MKL_PKG_CONFIG}.pc ..."
+          MKL_PKG_CONFIG_FILE=`find "${MKL_INSTALL_PREFIX}" '(' -type f -and -name "${MKL_PKG_CONFIG}.pc" ')'`
+          if test -f "${MKL_PKG_CONFIG_FILE}"; then
+            MKL_PKG_CONFIG_PATH=`dirname "${MKL_PKG_CONFIG_FILE}"`
+            echo "MKL_PKG_CONFIG_PATH=${MKL_PKG_CONFIG_PATH}"
+          else
+            echo "File ${MKL_PKG_CONFIG}.pc not found"
+          fi
+        fi
+      - |
+        if test -d "${MKL_PKG_CONFIG_PATH}"; then
+          export PKG_CONFIG_PATH="${MKL_PKG_CONFIG_PATH}:${PKG_CONFIG_PATH}"
+        else
+          echo "Warning: MKL_PKG_CONFIG_PATH does not exist"
+        fi
+      - |
+        if pkg-config --validate "${MKL_PKG_CONFIG}"; then
+          if test -z "${PARDISO_INC}"; then
+            export PARDISO_INC=`pkg-config --cflags-only-I ${MKL_PKG_CONFIG} | sed 's/^-I\>//g'`
+          fi
+          if test -z "${PARDISO_LIBS}"; then
+            export PARDISO_LIBS=`pkg-config --libs ${MKL_PKG_CONFIG}`
+            export PARDISO_LIBS="${PARDISO_LIBS} `pkg-config --libs-only-L ${MKL_PKG_CONFIG} | sed  's/^-L\//-Wl,-rpath=\//g'`"
+          fi
+        else
+          echo "Warning: MKL pkg-config ${MKL_PKG_CONFIG} is not valid"
+        fi
+      - |
+        if test -d "${SICONOS_INSTALL_PREFIX}" && test "${MBD_CLEAN_ALL}" = "no"; then
+          echo "siconos was already installed"
+          exit 0
+        fi
+      - |
+        if test "${MBD_CLEAN_ALL}" = "yes"; then
+          rm -rf "${SICONOS_BUILD_DIR}"
+        fi
+      - |
+        if ! test -d "${SICONOS_BUILD_DIR}"; then
+          git clone -b "${SICONOS_BRANCH}" "${SICONOS_REPOSITORY}" "${SICONOS_BUILD_DIR}"
+        fi
+      - cd ${SICONOS_BUILD_DIR}
+      - git checkout ${SICONOS_BRANCH}
+      - |
+        if ! git pull --force; then
+          echo "git pull failed"
+        fi
+      - |
+        if ! test -d build_dir; then
+          mkdir build_dir
+        fi
+      - cd build_dir
+      - |
+        if ! test -f Makefile || test ${CI_PROJECT_DIR}/testsuite/siconos-build-job.yml -nt Makefile; then
+          cmake -S .. -DWITH_TESTING=OFF -DUSER_OPTIONS_FILE=../config_samples/siconos_lite.cmake -DSICONOS_CUSTOM_INSTALL="${SICONOS_INSTALL_PREFIX}" -DISOLATED_INSTALL=true -DSuiteSparse_UMFPACK_INCLUDE_DIR="${UMFPACK_INCLUDE_DIR}" -DSuiteSparse_UMFPACK_LIBRARY="${UMFPACK_LIBRARY}" -DWITH_UMFPACK=ON # -DBLAS_NAME=mkl -DBLAS_INCLUDE_DIR="${PARDISO_INC}" -DLAPACK_INCLUDE_DIR="${PARDISO_INC}" -DLAPACK_LIBRARIES="${PARDISO_LIBS}"
+        fi
+      - make -j${MBD_NUM_BUILD_JOBS}
+      - rm -rf "${SICONOS_INSTALL_PREFIX}"
+      - make install
+  artifacts:
+    name: ${CI_JOB_NAME_SLUG}-${CI_COMMIT_REF_SLUG}
+    expire_in: 24h
+    paths:
+      - $SICONOS_INSTALL_PREFIX
+  cache:
+   key: ${CI_JOB_NAME_SLUG}-${CI_COMMIT_REF_SLUG}
+   paths:
+      - $SICONOS_BUILD_DIR

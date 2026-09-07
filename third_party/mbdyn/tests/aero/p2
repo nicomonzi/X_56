@@ -1,0 +1,76 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/aero/p2,v 1.3 2014/12/13 17:15:35 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    initial time: 0.;
+    final time: 1.;
+    time step: 1.e-3;
+    
+    tolerance: 1.e-6;
+    max iterations: 10;
+    
+    method: ms, .6, .6;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives tolerance: 1.e-6;
+    derivatives max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    structural nodes: 2;
+    joints: 2;
+    air properties;
+    aerodynamic elements: 1;
+end: control data;
+
+begin: nodes;
+    structural: 1, static,
+                reference, global, null,
+                reference, global, eye,
+                reference, global, null,
+                reference, global, null;
+    structural: 2, static,
+                reference, global, null,
+                reference, global, eye,
+                reference, global, null,
+                reference, global, null;
+end: nodes;
+
+begin: elements;
+    joint: 1, clamp, 1, node, node;
+    joint: 2, axial rotation, 
+           1, reference, global, null,
+	   hinge, reference, global, 1, 1.,0.,0., 3, 0.,1.,0.,
+	   2, reference, global, null,
+	   hinge, reference, global, 1, 1.,0.,0., 3, 0.,1.,0.,
+	   const, 0.;
+    
+    air properties: 1.225, 340.,
+                    single, 1.,0.,0., 
+		            const, -100.;
+	
+    set: real alpha = 1./180.*pi;
+    aerodynamic body: 2, 2,
+                      reference, node, null,
+		      reference, node, 
+		      	3, 0.,-1.,0., 
+		      	1, cos(alpha),0.,sin(alpha),
+		      1.,
+		      const, .1,
+		      const, 0.,
+		      const, 0.,
+		      const, 0.,
+		      1,
+		      unsteady, 
+		      custom output, all;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

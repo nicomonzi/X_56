@@ -1,0 +1,28 @@
+mesh_file_type = parametric
+el_type = v
+
+mesh_symmetry = T
+symmetry_point   = (/0.0 , 0.0,  0.0/)
+symmetry_normal = (/0.0 , 1.0,  0.0/)
+
+nelem_chord = 5
+type_chord = uniform   ! uniform  cosineLE  cosineTE
+starting_point = (/0.0,0.0,0.0/)
+reference_chord_fraction = 0.25
+
+! First section
+chord = 1.0
+twist = 3.0
+airfoil = NACA0020
+
+! First region
+span = 4.0
+sweep = 10.0
+dihed = 5.0
+nelem_span = 20
+type_span = uniform
+
+! Second section
+chord = 0.5
+twist = -3.0
+airfoil = NACA0012

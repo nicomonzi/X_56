@@ -1,0 +1,186 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/deformablehinge/deformablejoint-beam,v 1.3 2014/12/13 17:15:45 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.;
+	time step: 1.e-3;
+
+	tolerance: 1e-6;
+	max iterations: 10;
+
+	# derivatives tolerance: 1e-6;
+	# derivatives max iterations: 10;
+	# derivatives coefficient: 1e-9;
+
+	nonlinear solver: newton raphson, modified, 5, keep jacobian;
+
+	method: ms, .6;
+
+	# output: iterations;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1
+		+1	# beam
+		+2	# deformable joint
+	;
+	beams:
+		+1
+	;
+	joints:
+		+1	# ground
+		+2	# elastic
+	;
+	forces:
+		+1	# beam
+		+2	# deformable joint
+	;
+
+	default orientation: orientation vector;
+end: control data;
+
+reference: 0,
+	0., 0., -1.,
+	eye,
+	null,
+	null;
+reference: 1,
+	0., 0., 0.,
+	eye,
+	null,
+	null;
+
+begin: nodes;
+	structural: 1, static,
+		reference, 0, null,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+	structural: 10, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 20, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 30, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+/*
+ * compliance matrix, obtained by perturbing the beam element
+ * (can be computed analytically, as the exact solution is known):
+
+F =
+
+ Columns 1 through 3:
+
+   3.43333303496104e-05   0.00000000000000e+00   0.00000000000000e+00
+   0.00000000000000e+00   3.34333299889005e-04   0.00000000000000e+00
+  -5.20833743174249e-10  -5.20833294783557e-08   9.99999971531606e-07
+   0.00000000000000e+00  -4.99999993895651e-04   0.00000000000000e+00
+   4.99999998668137e-05   0.00000000000000e+00   0.00000000000000e+00
+   0.00000000000000e+00   0.00000000000000e+00   0.00000000000000e+00
+
+ Columns 4 through 6:
+
+   0.00000000000000e+00   4.99999999667028e-05   0.00000000000000e+00
+  -4.99999997225285e-04   0.00000000000000e+00   0.00000000000000e+00
+  -1.25000000665924e-07  -1.24999921809100e-09   0.00000000000000e+00
+   9.99999971143132e-04   0.00000000000000e+00   0.00000000000000e+00
+   0.00000000000000e+00   9.99999974250812e-05   0.00000000000000e+00
+   0.00000000000000e+00   0.00000000000000e+00   9.99999971143156e-05
+
+ */
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+
+	beam2: 11,
+		1, reference, node, null,
+		10, reference, node, null,
+		reference, 0, 
+			1, 0., 0., 1.,
+			2, 0., 1., 0.,
+		linear elastic generic, diag,
+			1.e6,
+			1/(1/1.e6 + 1.^2/12/1.e3),
+			1/(1/1.e6 + 1.^2/12/1.e4),
+			1.e4,
+			1.e4,
+			1.e3;
+
+	joint: 21, deformable joint,
+		1,
+			position, reference, 1, null,
+			orientation, reference, 1, eye,
+		20,
+			position, reference, 1, null,
+			orientation, reference, 1, eye,
+		linear elastic generic,
+			# diag, 1.e6, 1.e6, 1.e6, 1.e6, 1.e6, 1.e6;
+			matr,
+   1.07142897828967e+05,  -0.00000000000000e+00,  -0.00000000000000e+00,   0.00000000000000e+00,  -5.35714502582292e+04,  -0.00000000000000e+00,
+   0.00000000000000e+00,   1.18577126024663e+04,  -0.00000000000000e+00,   5.92885643941959e+03,   0.00000000000000e+00,  -0.00000000000000e+00,
+  -1.11606345879358e+01,   1.35869624495419e+03,   1.00000002846839e+06,   8.04348146142540e+02,   1.80803102925697e+01,  -0.00000000000000e+00,
+   0.00000000000000e+00,   5.92885639993775e+03,   0.00000000000000e+00,   3.96442829791897e+03,   0.00000000000000e+00,  -0.00000000000000e+00,
+  -5.35714501512051e+04,   0.00000000000000e+00,   0.00000000000000e+00,   0.00000000000000e+00,   3.67857260049673e+04,  -0.00000000000000e+00,
+   0.00000000000000e+00,   0.00000000000000e+00,   0.00000000000000e+00,   0.00000000000000e+00,   0.00000000000000e+00,   1.00000002885684e+04;
+
+	joint: 31, deformable joint,
+		1,
+			position, reference, 0, null,
+			orientation, reference, 0, eye,
+		30,
+			position, reference, 0, null,
+			orientation, reference, 0, eye,
+		linear elastic generic,
+			# diag, 1.e6, 1.e6, 1.e6, 1.e6, 1.e6, 1.e6;
+			matr,
+   1.07142897828967e+05,  -0.00000000000000e+00,  -0.00000000000000e+00,   0.00000000000000e+00,  -5.35714502582292e+04,  -0.00000000000000e+00,
+   0.00000000000000e+00,   1.18577126024663e+04,  -0.00000000000000e+00,   5.92885643941959e+03,   0.00000000000000e+00,  -0.00000000000000e+00,
+  -1.11606345879358e+01,   1.35869624495419e+03,   1.00000002846839e+06,   8.04348146142540e+02,   1.80803102925697e+01,  -0.00000000000000e+00,
+   0.00000000000000e+00,   5.92885639993775e+03,   0.00000000000000e+00,   3.96442829791897e+03,   0.00000000000000e+00,  -0.00000000000000e+00,
+  -5.35714501512051e+04,   0.00000000000000e+00,   0.00000000000000e+00,   0.00000000000000e+00,   3.67857260049673e+04,  -0.00000000000000e+00,
+   0.00000000000000e+00,   0.00000000000000e+00,   0.00000000000000e+00,   0.00000000000000e+00,   0.00000000000000e+00,   1.00000002885684e+04;
+
+	force: 10, absolute,
+		10,
+			position, null,
+			1., 0., 0.,
+			# 0., 1., 0.,
+			# 0., 0., 1.,
+				cosine, 0., pi/.1, 1./2, half, 0.;
+
+	force: 20, absolute,
+		20,
+			position, null,
+			1., 0., 0.,
+				cosine, 0., pi/.1, 1./2, half, 0.;
+
+	force: 30, absolute,
+		30,
+			position, null,
+			1., 0., 0.,
+				cosine, 0., pi/.1, 1./2, half, 0.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

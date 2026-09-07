@@ -1,0 +1,80 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/bistop/bistop,v 1.3 2014/12/13 17:15:45 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-6;
+	max iterations: 20;
+
+	method: ms, .6, .6;
+
+	derivatives coefficient: 1.e-9;
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	skip initial joint assembly;
+
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 2;
+	gravity;
+end: control data;
+
+set: real L = 2.;
+set: real M = 1.e-1;
+
+reference: 1, 
+	reference, global, null,
+	reference, global,
+		1, 0.,0.,-1.,
+		2, 0.,1.,0.,
+	reference, global, null,
+	reference, global, null;
+
+begin: nodes;
+	structural: 1, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 2, dynamic,
+		reference, 1, L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	body: 2, 2,
+		1.e-1,
+		null,
+		eye;
+	gravity: 0.,0.,-1., 9.81;
+	joint: 2, rod,
+		1,
+		2,
+		L,
+		linear viscoelastic bistop,
+			1.e3,
+			1.e2,
+			initial status, inactive,
+			string, "Time > .4",
+			string, "Time > .75";
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

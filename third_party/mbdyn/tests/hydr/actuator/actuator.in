@@ -1,0 +1,157 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2023
+# 
+# Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+# Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    # abort after: input;
+    time step: (real dt = 1.e-3);
+    initial time: 0.;
+    final time: 500*dt;
+    
+    set: (real Rho = .6);
+    method: ms, Rho, Rho;
+    
+    max iterations: 10;
+    tolerance: 1.e-9;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 20;
+    derivatives tolerance: 1.e-9;
+    
+    fictitious steps number: 0;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+
+    hydraulic nodes: 2;       # numero nodi idraulici
+    structural nodes: 2;      # numero nodi strutturali
+    
+    hydraulic elements: 1;    # numero elementi idraulici
+
+    rigid bodies: 1;
+    joints: 1+1+1;            # vincoli    
+    forces: 1;                # una forza generica
+    gravity;
+    
+    
+    genels: 1;
+end: control data;
+
+set: integer Terra = 1;
+set: real l = 1.;
+set: integer Corpo = 2;
+set: real g = 9.81;
+set: real m = 1.e3;
+set: real a1 = 1.e-2;
+set: real a2 = 1.2e-2;
+set: real p2 = 1.e6;
+set: real p1 = (p2*a2+m*g)/a1;
+               # (p2*a2)/a1;
+
+begin: nodes;
+    hydraulic: 1, p1;
+    hydraulic: 2, p2;
+    
+    structural: Terra, static,
+                0.,0.,-l,
+		eye,
+		null,
+		null;
+		
+    structural: Corpo, dynamic,
+                null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+    hydraulic: 11, actuator,
+               1, 2,            # Nodi idraulici 1&2
+               Terra, null,     # Nodo strutturale 1  
+	       Corpo, null,     # Nodo strutturale 2
+	       # direction, 0.,0.,1.,
+	       a1,		# Area su cui agisce p1
+	       a2,              # Area su cui agisce p2
+	       1.8,             # l1
+	       hydraulic fluid, # incompressible, density, 800.,
+	              linear compressible, density, 800., 2.e9, 101325.,
+		      viscosity, 0.0001, # m^2/s == 100 centistokes
+	       same;
+	       /*
+	       hydraulic fluid, # incompressible, density, 900.;
+	              linear compressible, density, 800., 2.e9, 101325.;
+		      */
+		      
+    # Vincolo
+    joint: Terra, clamp, Terra, node, node;
+    joint: 2, inline,
+           Terra, null, eye,
+	   Corpo;
+    joint: 3, prismatic,
+           Terra, 
+	   Corpo;
+   
+    body: Corpo, Corpo, 
+          m,
+	  null,
+	  diag, 10., 1., 1.;
+    gravity: uniform, 0.,0.,-1., const, g;
+         
+    # forza astratta: generatore di portata
+   
+    force: 111, abstract,
+           1, hydraulic,
+           # const, 0.;
+	   # const, 1.e-2;
+           # step, 10*dt, -1.e-2, 0.;
+	   # array, 2,
+	   # random, .01,0.,dt,1000., steps, 10;
+	   cosine, 100*dt, pi/(100*dt),-.5e-2,-1,0.;
+      
+    # incastro generico: generatore di pressione
+
+    genel: 1111, clamp, 
+           2, hydraulic, 
+	   const, p2;
+	   # ramp, 10., 10.*dt, 100.*dt, 0.;
+	   # step, 200*dt, 1.211927e+06, 1.e6;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

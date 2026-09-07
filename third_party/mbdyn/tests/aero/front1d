@@ -1,0 +1,145 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/aero/front1d,v 1.6 2017/01/12 14:58:51 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 100.;
+	time step: 1.e-2;
+
+	method: ms, .6;
+	tolerance: 1.e-9;
+	max iterations: 50;
+
+	# nonlinear solver: newton raphson, modified, 4;
+	# solver: umfpack, cc, block size, 2;
+	# linear solver: naive, colamd, mt, 1, pivot factor, 1e-6;
+	linear solver: umfpack, cc;
+
+	# output: iterations;
+	# output: residual;
+	
+	threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1		# ground
+	;
+	joints:
+		+1		# ground
+	;
+	air properties;
+	aerodynamic elements:
+		+1		# airfoil
+	;
+end: control data;
+
+reference: 0,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+set: const real ALPHA_0 = 2.*deg2rad;
+reference: 1,
+	reference, 0, null,
+	reference, 0,
+		2, 0., 1., 0.,
+		3, sin(ALPHA_0), 0., cos(ALPHA_0),
+	reference, 0, null,
+	reference, 0, null;
+reference: 2,
+	reference, 1, null,
+	reference, 1,
+		1, -1., 0., 0.,
+		3, 0., 1., 0.,
+	reference, 1, null,
+	reference, 1, null;
+
+begin: nodes;
+	structural: 0, static,
+		reference, 0, null,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+
+	/*
+		The gust front travels along the x axis
+		The normal to the gust front is directed along the x axis
+		The front velocity is V_FRONT
+		The gust profile is a function of _space_ whose input is
+
+			front_direction^T * x + front_velocity * Time
+
+	 */
+	set: const real V_FRONT = 10.; # m/s
+	set: const real WAVELENGHT = 100.; # m
+	set: const real V_G = 5.; # m/s
+
+	air properties: std, SI,
+		1.,0.,0., const, 0.,
+		gust,
+			front 1D,
+				1., 0., 0.,	# front direction
+				1., 0., 0.,	# gust direction
+				V_FRONT,	# front velocity
+				cosine, 10*V_FRONT, 2*pi/WAVELENGHT, V_G/2., one, 0.; # gust profile
+
+	set: const integer NACA0012 = 12;
+	c81data: NACA0012, "naca0012.c81";
+
+	aerodynamic body: 0, 0,
+		reference, node, null,
+		reference, 2, eye,
+		1.,
+		const, .1,
+		const, 0.,
+		const, 0.,
+		const, 0.,
+		1,
+		c81, NACA0012;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

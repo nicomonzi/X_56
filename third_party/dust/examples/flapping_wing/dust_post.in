@@ -1,0 +1,81 @@
+basename = Postprocessing/post
+data_basename = Output/flapwing
+
+analysis = {
+  name = v1
+  type = Viz
+
+  format = vtk
+
+  start_res = 1
+  end_res = 61
+  step_res = 1
+  wake = T
+
+  variable = Vorticity
+
+}
+
+analysis = {
+  type = integral_loads
+  name = loads1
+
+  start_res = 1
+  end_res = 61
+  step_res = 1
+
+  format = dat
+  
+  comp_name = wing
+  reference_tag = 0
+}
+
+analysis = {
+  type = integral_loads
+  name = loads2
+
+  start_res = 1
+  end_res = 61
+  step_res = 1
+
+  format = dat
+  
+  comp_name = wing
+  reference_tag = Wing
+}
+
+analysis = {
+  name = flow1
+  type = flow_field
+
+  start_res = 1
+  end_res = 61
+  step_res = 1
+  
+  format = vtk !tecplot, vtk
+
+  variable = Velocity
+
+  n_xyz = (/30,1,30/)
+  min_xyz = (/-2.0, 3.5, -3.0/)
+  max_xyz = (/5.0, 3.5, 3.0/)
+ 
+}
+
+analysis = {
+  name = flow2
+  type = flow_field
+
+  start_res = 1
+  end_res = 61
+  step_res = 1
+  
+  format = vtk !tecplot, vtk
+
+  variable = Velocity
+
+  n_xyz = (/1,30,30/)
+  min_xyz = (/2.0, 0.0, -3.0/)
+  max_xyz = (/2.0, 5.0, 3.0/)
+ 
+}

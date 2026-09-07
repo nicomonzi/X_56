@@ -1,0 +1,27 @@
+! Simulation name
+basename       = ./Output/flapwing
+
+! --- Time parameters ---
+tstart = 0.0
+tend  = 30.0
+dt = 0.5
+dt_out = 0.5 
+output_start = T
+
+! --- Restart ---
+restart_from_file = F
+
+! --- Reference values ---
+u_inf = (/1.0, 0.0, 0.0/)
+
+! --- Geometry files ---
+geometry_file = geo_input.h5
+reference_file = References.in
+
+! wake parameters -------------
+n_wake_panels = 65
+
+! Model parameters -------------------
+fmm = F
+vortstretch = F
+diffusion = F

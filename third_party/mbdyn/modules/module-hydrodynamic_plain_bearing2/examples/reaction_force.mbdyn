@@ -1,0 +1,193 @@
+################################################################
+## PARAMETERS
+################################################################
+
+set: real piston_diameter = 21.1e-3;
+set: real cylinder_liner_diameter = 21.104e-3;
+set: real piston_h = 12e-3;
+set: real piston_mass = 10.9e-3 + 2.193e-3;
+set: real piston_Jxx = piston_mass * (piston_diameter/2.)^2 / 2.;
+set: real piston_Jyy = piston_mass * (3 * (piston_diameter/2.)^2 + piston_h^2) / 12.;
+set: real piston_Jzz = piston_Jyy;
+
+set: real eta = 2.14e-3;		# dynamic oil viscosity
+set: real rho = 900.;
+set: real pc = 0.;
+
+set: real initial_time = 0;
+set: real final_time = 1e-3;
+set: real output_start_time = 0;
+set: real output_time_step = 1e-5;
+
+set: real time_step = 1e-5;
+
+################################################################
+## ID NUMBERS
+################################################################
+
+set: integer node_id_crankcase = 1001;
+set: integer node_id_piston = 1004;
+
+set: integer body_id_piston = 2002;
+
+set: integer joint_id_crankcase = 3001;
+
+set: integer ref_id_cranktrain = 5001;
+set: integer ref_id_piston = 5004;
+
+set: integer elem_id_bearing = 6001;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: initial_time;
+	final time: final_time;
+	
+	time step: time_step;
+        enforce constraint equations: constraint violations;
+	
+	max iterations: 40;
+	tolerance: 1.e-4, test, norm, 1e-4, test, minmax;
+	method: implicit euler;
+	derivatives tolerance: 1e-3, 1e-2;
+	derivatives max iterations: 20;
+        derivatives coefficient: auto;
+	output: iterations, solver condition number, stat, yes;
+	threads: disable;
+	linear solver: umfpack, colamd, scale, row max column max, always, max iterations, 10;
+        include: "noxsolver.set";
+        output: iterations, solver condition number, stat, yes;
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+       skip initial joint assembly;
+       use: loadable elements, in assembly;
+	output meter: closest next, output_start_time, forever, const, output_time_step;
+	structural nodes: 2;
+	rigid bodies: 1;
+	loadable elements: 1;
+	joints: 1;
+        gravity;
+	output precision: 8;
+	default output: all, reference frames;
+    max iterations: 100;
+    tolerance: 1e-10;
+    initial stiffness: 1e12;
+    use automatic differentiation;
+end: control data;
+
+reference: ref_id_cranktrain,
+	# position
+	reference, global, null,
+	# orientation
+	reference, global, eye,
+	# velocity
+	reference, global, null,
+	# angular velocity
+	reference, global, null;
+
+reference: ref_id_piston,
+	#position
+	reference, ref_id_cranktrain, 1., 0., 0.,
+	# orientation
+	reference, ref_id_cranktrain, eye,
+	# velocity
+	reference, ref_id_cranktrain, null,
+	# angular velocity
+	reference, ref_id_cranktrain, null;
+
+begin: nodes;
+    structural: node_id_crankcase, static,
+        reference, ref_id_cranktrain, null,
+        reference, ref_id_cranktrain, eye,
+        reference, ref_id_cranktrain, null,
+        reference, ref_id_cranktrain, null;
+
+	structural: node_id_piston, dynamic, 
+		# absolute position
+		reference, ref_id_piston, null, 
+		# absolute orientation matrix
+		reference, ref_id_piston, eye, 
+		# absolute velocity
+		reference, ref_id_piston, null,
+		# absolute angular velocity
+		reference, ref_id_piston, null;
+end: nodes;
+
+begin: elements;
+    joint: joint_id_crankcase, clamp,
+        node_id_crankcase, node, node;
+
+	body: body_id_piston, node_id_piston, 
+                # mass
+                piston_mass,
+                # relative center of mass
+                reference, ref_id_piston, null,
+                # inertia matrix
+                diag, piston_Jxx, piston_Jyy, piston_Jzz,
+		orientation, reference, ref_id_piston, eye;
+
+    user defined: elem_id_bearing, 
+        hydrodynamic plain bearing2,
+            hydraulic fluid, incompressible,
+                density, rho,
+                viscosity, eta,
+                pressure, 0,
+                temperature, 0,
+            mesh, linear finite difference,
+            geometry, cylindrical,
+                mesh position, at shaft,
+                bearing width, piston_h,
+                shaft diameter, piston_diameter,
+                bearing diameter, cylinder_liner_diameter,
+                shaft node,
+                    node_id_piston,
+                    offset, reference, ref_id_piston, null,
+                    orientation, reference, ref_id_piston, 3, 1., 0., 0., 
+                                                           1, 0., 0., 1.,
+                bearing node,
+                    node_id_crankcase,
+                    offset, reference, ref_id_cranktrain, null,
+                    orientation, reference, ref_id_cranktrain, 3, 1., 0., 0.,
+                                                           1, 0., 0., 1.,
+            number of nodes z, 15,
+            number of nodes Phi, 50,
+            boundary conditions,
+            pressure, pc,
+            pressure, pc,
+            contact model,
+                greenwood williamson lugre,
+                    E1, 210000e6,
+                    nu1, 0.3,
+                    E2, 210000e6,
+                    nu2, 0.3,
+                    M0, 0.15965,
+                    M2, 0.008337,
+                    M4, 0.0076271,
+                    method, implicit euler,
+                    coulomb friction coefficient, 0.1,
+                    micro slip stiffness, 1e5,
+                    micro slip damping, 1e2,
+            pressure dof scale, 1e6,
+            equation scale, 1e-6,
+            output pressure, yes,
+            output density, yes,
+            output contact pressure, yes,
+            output clearance, yes,
+            output clearance derivative, yes,
+            output velocity, yes,
+            output stress, yes,
+            output contact stress, yes,
+            output reaction force, yes,
+            output mesh, yes;
+      gravity: uniform, 0., 0., -1., const, 9.81;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

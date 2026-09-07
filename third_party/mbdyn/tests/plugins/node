@@ -1,0 +1,57 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/plugins/node,v 1.2 2012/09/14 09:27:05 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 4.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-5;
+	max iterations: 60;
+
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1e-9;
+
+	threads: disable;
+
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	parameter nodes: 1;
+	rigid bodies: 1;
+	joints: 1;
+	forces: 2;
+end: control data;
+
+begin: nodes;
+	structural: 1, static, 1.,0.,0., eye, null, null;
+	structural: 2, dynamic, 2.,0.,0., eye, null, null;
+	parameter: 1, element;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	bind: 1, joint, 1, string, "Fx";
+	body: 2, 2, 1.e-3, null, eye;
+	set: [node,x,1,structural,string="x[1]"];
+	# set: [node,x,1,structural,"x[1]"];
+	force: 1, absolute, 1, position, null, -1.,0.,0.,
+		string, "(Time>0)*x";
+	force: 2, absolute, 2, position, null, 1.,0.,0.,
+		string, "(Time>0)*x+stop(Time>2.,0)";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,154 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/tubo/wave/wave_x,v 1.4 2014/12/13 17:15:44 masarati Exp $
+
+/*
+    Esempio tratto da:
+    
+    Robert Piche' and Asko Ellman,
+    "A Fluid Transmission Line Model for Use with ODE Simulators",
+    presented at the Eight Bath International Fluid Power Workshop,
+    Sept. 20-22 1995, University of Bath, UK
+    
+    Problema: 
+    
+      - tubo con fluido in quiete, caricato con impulso di portata ad una
+        estremita'.
+    
+    Dati:
+      
+      - lunghezza:                  19.74    m
+      - raggio:                      6.17e-3 m
+      - densita':                  870.      kg/m^3
+      - viscosita' cinematica:       8.e-5   m^2/s
+      - velocita' del suono:         1.4e3   m/s
+      
+      - portata impulsiva:           0.001   m^3/s
+      - durata impulso:              0.1e-3  s
+      
+      
+    Dati aggiunti:
+    
+      - pressione iniziale:          0.      Pa (su tutto il tubo)
+      
+    Note:
+    
+      - usa un metodo basato su funzioni di trasferimento approssimate con
+        polinomi, che filtra tantissimo la dinamica ad alte frequenze.
+	Se si usa un passo lungo e molto smorzamento algoritmico (rho = 0)
+	si ottegono risultati qualitativamente confrontabili a patto di 
+	scalare l'impulso per il rapporto tra la sua durata effettiva,
+	0.1e-3 s, ed il passo usato nell'integrazione (in questo caso, 
+	1.e-3 s).
+	
+*/
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    set: real dt = 1.e-3;
+    time step: dt;
+    initial time: 0.;
+    final time: 0.2;
+    
+    set: real Rho = .6;
+    method: ms, Rho, Rho;
+    
+    max iterations: 20;
+    tolerance: 1.e-6;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 20;
+    derivatives tolerance: 1.e-6;
+    
+    fictitious steps number: 0;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    set: integer nel = 10;
+    hydraulic nodes: 1+nel;
+    hydraulic elements: nel;
+    
+    forces: 1;
+    
+    # genels: 1;
+end: control data;
+ 
+begin: nodes;
+    set: real p = 1.e6;
+    hydraulic: 1, p;
+    hydraulic: 2, p;
+    hydraulic: 3, p;
+    hydraulic: 4, p;
+    hydraulic: 5, p;
+    hydraulic: 6, p;
+    hydraulic: 7, p;
+    hydraulic: 8, p;
+    hydraulic: 9, p;
+    hydraulic: 10, p;
+    hydraulic: 11, p;
+end: nodes;
+
+begin: elements;
+    set: real r = 6.17e-3;              # m
+    set: real d = 2.*r;                 # m
+    set: real A = r^2.*pi;              # m^2
+    set: real l = 19.74/nel;            # m
+    set: real rho = 870.;               # kg/m^3
+    set: real c = 1.4e3;                # m/s
+    set: real beta = c^2*rho;           # Pa
+    set: real mu = 8.e-5*rho;           # kg/m/s
+    
+    hydraulic: 11, dynamic pipe, 1, 2,
+               d, l,
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+    hydraulic: 12, dynamic pipe, 2, 3,
+               d, l, 
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+    hydraulic: 13, dynamic pipe, 3, 4,
+               d, l, 
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+    hydraulic: 14, dynamic pipe, 4, 5,
+               d, l, 
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+    hydraulic: 15, dynamic pipe, 5, 6,
+               d, l, 
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+    hydraulic: 16, dynamic pipe, 6, 7,
+               d, l, 
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+    hydraulic: 17, dynamic pipe, 7, 8,
+               d, l, 
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+    hydraulic: 18, dynamic pipe, 8, 9,
+               d, l, 
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+    hydraulic: 19, dynamic pipe, 9, 10,
+               d, l, 
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+    hydraulic: 20, dynamic pipe, 10, 11,
+               d, l, 
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+	       
+	       
+    set: real DeltaT = 1.*dt;
+    force: 101, abstract,
+           1, hydraulic,
+           # const,-0.005;
+           # linear, -0.005, -0.03/dt;
+           # step, 10.*dt, -1.e-4, 0.;
+	   double step, 10.*dt, 10.*dt+DeltaT, -0.001e0*rho, 0.;
+
+    /*
+    genel: 1001, clamp, 
+           1+nel, hydraulic,
+            const, p;
+     */
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

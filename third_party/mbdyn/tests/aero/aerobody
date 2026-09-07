@@ -1,0 +1,132 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/aero/aerobody,v 1.2 2014/12/13 17:15:35 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-4;
+
+	method: ms, .6;
+	tolerance: 1.e-9;
+	max iterations: 50;
+
+	derivatives coefficient: 1.e-6;
+	derivatives tolerance: 1.e+4;
+	derivatives max iterations: 20;
+
+	# nonlinear solver: newton raphson, modified, 4;
+	# solver: umfpack, cc, block size, 2;
+	# linear solver: naive, colamd, mt, 1, pivot factor, 1e-6;
+	linear solver: umfpack, cc;
+
+	# output: iterations;
+	# output: residual;
+	
+	threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1		# ground
+		+1		# airfoil
+	;
+	rigid bodies:
+		+1		# airfoil
+	;
+	joints:
+		+1		# ground
+		+1		# prescribed pitch
+	;
+	air properties;
+	aerodynamic elements:
+		+1		# airfoil
+	;
+end: control data;
+
+reference: 0,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+set: const real ALPHA_0 = 2.*deg2rad;
+reference: 1,
+	reference, 0, null,
+	reference, 0,
+		2, 0., 1., 0.,
+		3, sin(ALPHA_0), 0., cos(ALPHA_0),
+	reference, 0, null,
+	reference, 0, null;
+reference: 2,
+	reference, 1, null,
+	reference, 1,
+		1, -1., 0., 0.,
+		3, 0., 1., 0.,
+	reference, 1, null,
+	reference, 1, null;
+
+begin: nodes;
+	structural: 0, static,
+		reference, 0, null,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+	structural: 1, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+
+	joint: 1, total joint,
+		0,
+			position, reference, 0, null,
+			position orientation, reference, 0, eye,
+			rotation orientation, reference, 0, eye,
+		1,
+			position, reference, 0, null,
+			position orientation, reference, 0, eye,
+			rotation orientation, reference, 1, eye,
+		position constraint, active, active, active,
+			null,
+		orientation constraint, active, active, active,
+			0., 1., 0.,
+				# const, ALPHA_0;
+				cosine, 0., pi/1., (real DELTA_ALPHA = 5.*deg2rad; DELTA_ALPHA/2.), half, ALPHA_0;
+
+	body: 1, 1,
+		1.,
+		reference, node, null,
+		diag, 1., 1., 1.;
+
+	air properties: std, SI,
+		1.,0.,0., const, 50.;
+
+	set: const integer NACA0012 = 12;
+	c81data: NACA0012, "naca0012.c81";
+
+	aerodynamic body: 1, 1,
+		reference, node, null,
+		reference, 2, eye,
+		1.,
+		const, .1,
+		const, 0.,
+		const, 0.,
+		const, 0.,
+		1,
+		c81, NACA0012;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,10 @@
+set: integer number_of_nodes = 81;
+set: integer number_of_nodes_hydraulic = 0;
+set: integer number_of_solids = 8;
+set: integer number_of_genels = 6;
+set: integer number_of_forces = 0;
+set: integer number_of_joints = 0;
+set: integer number_of_surface_loads = 24;
+set: real t1 = 1.0000000000000000e+00;
+set: real t2 = 0.0000000000000000e+00;
+set: real dt = 2.5000000000000001e-02;

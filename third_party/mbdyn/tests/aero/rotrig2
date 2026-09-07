@@ -1,0 +1,128 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/aero/rotrig2,v 1.7 2014/12/13 17:15:35 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-4;
+	max iterations: 20;
+
+	method: ms, .6, .6;
+
+	derivatives coefficient: 1.e-12;
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 10;
+
+	newton raphson: modified, 4;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 3;
+	rigid bodies: 1;
+	joints: 3;
+	air properties;
+	rotors: 1;
+	aerodynamic elements: 1;
+end: control data;
+
+set: real omega = 40.;
+set: real R = 5.;
+set: real f = .2;
+set: real c = .2;
+set: real m = 30.;
+set: real theta_0 = 2./180.*pi;
+set: real v = 10.;
+
+reference: 1, 
+	null,
+	eye,
+	null,
+	null;
+reference: 2, 
+	reference, 1, null,
+	reference, 1, eye,
+	reference, 1, null,
+	reference, 1, 0.,0.,omega;
+reference: 3,
+	reference, 2, 0.,0.,f,
+	reference, 2, eye,
+	reference, 2, null,
+	reference, 2, null;
+reference: 4,
+	reference, 3, null,
+	reference, 3, 
+		1, 0., cos(theta_0), sin(theta_0),
+		3, 1., 0., 0.,
+	reference, 3, null,
+	reference, 3, null;
+begin: nodes;
+	structural: 1000, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 1, static,
+		reference, 2, null,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+	structural: 2, dynamic,
+		reference, 3, R/2.,0.,0.,
+                reference, 3, eye,
+                reference, 3, null,
+                reference, 3, null;
+end: nodes;
+
+begin: elements;
+	joint: 1000, clamp, 1000, node, node;
+	joint: 1, axial rotation, 
+		1000, reference, 1, null,
+		1, reference, 1, null,
+		const, omega;
+	joint: 2, revolute hinge,
+		1, reference, 3, null,
+		hinge, reference, 3, 
+			1, 1.,0.,0., 3, 0.,1.,0.,
+		2, reference, 3, null,
+		hinge, reference, 3, 
+			1, 1.,0.,0., 3, 0.,1.,0.;
+	c81 data: 1, "naca0012.c81";
+	body: 2, 2,
+		m,
+		null,
+		diag, 1., 1/12.*m*R^2, 1/12.*m*R^2;
+	air properties: 1.225, 340.,
+		single, -1.,0.,0., 
+		const, v;
+	rotor: 1, 1000, 1, induced velocity, no;
+	aerodynamic body: 2, 2, induced velocity, 1,
+                      reference, node, null,
+		      reference, 4, eye,
+		      R,
+		      const, c,
+		      const, 0.,
+		      const, 0.,
+		      const, 0.,
+			tiploss,
+				piecewise const,
+				2,
+				-1., 1.,
+				.96, 0.,
+		      10,
+		      # unsteady, bielawa;
+			c81, 1;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

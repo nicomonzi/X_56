@@ -1,0 +1,7 @@
+# Tie rod
+joint: CURR_TIE, distance,
+	node_RACK,
+		position, reference, node, 0., yK, 0.,
+	CURR_HUB,
+		position, reference, node, xJ-xW, yJ-yW, zJ-zW,
+	from nodes;

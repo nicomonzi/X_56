@@ -1,0 +1,131 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/gimbal/realgimbal,v 1.5 2014/12/13 17:15:46 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e-2;
+
+	tolerance: 1.e-6;
+	max iterations: 20;
+
+	method: ms, .6;
+	# method: bdf;
+
+	derivatives coefficient: 1.e-0;
+	derivatives tolerance: 1.e-9;
+	derivatives max iterations: 50;
+
+	# output: residual, jacobian;
+	threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# terra
+		+1	# albero
+		+1	# mozzo
+	;
+	
+	joints: 
+		+1	# messa a terra 1
+		+1	# velocita' imposta
+		+1	# cerniera piana
+		+1	# gimbal
+
+		+1	# inplane
+		+1	# distance
+	;
+	rigid bodies:
+		+1	# mozzo
+	;
+	# skip initial joint assembly;
+	print: dof stats;
+	default orientation: orientation vector;
+end: control data;
+
+
+set: real L = 1.;
+set: real Omega = 25.;
+set: real Omega0 = Omega;
+
+reference: 1,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, 0., 0., Omega;
+
+begin: nodes;
+	structural: 1, static,
+		reference, global, null,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+
+	structural: 2, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	
+	structural: 3, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+
+	joint: 2, axial rotation,
+		1, null,
+		2, null,
+		const, Omega0;
+	
+	joint: 3, spherical hinge,
+		2, reference, 1, null,
+			hinge, reference, 1, eye,
+		3, reference, 1, null,
+			hinge, reference, 1, eye;
+
+	joint: 4, gimbal rotation,
+		2,
+			hinge, reference, 1, eye,
+		3,
+			hinge, reference, 1, eye;
+/*
+	joint: 4, universal rotation,
+		2,
+			hinge, reference, 1,
+				1, 0.,0.,1., 2, 0.,1.,0.,
+		3,
+			hinge, reference, 1,
+				1, 0.,0.,1., 2, 0.,1.,0.;
+*/
+
+	body: 3, 3,
+		1.,
+		null,
+		diag, 1.,1.,2.;
+
+	joint: 98, inplane,
+		1, null,
+		1.,1.,0.,
+		3, offset, 0.,0.,1.;
+	joint: 99, distance,
+		1, position, 1.,-1.,1.,
+		3, position, 0.,0.,1.,
+		cosine, 1.,pi/1.,-.1,half,sqrt(2);
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

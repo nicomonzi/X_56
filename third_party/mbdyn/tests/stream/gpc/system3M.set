@@ -1,0 +1,9 @@
+set: real M1 =  +1.0000000e+00;
+set: real M2 =  +1.0000000e+00;
+set: real M3 =  +1.0000000e+00;
+set: real K1 =  +1.0000000e+02;
+set: real K2 =  +1.0000000e+02;
+set: real K3 =  +1.0000000e+02;
+set: real R1 =  +1.0000000e+00;
+set: real R2 =  +1.0000000e+00;
+set: real R3 =  +1.0000000e+00;

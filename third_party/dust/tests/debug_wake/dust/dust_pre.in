@@ -1,0 +1,11 @@
+
+comp_name = Blade_1
+geo_file  = ./blade/blade_1.in
+ref_tag   = Hub_PreCICE
+
+comp_name = Blade_2
+geo_file  = ./blade/blade_2.in
+ref_tag   = Hub_PreCICE
+
+file_name = geo_input.h5 
+

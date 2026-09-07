@@ -1,0 +1,383 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	#final time: 1.e-1;
+	#final time: 1.e-0;
+	final time: 1.e+1;
+	time step: 1.e-2;
+	tolerance: 1.e-4;
+	max iterations: 20;
+	derivatives tolerance: 1.E100;
+	method: ms, .6;
+	#output: iterations;
+	#output: residual;
+	#output: jacobian;
+	threads: disable;
+	#linear solver: klu, cc;
+	#linear solver: umfpack, cc;
+	#linear solver: klu, dir;
+	linear solver: umfpack, dir;
+
+	eigenanalysis: 0.,
+		#lower frequency limit, .01,
+		#upper frequency limit, 100,
+		use lapack, output eigenvectors, output geometry;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+12
+	;
+	rigid bodies:
+		+12
+	;
+	plates:
+		+5
+	;
+	joints:
+		+4
+	;
+	forces:
+		+2
+		+2
+	;
+	# default output: none;
+end: control data;
+set: real E = 6.825E7;
+set: real nu = 0.3;
+set: real h = 0.04;
+set: real as = 1.;
+set: real at = 0.01;
+set: real C = E*h/(1. - nu^2);
+set: real D = E*h^3/12./(1. - nu^2);
+
+begin: nodes;
+structural: 10000, dynamic,
+	0., 0., 0., 
+	eye,
+	null, 
+	null; 
+
+structural: 10001, dynamic,
+	1., 0., 0., 
+	eye,
+	null, 
+	null; 
+
+structural: 10002, dynamic,
+	2., 0., 0., 
+	eye,
+	null, 
+	null; 
+
+structural: 10003, dynamic,
+	3., 0., 0., 
+	eye,
+	null, 
+	null; 
+
+structural: 10004, dynamic,
+	4., 0., 0., 
+	eye,
+	null, 
+	null; 
+
+structural: 10005, dynamic,
+	5., 0., 0., 
+	eye,
+	null, 
+	null; 
+
+structural: 20000, dynamic,
+	0., 1., 0.,
+	eye,
+	null, 
+	null; 
+
+structural: 20001, dynamic,
+	1., 1., 0.,
+	eye,
+	null, 
+	null; 
+
+structural: 20002, dynamic,
+	2., 1., 0.,
+	eye,
+	null, 
+	null; 
+
+structural: 20003, dynamic,
+	3., 1., 0.,
+	eye,
+	null, 
+	null; 
+
+structural: 20004, dynamic,
+	4., 1., 0.,
+	eye,
+	null, 
+	null; 
+
+structural: 20005, dynamic,
+	5., 1., 0.,
+	eye,
+	null, 
+	null; 
+end: nodes;
+
+set: real t = model::distance(10000, 20000);
+set: real L = model::distance(10000, 10005);
+remark: "EA", E*h*t;
+remark: "GA", E/(2*(1 + nu))*h*t*5/6;
+remark: "GJ?";
+remark: "EJy", 1./12*E*h^3*t;
+remark: "EJz", 1./12*E*h*t^3;
+remark: "slenderness", L^2/(t*h);
+
+begin: elements;
+joint: 10000, total pin joint,
+	10000,
+		position, reference, node, null,
+	position, null,
+	position constraint,
+		active, active, active, null,
+	orientation constraint,
+		active, inactive, active, null;
+joint: 20000, total joint,
+	20000,
+		position, reference, node, null,
+	10000,
+		position, reference, other node, null,
+	position constraint,
+		active, inactive, active, null,
+	orientation constraint,
+		active, inactive, active, null;
+
+joint: 10005, total pin joint,
+	10005,
+		position, reference, node, null,
+	position, null,
+	position constraint,
+		inactive, active, active, null,
+	orientation constraint,
+		active, inactive, active, null;
+joint: 20005, total joint,
+	20005,
+		position, reference, node, null,
+	10005,
+		position, reference, other node, null,
+	position constraint,
+		inactive, inactive, active, null,
+	orientation constraint,
+		active, inactive, active, null;
+
+set: real rho = 2.7e1;
+set: real DM = rho*h*(L/5/2)*(t/2);	# quarter of plate
+set: real J = 1e-6;
+
+body: 10000, 10000,
+	DM,
+	(L/5/4), (t/4), 0.,
+	diag, J, J, J;
+
+body: 20000, 20000,
+	DM,
+	(L/5/4), -(t/4), 0.,
+	diag, J, J, J;
+
+body: 10001, 10001,
+	condense, 2,
+	DM,
+	-(L/5/4), (t/4), 0.,
+	diag, J, J, J,
+	DM,
+	(L/5/4), (t/4), 0.,
+	diag, J, J, J;
+
+body: 20001, 20001,
+	condense, 2,
+	DM,
+	-(L/5/4), -(t/4), 0.,
+	diag, J, J, J,
+	DM,
+	(L/5/4), -(t/4), 0.,
+	diag, J, J, J;
+
+body: 10002, 10002,
+	condense, 2,
+	DM,
+	-(L/5/4), (t/4), 0.,
+	diag, J, J, J,
+	DM,
+	(L/5/4), (t/4), 0.,
+	diag, J, J, J;
+
+body: 20002, 20002,
+	condense, 2,
+	DM,
+	-(L/5/4), -(t/4), 0.,
+	diag, J, J, J,
+	DM,
+	(L/5/4), -(t/4), 0.,
+	diag, J, J, J;
+
+body: 10003, 10003,
+	condense, 2,
+	DM,
+	-(L/5/4), (t/4), 0.,
+	diag, J, J, J,
+	DM,
+	(L/5/4), (t/4), 0.,
+	diag, J, J, J;
+
+body: 20003, 20003,
+	condense, 2,
+	DM,
+	-(L/5/4), -(t/4), 0.,
+	diag, J, J, J,
+	DM,
+	(L/5/4), -(t/4), 0.,
+	diag, J, J, J;
+
+body: 10004, 10004,
+	condense, 2,
+	DM,
+	-(L/5/4), (t/4), 0.,
+	diag, J, J, J,
+	DM,
+	(L/5/4), (t/4), 0.,
+	diag, J, J, J;
+
+body: 20004, 20004,
+	condense, 2,
+	DM,
+	-(L/5/4), -(t/4), 0.,
+	diag, J, J, J,
+	DM,
+	(L/5/4), -(t/4), 0.,
+	diag, J, J, J;
+
+body: 10005, 10005,
+	DM,
+	-(L/5/4), (t/4), 0.,
+	diag, J, J, J;
+
+body: 20005, 20005,
+	DM,
+	-(L/5/4), -(t/4), 0.,
+	diag, J, J, J;
+
+shell4eas: 1,
+	10000, 10001, 20001, 20000, 
+	       C,		0,		 0,		  0,		C*nu,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,	 C*(1.-nu),		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0, 1./2.*as*C*(1.-nu),		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,	   C*(1.-nu),		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	    C*nu,		0,		 0,		  0,		   C,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0, 1./2.*as*C*(1.-nu),  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     D, 	      0,	       0,		0,	      D*nu,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0,        D*(1.-nu),	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,     at*D*(1.-nu),		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,	 D*(1.-nu),		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	  D*nu, 	      0,	       0,		0,		 D,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,	at*D*(1.-nu);
+
+shell4eas: 2,
+	10001, 10002, 20002, 20001, 
+	       C,		0,		 0,		  0,		C*nu,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,	 C*(1.-nu),		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0, 1./2.*as*C*(1.-nu),		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,	   C*(1.-nu),		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	    C*nu,		0,		 0,		  0,		   C,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0, 1./2.*as*C*(1.-nu),  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     D, 	      0,	       0,		0,	      D*nu,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0,        D*(1.-nu),	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,     at*D*(1.-nu),		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,	 D*(1.-nu),		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	  D*nu, 	      0,	       0,		0,		 D,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,	at*D*(1.-nu);
+
+shell4eas: 3,
+	10002, 10003, 20003, 20002, 
+	       C,		0,		 0,		  0,		C*nu,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,	 C*(1.-nu),		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0, 1./2.*as*C*(1.-nu),		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,	   C*(1.-nu),		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	    C*nu,		0,		 0,		  0,		   C,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0, 1./2.*as*C*(1.-nu),  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     D, 	      0,	       0,		0,	      D*nu,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0,        D*(1.-nu),	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,     at*D*(1.-nu),		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,	 D*(1.-nu),		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	  D*nu, 	      0,	       0,		0,		 D,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,	at*D*(1.-nu);
+
+shell4eas: 4,
+	10003, 10004, 20004, 20003, 
+	       C,		0,		 0,		  0,		C*nu,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,	 C*(1.-nu),		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0, 1./2.*as*C*(1.-nu),		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,	   C*(1.-nu),		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	    C*nu,		0,		 0,		  0,		   C,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0, 1./2.*as*C*(1.-nu),  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     D, 	      0,	       0,		0,	      D*nu,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0,        D*(1.-nu),	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,     at*D*(1.-nu),		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,	 D*(1.-nu),		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	  D*nu, 	      0,	       0,		0,		 D,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,	at*D*(1.-nu);
+
+shell4eas: 5,
+	10004, 10005, 20005, 20004, 
+	       C,		0,		 0,		  0,		C*nu,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,	 C*(1.-nu),		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0, 1./2.*as*C*(1.-nu),		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,	   C*(1.-nu),		   0,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	    C*nu,		0,		 0,		  0,		   C,		    0,  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0, 1./2.*as*C*(1.-nu),  	     0, 	      0,	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     D, 	      0,	       0,		0,	      D*nu,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0,        D*(1.-nu),	       0,		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,     at*D*(1.-nu),		0,		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,	 D*(1.-nu),		 0,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	  D*nu, 	      0,	       0,		0,		 D,		  0,
+	       0,		0,		 0,		  0,		   0,		    0,  	     0, 	      0,	       0,		0,		 0,	at*D*(1.-nu);
+
+set: real F = 1.e+1;
+set: real M = 0.e+3;
+
+force: 1, absolute,
+	10002,
+	position, null,
+	0., 0., 1.,
+	sine, .1, pi/.1, F/2/2, one, 0.;
+
+force: 2, absolute,
+	20002,
+	position, null,
+	0., 0., 1.,
+	sine, .1, pi/.1, F/2/2, one, 0.;
+
+couple: 11, follower,
+        10002,
+        position, null,
+        0., 1., 0.,
+        cosine, 0., pi/1., -M/2/2, half, 0.;
+
+couple: 12, follower,
+        20002,
+        position, null,
+        0., 1., 0.,
+        cosine, 0., pi/1., -M/2/2, half, 0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

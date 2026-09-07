@@ -1,0 +1,115 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/eig/joints/totaljoint,v 1.1 2009/04/06 09:14:45 masarati Exp $
+
+/*
+ * Eigenvalue extraction from models containing joints
+ *
+ * expected output (same as inline):
+
+	- with deformable hinge:
+
+      Damp %     Freq Hz
+    4.62976e-10         10.0658
+    1.01973e-09          11.254
+
+ */
+
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: .001;
+	time step: 1.e-3;
+	tolerance: 1.e-6;
+	max iterations: 10;
+    
+	method: ms, .6, .6;
+	eigenanalysis: .001,
+		parameter, 1.e-6,
+		use lapack,
+		# balance, permute,
+		output matrices, output eigenvectors;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	joints:
+		+ 1	# clamp
+		+ 1	# joint
+		+ 1	# other joint
+	;
+	rigid bodies: 1;
+	# gravity;
+end: control data;
+
+reference: 0,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: 1,
+	reference, 0, 0., 0., 1.,
+	reference, 0, eye,
+	reference, 0, null,
+	reference, 0, null;
+
+begin: nodes;
+	structural: 0, static,
+		reference, 0, null,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+	structural: 1, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+	body: 1, 1,
+		1.,
+		null,
+		# eye;
+		diag, 1., 2., 3.;
+	# gravity: 0., 0., 1., 9.81;
+
+	joint: 1, deformable displacement joint,
+		0,
+			position, reference, 1, null,
+			orientation, reference, 1, eye,
+		1,
+			position, reference, 1, null,
+			orientation, reference, 1, eye,
+		linear elastic generic, diag, 1.e3, 4.e3, 9.e3;
+		# linear visco elastic generic, diag, 1.e3, 4.e3, 9.e3, proportional, 1.e-2;
+	joint: 2, total joint,
+		0,
+			position, reference, 1, null,
+			position orientation, reference, 1,
+				2, 0., 1., 0.,
+				3, 1., 0., 1.,
+			rotation orientation, reference, 1, eye,
+		1,
+			position, reference, 1, null,
+			position orientation, reference, 1,
+				2, 0., 1., 0.,
+				3, 1., 0., 1.,
+			rotation orientation, reference, 1, eye,
+		position constraint, inactive, inactive, active,
+			null,
+		orientation constraint, active, active, active,
+			null;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

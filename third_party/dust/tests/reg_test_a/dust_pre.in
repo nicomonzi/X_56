@@ -1,0 +1,14 @@
+comp_name = Wing1
+geo_file = wing1.in
+ref_tag = Wing1 
+
+comp_name = Wing2
+geo_file = wing2.in
+ref_tag = Wing2
+
+comp_name = Wing3
+geo_file = wing3.in
+ref_tag = Wing3
+
+file_name = geo_input.h5 
+

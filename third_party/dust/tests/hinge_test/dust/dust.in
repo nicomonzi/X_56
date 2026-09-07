@@ -1,0 +1,36 @@
+! Simulation names 
+basename = ./Output/test_hinge
+debug_level = 50
+! Geometry input -----------------
+geometry_file = geo_input.h5 
+reference_file = References.in 
+
+! Timings ---------------------
+tstart = 0.0
+tend = 0.4
+dt = 0.1
+dt_out = 0.1
+output_start = T 
+ndt_update_wake = 1 
+output_detailed_geo = T 
+! Reference values ---------------------
+rho_inf = 1.225000 
+u_inf = (/1, 0., 0./)
+Kvortex_rad = 1
+
+! Model parameters -------------------
+particles_box_min = (/  -1, -6, -6 /)
+particles_box_max = (/  11,  6,  6/)
+fmm = T
+! octree parameters--------------------
+box_length = 12
+n_box = (/1, 1 , 1/)
+octree_origin = (/-1 , -6 , -6/)
+n_octree_levels = 6
+min_octree_part = 5
+multipole_degree = 2
+vortstretch = F
+diffusion = F
+penetration_avoidance = T
+! wake parameters  -------------
+n_wake_panels = 3

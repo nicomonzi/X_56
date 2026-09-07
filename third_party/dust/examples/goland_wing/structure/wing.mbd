@@ -1,0 +1,155 @@
+# === data ======================================================
+begin: data;
+  problem: initial value;
+end: data;
+
+include: "wing.set";
+
+# === initial value problem =====================================
+begin: initial value;
+  initial time: t_start;
+  final time: t_end;
+  time step: dt;
+
+  max iterations: 250;
+  tolerance: 1.000000e-02;
+  derivatives tolerance: 1e-3;
+  derivatives max iterations: 100;
+  derivatives coefficient: 1.000000e-03, auto, max iterations, 100, factor, 3.0;
+  linear solver: naive, colamd, pivot factor, 1e-5;
+  method: ms, cosine, 0., pi/0.01, 0.6/2, half, 0.; 
+  output: counter;
+	/*eigenanalysis: 0.5000,
+		output matrices,
+		output eigenvectors,
+		output geometry,
+		upper frequency limit, 200,
+		lower frequency limit, 1,
+		use lapack;
+    output: residual;*/
+	#output: residual;
+end: initial value;
+
+# === some variables ============================================
+set: integer curr_elem;
+set: const integer GROUND = 0;
+# --- beam ---
+set: integer Nel = 4;
+set: real L = 6.096;  # wing span meter meter
+set: real Chord = 1.829; # wing chord meter  
+set: real M =  217.74912; 
+set: real dL = L/Nel;
+set: real m = M/L;
+set: real j = 7.452;
+set: real EA  = 1.e+10;    
+set: real GAy = 1.e+10;   
+set: real GAz = 1.e+10;   
+set: real GJ  = 9.88e+5;  
+set: real EJx = 9.77e+6;   
+set: real EJz = 9.77e+7;   
+set: real CA_location = 25; 
+set: real EA_location = 33; 
+set: real CG_location = 43; 
+set: real Off_CA = (CA_location-EA_location)*Chord/100;
+set: real Off_CG = (CG_location-EA_location)*Chord/100;
+set: const integer naca0012 = 1;
+c81 data: naca0012, "naca0012.c81";
+
+# === control data ==============================================
+begin: control data;
+  structural nodes: +1           # ground
+                    +2*Nel;      # N.masses
+  rigid bodies:     +2*Nel + 1;  # masses
+  joints:           +1;          # ground clamp
+  beams:            +Nel;        # beam elems
+  #aerodynamic elements: Nel;    # aerobeam
+  forces:           +0           # couple
+                    +1;          # DUST aero loads
+  #air properties;
+  default output: reference frames;
+	default orientation: orientation vector;
+  output results: netcdf, sync, no text;
+
+end: control data;
+
+# === reference frame ===========================================
+reference: GROUND,
+  reference, global, null,
+  reference, global, eye,
+  reference, global, null,
+  reference, global, null;
+
+# === nodes =====================================================
+begin: nodes;
+  structural:  GROUND, dynamic,  # static,
+    reference, GROUND, null,
+    reference, GROUND, eye,
+    reference, GROUND, null,
+    reference, GROUND, null,
+    output, no;
+
+  set: curr_elem = 1;
+  include: "wing.nod";
+  set: curr_elem = 2;
+  include: "wing.nod";
+  set: curr_elem = 3;
+  include: "wing.nod";
+  set: curr_elem = 4;
+  include: "wing.nod";
+
+end: nodes;
+
+# === elements ==================================================
+begin: elements;
+
+  #> === Bodies ===
+  body: GROUND, GROUND,
+  (dL/4.)*m,
+  reference, node, Off_CG, + dL/8, 0.0,
+  diag, 1./12.*(dL/4.)^3*m, (dL/4.)*j, 1./12.*(dL/4.)^3*m;
+
+  set: curr_elem = 1;
+  include: "wing.elm";
+  set: curr_elem = 2;
+  include: "wing.elm";
+  set: curr_elem = 3;
+  include: "wing.elm";
+  set: curr_elem = 4;
+  include: "wing_end.elm";
+
+  #> === Joints ===
+  joint: GROUND, clamp, 0, node, node; # middle node
+  /*
+  force: 8, absolute,
+  8,
+  position, null,
+  0.,0.,1.,
+    array,1,
+    sine, 0.001,  7.5*2*pi, C, 2 , 0;
+    #double step, 0.001,        0.001 + 2*dt,  C, 0,        # t0, tend, ampl, ampl_0 
+    #double step, 0.001 + 3*dt, 0.001 + 5*dt, -C, 0;        # t0, tend, ampl, ampl_0 
+  */
+  force: 9, external structural,
+    socket,
+      create, yes,
+      path, "$MBSOCK",
+      no signal,
+    coupling, tight, #, loose
+    sorted, yes,
+    orientation, orientation vector,
+    accelerations, yes,
+    9,
+    0,1,2,3,4,5,6,7,8 ;
+
+    
+  #inertia: 1, 
+  #position, reference, global, null,
+  #      body, all, output, log;
+
+  /*air properties: 1.225, 340, 
+                  1, 0, 0,
+                  const, air_speed;*/
+
+end: elements;
+
+# vim:ft=mbd

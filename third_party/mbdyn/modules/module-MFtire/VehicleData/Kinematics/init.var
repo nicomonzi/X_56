@@ -1,0 +1,59 @@
+set: ( # Suspension Point Coordinates Definition
+
+	real xA = 0;
+	real yA = 0;
+	real zA = 0;
+
+	real xB = 0;
+	real yB = 0;
+	real zB = 0;
+
+	real xC = 0;
+	real yC = 0;
+	real zC = 0;
+
+	real xD = 0;
+	real yD = 0;
+	real zD = 0;
+
+	real xX = 0;
+	real yX = 0;
+	real zX = 0;
+
+	real xY = 0;
+	real yY = 0;
+	real zY = 0;
+
+	real xW = 0;
+	real yW = 0;
+	real zW = 0;
+
+	real xJ = 0;
+	real yJ = 0;
+	real zJ = 0;
+
+	real xK = 0;
+	real yK = 0;
+	real zK = 0;
+
+	real xL = 0;
+	real yL = 0;
+	real zL = 0;
+
+	real xM = 0;
+	real yM = 0;
+	real zM = 0;
+
+	real xN = 0;
+	real yN = 0;
+	real zN = 0;
+
+	real xH = 0;
+	real yH = 0;
+	real zH = 0;
+
+	real xR = 0;
+	real yR = 0;
+	real zR = 0
+
+);

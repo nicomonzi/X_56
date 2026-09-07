@@ -1,0 +1,551 @@
+################################################################
+## PARAMETERS
+################################################################
+
+set: real piston_diameter = 25.4e-3;
+set: real crank_radius = 9.485e-3;
+set: real conrod_length = 47e-3;
+set: real piston_offset = 3e-3;
+
+# thermodynamics
+set: real inlet_pressure = 1.079e5;
+set: real inlet_temperature = 273.16 + 50.;
+set: real ambient_pressure = inlet_pressure;
+set: real outlet_pressure = 16.4e5;
+set: real epsilonK = 1.14E-02;
+set: real kappa = 1.04;
+
+set: real piston_mass = 28.774e-3; 
+set: real conrod_mass = 23.898e-3;
+
+set: real conrod_center_of_gravity = 17.226e-3;
+set: real conrod_momentum_of_inertia = 1.014e-5;
+
+set: real crank_pin_diameter = 13.9843e-3;	# shaft diameter
+set: real conrod_bearing_diameter = 14.0055e-3;	# bearing diameter
+set: real conrod_bearing_width = 10.86e-3;	# bearing width
+
+set: real crank_pin_d0 = 1.75e-3;            # diameter of oil supply bore (value to be determined)
+set: real crank_pin_Phi1 = 47. * pi / 180;   # position of the lubrication groove at the circumference (K5.1 crankshaft)
+set: real crank_pin_z1 = -1.65e-3;           # position of the lubrication groove in axial direction (K5.1 crankshaft)
+set: real crank_pin_d1 = 3.5e-3;             # diameter of the lubrication groove (K5.1 crankshaft)
+set: real crank_pin_t1 = -1e-3;               # depth of lubrication groove (value to be determined)
+set: real crank_pin_Phi2 = 54.8 * pi / 180;  # position of the lubrication groove at the circumference (K5.1 crankshaft)
+set: real crank_pin_z2 = 3.98e-3;            # position of the lubrication groove in axial direction (K5.1 crankshaft)
+set: real crank_pin_w2 = 2.14e-3;            # width of the lubrication groove (K5.1 crankshaft)
+set: real crank_pin_h2 = 11.26e-3;           # height of the lubrication groove (K5.1 crankshaft)
+set: real crank_pin_t2 = -0.5e-3;               # depth of lubrication groove (value to be determined)
+
+set: real epsilon0 = 0;
+set: real cl = 1600;
+set: real eta0 = 0.002080141;
+set: real etav = eta0 * 0.01;
+set: real Aeta2 = 3.408E+05;
+set: real Aeta3 = 4556.6;
+set: real rho0 = 900;
+set: real beta = 2.4e9;
+set: real gamma = 1.215e-3;
+set: real cp0 = 1.71e6 / rho0;
+set: real Ac1 = 0.47e-9;
+set: real Ac2 = 0.81e-9;
+set: real Ac3 = 9.3e-4;
+set: real Ac4 = 1.4e-9;
+set: real Ac5 = -0.51e-18;
+set: real lambda0 = 0.137;
+set: real Alambda = 2.96e-4;
+set: real T0 = 273.16 + 60;
+set: real p0 = 1e5;
+
+set: real E1 = 210000e6;
+set: real nu1 = 0.3;
+set: real E2 = 210000e6;
+set: real nu2 = 0.3;
+set: real sigma0 = 1e6;
+set: real sigma1 = 0;
+set: real mu = 0.1;
+set: real M0 = 0.15965;
+set: real M2 = 0.008337;
+set: real M4 = 0.0076271;
+
+set: real angular_velocity_crankshaft = -8000 * pi / 30;	# initial angular velocitiy of the shaft
+set: real initial_crank_angle = pi;		# initial angle of rotation of the shaft
+
+#set: real conrod_bearing_tau = 1e-3;
+#set: real gas_force_piston_tau = 1e-3;
+
+set: real n = 2;
+set: real initial_time = -0 * 2 * pi / abs(angular_velocity_crankshaft);
+set: real final_time = 2 * pi * n / abs(angular_velocity_crankshaft);
+set: real output_start_time = 0;
+set: real output_time_step = 1. /(abs(angular_velocity_crankshaft/(2*pi))*360.);
+
+set: real time_step = 1/(abs(angular_velocity_crankshaft/(2*pi))*720.);
+set: real max_time_step = 1/(abs(angular_velocity_crankshaft/(2*pi))*720.);
+set: real min_time_step = 0.0001/(abs(angular_velocity_crankshaft/(2*pi))*720.);
+
+set: real conrod_bearing_clearance = conrod_bearing_diameter - crank_pin_diameter;		# radial clearance
+set: real conrod_bearing_relative_clearance = conrod_bearing_clearance / conrod_bearing_diameter;	# relative clearance
+
+set: real initial_conrod_angle = -asin( ( crank_radius * sin(initial_crank_angle) - piston_offset ) / conrod_length );
+set: real piston_area = piston_diameter^2 * pi / 4;
+
+################################################################
+## ID NUMBERS
+################################################################
+
+set: integer node_id_crank_pin = 1002;
+set: integer node_id_conrod_big_eye = 1003;
+set: integer node_id_piston = 1004;
+
+set: integer body_id_conrod = 2001;
+set: integer body_id_piston = 2002;
+
+set: integer joint_id_crankshaft_bearing = 3002;
+set: integer joint_id_piston_pin = 3003;
+set: integer joint_id_cylinder_liner = 3004;
+set: integer joint_id_crank_pin_startup = 3005;
+set: integer force_id_gas_force_piston = 4001;
+
+set: integer ref_id_cranktrain = 5001;
+set: integer ref_id_crank = 5002;
+set: integer ref_id_crank_pin = 5003;
+set: integer ref_id_crank_pin_rot = 5004;
+set: integer ref_id_piston = 5005;
+set: integer ref_id_conrod_big_eye = 5006;
+set: integer ref_id_conrod_center_of_gravity = 5007;
+
+set: integer elem_id_conrod_bearing_big_eye = 7001;
+
+set: integer drive_id_gas_force_piston = 8001;
+set: integer drive_id_crank_angle = 8002;
+set: integer drive_id_gas_force_piston_crank_angle = 8003;
+set: integer drive_id_conrod_bearing_big_eye_max_dt = 8004;
+set: integer drive_id_conrod_bearing_big_eye_Pff = 8005;
+set: integer drive_id_conrod_bearing_big_eye_Pfc = 8006;
+set: integer drive_id_conrod_bearing_big_eye_max_p = 8007;
+set: integer drive_id_conrod_bearing_big_eye_max_pc = 8008;
+set: integer drive_id_conrod_bearing_big_eye_min_h = 8009;
+set: integer drive_id_conrod_bearing_big_eye_min_rho = 8010;
+set: integer drive_id_conrod_bearing_big_eye_max_rho = 8011;
+set: integer drive_id_conrod_bearing_big_eye_min_T = 8012;
+set: integer drive_id_conrod_bearing_big_eye_max_T = 8013;
+set: integer drive_id_conrod_bearing_big_eye_mean_T = 8014;
+set: integer drive_id_time_step = 8015;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+
+       dummy steps tolerance: 1e-4;
+       dummy steps max iterations: 100;
+       dummy steps number: 30;
+       dummy steps ratio: 1e-2;
+       dummy steps method: implicit euler;
+
+	initial time: initial_time;
+	final time: final_time;
+	
+	time step: time_step;
+	max iterations: 100;
+	tolerance: 1e-4, test, norm, 1e-3, test, norm;
+        enforce constraint equations: constraint violations;
+        method: ms, 0.;
+        
+	derivatives tolerance: 5e-2, 1e-3;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1e-3, auto; 
+
+    threads: disable;
+    output: iterations;
+    linear solver: umfpack, colamd, scale, row max column max, always, max iterations, 10;
+    output: solver condition number, stat, yes;
+    nonlinear solver: mcp newton min fb;
+    set: bool enable_mcp = TRUE;
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+    skip initial joint assembly;
+    use: loadable elements, in assembly;
+	print: dof stats, to file;
+	print: equation description, to file;
+	print: dof description, to file;
+	print: element connection, to file;
+	print: node connection, to file;	
+    initial stiffness: 1e14;
+    max iterations: 100;
+    tolerance: 1e-6;
+	output meter: closest next, output_start_time, forever, const, output_time_step;
+	structural nodes: 3;
+	rigid bodies: 2;
+	loadable elements: 1;
+	joints: 3;
+	forces: 1;
+use automatic differentiation;
+end: control data;
+
+reference: ref_id_cranktrain,
+	# position
+	reference, global, null,
+	# orientation
+	reference, global, eye,
+	# velocity
+	reference, global, null,
+	# angular velocity
+	reference, global, null;
+
+reference: ref_id_crank,
+	# position
+	reference, ref_id_cranktrain, null,
+	# orientation
+	reference, ref_id_cranktrain, matr,
+						cos(initial_crank_angle), -sin(initial_crank_angle),   0.,
+						sin(initial_crank_angle),  cos(initial_crank_angle),   0.,
+						0.,         0.,   1.,
+							      
+	# velocity
+	reference, ref_id_cranktrain, null,
+	# angular velocity
+	reference, ref_id_cranktrain, 0., 0., angular_velocity_crankshaft;
+
+reference: ref_id_crank_pin,
+	# position
+	reference, ref_id_crank, crank_radius, 0., 0.,
+	# orientation
+	reference, ref_id_crank, eye,
+	# velocity
+	reference, ref_id_crank, null,
+	# angular velocity
+	reference, ref_id_crank, null;
+
+reference: ref_id_crank_pin_rot,
+	# position
+	reference, ref_id_crank, crank_radius, 0., 0.,
+	# orientation
+	reference, ref_id_crank, euler123, 0., 0., asin(epsilon0 * 0.5 * (conrod_bearing_diameter - crank_pin_diameter) / crank_radius),
+	# velocity
+	reference, ref_id_crank, null,
+	# angular velocity
+	reference, ref_id_crank, null;
+
+reference: ref_id_piston,
+	#position
+	reference, ref_id_cranktrain, (conrod_length*sqrt(cos(2*initial_crank_angle)*crank_radius^2-crank_radius^2+4*piston_offset*sin(initial_crank_angle)*crank_radius+2*conrod_length^2-2*piston_offset^2))/(sqrt(2)*abs(conrod_length))+cos(initial_crank_angle)*crank_radius,
+						  piston_offset, 
+						  0.,
+	# orientation
+	reference, ref_id_cranktrain, eye,
+	# velocity
+	reference, ref_id_cranktrain, (conrod_length*(4*piston_offset*crank_radius*cos(initial_crank_angle)*(angular_velocity_crankshaft)-2*crank_radius^2*(angular_velocity_crankshaft)*sin(2*initial_crank_angle)))/(2*sqrt(2)*abs(conrod_length)*sqrt(crank_radius^2*cos(2*initial_crank_angle)+4*piston_offset*crank_radius*sin(initial_crank_angle)-crank_radius^2+2*conrod_length^2-2*piston_offset^2))-crank_radius*sin(initial_crank_angle)*(angular_velocity_crankshaft), 
+						  0., 
+						  0.,
+	# angular velocity
+	reference, ref_id_cranktrain, null;
+
+reference: ref_id_conrod_big_eye,
+	# position
+	reference, ref_id_crank_pin, null,
+	# orientation
+	reference, ref_id_cranktrain,  matr,
+						cos(initial_conrod_angle), -sin(initial_conrod_angle),		0.,
+						sin(initial_conrod_angle),  cos(initial_conrod_angle),   	0.,
+						0.,		               			   0.,   	1.,
+	# velocity
+	reference, ref_id_cranktrain, -crank_radius * angular_velocity_crankshaft * sin(initial_crank_angle), crank_radius * angular_velocity_crankshaft * cos(initial_crank_angle), 0.,
+	# angular velocity
+	reference, ref_id_cranktrain, 0., 0., -(crank_radius*cos(initial_crank_angle)*(angular_velocity_crankshaft))/(conrod_length*sqrt(1-(crank_radius*sin(initial_crank_angle)-piston_offset)^2/conrod_length^2));
+
+reference: ref_id_conrod_center_of_gravity,
+	# position
+	reference, ref_id_conrod_big_eye, conrod_center_of_gravity, 0., 0.,
+	# orientation
+	reference, ref_id_conrod_big_eye, eye,
+	# velocity
+	reference, ref_id_conrod_big_eye, null,
+	# angular velocity
+	reference, ref_id_conrod_big_eye, null;
+
+begin: nodes;
+
+	structural: node_id_crank_pin, static, 
+		# absolute position
+		reference, ref_id_crank_pin_rot, null, 
+		# absolute orientation matrix
+		reference, ref_id_crank_pin_rot, eye,
+		# absolute velocity
+		reference, ref_id_crank_pin_rot, null,
+		# absolute angular velocity
+		reference, ref_id_crank_pin_rot, null;		
+		
+	structural: node_id_conrod_big_eye, dynamic, 
+		# absolute position
+		reference, ref_id_conrod_big_eye, null, 
+		# absolute orientation matrix
+		reference, ref_id_conrod_big_eye, eye, 
+		# absolute velocity
+		reference, ref_id_conrod_big_eye, null,
+		# absolute angular velocity
+		reference, ref_id_conrod_big_eye, null;
+		
+	structural: node_id_piston, dynamic, 
+		# absolute position
+		reference, ref_id_piston, null, 
+		# absolute orientation matrix
+		reference, ref_id_piston, eye, 
+		# absolute velocity
+		reference, ref_id_piston, null,
+		# absolute angular velocity
+		reference, ref_id_piston, null;
+end: nodes;
+
+begin: elements;
+	drive caller: drive_id_crank_angle, name, "crankangle",
+		string, "initial_crank_angle + angular_velocity_crankshaft * ( Time - initial_time )";
+ 		
+	include: "gas_force_piston_crank_angle2.elm";
+	set: [node,Phi_crank_pin,node_id_crank_pin,structural,string="Phi[3]"];
+
+	drive caller: drive_id_gas_force_piston,name,"gas_force_piston",
+            drive,
+                reference, drive_id_gas_force_piston_crank_angle, 
+                string, "Phi_crank_pin";		
+	
+        force: force_id_gas_force_piston, absolute,
+                node_id_piston, 
+                position,reference,node,null,
+							1.,0.,0.,
+                reference,drive_id_gas_force_piston;		
+		
+	joint: joint_id_crankshaft_bearing, total pin joint,
+			node_id_crank_pin,
+				position,				reference, ref_id_crank, null,
+				position orientation, 	reference, ref_id_crank, eye,
+				rotation orientation, 	reference, ref_id_crank, eye,
+			position, 			 reference, ref_id_cranktrain, null,
+			position orientation, reference, ref_id_cranktrain, eye,
+			rotation orientation, reference, ref_id_cranktrain, eye,
+			position constraint, 
+					active, 
+					active, 
+					active,
+				component, const, 0.,
+					   const, 0.,
+					   const, 0.,
+			orientation constraint,
+					active,
+					active,
+					active,
+				component, const, 0.,
+					   const, 0.,
+					   reference, drive_id_crank_angle;					   
+
+	joint: joint_id_cylinder_liner, total pin joint,
+			node_id_piston,
+				position,				reference, ref_id_piston, null,
+				position orientation, 	reference, ref_id_piston, eye,
+				rotation orientation, 	reference, ref_id_piston, eye,
+			position, 			 reference, ref_id_piston, null,
+			position orientation, reference, ref_id_piston, eye,
+			rotation orientation, reference, ref_id_piston, eye,				
+			position constraint, 
+					inactive, 
+					active, 
+					active,
+				component, const, 0.,
+						    const, 0.,
+						    const, 0.,
+			orientation constraint,
+					active,
+					active,
+					active,
+				component, const, 0.,
+						    const, 0.,
+						    const, 0.;
+					   
+					   
+	joint: joint_id_piston_pin, revolute hinge,
+		# node 1
+		node_id_piston,
+			# relative offset
+			reference, ref_id_piston, null,
+			hinge,
+				1,1.,0.,0.,3,0.,0.,1.,
+		# node 2
+		node_id_conrod_big_eye,
+			# relative offset
+			reference, ref_id_piston, null,
+			hinge,
+				1,1.,0.,0.,3,0.,0.,1.;					   
+
+	body: body_id_conrod, node_id_conrod_big_eye, 
+                # mass
+                conrod_mass,
+                # relative center of mass
+                reference, ref_id_conrod_center_of_gravity, null,
+                # inertia matrix
+                diag, 0.,  0., conrod_momentum_of_inertia,
+		inertial, reference, ref_id_conrod_center_of_gravity, eye;
+
+	body: body_id_piston, node_id_piston, 
+                # mass
+                piston_mass,
+                # relative center of mass
+                reference, ref_id_piston, null,
+                # inertia matrix
+                null,
+		inertial, reference, ref_id_piston, eye;
+
+    user defined: elem_id_conrod_bearing_big_eye, 
+        hydrodynamic plain bearing2,
+            hydraulic fluid, linear thermal compressible,
+                density, rho0,
+                bulk modulus, beta,
+                pressure, p0,
+                thermal expansion, gamma,
+                temperature, T0,
+                viscosity, eta0,
+                non isothermal,
+                Aeta2, Aeta2,
+                Aeta3, Aeta3,
+                specific heat capacity, cp0,
+                Ac1, Ac1,
+                Ac2, Ac2,
+                Ac3, Ac3,
+                Ac4, Ac4,
+                Ac5, Ac5,
+                thermal conductivity, lambda0,
+                Alambda, Alambda,
+                viscosity vapor, etav,
+            mesh, linear finite difference, enable mcp, enable_mcp,
+            pressure step integrator, implicit euler,
+            density step integrator, implicit euler,            
+            geometry, cylindrical,
+                mesh position, at shaft,
+                bearing width, conrod_bearing_width,
+                shaft diameter, crank_pin_diameter,
+                bearing diameter, conrod_bearing_diameter,
+                pockets,
+                    shaft, 2,
+                        position, 0.5 * crank_pin_diameter * crank_pin_Phi1, crank_pin_z1,
+                                  circle, radius, 0.5 * crank_pin_d1,
+                                  pocket height, const, crank_pin_t1,
+                        position, 0.5 * crank_pin_diameter * crank_pin_Phi2, crank_pin_z2,
+                                  rectangle, width, crank_pin_w2, height, crank_pin_h2,
+                                  pocket height, const, crank_pin_t2,
+                shaft node,
+                    node_id_crank_pin,
+                    offset, reference, ref_id_crank_pin_rot, null,
+                    orientation, reference, ref_id_crank_pin_rot, eye,
+                bearing node,
+                    node_id_conrod_big_eye,
+                    offset, reference, ref_id_conrod_big_eye, null,
+                    orientation, reference, ref_id_conrod_big_eye, eye,
+            number of nodes z, 10,
+            number of nodes Phi, 70,
+            boundary conditions,
+                     pressure, 0.5 * p0,
+                     temperature, T0,
+                     pressure, 0.5 * p0,
+                     temperature, T0,
+                lubrication grooves, 1,
+                    at shaft,
+                        pressure, inlet_pressure,
+                        temperature, inlet_temperature,
+                        position, 0.5 * crank_pin_diameter * crank_pin_Phi1, crank_pin_z1,
+                        circle, radius, 0.5 * crank_pin_d0,
+            contact model,
+              greenwood williamson lugre,
+                  E1, E1,
+                  nu1, nu1,
+                  E2, E2,
+                  nu2, nu2,
+                  M0, M0,
+                  M2, M2,
+                  M4, M4,
+                  method, implicit euler,
+                  coulomb friction coefficient, mu,
+                  micro slip stiffness, sigma0,
+                  micro slip damping, sigma1,                              
+            compliance model, elastic half space,
+            deformation dof scale, 1e-3,
+            initial assembly,
+                    hydraulic, no,
+                    thermal, no,
+                    elasticity, no,
+            pressure dof scale, 1e8,
+            theta dof scale, 1e3,
+            temperature dof scale, 1e3,
+            reynolds equation scale, 1e-6,
+            energy balance scale, crank_pin_diameter * pi * conrod_bearing_width,
+            elasticity equation scale, 1e-3,
+            max cfl number, 1.,
+            output pressure, yes,
+            output density, yes,
+            output temperature, yes,
+            output friction loss, yes,
+            output clearance, yes,
+            output clearance derivative, no,
+            output velocity, no,
+            output stress, no,
+            output reaction force, yes,
+            output mesh, no;
+
+    drive caller: drive_id_conrod_bearing_big_eye_max_dt, name, "maxdt",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "maxdt", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_Pff, name, "Pff",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "Pff", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_Pfc, name, "Pfc",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "Pfc", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_max_p, name, "maxp",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "maxp", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_max_pc, name, "maxpc",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "maxpc", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_min_h, name, "minh",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "minh", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_min_rho, name, "minrho",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "minrho", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_max_rho, name, "maxrho",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "maxrho", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_min_T, name, "minT",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "minT", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_max_T, name, "maxT",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "maxT", direct,
+        output trace, yes;
+
+    drive caller: drive_id_conrod_bearing_big_eye_mean_T, name, "meanT",
+        element, elem_id_conrod_bearing_big_eye, loadable, string, "meanT", direct,
+        output trace, yes;
+
+    drive caller: drive_id_time_step, name, "timestep",
+        max, 2,
+            const, 2 * min_time_step,
+            min, 2, 
+                const, max_time_step,
+                reference, drive_id_conrod_bearing_big_eye_max_dt;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

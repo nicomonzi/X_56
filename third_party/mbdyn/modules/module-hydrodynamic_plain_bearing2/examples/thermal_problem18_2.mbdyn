@@ -1,0 +1,236 @@
+/* 
+ * MBDyn (C) is a multibody analysis code. 
+ * http://www.mbdyn.org
+ *
+ * Copyright (C) 1996-2012
+ *
+ * Pierangelo Masarati	<masarati@aero.polimi.it>
+ * Paolo Mantegazza	<mantegazza@aero.polimi.it>
+ *
+ * Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+ * via La Masa, 34 - 20156 Milano, Italy
+ * http://www.aero.polimi.it
+ *
+ * Changing this copyright notice is forbidden.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation (version 2 of the License).
+ * 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ AUTHOR: Reinhard Resch <mbdyn-user@a1.net>
+        Copyright (C) 2011(-2025) all rights reserved.
+
+        The copyright of this code is transferred
+        to Pierangelo Masarati and Paolo Mantegazza
+        for use in the software MBDyn as described
+        in the GNU Public License version 2.1
+*/
+
+set: real Din = 200e-3;
+set: real Dout = 299e-3;
+set: real Wout = 200e-3;
+set: real rho = 7850;
+set: real T0_in = 100;
+set: real T0_out = 20;
+set: real Tamb = 20;
+set: real c = 470;
+set: real alpha_in = 50;
+set: real alpha_out = 50;
+set: real alpha_side = 50;
+set: real lambda = 43;
+set: real Pin = 100;
+set: integer N = 16;
+set: real dr = (Dout - Din) / (2 * N);
+
+set: integer node_id_Tamb = 4001;
+set: integer node_id_Tin = 4002;
+set: integer node_id_T_0 = node_id_Tin;
+set: integer node_id_Tout = node_id_T_0 + N + 1;
+set: integer elem_id_Tamb = 6001;
+set: integer elem_id_Pin = 6002;
+set: integer elem_id_kr_in = 6003;
+set: integer elem_id_kr_out = 6004;
+set: integer elem_id_m_0 = elem_id_kr_out + 1;
+set: integer elem_id_kr_0 = elem_id_m_0 + N + 1;
+set: integer elem_id_kz_0 = elem_id_kr_0 + N + 1;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: 0;
+	final time: 36000;
+	time step: 10;
+	max iterations: 100;
+	tolerance: 1e-5, test, minmax, 1e-4, test, minmax;
+	linear solver: umfpack, colamd, scale, row max column max, always, max iterations, 10;
+        include: "noxsolver.set";
+        derivatives tolerance: 1e-6, 1e-2;
+        derivatives max iterations: 10;
+        derivatives coefficient: auto;
+        threads: disable;
+    method: ms, 0.6;
+end: initial value;
+
+begin: control data;
+#make restart file: format, binary;
+       max iterations: 10;
+       output precision: 16;
+       thermal nodes: N + 3;
+       genels: 3 * N + 4;
+       forces: 1;
+use automatic differentiation;
+end: control data;
+
+begin: nodes;
+        thermal: node_id_Tamb, Tamb;
+        set: real x;
+        set: integer i;
+        set: i = 0;
+        include: "thermal_problem18_2.nod";
+        set: i = 1;
+        include: "thermal_problem18_2.nod";
+        set: i = 2;     
+        include: "thermal_problem18_2.nod";
+        set: i = 3;     
+        include: "thermal_problem18_2.nod";
+        set: i = 4;     
+        include: "thermal_problem18_2.nod";
+        set: i = 5;     
+        include: "thermal_problem18_2.nod";
+        set: i = 6;     
+        include: "thermal_problem18_2.nod";
+        set: i = 7;     
+        include: "thermal_problem18_2.nod";
+        set: i = 8;     
+        include: "thermal_problem18_2.nod";
+        set: i = 9;     
+        include: "thermal_problem18_2.nod";
+        set: i = 10;     
+        include: "thermal_problem18_2.nod";
+        set: i = 11;     
+        include: "thermal_problem18_2.nod";
+        set: i = 12;     
+        include: "thermal_problem18_2.nod";
+        set: i = 13;     
+        include: "thermal_problem18_2.nod";
+        set: i = 14;     
+        include: "thermal_problem18_2.nod";
+        set: i = 15;     
+        include: "thermal_problem18_2.nod";
+        set: i = 16;     
+        include: "thermal_problem18_2.nod";
+        set: i = N + 1;     
+        include: "thermal_problem18_2.nod";
+end: nodes;
+
+begin: elements;		
+    genel: elem_id_Tamb, clamp, node_id_Tamb, thermal, algebraic, Tamb;
+
+    set: real D_i;
+    set: real D_ip1;        
+    set: real Ar_i;
+    set: real Aa_i;
+    set: real m_i;
+    set: real dr_i;
+
+    genel: elem_id_kr_in,
+       spring,
+                node_id_T_0, thermal, algebraic,
+                node_id_Tamb, thermal, algebraic,
+                linear elastic generic, Din * pi * Wout * alpha_in;
+
+    genel: elem_id_kr_out,
+       spring,
+                node_id_T_0 + N + 1, thermal, algebraic,
+                node_id_Tamb, thermal, algebraic,
+                linear elastic generic, Dout * pi * Wout * alpha_out;
+
+    set: i = 0;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 1;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 2;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 3;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";
+    set: i = 4;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 5;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 6;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 7;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 8;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 9;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 10;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 11;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 12;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 13;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 14;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";    
+    set: i = 15;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2m.elm";
+    include: "thermal_problem18_2k.elm";
+    set: i = N;
+    include: "thermal_problem18_2.set";
+    include: "thermal_problem18_2k.elm";
+    force: elem_id_Pin, abstract, node_id_Tin, thermal, Pin;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

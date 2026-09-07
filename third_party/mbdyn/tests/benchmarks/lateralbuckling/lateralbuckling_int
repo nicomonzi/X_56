@@ -1,0 +1,145 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2021
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Main file for integration schemes benchmarking. The uncommented method is the 
+# one found giving the best performance for the model. Other comments are given,
+# when needed. 
+
+begin: data;
+	problem: initial value;
+end: data;
+
+include: "lateralbuckling.set";
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.*T;
+
+	time step: 1e-3;	# 1e-3 for ms/ms3/ms4/ss2/ss3/ss4, 2e-3 for Bathe, 3e-3 for msstc3/mssth3/dirk33, 4e-3 for msstc4/mssth4/dirk43, 5e-3 for msstc5/mssth5/dirk54 (to keep comparable costs).
+
+	# method: bdf;		# LMS2, rho=0.0;
+	# method: ms, 0.6;	# LMS2, rho=0.6;
+	# method: ms3, 0.0;	# LMS3, rho=0.0;
+	# method: ms3, 0.6;	# LMS3, rho=0.6;
+	# method: ms4, 0.0;	# LMS4, rho=0.0;
+	method: ms4, 0.6;	# LMS4, rho=0.6;	
+	# method: ss2, 0.0;	# SS2, rho=0.0;
+	# method: ss2, 0.6;	# SS2, rho=0.6;
+	# method: ss3, 0.0;	# SS3, rho=0.0;
+	# method: ss3, 0.6;	# SS3, rho=0.6;
+	# method: ss4, 0.0;	# SS4, rho=0.0;
+	# method: ss4, 0.6;	# SS4, rho=0.6;		
+	# method: Bathe, 0.0;	# Bathe, rho=0.0;
+	# method: Bathe, 0.6;	# Bathe, rho=0.6;
+	# method: msstc3, 0.0;	# MSSTC(3), rho=0.0;
+	# method: msstc3, 0.6;	# MSSTC(3), rho=0.6;
+	# method: msstc4, 0.0;	# MSSTC(4), rho=0.0;
+	# method: msstc4, 0.6;	# MSSTC(4), rho=0.6;
+	# method: msstc5, 0.0;	# MSSTC(5), rho=0.0;
+	# method: msstc5, 0.6;	# MSSTC(5), rho=0.6;
+	# method: mssth3, 0.0;	# MSSTH(3), rho=0.0;
+	# method: mssth4, 0.0;	# MSSTH(4), rho=0.0;
+	# method: mssth5, 0.0;	# MSSTH(5), rho=0.0;	# does not converge with dt=5e-3.
+	# method: dirk33;	# ESDIRK3(2)4L[2]SA;
+	# method: dirk43;	# ESDIRK3(3)5L[2]SA;	# does not converge with dt=4e-3.
+	# method: dirk54;	# ESDIRK4(3)6L[2]SA_2;
+
+
+	tolerance: 1e-4;
+	max iterations: 50;
+
+	linear solver: naive, colamd;
+	# linear solver: umfpack, cc;
+	# nonlinear solver: newton raphson, modified, 5;
+
+	# output: iterations;
+	# output: residual;
+	# output: solution;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	# model: static;
+	# default orientation: orientation vector;
+	# default orientation: orientation matrix;
+	# default output: reference frames;
+
+	structural nodes: N_BEAM_NODES;
+	rigid bodies: N_BEAM_NODES;
+	beams: N_BEAMS;
+	joints: 4;
+
+	# static buckling; does not work with modified Newton-Raphson
+	# model: static;
+end: control data;
+
+include: "lateralbuckling.ref";
+
+begin: nodes;
+	include: "lateralbuckling.nod";
+end: nodes;
+
+begin: elements;
+	joint: POINT_R, clamp, BEAM_POINT_R, node, node;
+
+	joint: POINT_C, spherical hinge,
+		BEAM_POINT_T,
+			position, reference, POINT_C, null,
+		LINK_POINT_C,
+			position, reference, POINT_C, null;
+
+	joint: POINT_B, revolute hinge,
+		LINK_POINT_B,
+			position, reference, POINT_B, null,
+			orientation, reference, POINT_B, 3, 0., 1., 0., 1, 1., 0., 0.,
+		CRANK_POINT_B,
+			position, reference, POINT_B, null,
+			orientation, reference, POINT_B, 3, 0., 1., 0., 1, 1., 0., 0.;
+
+	joint: POINT_G, total pin joint,
+		CRANK_POINT_G,
+			position, reference, POINT_G, null,
+			position orientation, reference, POINT_G, eye,
+			rotation orientation, reference, POINT_G, eye,
+		position, reference, POINT_G, null,
+		position orientation, reference, POINT_G, eye,
+		rotation orientation, reference, POINT_G, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 1,
+			0., -1., 0., cosine, 0., pi/T, pi/2, half, 0.;
+
+	include: "lateralbuckling.elm";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

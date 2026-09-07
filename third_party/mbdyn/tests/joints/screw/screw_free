@@ -1,0 +1,85 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/screw/screw_free,v 1.4 2014/12/13 17:15:52 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+	tolerance: 1e-6;
+	max iterations: 10;
+
+	output: iterations;
+	# output: residual;
+	# output: solution;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 3;
+	# forces: 1;
+
+	# default output: none;
+end: control data;
+
+set: real PITCH = .1;
+set: real V0 = 1.;
+set: real OMEGA0 = V0*2*pi/PITCH;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null,
+		output, no;
+	structural: 2, dynamic,
+		null,
+		eye,
+		0., 0., V0,
+		0., 0., OMEGA0;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, total joint,
+		1,
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		2,
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		position constraint,
+			active, active, inactive,
+			null,
+		orientation constraint,
+			active, active, inactive,
+			null;
+
+	joint: 3, screw,
+		1,
+			position, null,
+			orientation, eye,
+		2,
+			offset, null,
+		pitch, PITCH;
+
+	body: 2, 2,
+		1.,
+		null,
+		diag, 1., 1., 1.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

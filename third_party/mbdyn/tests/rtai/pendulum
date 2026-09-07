@@ -1,0 +1,88 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 100.0;
+	time step: 1.e-3;
+
+	tolerance: 1.e-6;
+	max iterations: 10;
+
+	method: ms, .6;
+
+	#solver:y12;
+
+	nonlinear solver: newton raphson;
+	
+threads: disable;
+end: initial value;
+
+begin: control data;
+	default output: none;
+	
+	structural nodes: 2;
+	#parameter nodes: 2;
+	rigid bodies: 1;
+	joints: 1;
+	forces: 1;
+	#gravity;
+end: control data;
+
+reference: 1,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: 2,
+	reference, 1, null,
+	reference, 1, eye,
+	reference, 1, null,
+	reference, 1, 0.,0.,0.;
+
+begin: nodes;
+	structural: 1, dynamic,
+		reference, 2, 0.,0.,0.,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+	#parameter: 1, /* bound to */ element;
+	#parameter: 2, /* bound to */ element;
+	structural: 2 , dummy, 1, offset,
+		 0.,0.,-1., eye;
+		
+end: nodes;
+
+#begin: drivers;
+#	file: 1,rtai input, 
+#		mailbox name, "HDOSPL",
+#		create, yes, 1 ;
+#end: drivers;
+
+begin: elements;
+	body: 1, 1,
+		1.,
+		reference, 2, 0.,0.,-1.,
+		diag, 1.,1.,1.;
+	joint: 1, revolute pin,
+		1, reference, 1, null,
+		hinge, reference, 1, 1, 1.,0.,0., 3, 0.,1.,0.,
+		reference, 1, null,
+		hinge, reference, 1, 1, 1.,0.,0., 3, 0.,1.,0.;
+	#bind: 1, joint, 1, string, "rz";
+	#bind: 1, joint, 2, string, "wz";
+	#gravity: 0.,0.,-1., 9.81;
+	
+	couple: 1, follower, 1, 0.,1.,0., step, 0.1, 1, 0;
+
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

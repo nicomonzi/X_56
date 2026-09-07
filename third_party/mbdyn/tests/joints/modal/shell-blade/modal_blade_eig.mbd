@@ -1,0 +1,225 @@
+# MBDyn test - Isolated articulated blade modeled with modal element generated 
+# from <blade_SOL106.bdf>
+#
+# USAGE: 
+#	1. run Nastran *.bdf file
+#	2. generate *.fem file with femgen: femgen <out_nastran> -o <out_fem> 
+#	 where <out_nastran> is the file name of the nastran output without extension
+# 		   <out_fem> is the file name of the*.fem 
+# 	3. extract the position of the interface node (in deformed position) using fem_parser.py
+# 
+# LIMITATIONS: 
+# - The eigenanalysis does not work with rigid body kinematics, since it is already embedded 
+# 	inside Nastran simulation. 
+# - The ALTER file has been tested with MSC NASTRAN 2024.1  
+# Author: Alessandro Cocco 
+# 		 <alessandro.cocco@polimi.it>  
+
+/* Interface (pick some nodes along the featheing axis) in undeformed coordinates 
+*   MBDyn   Nastran	    X	        Y	    Z 
+*   0	    674	        0.2544169	0.591	0 .006334
+*   1	    785	        0.2526897	1.1229	0.0064578
+*   2	    776	        0.2509625	1.6548	0.0065816
+*   3	    767	        0.2492353	2.1867	0.0067054
+*   4	    758	        0.2475081	2.7186	0.0068292
+*   5	    749	        0.2457809	3.2505	0.006953
+*   6	    740	        0.2440537	3.7824	0.0070769
+*   7	    1581	    0.2430177	4.3143	0.0068597
+*   8	    1563	    0.2433639	4.8462	0.0059605
+*   9	    1545	    0.2437101	5.3781	0.0050614
+*   10	    1405	    0.2440563	5.91	0.0041623
+*
+*   Deformed configuration (using fem_parser.py)
+*   MBDyn   Nastran	    X	        Y	        Z 
+*   0       674         0.29278861  0.59013728  0.00261427
+*   1       785         0.35383928  1.11997231  -0.00109331
+*   2       776         0.41088632  1.64974557  -0.00241022
+*   3       767         0.46549255  2.17968021  -0.00271267
+*   4       758         0.51830541  2.70970264  -0.00247283
+*   5       749         0.56979804  3.23975939  -0.00188508
+*   6       740         0.62030093  3.76980889  -0.00099408
+*   7       1581        0.67072785  4.29975747  -0.00007330
+*   8       1563        0.72195692  4.82952451  0.00061410
+*   9       1545        0.77285337  5.35920799  0.00175366
+*   10      1405        0.82362820  5.88875757  0.00330043
+*/ 
+
+/* Frequencies Results   
+*	NASTRAN 		MBDyn Modal 	
+*	1.740594E+00    1.740594373055051
+*   6.299363E+00    6.299363047220485
+*   1.637119E+01    16.37118844198861
+*   2.473977E+01    24.73977026912592
+*   3.107786E+01    31.07785658109731
+*   3.668537E+01    36.68537005325305
+*/
+
+begin: data;
+	problem: initial value;
+end: data;
+
+/* Labels */ 
+set: const integer GROUND = 0; 
+set: const integer BEAM = 100; 
+set: const integer MODAL_NODE = 1000; 
+set: const integer CLAMP = 1; 
+set: const integer MODAL_JOINT = 2; 
+
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+    max iterations: 250;
+	tolerance: 1e-4, test, relnorm;
+	derivatives tolerance: 1;
+	derivatives max iterations: 100;
+	linear solver: naive, colamd, pivot factor, 1e-1;
+	method: ss4, cosine, 0., pi/0.1, 0.4/2, half, 0.; 
+
+	eigenanalysis: 1., 
+		parameter, 1.e-6, 
+		output matrices, 
+		output eigenvectors, 
+		output geometry; 
+
+    output: counter;
+
+end: initial value;
+
+begin: control data;
+
+    structural nodes:
+		+1		# modal
+		+11		# beam nodes 
+	;
+	joints:
+		+1		# modal
+		+1		# ground
+	;
+
+	output results: netcdf, no text; 
+	default orientation: orientation vector;  
+
+end: control data;
+
+reference: GROUND,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+begin: nodes;
+
+
+	structural: MODAL_NODE, modal,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null; 
+	
+	/* Interface nodes */
+	structural: BEAM + 0, static,
+		reference, GROUND, 0.29278861, 0.59013728,  0.00261427,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 1, static,
+		reference, GROUND, 0.35383928,  1.11997231,  -0.00109331,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 2, static,
+		reference, GROUND, 0.41088632,  1.64974557,  -0.00241022,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 3, static,
+		reference, GROUND, 0.46549255,  2.17968021,  -0.00271267,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 4, static,
+		reference, GROUND, 0.51830541,  2.70970264,  -0.00247283,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 5, static,
+		reference, GROUND, 0.56979804,  3.23975939,  -0.00188508,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 6, static,
+		reference, GROUND, 0.62030093,  3.76980889,  -0.00099408,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 7, static,
+		reference, GROUND, 0.67072785,  4.29975747,  -0.00007330,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 8, static,
+		reference, GROUND, 0.72195692,  4.82952451,  0.00061410,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 9, static,
+		reference, GROUND, 0.77285337,  5.35920799,  0.00175366,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 10, static,
+		reference, GROUND, 0.82362820,  5.88875757,  0.00330043,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+end: nodes;
+
+begin: elements;
+
+	joint: CLAMP, clamp, MODAL_NODE, node, node; 
+
+	joint: MODAL_JOINT, modal, 
+		MODAL_NODE,		 	     
+		6,					      
+		list, 1, 2, 3, 4, 5, 6,    
+		2548,
+		no damping,
+		"blade-modes.fem",
+		11,					# N. Interface nodes 
+			674, 	BEAM + 0,  null, 
+			785, 	BEAM + 1,  null,
+			776, 	BEAM + 2,  null,
+			767, 	BEAM + 3,  null,
+			758, 	BEAM + 4,  null,
+			749, 	BEAM + 5,  null,
+			740, 	BEAM + 6,  null,
+			1581, 	BEAM + 7,  null,
+			1563, 	BEAM + 8,  null,
+			1545,   BEAM + 9,  null,
+			1405,   BEAM + 10, null; 
+
+	inertia: 1, name, "modal",
+		joint, 2;
+
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

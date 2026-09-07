@@ -1,0 +1,48 @@
+reference_tag = Hub_PreCICE
+parent_tag = 0
+origin = (/0.0, 0.0, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = T
+moving = F
+
+Multiplicity = {
+  MultType = rotor
+  N_Blades = 2
+  Rot_Axis = (/0.0, 0.0, 1.0/)
+  Rot_Rate = 10.0 
+  Psi_0 = 1.570796326794897
+  Hub_Offset = 0.0 
+
+  N_dofs = 4
+  Dof = {
+    Hinge_Type = Flap
+    Hinge_Offset = (/ 0.0 , 0.0 , 0.0 /)
+    Collective  =  0.0    
+    Cyclic_Ampl =  0.0     ! deg
+    Cyclic_Phas =  0.0     ! deg
+  }
+  Dof = {
+    Hinge_Type = Flap
+    Hinge_Offset = (/ 0.0 , 0.0 , 0.0 /)
+    Collective  =  0.0 
+    Cyclic_Ampl =  0.0     ! deg
+    Cyclic_Phas =  0.0     ! deg
+  }
+  Dof = {
+    Hinge_Type = Lag
+    Hinge_Offset = (/ 0.0 , 0.0 , 0.0 /)
+    Collective  =  0.0 
+    Cyclic_Ampl =  0.0     ! deg
+    Cyclic_Phas =  0.0     ! deg
+  }
+  Dof = {
+    Hinge_Type = Pitch
+    Hinge_Offset = (/ 0.0 , 0.0 , 0.0 /)
+    Collective  = 0.0    
+    Cyclic_Ampl = 0.0   
+    Cyclic_Phas = 0.0    
+  }
+
+}
+
+

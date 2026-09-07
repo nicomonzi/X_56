@@ -1,0 +1,193 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/screw/screw_test_3.mbd,v 1.7 2017/01/12 15:04:59 masarati Exp $
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Author: Mauro Manetti <manetti@aero.polimi.it>
+
+begin: data;
+       problem: initial value;
+end: data;
+
+begin: initial value;
+       #nonlinear solver: newton raphson, modified, 5;
+       #solver: klu, dir, pivot factor, 1.e-8;
+       linear solver: naive, colamd, mt, 1, pivot factor, 1.e-8;
+       method:                ms, 0.6;
+       initial time:               0.;
+       final time:                20.;
+       time step:               0.001;
+       max iterations:             20;
+       tolerance:               1.e-8;
+       threads:               disable;
+       derivatives tolerance:     0.1;
+       #output: solution;
+       #output: residual;
+       #output: iterations;
+       #output: jacobian;
+threads: disable;
+end: initial value;
+
+#Screw joint test 4:
+#_ no friction,
+#_ node 1 ground hinged, node 2 in line with node 3, screw joint between node1 and 2,
+#_ node 3 clamped,
+#_ movement impose through an axial rotation on node 2 (piece-linear in time).
+
+begin: control data;
+       print: dofstats, equation description;
+       #default output: none;
+       structural nodes:   4;
+       rigid bodies:       1;
+       joints:             7;   
+       gravity; 
+#skip initial assembly;
+#skip initial derivatives;
+end: control data;
+
+#INPUT 
+#Moving body mass
+set: real mass = 1.;
+#Screw pitch
+set: real p = 0.01;
+#Screw mean radius
+set: real x2 = 0.;
+set: real y2 = 0.;
+set: real z2 = 1.;
+set: real x3 = 0.5;
+set: real y3 = 0.;
+set: real z3 =  0.8; 
+#Angular velocity
+set: real omega = 20.;
+
+#COMPUTED
+
+reference: 1,
+           reference, global, null,
+           reference, global, eye,
+           reference, global, null,
+           reference, global, null;  
+reference: 2,
+           reference, global, x2, y2, z2,
+           reference, global, eye,
+           reference, global, null,
+           reference, global, null;  
+reference: 3,
+           reference, global, x2, y2, z2,
+           reference, global, 3, x2, y2, z2,
+                              2, 0., 1., 0., 
+           reference, global, null,
+           reference, global, null;
+reference: 4,
+           reference, global, x3, y3, z3,
+           reference, global, 3, (x3 - x2), (y3 - y2), (z3 - z2),
+                              2, 0., 0., 1.,
+           reference, global, null,
+           reference, global, null;
+reference: 5,
+           reference, global, x2, y2, z2,
+           reference, global, 1, x2, y2, z2,
+                              2, 0., 1., 0., 
+           reference, global, null,
+           reference, global, null;
+
+begin: nodes;
+       #Node base
+       structural: 1, static,
+                   reference, 1, null,
+                   eye,      
+                   null,
+                   null;
+       #Node platform
+       structural: 2, dynamic,
+                   reference, 2, null,
+                   eye,
+                   null,
+                   null;
+       #Node in line constraint
+       structural: 3, static,
+                   reference, 4, null,
+                   eye,
+                   null,
+                   null;
+       #Node dummy
+       structural: 4, dummy,
+                   2, offset,
+                   reference, 3, 0.03, 0., 0.,
+                   reference, 3, eye;
+end: nodes;
+
+scalar function: "constfriction", const, 0.3;
+
+begin: elements;
+       body: 1, 2, mass,
+             null,
+             eye; 
+ 
+       joint: 1, cardano pin,
+              1, reference, node, null,
+                 hinge, reference, 5, eye,
+              reference, node, null,
+                 hinge, reference, 5, eye;
+       
+       joint: 2, revolute rotation,
+              1, hinge, reference, 3, eye,
+              2, hinge, reference, 3, eye;
+	      
+       joint: 3, in line, 
+              1, reference, 1, null,
+                 reference, 3, eye,
+              2; 
+
+       joint: 4, screw, 
+              1, reference, 3, null,
+                 reference, 3, eye,
+              2,
+	      pitch, p;
+        
+        joint: 5, in line,
+               3, reference, 4, null,
+                  reference, 4, eye,
+               2;
+
+        joint: 6, clamp,
+               3, node, node;
+        
+        joint: 7, angular velocity,
+               2, reference, 3, 0., 0., 1.,
+               piecewise linear, 3,
+			0., 0.,
+			0.1, omega,
+			1000., omega; 
+ 
+        gravity: 0., 0., -1., const, 9.81;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

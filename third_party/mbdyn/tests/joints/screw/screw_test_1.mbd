@@ -1,0 +1,173 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/screw/screw_test_1.mbd,v 1.7 2017/01/12 15:04:59 masarati Exp $
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Author: Mauro Manetti <manetti@aero.polimi.it>
+
+begin: data;
+       problem: initial value;
+end: data;
+
+begin: initial value;
+       #nonlinear solver: newton raphson, modified, 5;
+       #solver: klu, dir, pivot factor, 1.e-8;
+       linear solver: naive, colamd, mt, 1, pivot factor, 1.e-8;
+       method:              ms, 0.6;
+       initial time:             0.;
+       final time:             20.0;
+       time step:            0.0001;
+       max iterations:           20;
+       tolerance:            1.e-11;
+       threads: disable;
+       #derivatives tolerance:    .1;
+       #output: solution;
+       #output: residual;
+       #output: jacobian;
+threads: disable;
+end: initial value;
+
+#Screw joint test 1:
+#_ no friction,
+#_ node 1 clamped, node 2 free, screw joint between them,
+#_ movement induced by a follower couple on node 2 
+#  acting along the screw axis direction.
+
+begin: control data;
+       output precision:  16;
+       print: dofstats;
+       #default output: none;
+       structural nodes:   3;
+       rigid bodies:       1;
+       joints:             4;   
+       forces:             1;  
+       gravity; 
+#skip initial assembly;
+#skip initial derivatives;
+end: control data;
+
+#INPUT 
+#Moving body mass
+set: real mass = 1.;
+#Screw pitch
+set: real p = 0.01;
+#Half thread angle
+set: real gamma = 30*2*pi/180;
+#Screw mean radius
+set: real r = 0.05;
+#Platform node position
+set: real x2 = 1.;
+set: real y2 = 1.;
+set: real z2 = 1.;
+
+
+reference: 1,
+           reference, global, null,
+           reference, global, eye,
+           reference, global, null,
+           reference, global, null;  
+reference: 2,
+           reference, global, x2, y2, z2,
+           reference, global, eye,
+           reference, global, null,
+           reference, global, null;  
+reference: 3,
+           reference, global, x2, y2, z2,
+           reference, global, 3, x2, y2, z2,
+                              2, 1., 0., 0., 
+           reference, global, null,
+           reference, global, null;
+
+begin: nodes;
+       #Node base
+       structural: 1, static,
+                   reference, 1, null,
+                   eye,      
+                   null,
+                   null;
+       #Node platform
+       structural: 2, dynamic,
+                   reference, 2, null,
+                   eye,
+                   null,
+                   null;
+      #Node dummy
+      structural: 3, dummy,
+                  2, offset,
+                  reference, 3, 0.1, 0., 0.,
+                  reference, 3, eye;
+end: nodes;
+
+scalar function: "constfriction", const, 0.3;
+
+begin: elements;
+       body: 1, 2, mass,
+             null,
+             eye; 
+ 
+       joint: 1, clamp,
+              1, node, node;
+       
+       joint: 2, revolute rotation,
+              1, hinge, reference, 3, eye,
+              2, hinge, reference, 3, eye;
+	      
+       joint: 3, in line, 
+              1, reference, 1, null,
+                 reference, 3, eye,
+              2; 
+
+       joint: 4, screw, 
+              1, reference, 3, null,
+                 reference, 3, eye,
+              2,
+	      pitch, p;/*
+              friction,
+#                 modlugre, 2000, 2.8,0.,0.71, "constfriction", 
+                 modlugre, 2000, 2.8,0.,0.71, "constfriction", 
+#                discrete coulomb, "constfriction",
+		 screw joint,
+                       radius, r,
+                       half thread angle, gamma;*/
+         
+        couple: 1, follower, 2, single, reference, 3, 0., 0., 3., 
+                const, 1.;
+                #sine, 0., 2.*pi/0.3, 50., forever, 0.; 
+#         force: 2, absolute, 2, position, reference, 3, 0., 0., 0., reference, 3, 0., 0., 1., const, -1/(p/(2*pi))*0.;
+#         force: 2, absolute, 2, position, reference, 3, 0., 0., 0., reference, 3, 0., 0., 1., 
+#                sine, 0., 2.*pi*300, 100., forever, 0.;
+
+#         force: 2, absolute, 2, position, reference, 3, 0., 0., 0., reference, 3, 0., 0., 1., 
+#                random, 100., 0., 0., forever;
+
+        gravity: uniform, 0., 0., -1., const, 9.81;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

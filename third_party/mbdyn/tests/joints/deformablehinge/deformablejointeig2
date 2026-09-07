@@ -1,0 +1,87 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/deformablehinge/deformablejointeig2,v 1.1 2009/07/09 20:26:38 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.;
+	time step: 1.e-3;
+
+	tolerance: 1e-6;
+	max iterations: 10;
+
+	derivatives tolerance: 1e-6;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1e-12;
+
+	nonlinear solver: newton raphson, modified, 5, keep jacobian;
+
+	method: ms, .6;
+
+	# output: iterations, residual;
+
+	eigenanalysis: .01,
+		use lapack,
+		balance, permute;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints:
+		+1	# ground
+		+2	# viscoelastic
+	;
+	default orientation: orientation vector;
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 10, dynamic,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+set: real f = .1;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+
+	body: 10, 10, 1., null, eye;
+	joint: 11, deformable displacement joint,
+		1, null,
+			hinge, reference, node, eye,
+		10, null,
+			hinge, reference, node, eye,
+		linear viscoelastic generic,
+			diag,
+				(2*pi)^2, (10*2*pi)^2, (100*2*pi)^2,
+			diag,
+				f*2*2*pi, f*2*10*2*pi, f*2*100*2*pi;
+	joint: 12, deformable hinge,
+		1,
+			hinge, reference, node, eye,
+		10,
+			hinge, reference, node, eye,
+		linear viscoelastic generic,
+			diag,
+				(4*2*pi)^2, (40*2*pi)^2, (400*2*pi)^2,
+			diag,
+				f*2*4*2*pi, f*2*40*2*pi, f*2*400*2*pi;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

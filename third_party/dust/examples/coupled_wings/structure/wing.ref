@@ -1,0 +1,55 @@
+# === reference frame ===========================================
+# === reference frame ===========================================
+reference: GROUND,
+  reference, global, null,
+  reference, global, eye,
+  reference, global, null,
+  reference, global, null;
+
+reference: CENTRAL,
+  reference, global, null,
+  reference, global, 
+    1,  0,     1,    0,
+    2, -1,     0,    0,
+  reference, global, null,
+  reference, global, null;
+
+reference: GROUND + RIGHT,
+  reference, GROUND, null,
+  reference, GROUND, 
+    1,   sin(lambda),                                      cos(delta)*cos(lambda),                                    cos(lambda)*sin(delta),
+    2,  -cos(lambda)*cos(theta),   cos(delta)*cos(theta)*sin(lambda) - sin(delta)*sin(theta), cos(delta)*sin(theta) + sin(delta)*cos(theta)*sin(lambda),
+  reference, GROUND, null,
+  reference, GROUND, null;
+
+reference: GROUND + LEFT,
+  reference, GROUND, null,
+  reference, GROUND, 
+    1, -sin(lambda),                                    cos(delta)*cos(lambda),                                   -cos(lambda)*sin(delta),
+    2, -cos(lambda)*cos(theta), sin(delta)*sin(theta) - cos(delta)*cos(theta)*sin(lambda), cos(delta)*sin(theta) + sin(delta)*cos(theta)*sin(lambda),
+  reference, GROUND, null,
+  reference, GROUND, null;
+
+# flap right
+reference: FLAP_RIGHT + 1,
+    reference, GROUND + RIGHT, FLAP_inboard, -Chord*(FLAP_location-EA_location)/100, 0,
+    reference, GROUND + RIGHT, eye,
+    reference, GROUND, null,
+    reference, GROUND, null;   
+reference: FLAP_RIGHT + 2,
+    reference, GROUND + RIGHT, FLAP_outboard, -Chord*(FLAP_location-EA_location)/100, 0,
+    reference, GROUND + RIGHT, eye,
+    reference, GROUND + RIGHT, null,
+    reference, GROUND + RIGHT, null;  
+
+# flap left
+reference: FLAP_LEFT + 1,
+    reference, GROUND + LEFT, -FLAP_inboard, -Chord*(FLAP_location-EA_location)/100, 0,
+    reference, GROUND + LEFT, eye,
+    reference, GROUND, null,
+    reference, GROUND, null;   
+reference: FLAP_LEFT + 2,
+    reference, GROUND + LEFT, -FLAP_outboard, -Chord*(FLAP_location-EA_location)/100, 0,
+    reference, GROUND + LEFT, eye,
+    reference, GROUND + LEFT, null,
+    reference, GROUND + LEFT, null;  

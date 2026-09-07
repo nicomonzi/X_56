@@ -1,0 +1,46 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/plugins/tcl,v 1.6 2015/08/13 13:59:11 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-12;
+	max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	joints: 1;
+	forces: 1;
+end: control data;
+
+begin: nodes;
+	structural: 1, static, null, eye, null, null;
+end: nodes;
+
+module load: "libmodule-tclpgin";
+# module load: "./libmodule-tclpgin.so";
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	set: [tcl, x, real, "set x(1,1) 10.\nreturn $x(1,1)"];
+	set: [tcl, y, real, set x(1\,1) 2.
+return $x(1\,1)];
+	set: [tcl, z, real, file://test_tclpgin.tcl];
+	force: 1, absolute, 1, position, null, 1.,0.,0.,
+		string, "x+y+z";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

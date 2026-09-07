@@ -1,0 +1,71 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/genel/statespace/mayo_meso,v 1.5 2014/12/13 17:15:40 masarati Exp $
+#
+# State-space filter test
+# transfer function of mesomorphic pilot, from
+# John R. Mayo, "The Involuntary Participation of a Human Pilot 
+# in a Helicopter Collective Control Loop",
+# 15th European Rotorcraft Forum, Amsterdam, The Netherlands,
+# 12-15 September 1989, 81.1-12
+#
+#             4.02 * s + 555.4
+# H(s) = -------------------------
+#         s^2 + 13.31 * s + 555.4
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-2;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes: 3;
+	genels: 3;
+end: control data;
+
+begin: nodes;
+	abstract: 1;
+	abstract: 2;
+	abstract: 3;
+end: nodes;
+
+begin: elements;
+	genel: 1, state space SISO,
+		1, abstract, algebraic,
+			drive, sine, 0., 10*2*pi, 1., forever, 0.,
+		2,
+		matrix A,
+			-13.31, -555.4,
+			 1.,  0.,
+		matrix B,
+			 1.,
+			 0.,
+		matrix C,
+                           4.02, 555.4;
+
+	genel: 2, scalar filter,
+		2, abstract, algebraic,
+			drive, sine, 0., 10*2*pi, 1., forever, 0.,
+		canonical form, controllable,
+		2, 13.31, 555.4,
+		1, 4.02, 555.4;
+
+	genel: 3, scalar filter,
+		3, abstract, algebraic,
+			drive, sine, 0., 10*2*pi, 1., forever, 0.,
+		canonical form, observable,
+		2, 13.31, 555.4,
+		1, 4.02, 555.4;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

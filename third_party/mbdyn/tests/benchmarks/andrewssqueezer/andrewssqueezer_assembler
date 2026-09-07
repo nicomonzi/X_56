@@ -1,0 +1,210 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2021
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-1;
+
+	max iterations: 10;
+	tolerance: 1e-12;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1		# O
+		+1		# A
+		+1		# B
+		+1		# E
+		+1		# F
+		+1		# G
+		+1		# H
+	;
+	joints:
+		+1		# clamp O
+		+1		# clamp A
+		+1		# clamp B
+		+1		# hinge O-F in O
+		+1		# length of A-G
+		+1		# length of A-H
+		+1		# length of G-E
+		+1		# length of H-E
+		+1		# length of B-E
+		+1		# length of E-F
+		+1		# keep E in x-y plane
+		+1		# keep G in x-y plane
+		+1		# keep H in x-y plane
+	;
+	model: static;
+	output precision: 16;
+end: control data;
+
+include: "andrewssqueezer.set";
+include: "andrewssqueezer.ref";
+
+begin: nodes;
+	structural: POINT_O, static,
+		reference, POINT_O, null,
+		reference, POINT_O, eye,
+		reference, POINT_O, null,
+		reference, POINT_O, null;
+	structural: POINT_A, static,
+		reference, POINT_A, null,
+		reference, POINT_A, eye,
+		reference, POINT_A, null,
+		reference, POINT_A, null;
+	structural: POINT_B, static,
+		reference, POINT_B, null,
+		reference, POINT_B, eye,
+		reference, POINT_B, null,
+		reference, POINT_B, null;
+
+	structural: POINT_E, static,
+		reference, POINT_O, POINT_B_X, POINT_O_Y, 0.,
+		reference, POINT_O, eye,
+		reference, POINT_O, null,
+		reference, POINT_O, null;
+
+	structural: POINT_F, static,
+		reference, POINT_O, O_F_X*cos(BETA0), O_F_X*sin(BETA0), 0.,
+		reference, POINT_O, eye,
+		reference, POINT_O, null,
+		reference, POINT_O, null;
+
+	structural: POINT_G, static,
+		reference, POINT_O, (POINT_A_X + POINT_B_X)/2, (POINT_O_Y + POINT_B_Y)/2, 0.,
+		reference, POINT_O, eye,
+		reference, POINT_O, null,
+		reference, POINT_O, null;
+
+	structural: POINT_H, static,
+		reference, POINT_O, (POINT_A_X + POINT_B_X)/2, POINT_O_Y - (POINT_O_Y + POINT_B_Y)/2, 0.,
+		reference, POINT_O, eye,
+		reference, POINT_O, null,
+		reference, POINT_O, null;
+end: nodes;
+
+begin: elements;
+	joint: POINT_O, clamp, POINT_O, node, node;
+	joint: POINT_A, clamp, POINT_A, node, node;
+	joint: POINT_B, clamp, POINT_B, node, node;
+
+	joint: LINK_O_F, clamp, POINT_F, node, node;
+
+	joint: POINT_E, total joint,
+		POINT_O,
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, POINT_O, eye,
+		POINT_E,
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, POINT_O, eye,
+		position constraint, 0, 0, 1, null,
+		orientation constraint, 1, 1, 1, null;
+
+	joint: POINT_G, total joint,
+		POINT_O,
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, POINT_O, eye,
+		POINT_G,
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, POINT_O, eye,
+		position constraint, 0, 0, 1, null,
+		orientation constraint, 1, 1, 1, null;
+
+	joint: POINT_H, total joint,
+		POINT_O,
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, POINT_O, eye,
+		POINT_H,
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, POINT_O, eye,
+		position constraint, 0, 0, 1, null,
+		orientation constraint, 1, 1, 1, null;
+
+	joint: LINK_A_G, distance,
+		POINT_A,
+			position, reference, node, null,
+		POINT_G,
+			position, reference, node, null,
+		cosine, .1, pi/.5, (A_G_X - model::current("L"))/2, half, model::current("L");
+
+	joint: LINK_A_H, distance,
+		POINT_A,
+			position, reference, node, null,
+		POINT_H,
+			position, reference, node, null,
+		cosine, .1, pi/.5, (A_H_X - model::current("L"))/2, half, model::current("L");
+
+	joint: LINK_G_E, distance,
+		POINT_G,
+			position, reference, node, null,
+		POINT_E,
+			position, reference, node, null,
+		cosine, .1, pi/.5, (G_E_X - model::current("L"))/2, half, model::current("L");
+
+	joint: LINK_H_E, distance,
+		POINT_H,
+			position, reference, node, null,
+		POINT_E,
+			position, reference, node, null,
+		cosine, .1, pi/.5, (H_E_X - model::current("L"))/2, half, model::current("L");
+
+	joint: LINK_E_F, distance,
+		POINT_E,
+			position, reference, node, null,
+		POINT_F,
+			position, reference, node, null,
+		cosine, .1, pi/.5, (E_F_X - model::current("L"))/2, half, model::current("L");
+
+	joint: LINK_E_B_D, distance,
+		POINT_B,
+			position, reference, node, null,
+		POINT_E,
+			position, reference, node, null,
+		cosine, .1, pi/.5, (E_B_Y - model::current("L"))/2, half, model::current("L");
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,135 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/aero/aero,v 1.10 2012/11/07 17:04:54 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	# final time: .003;
+	time step: 1.e-3;
+
+	tolerance: 1.e-5;
+	max iterations: 10;
+
+	method: ms, .6;
+
+	derivatives coefficient: 1.e-6;
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 10;
+	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 3;
+	joints: 1;
+	beams: 1;
+	air properties;
+	aerodynamic elements: 1;
+
+	output results: netcdf;
+	# default orientation: orientation vector;
+	default aerodynamic output: all,
+		orientation description, orientation vector;
+	default beam output: all,
+		orientation description, orientation vector;
+end: control data;
+
+set: real L = 5.;
+set: real C = .5;
+set: real THETA_0 = 4.*deg2rad;
+set: real LAMBDA = 30.*deg2rad;
+
+set: const integer GROUND = 0;
+set: const integer AIRCRAFT = 100;
+set: const integer WING = 200;
+
+set: const integer NACA0012 = 12;
+
+reference: GROUND,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: AIRCRAFT,
+	reference, GROUND, null,
+	reference, GROUND,
+		2, 0., 1., 0.,
+		3, sin(THETA_0), 0., cos(THETA_0),
+	reference, GROUND, null,
+	reference, GROUND, null;
+
+reference: WING,
+	reference, AIRCRAFT, null,
+	reference, AIRCRAFT,
+		3, 0., 0., 1.,
+		2, sin(LAMBDA), cos(LAMBDA), 0.,
+	reference, AIRCRAFT, null,
+	reference, AIRCRAFT, null;
+
+begin: nodes;
+	structural: 0, static,
+		reference, WING, null,
+		reference, WING, eye,
+		reference, WING, null,
+		reference, WING, null;
+	structural: 1, static,
+		reference, WING, 0., L/(2*cos(LAMBDA)), 0.,
+		reference, WING, eye,
+		reference, WING, null,
+		reference, WING, null;
+	structural: 2, static,
+		reference, WING, 0., L/cos(LAMBDA), 0.,
+		reference, WING, eye,
+		reference, WING, null,
+		reference, WING, null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+
+	beam: 1,
+		0, null,
+		1, null,
+		2, null,
+		reference, WING, 1, 0., 1., 0., 3, 0., 0., 1.,
+		linear viscoelastic generic,
+			diag, 1.e9,1.e9,1.e9, 1.e9,1.e9,1.e9,
+			proportional, 1.e-3,
+		same,
+		same;
+	air properties: std, SI,
+		single, 1., 0., 0.,
+			# const, 50.;
+			cosine, 0., pi/.1, 50./2, half, 0.;
+
+	c81data: NACA0012, "naca0012.c81";
+	aerodynamic beam: 1, 1,
+		reference, node, null,
+		reference, AIRCRAFT, 1., -1., 0., 0., 2, 0., 0., 1.,
+		reference, node, null,
+		reference, AIRCRAFT, 1., -1., 0., 0., 2, 0., 0., 1.,
+		reference, node, null,
+		reference, AIRCRAFT, 1., -1., 0., 0., 2, 0., 0., 1.,
+		# notice: since the surface is internally evaluated as the spanwise direction times the chord, without considering whether
+		# they are orthogonal, it is necessary to rescale the chord with the cosine of the sweep angle...
+		const, C*cos(LAMBDA),
+		const, 0.,
+		const, 0,
+		const, 0.,
+		3,
+		c81, NACA0012;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

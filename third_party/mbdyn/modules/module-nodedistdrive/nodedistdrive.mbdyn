@@ -1,0 +1,333 @@
+set: real gamma = -pi / 2.;
+set: real Phi = -10. * pi / 180.;
+set: real Psi = 60 * pi / 180.;
+set: real g = 9.81;
+set: real R = 100e-3;
+set: real rho = 7850;
+set: real m1 = 4./3. * pi * rho * R^3;
+set: real Jxx1 = 2./5. * m1 * R^2;
+set: real Jyy1 = Jxx1;
+set: real Jzz1 = Jxx1;
+set: real initial_time = 0;
+set: real final_time = 100;
+set: real min_time_step = 1e-2;
+set: real x1_0 = 0.3;
+set: real y1_0 = 0.2;
+set: real z1_0 = 0;
+set: real x1P_0 = -0.5;
+set: real y1P_0 = 2.5;
+set: real z1P_0 = -1.;
+set: real omega1x_0 = 20. * pi / 30.;
+set: real omega1y_0 = 10. * pi / 30.;
+set: real omega1z_0 = -5. * pi / 30.;
+set: real Phi1x_0 = 10. * pi / 180.;
+set: real Phi1y_0 = 35. * pi / 180.;
+set: real Phi1z_0 = 55. * pi / 180.;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: initial_time;
+	final time: final_time;
+	time step: min_time_step;
+	linear solver: naive, colamd;
+    nonlinear solver: newton raphson;
+    method: ms2, 0.6;
+    threads: disable;
+	max iterations: 20;
+	tolerance: 1e-6, 1e-6;
+	derivatives max iterations: 5;
+	derivatives tolerance: 1e-4, 1e-3;
+end: initial value;
+
+begin: control data;
+    output precision: 16;
+	print: dof stats;
+	print: equation description;
+	print: dof description;
+    print: equation description;
+	print: element connection;
+	print: node connection;
+    rigid bodies: 1;
+    structural nodes: 16;
+    joints: 1;
+    gravity;
+    default output: all, reference frames;
+end: control data;
+
+set: integer node_id_1 = 3001;
+set: integer node_id_1_1 = 3011;
+set: integer node_id_1_2 = 3012;
+set: integer node_id_1_3 = 3013;
+set: integer node_id_1_4 = 3014;
+set: integer node_id_1_5 = 3015;
+set: integer node_id_1_6 = 3016;
+set: integer node_id_1_7 = 3017;
+set: integer node_id_1_8 = 3018;
+set: integer node_id_1_9 = 3019;
+set: integer node_id_1_10 = 3020;
+set: integer node_id_1_11 = 3021;
+set: integer node_id_1_12 = 3022;
+set: integer node_id_1_13 = 3023;
+set: integer node_id_1_14 = 3024;
+set: integer node_id_2 = 3901;
+set: integer body_id_1 = 4001;
+set: integer joint_id_clamp = 5001;
+set: integer elem_id_contact = 6001;
+set: integer drive_id_1_1_X = 8101;
+set: integer drive_id_1_1_Y = 8102;
+set: integer drive_id_1_1_Z = 8103;
+set: integer drive_id_1_2_X = 8201;
+set: integer drive_id_1_2_Y = 8202;
+set: integer drive_id_1_2_Z = 8203;
+set: integer drive_id_1_3_X = 8301;
+set: integer drive_id_1_3_Y = 8302;
+set: integer drive_id_1_3_Z = 8303;
+set: integer drive_id_1_4_X = 8401;
+set: integer drive_id_1_4_Y = 8402;
+set: integer drive_id_1_4_Z = 8403;
+set: integer drive_id_Phi = 8002;
+
+begin: nodes;
+	structural: node_id_1, dynamic,
+		#absolute position,
+			reference,global, x1_0, y1_0, z1_0,
+		#absolute orientation matrix,
+			reference,global, euler123, Phi1x_0, Phi1y_0, Phi1z_0,
+		#absolute velocity,
+			reference,global, x1P_0, y1P_0, z1P_0,
+		#absolute angular velocity,
+			reference,global, omega1x_0, omega1y_0, omega1z_0;
+
+    structural: node_id_1_1, dummy, node_id_1, offset,
+	reference, node, R, 0., 0.,
+	reference, node, eye;
+
+    structural: node_id_1_2, dummy, node_id_1, offset,
+	reference, node, 0., R, 0.,
+	reference, node, eye;
+
+    structural: node_id_1_3, dummy, node_id_1, offset,
+	reference, node, 0., 0., R,
+	reference, node, eye;
+
+    structural: node_id_1_4, dummy, node_id_1, offset,
+	reference, node, -R, 0., 0.,
+	reference, node, eye;
+
+    structural: node_id_1_5, dummy, node_id_1, offset,
+	reference, node, 0., -R, 0.,
+	reference, node, eye;
+
+    structural: node_id_1_6, dummy, node_id_1, offset,
+	reference, node, 0., 0., -R,
+	reference, node, eye;
+
+    structural: node_id_1_7, dummy, node_id_1, offset,
+	reference, node, R * cos(pi/4.), 0., R * sin(pi/4.),
+	reference, node, eye;
+
+    structural: node_id_1_8, dummy, node_id_1, offset,
+	reference, node, R * cos(3./4.*pi), 0., R * sin(3./4.*pi),
+	reference, node, eye;
+
+    structural: node_id_1_9, dummy, node_id_1, offset,
+	reference, node, R * cos(5./4.*pi), 0., R * sin(5./4.*pi),
+	reference, node, eye;
+
+    structural: node_id_1_10, dummy, node_id_1, offset,
+	reference, node, R * cos(7./4.*pi), 0., R * sin(7./4.*pi),
+	reference, node, eye;
+
+    structural: node_id_1_11, dummy, node_id_1, offset,
+	reference, node, 0., R * cos(pi/4.), R * sin(pi/4.),
+	reference, node, eye;
+
+    structural: node_id_1_12, dummy, node_id_1, offset,
+	reference, node, 0., R * cos(3./4.*pi), R * sin(3./4.*pi),
+	reference, node, eye;
+
+    structural: node_id_1_13, dummy, node_id_1, offset,
+	reference, node, 0., R * cos(5./4.*pi), R * sin(5./4.*pi),
+	reference, node, eye;
+
+    structural: node_id_1_14, dummy, node_id_1, offset,
+	reference, node, 0., R * cos(7./4.*pi), R * sin(7./4.*pi),
+	reference, node, eye;
+
+	structural: node_id_2, static,
+		#absolute position,
+			reference,global, null,
+		#absolute orientation matrix,
+			reference,global,eye,
+		#absolute velocity,
+			reference,global,null,
+		#absolute angular velocity,
+			reference,global,null;
+end: nodes;
+
+begin: elements;
+    body: body_id_1,
+	node_id_1,
+	m1,
+	null,
+	diag, Jxx1, Jyy1, Jzz1;
+
+	joint: joint_id_clamp, clamp, node_id_2, node, node;
+
+
+	drive caller: drive_id_1_1_X,
+		  node distance,
+			    node1, node_id_1,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1_1,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node1,
+			    direction, reference, node, 1., 0., 0.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_1_Y,
+		  node distance,
+			    node1, node_id_1,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1_1,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node1,
+			    direction, reference, node, 0., 1., 0.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_1_Z,
+		  node distance,
+			    node1, node_id_1,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1_1,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node1,
+			    direction, reference, node, 0., 0., 1.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_2_X,
+		  node distance,
+			    node1, node_id_1,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1_2,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node2,
+			    direction, reference, node, 1., 0., 0.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_2_Y,
+		  node distance,
+			    node1, node_id_1,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1_2,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node2,
+			    direction, reference, node, 0., 1., 0.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_2_Z,
+		  node distance,
+			    node1, node_id_1,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1_2,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node2,
+			    direction, reference, node, 0., 0., 1.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_3_X,
+		  node distance,
+			    node1, node_id_1_3,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    node2, node_id_1,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    output reference frame, node1,
+			    direction, reference, node, 1., 0., 0.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_3_Y,
+		  node distance,
+			    node1, node_id_1_3,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node1,
+			    direction, reference, node, 0., 1., 0.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_3_Z,
+		  node distance,
+			    node1, node_id_1_3,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node1,
+			    direction, reference, node, 0., 0., 1.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_4_X,
+		  node distance,
+			    node1, node_id_1_4,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    node2, node_id_1,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    output reference frame, node2,
+			    direction, reference, node, 1., 0., 0.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_4_Y,
+		  node distance,
+			    node1, node_id_1_4,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node2,
+			    direction, reference, node, 0., 1., 0.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_1_4_Z,
+		  node distance,
+			    node1, node_id_1_4,
+				offset, reference, node, 1.2, 0.5, 0.7,
+			    node2, node_id_1,
+				offset, reference, node, 0.3, 0.6, 0.8,
+			    output reference frame, node2,
+			    direction, reference, node, 0., 0., 1.,
+		 output, value, yes,
+		 derivative, yes;
+
+	drive caller: drive_id_Phi,
+		  node rotation,
+			    node1, node_id_1,
+				   orientation, reference, node, 1, 1., 0., 0.,
+								 3, 0., 1., 0.,
+			    node2, node_id_2,
+			       orientation, reference, node, 1, 1., 0., 0.,
+							     3, 0., 1., 0.,
+		 output, value, yes,
+		 derivative, yes;
+
+	gravity: cos(gamma), 0., sin(gamma), g;
+
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

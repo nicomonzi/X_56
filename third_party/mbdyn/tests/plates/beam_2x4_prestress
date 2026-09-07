@@ -1,0 +1,265 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/plates/beam_2x4_prestress,v 1.6 2017/01/12 15:06:23 masarati Exp $
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	#final time: 1.e-1;
+	final time: 1.e0;
+	time step: 1.e-2;
+	tolerance: 1.e-4;
+	max iterations: 20;
+	derivatives tolerance: 1.E100;
+	output: iterations;
+	#output: residual;
+	#output: jacobian;
+	threads: disable;
+	#linear solver: klu, cc;
+	linear solver: umfpack, cc;
+	#linear solver: klu, dir;
+	#linear solver: umfpack, dir;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+3*(4 + 1)
+	;
+	plates:
+		+2*4
+	;
+	joints:
+		+2*3
+	;
+	forces:
+		+3
+	;
+	# default output: none;
+end: control data;
+set: const real E = 6.825E7;
+set: const real NU = 0.3;
+set: const real H = 0.001;
+
+set: const real L = 1.;
+set: const real B = .2;
+
+set: real F = 1e1;
+
+# set: real PS = 0.;
+set: real PS = 1e3;
+
+begin: nodes;
+	structural: 10000, static,
+		-0.5*L, -0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 10001, static,
+		-0.25*L, -0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 10002, static,
+		0.0*L, -0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 10003, static,
+		0.25*L, -0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 10004, static,
+		0.5*L, -0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 20000, static,
+		-0.5*L, 0.0*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 20001, static,
+		-0.25*L, 0.0*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 20002, static,
+		0.0*L, 0.0*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 20003, static,
+		0.25*L, 0.0*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 20004, static,
+		0.5*L, 0.0*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 30000, static,
+		-0.5*L, 0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 30001, static,
+		-0.25*L, 0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 30002, static,
+		0.0*L, 0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 30003, static,
+		0.25*L, 0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+
+	structural: 30004, static,
+		0.5*L, 0.5*B, 0., 
+		eye,
+		null, 
+		null; 
+end: nodes;
+
+begin: elements;
+	joint: 20000, clamp, 20000, node, node;
+	joint: 10000, total joint,
+		20000,
+			position, reference, node, null,
+		10000,
+			position, reference, other node, null,
+		position constraint,
+			active, inactive, active, null,
+		orientation constraint,
+			active, active, active, null;
+	joint: 30000, total joint,
+		20000,
+			position, reference, node, null,
+		30000,
+			position, reference, other node, null,
+		position constraint,
+			active, inactive, active, null,
+		orientation constraint,
+			active, active, active, null;
+
+	joint: 20004, clamp, 20004, node, node;
+	joint: 10004, total joint,
+		20004,
+			position, reference, node, null,
+		10004,
+			position, reference, other node, null,
+		position constraint,
+			active, inactive, active, null,
+		orientation constraint,
+			active, active, active, null;
+	joint: 30004, total joint,
+		20004,
+			position, reference, node, null,
+		30004,
+			position, reference, other node, null,
+		position constraint,
+			active, inactive, active, null,
+		orientation constraint,
+			active, active, active, null;
+
+	shell4eas: 10001, 10000, 10001, 20001, 20000, 
+		isotropic, E, E, nu, NU, thickness, H,
+		prestress, PS, 0., 0., 0., PS, 0., 0., 0., 0., 0., 0., 0.;
+	shell4eas: 10002, 10001, 10002, 20002, 20001, 
+		isotropic, E, E, nu, NU, thickness, H,
+		prestress, PS, 0., 0., 0., PS, 0., 0., 0., 0., 0., 0., 0.;
+	shell4eas: 10003, 10002, 10003, 20003, 20002, 
+		isotropic, E, E, nu, NU, thickness, H,
+		prestress, PS, 0., 0., 0., PS, 0., 0., 0., 0., 0., 0., 0.;
+	shell4eas: 10004, 10003, 10004, 20004, 20003, 
+		isotropic, E, E, nu, NU, thickness, H,
+		prestress, PS, 0., 0., 0., PS, 0., 0., 0., 0., 0., 0., 0.;
+
+	shell4eas: 20001, 20000, 20001, 30001, 30000, 
+		isotropic, E, E, nu, NU, thickness, H,
+		prestress, PS, 0., 0., 0., PS, 0., 0., 0., 0., 0., 0., 0.;
+	shell4eas: 20002, 20001, 20002, 30002, 30001, 
+		isotropic, E, E, nu, NU, thickness, H,
+		prestress, PS, 0., 0., 0., PS, 0., 0., 0., 0., 0., 0., 0.;
+	shell4eas: 20003, 20002, 20003, 30003, 30002, 
+		isotropic, E, E, nu, NU, thickness, H,
+		prestress, PS, 0., 0., 0., PS, 0., 0., 0., 0., 0., 0., 0.;
+	shell4eas: 20004, 20003, 20004, 30004, 30003, 
+		isotropic, E, E, nu, NU, thickness, H,
+		prestress, PS, 0., 0., 0., PS, 0., 0., 0., 0., 0., 0., 0.;
+
+	force: 10002, absolute,
+		10002,
+		position, null,
+		0., 0., 1.,
+		cosine, 0., pi/1., F/2/4, half, 0.;
+	
+	force: 20002, absolute,
+		20002,
+		position, null,
+		0., 0., 1.,
+		cosine, 0., pi/1., F/2/2, half, 0.;
+
+	force: 30002, absolute,
+		30002,
+		position, null,
+		0., 0., 1.,
+		cosine, 0., pi/1., F/2/4, half, 0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

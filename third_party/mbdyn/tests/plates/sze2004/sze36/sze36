@@ -1,0 +1,110 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/plates/sze2004/sze36/sze36,v 1.8 2017/01/12 15:08:46 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Benchmarks from K.Y. Sze, X.H. Liu, S.H. Lo,
+# "Popular benchmark problems for geometric nonlinear analysis of shells",
+# Finite Elements in Analysis and Design 40 (2004) 1551­1569
+# doi:10.1016/j.finel.2003.11.001
+# 
+# Author: Pierangelo Masarati <masarati@aero.polimi.it> (except when noted)
+# 
+# 3.6 Pinched cylindrical shell mounted over rigid diaphragms
+#
+# mesh: see sze36.awk
+
+begin: data;
+	problem: initial value;
+end: data;
+
+set: const integer NINC = 200;
+
+begin: initial value;
+	initial time: 0.;
+	final time: .99;
+	time step: 1./NINC;
+
+	tolerance: 1e-4;
+	max iterations: 50;
+
+	derivatives tolerance: 1e-0;
+
+	method: ms, .6;
+	# method: bdf;
+        nonlinear solver: line search, modified, 10, default solver options, heavy nonlinear;
+	output: iterations;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+include: "sze36_m.set";
+
+begin: control data;
+	structural nodes:
+		+ NNODES
+	;
+	joints:
+		+ NJOINTS
+	;
+	plates:
+		+ NSHELLS
+	;
+	forces:
+		+ NFORCES
+	;
+end: control data;
+
+reference: 0,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+drive caller: 999998,
+	# cosine, 0., pi/1., (Pmax/4)/2, half, 0.;
+	ramp, (Pmax/4)/.98, .01, .99, 0.;
+	# 0.;
+
+begin: nodes;
+	include: "sze36_m.nod";
+end: nodes;
+
+begin: elements;
+	include: "sze36_m.elm";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

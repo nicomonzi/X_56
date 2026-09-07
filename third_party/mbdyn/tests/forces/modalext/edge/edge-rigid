@@ -1,0 +1,124 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/modalext/edge/edge-rigid,v 1.4 2014/12/13 17:15:39 masarati Exp $
+
+begin: data;
+	integrator: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: forever;
+	# final time: 1.01;
+	time step: 0.010;
+
+	tolerance: 1e-4;
+	max iterations: 1000;
+
+	#derivatives tolerance: 1;
+	derivatives max iterations: 1000;
+	#derivatives coefficient: 1;
+
+	threads: disable;
+
+	output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# modal
+		+1	# interface
+	;
+	joints:
+		+1	# clamp
+		+1	# modal
+	;
+	forces:
+		+1	# extmodal
+		+1	# excitation
+	;
+	air properties;
+end: control data;
+
+set: real THETA = 0.;
+reference: 1,
+	reference, global, null,
+	reference, global,
+		1, cos(THETA), 0., sin(THETA),
+		2, 0., 1., 0.,
+	reference, global, null,
+	reference, global, null;
+
+begin: nodes;
+	structural: 9999, modal,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 5555, static,
+		reference, 1, 1.177590, 0.762000, 0.000000,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+set: real ALPHA = 5.*deg2rad;
+begin: elements;
+	air properties: std, SI,	# real analysis at 10326.00 Pa, 289.4 K
+		# -1, 0., 0.,
+		cos(ALPHA), 0., sin(ALPHA),
+		231.37;
+
+	joint: 1, clamp, 9999, node, node;
+	joint: 2, modal,
+		9999,	# modal node
+        	4,	# n. of modes
+			list, 1, 2, 3, 4,
+		121,	# n. of FEM nodes
+		no damping,
+		# proportional damping, .7,
+		"agard-445.6.fem",
+		1,
+        	121, 5555, null;
+
+	# NOTE: because of developers' laziness, EDGE interface
+	# needs two external modal force elements, one that accounts
+	# for the rigid-body motion and one that accounts for modal
+	# deformability.  Apart from the type, the rest of the
+	# configuration is identical, except that the second one
+	# probably does not need sleeptime
+	force: 10, external modal,
+		EDGE,
+		"rflag.dat",		# EDGE exchange flag file
+		"rdata.dat",		# EDGE exchange data file
+		sleeptime, 1,
+		coupling, tight,
+		2,			# modal joint
+		type, rigid;		# extern force type
+/*
+	force: 11, external modal,
+		EDGE,
+		"mflag.dat",	# EDGE exchange flag file
+		"mdata.dat",	# EDGE exchange data file
+		sleeptime, 10,
+		coupling, tight,
+		2,			# modal joint
+		type, modal;		# extern force type
+*/
+	force: 12, absolute,
+		5555,
+		position, null,
+		0., 0., 1.,
+			const, 0.;
+			# sine, 0., pi/.1, 1.e+2, one, 0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

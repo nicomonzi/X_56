@@ -1,0 +1,31 @@
+set: Phi_i = delta_Phi * ( 2 * ( i - 1 )  + 1 );
+set: Phi_12_i =  Phi_i  - 1. / sqrt(3.) * delta_Phi / 2;
+set: Phi_23_i = Phi_i +  1. / sqrt(3.) * delta_Phi / 2;
+
+#######################################################################################################################################################
+# REFERENCE FRAMES
+#######################################################################################################################################################
+
+reference: ref_gauss_12_1 + i - 1,
+        # position
+        reference, global, -R * cos(Phi_12_i), R * sin(Phi_12_i), 0.,
+        # orientation
+        reference, global, matr, sin(Phi_12_i),  -cos(Phi_12_i), 0.,
+                                        cos(Phi_12_i),   sin(Phi_12_i), 0.,
+                                        0.,              0.,          1.,
+        # velocity
+        reference, global, null,
+        # angular velocity
+        reference, global, null;
+
+reference: ref_gauss_23_1 + i - 1,
+        # position
+        reference, global, -R * cos(Phi_23_i), R * sin(Phi_23_i), 0.,
+        # orientation
+        reference, global, matr, sin(Phi_23_i),  -cos(Phi_23_i), 0.,
+                                        cos(Phi_23_i),   sin(Phi_23_i), 0.,
+                                        0.,              0.,          1.,
+        # velocity
+        reference, global, null,
+        # angular velocity
+        reference, global, null;

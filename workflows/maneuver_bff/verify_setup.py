@@ -59,12 +59,22 @@ def verify_campaign(name: str, directory: Path) -> dict:
         if not rendered_dt or abs(float(rendered_dt.group(1)) - target_dt) > 1e-14:
             errors.append(f"TIME_STEP mismatch: {stem}")
         modified = abs(float(meta["mode7_frequency_scale"]) - 1.0) > 1e-12
+        physical = bool(meta.get("physical_prestress", False))
         has_force = "force: STIFFNESS_SCREEN_FORCE, modal" in text
+        has_physical_force = "force: PRESTRESS_ROM_FORCE, modal" in text
         force_count = re.search(r"(?m)^\s*forces:\s*(\d+)\s*;", text)
-        if has_force != modified or not force_count:
+        if has_force != modified or has_physical_force != physical or not force_count:
             errors.append(f"stiffness force mismatch: {stem}")
-        elif int(force_count.group(1)) != (3 if modified else 2):
+        elif int(force_count.group(1)) != 2 + int(modified) + int(physical):
             errors.append(f"force count mismatch: {stem}")
+        if physical:
+            for marker in (
+                "PRESTRESS_ROM_INJECTED",
+                "DIVE_PULLUP_ENABLE*VINF*model::drive(MANEUVER_Q_COMMAND_DRIVE,Time)/GRAVITY",
+                "((Time<SAS_OFF_START)||(Time>=SAS_ON_START))",
+            ):
+                if marker not in text:
+                    errors.append(f"physical prestress marker missing ({marker}): {stem}")
         if text.count("MANEUVER_CONTROL: all aerodynamic surfaces held at release") != 1:
             errors.append(f"surface hold invariant missing: {stem}")
         final_time = re.search(r"(?m)^set: const real FINAL_TIME = ([^;]+);", text)
@@ -107,11 +117,17 @@ def main() -> None:
     parser.add_argument(
         "--runs", type=Path, default=Path(CONFIG["execution"]["output_root"]),
     )
+    parser.add_argument("--campaign", choices=tuple(CONFIG["campaigns"]))
     parser.add_argument("--output", type=Path, default=ROOT / "audit" / "preflight.json")
     args = parser.parse_args()
-    reports = [
-        verify_campaign(name, args.runs / name) for name in CONFIG["campaigns"]
-    ]
+    reports = []
+    selected = (
+        {args.campaign: CONFIG["campaigns"][args.campaign]}
+        if args.campaign else CONFIG["campaigns"]
+    )
+    for name, config in selected.items():
+        directory = Path(config.get("output_root", args.runs / name)).expanduser().resolve()
+        reports.append(verify_campaign(name, directory))
     modal = audit()
     optimized_trajectories = sum(item["expected_inputs"] for item in reports)
     optimized_steps = sum(item["integration_steps"] for item in reports)

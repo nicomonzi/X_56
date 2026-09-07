@@ -1,0 +1,6 @@
+body:
+    body_CHASSIS,
+    node_CHASSIS,
+    ms,  		
+    null,		  		
+    matr, Jxx, 0., 0., 0., Jyy, 0., 0., 0., Jzz;

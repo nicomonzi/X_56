@@ -1,0 +1,190 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/mechanisms/theojansen/main_assy,v 1.10 2017/01/12 15:05:53 masarati Exp $
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+# Model: Theo Jansen 's Mechanism 
+# From:	<http://il.youtube.com/watch?v=-GgOn66knqA>
+# Data from: <http://www.mechanicalspider.com/elements/jpegs/jansenlinkage.jpg>
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-2;
+
+	method: ms, .6;
+
+	tolerance: 1e-10;
+	max iterations: 20;
+
+	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 8;
+	rigid bodies: 8;
+	joints: 15;
+
+	output precision: 16;
+end: control data;
+
+include: "main.set";
+
+set: real OMEGA = pi/.5;
+set: real THETA0 = 0.;	# set to desired initial crank angle
+
+begin: nodes;
+	structural: POINT_DEF, dynamic,
+		reference, global, -L_A - L_D, 0., 0.,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	structural: POINT_BEJ, dynamic,
+		reference, global, -L_A, 0., L_B,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	structural: POINT_ABCD, dynamic,
+		reference, global, -L_A, 0., 0.,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	structural: POINT_JKM, dynamic,
+		reference, global, -sin(THETA0)*L_M, 0., cos(THETA0)*L_M,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	structural: POINT_LM, dynamic,
+		reference, global, 0., 0., 0.,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	structural: POINT_FGH, dynamic,
+		reference, global, -L_A - L_D/2, 0., -L_F/2,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	structural: POINT_HI, dynamic,
+		reference, global, -L_A/2, 0., -L_F - L_I,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	structural: POINT_CGIK, dynamic,
+		reference, global, -L_A/2, 0., -L_F,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+end: nodes;
+
+set: real L_AL_0 = model::distance(POINT_LM, POINT_ABCD);
+set: real L_B_0 = model::distance(POINT_ABCD, POINT_BEJ);
+set: real L_C_0 = model::distance(POINT_ABCD, POINT_CGIK);
+set: real L_D_0 = model::distance(POINT_ABCD, POINT_DEF);
+set: real L_E_0 = model::distance(POINT_BEJ, POINT_DEF);
+set: real L_F_0 = model::distance(POINT_DEF, POINT_FGH);
+set: real L_G_0 = model::distance(POINT_CGIK, POINT_FGH);
+set: real L_H_0 = model::distance(POINT_HI, POINT_FGH);
+set: real L_I_0 = model::distance(POINT_HI, POINT_CGIK);
+set: real L_J_0 = model::distance(POINT_JKM, POINT_BEJ);
+set: real L_K_0 = model::distance(POINT_JKM, POINT_CGIK);
+set: real L_M_0 = model::distance(POINT_JKM, POINT_LM);
+
+begin: elements;
+	body: POINT_DEF, POINT_DEF, 1., null, eye;
+	body: POINT_BEJ, POINT_BEJ, 1., null, eye;
+	body: POINT_ABCD, POINT_ABCD, 1., null, eye;
+	body: POINT_JKM, POINT_JKM, 1., null, eye;
+	body: POINT_LM, POINT_LM, 1., null, eye;
+	body: POINT_FGH, POINT_FGH, 1., null, eye;
+	body: POINT_HI, POINT_HI, 1., null, eye;
+	body: POINT_CGIK, POINT_CGIK, 1., null, eye;
+
+	joint: 0, clamp, POINT_LM, node, node;
+	joint: 1000, inplane,
+		POINT_LM,
+			position, reference, global, null,
+			reference, global, 0., 0., 1.,
+		POINT_ABCD,
+			offset, reference, node, null;
+	joint: 1001, inplane,
+		POINT_LM,
+			position, reference, global, null,
+			reference, global, cos(THETA0), 0., sin(THETA0),
+		POINT_JKM,
+			offset, reference, node, null;
+
+	joint: LINK_AL, distance,
+		POINT_LM, POINT_ABCD,
+		cosine, 0., OMEGA, (L_AL - L_AL_0)/2, half, L_AL_0;
+	joint: LINK_B, distance,
+		POINT_ABCD, POINT_BEJ,
+		cosine, 0., OMEGA, (L_B - L_B_0)/2, half, L_B_0;
+	joint: LINK_C, distance,
+		POINT_ABCD, POINT_CGIK,
+		cosine, 0., OMEGA, (L_C - L_C_0)/2, half, L_C_0;
+	joint: LINK_D, distance,
+		POINT_ABCD, POINT_DEF,
+		cosine, 0., OMEGA, (L_D - L_D_0)/2, half, L_D_0;
+	joint: LINK_E, distance,
+		POINT_BEJ, POINT_DEF,
+		cosine, 0., OMEGA, (L_E - L_E_0)/2, half, L_E_0;
+	joint: LINK_F, distance,
+		POINT_DEF, POINT_FGH,
+		cosine, 0., OMEGA, (L_F - L_F_0)/2, half, L_F_0;
+	joint: LINK_G, distance,
+		POINT_CGIK, POINT_FGH,
+		cosine, 0., OMEGA, (L_G - L_G_0)/2, half, L_G_0;
+	joint: LINK_H, distance,
+		POINT_HI, POINT_FGH,
+		cosine, 0., OMEGA, (L_H - L_H_0)/2, half, L_H_0;
+	joint: LINK_I, distance,
+		POINT_HI, POINT_CGIK,
+		cosine, 0., OMEGA, (L_I - L_I_0)/2, half, L_I_0;
+	joint: LINK_J, distance,
+		POINT_JKM, POINT_BEJ,
+		cosine, 0., OMEGA, (L_J - L_J_0)/2, half, L_J_0;
+	joint: LINK_K, distance,
+		POINT_JKM, POINT_CGIK,
+		cosine, 0., OMEGA, (L_K - L_K_0)/2, half, L_K_0;
+	joint: LINK_M, distance,
+		POINT_JKM, POINT_LM,
+		cosine, 0., OMEGA, (L_M - L_M_0)/2, half, L_M_0;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,412 @@
+/* 3-bladed Rigid rotor with PID controller on altitude 
+ * Author Alessandro Cocco 
+ * email: alessandro.cocco@polimi.it  
+*/
+
+begin: data; 
+    integrator: initial value; 
+end: data;  
+
+/* Labels */
+set: const integer GROUND = 0; 
+set: const integer HUB = 1; 
+set: const integer BLADE_1 = 10; 
+set: const integer BLADE_2 = 20; 
+set: const integer BLADE_3 = 30; 
+set: const integer PITCH = 1;  
+set: const integer BODY = 2; 
+set: const integer AERO = 3; 
+set: const integer ROTOR = 100;
+set: const integer GROUND_TOTAL_PIN = 101;  
+set: const integer HUB_AXIAL = 102;  
+set: const integer GROUND_TOTAL_PLUNGE = 103; 
+set: const integer COLL_DRIVE = 50;  
+set: const integer PID = 1; 
+
+/* Simulation Data */
+set: const real RADIUS = 2.0; # [m] 
+set: const real BLADE_CUTOUT = 0.2*RADIUS; 
+set: const real BLADE_SPAN = RADIUS - BLADE_CUTOUT; 
+set: const real BLADE_CHORD = 0.2;      # [m]
+set: const integer N_BLADES = 3;
+set: const real PSI_1 = 0.0*deg2rad;    
+set: const real PSI_2 = 120.0*deg2rad; 
+set: const real PSI_3 = 240.0*deg2rad;
+
+set: const real BLADE_MASS = 20.0;                       # [Kg] 
+set: const real BLADE_I_XX = 0.01;                       # [Kg*m^2]
+set: const real BLADE_I_YY = 1/12*(BLADE_MASS*RADIUS^2); # [Kg*m^2]
+set: const real BLADE_I_ZZ = 1/12*(BLADE_MASS*RADIUS^2); # [Kg*m^2]  
+set: const real HUB_MASS = 220.0;                        # [Kg] 
+set: const integer N_GAUSS_POINTS = 10;  
+set: const integer NACA0012 = 12;
+c81 data: NACA0012, "naca0012.c81";  
+set: const real SOUND_SPEED = 340.0;    # [m/s]
+set: const real RHO_INF = 1.225;        # [kg/m3] 
+set: const real MA_TIP = 0.5;           # [-]  
+set: const real V_TIP = MA_TIP*SOUND_SPEED; # [m/s]
+set: const real OMEGA = V_TIP/RADIUS;   
+set: const real N_STEPS = 72;
+set: const real N_REV = 100;   
+set: const real T_REV = 2*pi/OMEGA; 
+set: const real DT = T_REV/N_STEPS; 
+set: const real TEND = N_REV*T_REV;  
+set: const real T_START_PLUNGE = 3*T_REV;   
+/* PID Gains (play with it) */
+set: const real KP = 4.0; 
+set: const real KI = 1.0; 
+set: const real KD = 0.01;
+set: const real KN = 100; 
+/* Collective range [0 +12] */
+set: const real THETA_0 =   +8.0*deg2rad;    
+set: const real THETA_MIN = -8.0*deg2rad; 
+set: const real THETA_MAX = +4.0*deg2rad; 
+set: const real REF_ALTITUDE = 1.0; # [m]
+
+
+begin: initial value; 
+    time step: DT; 
+    initial time: 0.0; 
+    final time: TEND; 
+    max iterations: 250;  
+    tolerance: 1e-5, test, relnorm; 
+    derivatives tolerance: 1e-3; 
+    derivatives max iterations: 100;
+    derivatives coefficient: 1.000000e-03, auto, max iterations, 100, factor, 3.0;
+	linear solver: naive, colamd, pivot factor, 1e-5; 
+    method: ms, cosine, 0., pi/0.01, 0.6/2, half, 0.; 
+
+    output: counter;  
+
+end: initial value; 
+
+begin: control data; 
+
+    structural nodes:  
+        + 1             # ground (clamped) 
+        + 1             # hub 
+        + 1*N_BLADES    # 1 node for each blade   
+        ; 
+    
+    rigid bodies: 
+        +1*N_BLADES
+        +1           # HUB fake mass (just to extract the acceleration)
+        ; 
+    
+    joints: 
+        + 2            # ground: 1 clamped + 1 total pin joint with heave motion  (Z translation allowed) 
+        + 1            # axial rotation to impose the angular velocity  
+        + 1*N_BLADES;  # individual pitch control HUB -> BLADE_i with RX imposed by the control 
+
+    aerodynamic elements: 
+        1 * N_BLADES;  # one aerodynamic body for each blade  
+
+    loadable elements: 1; # PID for position control  
+
+    gravity; 
+    air properties;  
+    induced velocity elements: 1;  
+    output results: netcdf, sync, no text;  
+
+end: control data; 
+
+# reference frames 
+reference: GROUND,
+    reference, global, null, 
+    reference, global, eye, 
+    reference, global, null, 
+    reference, global, null; 
+
+reference: HUB, 
+    reference, GROUND, null, 
+    reference, GROUND, eye, 
+    reference, GROUND, null, 
+    reference, GROUND, 0.0, 0.0, OMEGA; 
+
+reference: BLADE_1, 
+    reference, HUB, null, 
+    reference, HUB, 
+        1, cos(PSI_1), sin(PSI_1), 0.0,
+        3,        0.0,        0.0, 1.0,
+    reference, HUB, null, 
+    reference, HUB, null; 
+
+reference: BLADE_2, 
+    reference, HUB, null, 
+    reference, HUB, 
+        1, cos(PSI_2), sin(PSI_2), 0.0,
+        3,        0.0,        0.0, 1.0,
+    reference, HUB, null, 
+    reference, HUB, null; 
+
+reference: BLADE_3, 
+    reference, HUB, null, 
+    reference, HUB, 
+        1, cos(PSI_3), sin(PSI_3), 0.0,
+        3,        0.0,        0.0, 1.0,
+    reference, HUB, null, 
+    reference, HUB, null;  
+
+reference: BLADE_1 + PITCH, /* 11 */
+    reference, BLADE_1, BLADE_CUTOUT, 0.0, 0.0, 
+    reference, BLADE_1, 
+        1, 1.0,          0.0,          0.0,
+        2, 0.0, cos(THETA_0), sin(THETA_0), 
+    reference, BLADE_1, null, 
+    reference, BLADE_1, null; 
+
+reference: BLADE_2 + PITCH, /* 21 */
+    reference, BLADE_2, BLADE_CUTOUT, 0.0, 0.0, 
+    reference, BLADE_2, 
+        1, 1.0,          0.0,          0.0,
+        2, 0.0, cos(THETA_0), sin(THETA_0), 
+    reference, BLADE_2, null, 
+    reference, BLADE_2, null; 
+
+reference: BLADE_3 + PITCH, /* 31 */
+    reference, BLADE_3, BLADE_CUTOUT, 0.0, 0.0, 
+    reference, BLADE_3, 
+        1, 1.0,          0.0,          0.0,
+        2, 0.0, cos(THETA_0), sin(THETA_0), 
+    reference, BLADE_3, null, 
+    reference, BLADE_3, null;  
+
+
+begin: nodes; 
+
+    structural: GROUND, static, 
+        reference, GROUND, null, 
+        reference, GROUND, eye, 
+        reference, GROUND, null, 
+        reference, GROUND, null; 
+    
+    structural: HUB, dynamic, 
+        reference, HUB, null, 
+        reference, HUB, eye, 
+        reference, HUB, null, 
+        reference, HUB, null; 
+
+    structural: BLADE_1, dynamic, 
+        reference, BLADE_1, null,  
+        reference, BLADE_1, eye,  
+        reference, BLADE_1, null,  
+        reference, BLADE_1, null;  
+
+    structural: BLADE_2, dynamic, 
+        reference, BLADE_2, null,  
+        reference, BLADE_2, eye,  
+        reference, BLADE_2, null,  
+        reference, BLADE_2, null; 
+
+    structural: BLADE_3, dynamic, 
+        reference, BLADE_3, null,  
+        reference, BLADE_3, eye,  
+        reference, BLADE_3, null,  
+        reference, BLADE_3, null; 
+
+end: nodes; 
+
+begin: elements; 
+
+    /* Blade/Hub Masses */
+    body: HUB, HUB, 
+        HUB_MASS,  
+        reference, node, null, 
+        diag, 1e-6, 1e-6, 1e-6;  
+
+    body: BLADE_1 + BODY, BLADE_1, 
+        BLADE_MASS, 
+        reference, BLADE_1, RADIUS/2, 0.0, 0.0, 
+        diag, BLADE_I_XX, BLADE_I_YY, BLADE_I_ZZ;  
+
+    body: BLADE_2 + BODY, BLADE_2, 
+        BLADE_MASS, 
+        reference, BLADE_2, RADIUS/2, 0.0, 0.0, 
+        diag, BLADE_I_XX, BLADE_I_YY, BLADE_I_ZZ;  
+
+    body: BLADE_3 + BODY, BLADE_3,  
+        BLADE_MASS, 
+        reference, BLADE_3, RADIUS/2, 0.0, 0.0, 
+        diag, BLADE_I_XX, BLADE_I_YY, BLADE_I_ZZ;  
+
+    /* PID Controller */ 
+    module load: "libmodule-pid"; 
+    user defined: PID, pid,  
+        setpoint, const, REF_ALTITUDE, # target position 
+        measure, node, HUB, structural, string, "X[3]", direct, # here we measure the z position of the hub, 
+        Kp, KP,  
+        Ki, KI,  
+        Kd, KD,  
+        Kn, KN,  
+        Ymin, THETA_MIN, 
+        Ymax, THETA_MAX;     
+
+    drive caller: COLL_DRIVE, 
+        array, 1, 
+            element, PID, loadable, string, "yout", direct;
+
+    /* Rotor Aerodynamics */
+    induced velocity: ROTOR, 
+        rotor, GROUND, HUB,  
+        induced velocity, 
+        dynamic inflow, OMEGA, RADIUS, correction, 1.0, 1.0, tolerance, 1e-3, max iterations, 50; 
+
+    #  HUB   CUTOUT                    BLADE_TIP
+    #   | ---- | -------------------------|
+    #   |---------------------------------> RADIUS 
+    #   |-----> CUTOUT 
+    #          |-------------0------------> BLADE_SPAN  
+    #          -1            0            1 (ADIM ABSCISSA of AeroBody) 
+
+    aerodynamic body: BLADE_1 + AERO, BLADE_1, 
+        induced velocity, ROTOR, 
+        reference, BLADE_1 + PITCH, BLADE_SPAN/2, 0.0, 0.0, 
+        reference, BLADE_1 + PITCH, 
+            1, 0.0, 1.0, 0.0, 
+            3, 1.0, 0.0, 0.0, 
+        BLADE_SPAN, 
+        const, BLADE_CHORD,    # Chord 
+        const, 0.0,            # AC position at 1/4c
+        const, -BLADE_CHORD/2, # BC position at 3/4c
+        const, 0.0,            # Twist 
+        N_GAUSS_POINTS, 
+        c81, NACA0012, 
+        jacobian, 1; 
+    
+    aerodynamic body: BLADE_2 + AERO, BLADE_2, 
+        induced velocity, ROTOR, 
+        reference, BLADE_2 + PITCH, BLADE_SPAN/2, 0.0, 0.0, 
+        reference, BLADE_2 + PITCH, 
+            1, 0.0, 1.0, 0.0, 
+            3, 1.0, 0.0, 0.0, 
+        BLADE_SPAN, 
+        const, BLADE_CHORD,    # Chord 
+        const, 0.0,            # AC position at 1/4c
+        const, -BLADE_CHORD/2, # BC position at 3/4c
+        const, 0.0,            # Twist 
+        N_GAUSS_POINTS, 
+        c81, NACA0012, 
+        jacobian, 1; 
+    
+    aerodynamic body: BLADE_3 + AERO, BLADE_3, 
+        induced velocity, ROTOR, 
+        reference, BLADE_3 + PITCH, BLADE_SPAN/2, 0.0, 0.0, 
+        reference, BLADE_3 + PITCH, 
+            1, 0.0, 1.0, 0.0, 
+            3, 1.0, 0.0, 0.0, 
+        BLADE_SPAN, 
+        const, BLADE_CHORD,    # Chord 
+        const, 0.0,            # AC position at 1/4c
+        const, -BLADE_CHORD/2, # BC position at 3/4c
+        const, 0.0,            # Twist 
+        N_GAUSS_POINTS, 
+        c81, NACA0012, 
+        jacobian, 1; 
+
+    /* Joints */
+    driven: GROUND_TOTAL_PIN, string, "(Time < T_START_PLUNGE)";  
+    joint: GROUND_TOTAL_PIN, total pin joint,
+        GROUND,
+            position, reference, node, null, 
+            position orientation, reference, node, eye, 
+            rotation orientation, reference, node, eye, 
+        # clamped node (global) 
+            position, reference, other node, null, 
+            position orientation, reference, other node, eye, 
+            rotation orientation, reference, other node, eye, 
+        position constraint, 
+            1, 1, 1, 
+            null, 
+        orientation constraint, 
+            1, 1, 1, 
+            null; 
+
+    driven: GROUND_TOTAL_PLUNGE, string, "(Time >= T_START_PLUNGE)";  
+    joint: GROUND_TOTAL_PLUNGE, total pin joint,
+        GROUND,
+            position, reference, node, null, 
+            position orientation, reference, node, eye, 
+            rotation orientation, reference, node, eye, 
+        # clamped node (global) 
+            position, reference, other node, null, 
+            position orientation, reference, other node, eye, 
+            rotation orientation, reference, other node, eye, 
+        position constraint, 
+            1, 
+            1, 
+            0, 
+            null, 
+        orientation constraint, 
+            1, 1, 1, 
+            null; 
+
+    joint: HUB_AXIAL, axial rotation,
+        GROUND,
+            position, reference, node, null,
+            orientation, reference, node, eye,  
+        HUB,
+            position, reference, other node, null, 
+            orientation, reference, other node, eye, 
+        const, OMEGA;  
+
+    joint: BLADE_1, total joint, 
+        HUB, 
+            position, reference, BLADE_1, null, 
+            position orientation, reference, BLADE_1, eye, 
+            rotation orientation, reference, BLADE_1, eye,  
+        BLADE_1, 
+            position, reference, BLADE_1, null, 
+            position orientation, reference, BLADE_1, eye, 
+            rotation orientation, reference, BLADE_1, eye,  
+        position constraint, 
+            1, 1, 1,  
+            null, 
+        orientation constraint, 
+            1, 1, 1, 
+            component, 
+                reference, COLL_DRIVE, 
+                0.0, 
+                0.0; 
+
+    joint: BLADE_2, total joint, 
+        HUB, 
+            position, reference, BLADE_2, null, 
+            position orientation, reference, BLADE_2, eye, 
+            rotation orientation, reference, BLADE_2, eye,  
+        BLADE_2, 
+            position, reference, BLADE_2, null, 
+            position orientation, reference, BLADE_2, eye, 
+            rotation orientation, reference, BLADE_2, eye,  
+        position constraint, 
+            1, 1, 1,  
+            null, 
+        orientation constraint, 
+            1, 1, 1, 
+            component, 
+                reference, COLL_DRIVE, 
+                0.0, 
+                0.0; 
+
+    joint: BLADE_3, total joint, 
+        HUB, 
+            position, reference, BLADE_3, null, 
+            position orientation, reference, BLADE_3, eye, 
+            rotation orientation, reference, BLADE_3, eye,  
+        BLADE_3, 
+            position, reference, BLADE_3, null, 
+            position orientation, reference, BLADE_3, eye, 
+            rotation orientation, reference, BLADE_3, eye,  
+        position constraint, 
+            1, 1, 1,  
+            null, 
+        orientation constraint, 
+            1, 1, 1, 
+            component, 
+                reference, COLL_DRIVE, 
+                0.0, 
+                0.0; 
+
+    gravity: uniform, 0.0, 0.0, -1.0, const, 9.81;  
+    air properties: const, RHO_INF, SOUND_SPEED, 0.0, 0.0, 1.0, const, 0.0; 
+
+end: elements;  

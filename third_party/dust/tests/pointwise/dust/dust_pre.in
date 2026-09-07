@@ -1,0 +1,7 @@
+
+comp_name = Wing_right
+geo_file  = wing_pt.in
+ref_tag   = Wing_PreCICE
+
+file_name = geo_input.h5 
+

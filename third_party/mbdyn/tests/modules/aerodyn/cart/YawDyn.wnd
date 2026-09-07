@@ -1,0 +1,4 @@
+! Sample hub-height wind file for AeroDyn
+! Time    Wind    Wind    Vert.     Horiz.  Vert.  LinV   Gust
+!         Speed    Dir   Speed      Shear   Shear  Shear Speed
+0         -10.0     0.0    0.0        0.0     0.0     0      0

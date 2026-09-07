@@ -1,0 +1,359 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/body/chain15/chain15,v 1.8 2017/01/12 15:00:35 masarati Exp $
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+# From: C. G. Franchi
+# "A Highly Redundant Coordinate Formulation for Constrained Rigid Bodies"
+# Meccanica 30: 17-35, 1995.                                     1
+
+begin: data;
+	problem: initial value;
+end: data;
+
+# set: real T = 100.;		# free (initialization)
+set: real T = 1.;		# hanging (both cases)
+
+begin: initial value;
+	initial time: 0.;
+	final time: T;
+	time step: 1.e-3*T;
+
+	tolerance: 1e-10;
+	max iterations: 100;
+
+	derivatives tolerance: 1e-1;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1e-0;
+
+	method: ms, .6;
+	# method: bdf;
+
+	linear solver: naive, colamd;
+
+	output: iterations;
+	# output: residual;
+
+	# abort after: input;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1 + 15;
+	rigid bodies: 15;
+	# joints: 1 + 15 + 3;	# free (initialization)
+	# joints: 1 + 15 + 1;	# hanging (case 1)
+	joints: 1 + 15;	# hanging (case 2)
+	gravity;
+
+	# model: static;
+end: control data;
+
+set: real L = 1.;
+set: real DY = 3.;
+set: real DELTA = 1.e-6;
+
+#include: "chain15f.ref";	# free (initialization)
+include: "chain15h.ref";	# hanging (both cases)
+
+begin: nodes;
+	structural: 0, static, null, eye, null, null;
+
+	structural: 1, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+
+	structural: 2, dynamic,
+		reference, 2, null,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+
+	structural: 3, dynamic,
+		reference, 3, null,
+		reference, 3, eye,
+		reference, 3, null,
+		reference, 3, null;
+
+	structural: 4, dynamic,
+		reference, 4, null,
+		reference, 4, eye,
+		reference, 4, null,
+		reference, 4, null;
+
+	structural: 5, dynamic,
+		reference, 5, null,
+		reference, 5, eye,
+		reference, 5, null,
+		reference, 5, null;
+
+	structural: 6, dynamic,
+		reference, 6, null,
+		reference, 6, eye,
+		reference, 6, null,
+		reference, 6, null;
+
+	structural: 7, dynamic,
+		reference, 7, null,
+		reference, 7, eye,
+		reference, 7, null,
+		reference, 7, null;
+
+	structural: 8, dynamic,
+		reference, 8, null,
+		reference, 8, eye,
+		reference, 8, null,
+		reference, 8, null;
+
+	structural: 9, dynamic,
+		reference, 9, null,
+		reference, 9, eye,
+		reference, 9, null,
+		reference, 9, null;
+
+	structural: 10, dynamic,
+		reference, 10, null,
+		reference, 10, eye,
+		reference, 10, null,
+		reference, 10, null;
+
+	structural: 11, dynamic,
+		reference, 11, null,
+		reference, 11, eye,
+		reference, 11, null,
+		reference, 11, null;
+
+	structural: 12, dynamic,
+		reference, 12, null,
+		reference, 12, eye,
+		reference, 12, null,
+		reference, 12, null;
+
+	structural: 13, dynamic,
+		reference, 13, null,
+		reference, 13, eye,
+		reference, 13, null,
+		reference, 13, null;
+
+	structural: 14, dynamic,
+		reference, 14, null,
+		reference, 14, eye,
+		reference, 14, null,
+		reference, 14, null;
+
+	structural: 15, dynamic,
+		reference, 15, null,
+		reference, 15, eye,
+		reference, 15, null,
+		reference, 15, null;
+end: nodes;
+
+begin: elements;
+	joint: 99, clamp, 0, node, node;
+
+	joint: 0, spherical pin,
+		1,
+			position, reference, node, 0., 0., L/2.,
+		position, reference, global, 0., 0., 0.;
+
+	body: 1, 1,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 1, spherical hinge,
+		2,
+			position, reference, node, 0., 0., L/2.,
+		1,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 2, 2,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 2, spherical hinge,
+		3,
+			position, reference, node, 0., 0., L/2.,
+		2,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 3, 3,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 3, spherical hinge,
+		4,
+			position, reference, node, 0., 0., L/2.,
+		3,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 4, 4,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 4, spherical hinge,
+		5,
+			position, reference, node, 0., 0., L/2.,
+		4,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 5, 5,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 5, spherical hinge,
+		6,
+			position, reference, node, 0., 0., L/2.,
+		5,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 6, 6,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 6, spherical hinge,
+		7,
+			position, reference, node, 0., 0., L/2.,
+		6,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 7, 7,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 7, spherical hinge,
+		8,
+			position, reference, node, 0., 0., L/2.,
+		7,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 8, 8,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 8, spherical hinge,
+		9,
+			position, reference, node, 0., 0., L/2.,
+		8,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 9, 9,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 9, spherical hinge,
+		10,
+			position, reference, node, 0., 0., L/2.,
+		9,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 10, 10,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 10, spherical hinge,
+		11,
+			position, reference, node, 0., 0., L/2.,
+		10,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 11, 11,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 11, spherical hinge,
+		12,
+			position, reference, node, 0., 0., L/2.,
+		11,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 12, 12,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 12, spherical hinge,
+		13,
+			position, reference, node, 0., 0., L/2.,
+		12,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 13, 13,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 13, spherical hinge,
+		14,
+			position, reference, node, 0., 0., L/2.,
+		13,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 14, 14,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	joint: 14, spherical hinge,
+		15,
+			position, reference, node, 0., 0., L/2.,
+		14,
+			position, reference, node, 0., 0., -L/2.;
+
+	body: 15, 15,
+		0.4565,
+		reference, node, null,
+		diag, 0.0308, 0.0308, 0.0001;
+
+	# include: "chain15f.elm";	# free (initialization)
+	# include: "chain15h.elm";	# hanging (case 1)
+
+	gravity: 0., 0., -1.,
+		const, 32.175;
+		# cosine, 0., pi/.1, 32.175/2, half, 0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

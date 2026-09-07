@@ -1,0 +1,79 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/total/total,v 1.7 2014/12/13 17:15:52 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-9;
+	max iterations: 10;
+	#nonlinear solver: newton raphson, modified, 5, keep jacobian;
+
+	method: ms, .6;
+
+	threads: disable;
+
+	# output: iterations;
+	# output: residual;
+	# output: counter;
+	# output: none;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	joints: 2;
+	rigid bodies: 1;
+
+	#output results: netcdf, sync;
+	output results: netcdf;
+end: control data;
+
+begin: nodes;
+    structural: 1, static,
+                null,
+		eye,
+		null,
+		null;
+    structural: 2, dynamic,
+                null,
+		eye,
+		null,
+		null;
+		# 0., 0., 2.*pi/.1;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, total joint,
+		1,
+			position, reference, node, 1.,0.,0.,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		2,
+			position, reference, node, 1.,0.,0.,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		position constraint, active, active, active,
+			null, # 0., 0., 0., const, 0.,
+		orientation constraint, active, active, active,
+			0., 0., 1.,
+				# linear, 0., 1.;
+				cosine, 0.,2.*pi/.1,5.,forever,0.;
+				# sine, 0.,2.*pi/.1,1.,forever,0.;
+	body: 2, 2,
+		1.e0,
+		null,
+		diag, 1.e0,1.e0,1.e0;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

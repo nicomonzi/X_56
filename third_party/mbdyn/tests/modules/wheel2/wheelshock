@@ -1,0 +1,181 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/modules/wheel2/wheelshock,v 1.8 2014/12/13 17:15:55 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.;
+	time step: .25e-3;
+
+	tolerance: 1.e-5;
+	max iterations: 20;
+	#method: ms, .6, .6;
+	method: ms, .3, .3;
+
+	derivatives coefficient: 1.e-6;
+	derivatives tolerance: 1.e-5;
+	derivatives max iterations: 20;
+
+	newton raphson: modified, 4;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 
+		+1	# ground
+		+1	# wheel
+		+1	# axle
+		+1	# aircraft
+	;
+	joints:
+		+1	# ground clamp
+		+1	# axle plane hinge
+		+1	# prismatic ground-aircraft
+		+1	# rod for shock absorber
+		+2	# inline and prismatic axle-aircraft
+	;
+	rigid bodies: 2;
+	loadable elements: 1;
+	forces: 2;
+	gravity;
+
+	skip initial joint assembly;
+end: control data;
+
+set: integer ground = 500;
+set: integer axle = 600;
+set: integer aircraft = 700;
+set: integer wheel = 800;
+
+set: real alpha = 0.; # 2./180.*pi;
+set: real z_aircraft = .718+.1765+.3;  # .433;
+
+reference: ground,
+	reference, global, null,
+	reference, global, 2, 0.,1.,0., 1, cos(alpha),0.,sin(alpha),
+	reference, global, null,
+	reference, global, null;
+
+reference: aircraft,
+	reference, global, 0.,0.,z_aircraft,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: axle,
+	reference, aircraft, 0.,0.,-.718,
+	reference, aircraft, eye,
+	reference, aircraft, null,
+	reference, aircraft, null;
+
+begin: nodes;
+	structural: ground, static,
+		reference, ground, null,
+		reference, ground, eye,
+		reference, ground, null,
+		reference, ground, null;
+	structural: aircraft, dynamic,
+		reference, aircraft, null,
+		reference, aircraft, eye,
+		reference, aircraft, null,
+		reference, aircraft, null;
+	structural: wheel, dynamic,
+                reference, axle, null,
+                reference, axle, eye,
+                reference, axle, null,
+		reference, axle, null;
+	structural: axle, static,
+		reference, axle, null,
+		reference, axle, eye,
+		reference, axle, null,
+		reference, axle, null;
+end: nodes;
+
+begin: elements;
+	gravity: 0.,0.,-1., 9.81;
+
+	joint: ground, clamp, ground, node, node;
+	joint: wheel, plane hinge,
+		axle, reference, node, null,
+		hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.,
+		wheel, reference, node, null,
+		hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.;
+	joint: aircraft, prismatic,
+		ground, hinge, reference, global, eye,
+		aircraft, hinge, reference, global, eye;
+	
+	joint: axle, inline,
+		aircraft, null,
+			reference, axle, eye,
+		axle;
+	joint: axle+1, prismatic,
+		aircraft, hinge, reference, aircraft, eye,
+		axle, hinge, reference, aircraft, eye;
+	
+	joint: axle+2, rod,
+		aircraft,
+		axle,
+		from nodes,
+		shock absorber,
+			# prestrain, 0.,
+			help,
+			987285.,
+			15.27e-4,
+			.9069*(.718/.1669),
+			1.37,
+			epsilon max, 0.,
+			epsilon min, -.157/.718,
+			penalty, 1.e7, 0.e0,
+			orifice, 
+			step, 0., 9.8175e-6, 17.628e-6,
+			1.01788e-3,
+			843.,
+			.8/.718;
+	
+	body: aircraft, aircraft,
+		265.-11.3,
+		null,
+		diag, 1.e3,1.e3,1.e3;
+	body: wheel, wheel,
+		7.0658,
+		null,
+		diag, 1.e-6, 0.0931, 1.e-6;
+	#loadable: 1000, "libmodule-wheel2.la", help,
+	#module load: "libmodule-wheel2.la";
+	user defined: 1000, wheel2, help,
+		wheel,
+		0.,1.,0.,
+		ground,
+		null,
+		0.,0.,1.,
+		.1765, .065, .3, 343350., 1.25, 10. /*,
+		slip,
+		piecewise linear, 5,
+			-1., -.25,
+			-.1, -.8,
+			0., 0.,
+			.1, .8,
+			1., .25,
+		string, ".2*tanh(Var/.26)",
+		linear, 0., .2 */;
+	
+	couple: 11, follower, 
+		axle, 0.,1.,0.,
+		# step, 1.,f,0.;
+		dof, aircraft, structural, 1, differential,
+			string, "(Time>1.)*20.*Var";
+	couple: 12, follower,
+		wheel, 0.,1.,0.,
+		# step, 1.,-f,0.;
+		dof, aircraft, structural, 1, differential,
+			string, "-(Time>1.)*20.*Var";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

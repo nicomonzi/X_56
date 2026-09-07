@@ -1,0 +1,12 @@
+driven: CURR_BRAKE, string, "Time > 0.",
+joint: CURR_BRAKE, brake,
+	CURR_HUB, reference, node, null,
+		orientation, 1, 1.,0.,0., 3, 0.,1.,0.,
+	CURR_RIM, reference, node, null,
+		orientation, 1, 1.,0.,0., 3, 0.,1.,0.,
+	friction, r0,
+		modlugre, sigma0, sigma1, sigma2, kappa, "brake",
+	simple,
+	array, 2,
+		step5, 4., 0., 5., +300.,
+		step5, 5., 0., 6., -300.;

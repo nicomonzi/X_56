@@ -1,0 +1,9 @@
+Integrator Implicit multi-step, 2nd order accurate, A/L stable (rho_infty 0.6)
+Solver type modified Newton-Raphson (1 Jacobian matrix per step)
+Accuracy XXX (please define; solution at convergence with time step = 4 ms)
+CPU time 390 ms
+CPU/GPU Intel(R) Core(TM) i7-2620M CPU @ 2.70GHz
+Operating system Linux
+Formulation procedure (please clarify)
+Dynamic equation Numerical, DAEs index-3
+Solver MBDyn <http://www.mbdyn.org/>, input file <http://www.mbdyn.org/documentation/examples/srscm>

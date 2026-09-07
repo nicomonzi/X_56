@@ -1,0 +1,6 @@
+constitutive law: const_law_id_beam,
+    6, linear time variant viscoelastic generic,
+    diag, E * A, G * As, G * As, G * Ip, E * Iy, E * Iz,
+    unit,
+    proportional, damping_ratio,
+    reference,drive_id_initial_damping;

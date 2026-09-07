@@ -1,0 +1,259 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/drvhinge/invkin,v 1.4 2014/12/13 17:15:46 masarati Exp $
+
+/*
+
+Inverse kinematics simulation of a leg going from position (a)
+to position (b); (o) indicate hinges, (*) indicate CG's
+
+    \
+     *
+      \
+       o    (a)
+        \
+         *
+          \
+           o-*-
+
+
+
+            \
+             *
+              \
+        (b)    o
+              /
+             *
+            /
+           o-*-
+
+*/
+
+begin: data;
+	problem: initial value;
+end: data;
+
+# labels
+set: integer GROUND = 1000;
+set: integer DX_FOOT = 2000;
+set: integer DX_ANKLE = 3000;
+set: integer DX_LOWER_LEG = 4000;
+set: integer DX_KNEE = 5000;
+set: integer DX_UPPER_LEG = 6000;
+
+# generic geometry
+set: real FOOT_ANKLE_LEN = .05;			# m
+set: real LOWER_LEG_ANKLE_LEN = .25;		# m
+set: real LOWER_LEG_KNEE_LEN = .25;		# m
+set: real UPPER_LEG_KNEE_LEN = .3;		# m
+
+# initial values
+set: real DX_ANKLE_ANGLE_0 = -45.*deg2rad;	#
+set: real DX_KNEE_ANGLE_0 = 0.*deg2rad;		#
+
+# final values
+set: real DX_ANKLE_ANGLE_D = 90.*deg2rad;	#
+set: real DX_KNEE_ANGLE_D = -89.*deg2rad;	#
+
+# simulation parameters
+set: real Ti = 0;
+set: real Tf = 2.;
+set: real dt = 1e-2;
+
+begin: initial value;
+	initial time: Ti;
+	final time: Tf;
+	time step: dt;
+	tolerance: 1.e-9;
+	max iterations: 10;
+
+	# need to go from BDF to ms to quickly eliminate the peaks on the reactions
+        # FIXME: method must be on one line because of MBDyn's simple_testsuite_patched.sh
+	method: ms, cosine, Ti + 10*dt, pi/(10.*dt), .6/2, half, 0.;
+
+	# output: iterations;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# ground
+		+1	# foot
+		+1	# lower leg
+		+1	# upper leg
+	;
+	joints:
+		+1	# ground clamp
+		+2	# foot imposed position & orientation
+		+2	# foot-lower leg imposed position & orientation
+		+2	# knee imposed position & orientation
+	;
+	rigid bodies:
+		+1	# foot
+		+1	# lower leg
+		+1	# upper leg
+	;
+end: control data;
+
+# imposed laws for joints
+drive caller: DX_ANKLE,
+	# const, DX_ANKLE_ANGLE_0;
+	cosine, Ti, pi/(Tf-Ti), DX_ANKLE_ANGLE_D/2, half, DX_ANKLE_ANGLE_0;
+drive caller: DX_KNEE,
+	# const, DX_ANKLE_ANGLE_0;
+	cosine, Ti, pi/(Tf-Ti), DX_KNEE_ANGLE_D/2, half, DX_KNEE_ANGLE_0;
+
+reference: GROUND,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: DX_FOOT,
+	reference, GROUND, null,
+	reference, GROUND, eye,
+	reference, GROUND, null,
+	reference, GROUND, null;
+
+reference: DX_ANKLE,
+	reference, DX_FOOT, -FOOT_ANKLE_LEN,0.,0.,
+	reference, DX_FOOT, eye,
+	reference, DX_FOOT, null,
+	reference, DX_FOOT, null;
+		
+reference: DX_ANKLE + 1,
+	reference, DX_ANKLE, null,
+	reference, DX_ANKLE,
+		2, 0.,1.,0.,
+		1, -sin(DX_ANKLE_ANGLE_0),0.,-cos(DX_ANKLE_ANGLE_0),
+	reference, DX_ANKLE, null,
+	reference, DX_ANKLE, null;
+
+reference: DX_LOWER_LEG,
+	reference, DX_ANKLE + 1, -LOWER_LEG_ANKLE_LEN,0.,0.,
+	reference, DX_ANKLE + 1, eye,
+	reference, DX_ANKLE + 1, null,
+	reference, DX_ANKLE + 1, null;
+
+reference: DX_KNEE,
+	reference, DX_LOWER_LEG, -LOWER_LEG_KNEE_LEN,0.,0.,
+	reference, DX_LOWER_LEG, eye,
+	reference, DX_LOWER_LEG, null,
+	reference, DX_LOWER_LEG, null;
+
+reference: DX_KNEE + 1,
+	reference, DX_KNEE, null,
+	reference, DX_KNEE,
+		2, 0.,1.,0.,
+		1, cos(DX_KNEE_ANGLE_0),0.,sin(DX_KNEE_ANGLE_0),
+	reference, DX_KNEE, null,
+	reference, DX_KNEE, null;
+
+reference: DX_UPPER_LEG,
+	reference, DX_KNEE + 1, -UPPER_LEG_KNEE_LEN,0.,0.,
+	reference, DX_KNEE + 1, eye,
+	reference, DX_KNEE + 1, null,
+	reference, DX_KNEE + 1, null;
+
+begin: nodes;
+	structural: GROUND, static,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+	structural: DX_FOOT, dynamic,
+		reference, DX_FOOT, null,
+		reference, DX_FOOT, eye,
+		reference, DX_FOOT, null,
+		reference, DX_FOOT, null;
+	structural: DX_LOWER_LEG, dynamic,
+		reference, DX_LOWER_LEG, null,
+		reference, DX_LOWER_LEG, eye,
+		reference, DX_LOWER_LEG, null,
+		reference, DX_LOWER_LEG, null;
+	structural: DX_UPPER_LEG, dynamic,
+		reference, DX_UPPER_LEG, null,
+		reference, DX_UPPER_LEG, eye,
+		reference, DX_UPPER_LEG, null,
+		reference, DX_UPPER_LEG, null;
+end: nodes;
+
+begin: elements;
+	# ground
+	joint: GROUND, clamp, GROUND, node, node;
+
+	# ground-foot
+/* need 1.2.7 or above
+	joint: DX_FOOT + 1, drive displacement,
+		GROUND, reference, DX_FOOT, null,
+		DX_FOOT, reference, DX_FOOT, null,
+		0.,0.,0., const, 0.;
+since no displacement is imposed, use */
+	joint: DX_FOOT + 1, spherical hinge,
+		GROUND, reference, DX_FOOT, null,
+		DX_FOOT, reference, DX_FOOT, null;
+	joint: DX_FOOT + 2, prismatic,
+		GROUND,
+			hinge, reference, DX_FOOT, eye,
+		DX_FOOT,
+			hinge, reference, DX_FOOT, eye;
+
+	# foot
+	body: DX_FOOT, DX_FOOT,
+		1.,
+		null,
+		diag, .1,.5,.5;
+
+	# foot-lower leg
+	joint: DX_ANKLE + 1, spherical hinge,
+		DX_FOOT, reference, DX_ANKLE, null,
+			hinge, reference, DX_ANKLE, eye,
+		DX_LOWER_LEG, reference, DX_ANKLE + 1, null,
+			hinge, reference, DX_ANKLE + 1, eye;
+
+	joint: DX_ANKLE + 2, drive hinge,
+		DX_FOOT,
+			hinge, reference, DX_ANKLE, eye,
+		DX_LOWER_LEG,
+			hinge, reference, DX_ANKLE + 1,
+				2, 0.,1.,0.,
+				1, 0.,0.,1.,
+		0.,1.,0.,
+			# const, DX_ANKLE_ANGLE_0;
+			# cosine, Ti,pi/(Tf-Ti),DX_ANKLE_ANGLE_D/2,half,DX_ANKLE_ANGLE_0;
+			reference, DX_ANKLE;
+
+	# lower leg
+	body: DX_LOWER_LEG, DX_LOWER_LEG,
+		2.,
+		null,
+		diag, .2,1.,1.;
+
+	# lower leg-upper leg
+	joint: DX_KNEE + 1, spherical hinge,
+		DX_LOWER_LEG, reference, DX_KNEE, null,
+			hinge, reference, DX_KNEE, eye,
+		DX_UPPER_LEG, reference, DX_KNEE + 1, null,
+			hinge, reference, DX_KNEE + 1, eye;
+
+	joint: DX_KNEE + 2, drive hinge,
+		DX_LOWER_LEG,
+			hinge, reference, DX_KNEE, eye,
+		DX_UPPER_LEG,
+			hinge, reference, DX_KNEE + 1, eye,
+		0.,1.,0.,
+			# const, DX_ANKLE_ANGLE_0;
+			# cosine, Ti,pi/(Tf-Ti),DX_KNEE_ANGLE_D/2,half,DX_KNEE_ANGLE_0;
+			reference, DX_KNEE;
+
+	# lower leg
+	body: DX_UPPER_LEG, DX_UPPER_LEG,
+		5.,
+		null,
+		diag, .5,4.,4.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

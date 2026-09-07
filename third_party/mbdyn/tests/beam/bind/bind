@@ -1,0 +1,146 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/beam/bind/bind,v 1.4 2014/12/13 17:15:36 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	time step: 1e-3;
+	initial time: 0.;
+	final time: 1.;
+
+	tolerance: 1e-6;
+	max iterations: 10;
+    
+	method: ms, .6;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 3;
+	abstract nodes: 1;
+	parameter nodes: 4 + 4;
+	joints: 1;
+	forces: 3 + 1;
+	beams: 1;
+	genels: 1;
+end: control data;
+
+set: integer STRAIN = 200;
+set: integer STRAIN_1_X = STRAIN + 1;
+set: integer STRAIN_1_XY = STRAIN + 2;
+set: integer STRAIN_1_XZ = STRAIN + 3;
+set: integer STRAIN_1_XYZ = STRAIN + 4;
+set: integer STRAIN_2_X = STRAIN + 11;
+set: integer STRAIN_2_XY = STRAIN + 12;
+set: integer STRAIN_2_XZ = STRAIN + 13;
+set: integer STRAIN_2_XYZ = STRAIN + 14;
+set: integer BEAM = 100;
+
+set: real L = 1.;
+
+reference: BEAM,
+	null,
+	eye,
+	null,
+	null;
+
+begin: nodes;
+	structural: BEAM + 1, static,
+		reference, BEAM, null,
+		reference, BEAM, eye,
+		reference, BEAM, null,
+		reference, BEAM, null;
+
+	structural: BEAM + 2, static,
+		reference, BEAM, L/2., 0., 0,
+		reference, BEAM, eye,
+		reference, BEAM, null,
+		reference, BEAM, null;
+
+	structural: BEAM + 3, static,
+		reference, BEAM, L, 0., 0,
+		reference, BEAM, eye,
+		reference, BEAM, null,
+		reference, BEAM, null;
+
+	# the parameter node is defined as a beam strain gage
+	# that evaluates the strain in y = .01 and z = .02
+	# in the beam section, so the output is
+	#
+	#	epsilon = nu_x - y * kappa_z + z * kappa_y
+	#
+	# where
+	#	nu_x		is the axial strain of the beam
+	#	kappa_y		is the bending curvature about local axis y
+	#	kappa_z		is the bending curvature about local axis z
+	parameter: STRAIN_1_X, beam strain gage, .0, .0;
+	parameter: STRAIN_1_XY, beam strain gage, .01, .0;
+	parameter: STRAIN_1_XZ, beam strain gage, .0, .01;
+	parameter: STRAIN_1_XYZ, beam strain gage, .01, .01;
+	parameter: STRAIN_2_X, beam strain gage, .0, .0;
+	parameter: STRAIN_2_XY, beam strain gage, .01, .0;
+	parameter: STRAIN_2_XZ, beam strain gage, .0, .01;
+	parameter: STRAIN_2_XYZ, beam strain gage, .01, .01;
+
+	abstract: 0, differential;
+end: nodes;
+
+begin: elements;
+	joint: BEAM, clamp, BEAM + 1, node, node;
+
+	beam3: BEAM,
+		BEAM + 1, reference, node, null,
+		BEAM + 2, reference, node, null,
+		BEAM + 3, reference, node, null,
+		from nodes,
+		linear elastic generic, diag,
+			1.e6, .8e6, .8e6, 1.e3, 1.e3, 5.e2,
+		same,
+		same;
+
+	# the beam is bound to parameter node STRAIN in order
+	# to use the strain and curvatures at evaluation point 1
+	# to compute the measure of the strain gage
+	bind: BEAM, beam, STRAIN_1_X, 1;
+	bind: BEAM, beam, STRAIN_1_XY, 1;
+	bind: BEAM, beam, STRAIN_1_XZ, 1;
+	bind: BEAM, beam, STRAIN_1_XYZ, 1;
+
+	bind: BEAM, beam, STRAIN_2_X, 2;
+	bind: BEAM, beam, STRAIN_2_XY, 2;
+	bind: BEAM, beam, STRAIN_2_XZ, 2;
+	bind: BEAM, beam, STRAIN_2_XYZ, 2;
+
+	force: BEAM + 1, absolute,
+		BEAM + 3,
+		position, reference, node, null,
+		single, reference, node, 1., 0., 0.,
+		cosine, .1, pi/.1, 100./2, half, 0.;
+
+	couple: BEAM + 2, absolute,
+		BEAM + 3,
+		single, reference, node, 0., 1., 0.,
+		cosine, .3, pi/.1, 10./2, half, 0.;
+
+	couple: BEAM + 3, absolute,
+		BEAM + 3,
+		single, reference, node, 0., 0., 1.,
+		cosine, .5, pi/.1, 10./2, half, 0.;
+
+	genel: 0, spring support,
+		0, abstract, algebraic, linear elastic, 1.;
+	set: real E = 1.;
+	force: 0, abstract,
+		0, abstract,
+			array, 3,
+				element, BEAM, beam, string, "pI.ex", linear, 0., E,
+				element, BEAM, beam, string, "pI.ky", linear, 0., .01*E,
+				element, BEAM, beam, string, "pI.kz", linear, 0., -.01*E;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

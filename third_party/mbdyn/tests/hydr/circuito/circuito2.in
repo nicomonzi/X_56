@@ -1,0 +1,469 @@
+# MBDyn (C) is a multibody analysis code.
+# http://www.mbdyn.org
+#
+# Copyright (C) 1996-2023
+#
+# Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+# Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+#
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+#
+# Changing this copyright notice is forbidden.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    abort after: input;
+    time step: (real dt = 1.e-2);
+    initial time: 0.;
+    final time: 1000*dt;
+
+    set: (real Rho = .6);
+    method: ms, Rho, Rho;
+    max iterations: 20;
+    tolerance: 1.e-5;
+    newton raphson: modified;
+
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 20;
+    derivatives tolerance: 1.e-5;
+
+    fictitious steps number: 0;
+threads: disable;
+end: initial value;
+
+set: integer num_attuatori = 3;
+set: integer num_tubi = 4*num_attuatori;
+set: integer num_distributori = num_attuatori;
+
+begin: control data;
+    skip initial joint assembly;
+
+    hydraulic nodes: 20;      # numero nodi idraulici
+    structural nodes: 2*num_attuatori;       # numero nodi strutturali
+
+    hydraulic elements: num_distributori+num_attuatori+num_tubi; # numero elementi idraulici
+
+    rigid bodies: num_attuatori;
+    joints: (1+1+1)*num_attuatori;            # vincoli
+    forces: 0;                               # una forza generica
+    gravity;
+
+    genels: 2;
+end: control data;
+
+set: integer TerraA = 1;
+set: integer TerraB = 3;
+set: integer TerraC = 5;
+set: real l = 1.;
+set: integer CorpoA = 2;
+set: integer CorpoB = 4;
+set: integer CorpoC = 6;
+set: real g = 9.81;
+set: real mA = 1.e1;
+set: real mB = 1.e1;
+set: real mC = 1.e1;
+set: real a1A = 1.e-2;
+set: real a2A = 1.e-2;
+set: real a1B = 1.e-2;
+set: real a2B = 1.e-2;
+set: real a1C = 1.e-2;
+set: real a2C = 1.e-2;
+set: real p0 = 1.01325e5;
+set: real pALTA  = 2.e6;
+set: real pBASSA = 1.e6;
+
+set: real D = 0.0105;
+set: real lung = 1;
+set: real rho = 977;
+set: real beta = 1.96e9;
+set: real mu = 0.07971;
+
+
+
+begin: nodes;
+    hydraulic: 1, p0;
+    hydraulic: 2, p0;
+    hydraulic: 3, p0;
+    hydraulic: 4, p0;
+    hydraulic: 5, p0;
+    hydraulic: 6, p0;
+    hydraulic: 7, p0;
+    hydraulic: 8, p0;
+    hydraulic: 9, p0;
+    hydraulic: 10,p0;
+    hydraulic: 11,p0;
+    hydraulic: 12,p0;
+    hydraulic: 13,p0;
+    hydraulic: 14,p0;
+    hydraulic: 15,p0;
+    hydraulic: 16,p0;
+    hydraulic: 17,p0;
+    hydraulic: 18,p0;
+    hydraulic: 19,p0;
+    hydraulic: 20,p0;
+
+    structural: TerraA, static,
+                0.,0.,-l,
+		eye,
+		null,
+		null;
+
+    structural: TerraB, static,
+                1.,0.,-l,
+		eye,
+		null,
+		null;
+
+    structural: TerraC, static,
+                2.,0.,-l,
+		eye,
+		null,
+		null;
+
+    structural: CorpoA, dynamic,
+                null,
+		eye,
+		null,
+		null;
+
+    structural: CorpoB, dynamic,
+                1.,0.,0.,
+		eye,
+		null,
+		null;
+
+    structural: CorpoC, dynamic,
+                2.,0.,0.,
+		eye,
+		null,
+		null;
+
+end: nodes;
+
+begin: elements;
+
+#****************************
+#*        ATTUATORI:3       *
+#****************************
+
+# Attuatore A:
+    hydraulic: 11, actuator,
+               4, 5,            # Nodi idraulici 1&2
+               TerraA, null,     # Nodo strutturale 1
+	       CorpoA, null,     # Nodo strutturale 2
+	       # direction, 0.,0.,1.,
+	       a1A,		# Area su cui agisce p1
+	       a2A,              # Area su cui agisce p2
+	       1.8,             # l1
+	       hydraulic fluid, linear compressible,
+		      density, rho, beta, p0,
+		      viscosity,mu,
+	       same;
+
+# Attuatore B:
+    hydraulic: 12, actuator,
+               10, 11,            # Nodi idraulici 1&2
+               TerraB, null,     # Nodo strutturale 1
+	       CorpoB, null,     # Nodo strutturale 2
+	       # direction, 0.,0.,1.,
+	       a1B,		# Area su cui agisce p1
+	       a2B,              # Area su cui agisce p2
+	       1.8,             # l1
+	       hydraulic fluid, linear compressible,
+		      density, rho, beta, p0,
+		      viscosity,mu,
+	       same;
+
+# Attuatore C:
+    hydraulic: 13, actuator,
+               16, 17,            # Nodi idraulici 1&2
+               TerraC, null,     # Nodo strutturale 1
+	       CorpoC, null,     # Nodo strutturale 2
+	       # direction, 0.,0.,1.,
+	       a1C,		# Area su cui agisce p1
+	       a2C,              # Area su cui agisce p2
+	       1.8,             # l1
+	       hydraulic fluid, linear compressible,
+		      density, rho, beta, p0,
+		      viscosity,mu,
+	       same;
+
+#****************************
+#*          TUBI:16         *
+#****************************
+   hydraulic: 31,pipe,1,2,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 32,pipe,3,4,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 33,pipe,5,6,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 34,pipe,7,20,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 35,pipe,1,8,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 36,pipe,9,10,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 37,pipe,11,12,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 38,pipe,13,20,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 39,pipe,1,14,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 40,pipe,15,16,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+         	    viscosity,mu;
+
+
+   hydraulic: 41,pipe,17,18,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+   hydraulic: 42,pipe,19,20,
+		D,			# diametro
+	        area, 3.84e-5,		# area
+		lung,			# lunghezza
+		#turbulent;		# flag turbulent
+                # initial value, 16; 	# portata iniziale
+                hydraulic fluid, incompressible,
+		    density, rho,
+		    viscosity,mu;
+
+
+#****************************
+#*  VALVOLE DI CONTROLLO:3  *
+#****************************
+
+  hydraulic: 21,control valve,2,3,6,7, 	# AltaPressione,InAttuatore,OutAttuatore,BassaPressione
+                .005,                   # area massima della valvola
+		loss, 1.e-9,            # area di trafilamento in % sull'area massima della valvola
+	        # const,0.5,	        # stato
+	   	# step,5.*dt,-0.1,-0,   # stato
+		# linear, -0.01,0.0001/dt,
+		double step, 1.11,1.21,.001,.0,
+		hydraulic fluid, incompressible,
+		       density, rho,
+		       viscosity,mu;
+
+ hydraulic: 22,control valve,8,9,12,13, 	# AltaPressione,InAttuatore,OutAttuatore,BassaPressione
+                .005,                   # area massima della valvola
+		loss, 1.e-9,            # area di trafilamento in % sull'area massima della valvola
+	        #linear, 1,-20,   # stato
+	        # const,0.5,	        # stato
+	   	# step,5.*dt,-0.1,-0,   # stato
+	        # linear, -0.01,0.0001/dt,
+		double step, 1.11,1.31,.001,.0,
+		hydraulic fluid, incompressible,
+		       density, rho,
+		       viscosity,mu;
+
+ hydraulic: 23,control valve,14,15,18,19, 	# AltaPressione,InAttuatore,OutAttuatore,BassaPressione
+                .005,                   # area massima della valvola
+		loss, 1.e-9,            # area di trafilamento in % sull'area massima della valvola
+	        # const,0.5,	        # stato
+		# step,5.*dt,-0.1,-0,   # stato
+	        # linear, -0.01,0.0001/dt,
+		double step, 1.21,1.41,.001,.0,
+		hydraulic fluid, incompressible,
+		       density, rho,
+		       viscosity,mu;
+
+
+#****************************
+#*    VINCOLI & CORPI:3     *
+#****************************
+
+    # Vincolo
+
+    joint: TerraA, clamp, TerraA, node, node;
+    joint: TerraB, clamp, TerraB, node, node;
+    joint: TerraC, clamp, TerraC, node, node;
+
+    joint: 11, inline,
+           TerraA,
+		position, null,
+		orientation, eye,
+	   CorpoA;
+
+    joint: 12, prismatic,
+           TerraA,
+	   CorpoA;
+
+    joint: 31, inline,
+           TerraB,
+		position, null,
+		orientation, eye,
+	   CorpoB;
+
+    joint: 32, prismatic,
+           TerraB,
+	   CorpoB;
+
+    joint: 51, inline,
+           TerraC,
+		position, null,
+		orientation, eye,
+	   CorpoC;
+
+    joint: 52, prismatic,
+           TerraC,
+	   CorpoC;
+
+    body: CorpoA, CorpoA,
+          mA,
+	  null,
+	  diag, 10., 1., 1.;
+
+    body: CorpoB, CorpoB,
+          mB,
+	  null,
+	  diag, 10., 1., 1.;
+
+    body: CorpoC, CorpoC,
+          mC,
+	  null,
+	  diag, 10., 1., 1.;
+
+
+    gravity: uniform, 0.,0.,-1., const, g;
+
+    # forza astratta: generatore di portata
+/*
+    force: 111, abstract,
+           1, hydraulic,
+           # const, 0.;
+	   # const, 1.e-2;
+           # step, 10*dt, -1.e-2, 0.;
+	   # array, 2,
+	   # random, .01,0.,dt,1000., steps, 10;
+	   cosine, 100*dt, pi/(100*dt),-.5e1,-1,0.;
+*/
+    # incastro generico: generatore di pressione
+    # sorgente ad alta pressione
+     genel: 1111, clamp,
+           1, hydraulic,
+	   # const, pALTA;
+	   cosine, 0., pi/.1, (pALTA-p0)/2., -1, p0;
+	   # ramp, 10., 10.*dt, 100.*dt, 0.;
+	   # step, 200*dt, 1.211927e+06, 1.e6;
+
+  # sorgente a bassa pressione
+    genel: 1112, clamp,
+           20, hydraulic,
+	   # const, pBASSA;
+	   cosine, 0., pi/.1, (pBASSA-p0)/2., -1, p0;
+	   # ramp, 10., 10.*dt, 100.*dt, 0.;
+	   # step, 200*dt, 1.211927e+06, 1.e6;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

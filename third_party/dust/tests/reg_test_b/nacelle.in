@@ -1,0 +1,5 @@
+mesh_file = erica-nacelle.cgns
+mesh_file_type = cgns
+el_type = p
+scaling_factor = 0.0010811 !1/R R = 925 mm
+

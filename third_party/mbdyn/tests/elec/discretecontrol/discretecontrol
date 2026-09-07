@@ -1,0 +1,78 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/elec/discretecontrol/discretecontrol,v 1.2 2009/05/21 07:41:32 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1e-3;
+
+	tolerance: 1e-12;
+	max iterations: 5;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes:
+		+2
+		+1
+	;
+	electric elements:
+		+1
+	;
+	genels:
+		+2
+		+1
+	;
+	forces:
+		+1
+	;
+end: control data;
+
+set: integer U_1 = 1;
+set: integer U_2 = 2;
+set: integer Y_1 = 11;
+
+begin: nodes;
+	abstract: U_1;
+	abstract: U_2;
+	abstract: Y_1;
+end: nodes;
+
+begin: elements;
+	genel: Y_1, spring support,
+		Y_1, abstract, algebraic,
+		linear elastic, 1.;
+	force: Y_1, abstract,
+		Y_1, abstract,
+		sine, 0., 2*pi, 1., forever, 0.;
+
+	genel: U_1, spring support,
+		U_1, abstract, algebraic,
+		linear elastic, 1.;
+	genel: U_2, spring support,
+		U_2, abstract, algebraic,
+		linear elastic, 1.;
+
+	electric: 1, discrete control,
+		2,	# number of outputs
+		2,	# number of inputs
+		1,	# order of matrices A
+		1,	# update every iterations
+		control, "discretecontrol.dat",
+		outputs,
+			node dof, Y_1, abstract, algebraic, scale, 1e-3,
+			drive, sine, .5, 2*pi, 1., forever, 0., scale, 1e-3,
+		inputs,
+			U_1, abstract, algebraic,
+			U_2, abstract, algebraic;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

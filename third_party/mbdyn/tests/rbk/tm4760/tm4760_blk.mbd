@@ -1,0 +1,114 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/rbk/tm4760/tm4760_blk.mbd,v 1.7 2014/12/13 17:15:57 masarati Exp $
+#
+# Rotor blade model for MBDyn > 1.3.4
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+# Data from:
+#
+# NASA Technical Memorandum 4760
+# ARL Technical Report 1389
+#
+# Rotating Shake Test and Modal Analysis of a Model Helicopter Rotor Blade
+# W. Keats Wilkie, Paul H. Mirick, and Chester W. Langston
+# Vehicle Technology Center
+# U.S. Army Research Laboratory
+# Langley Research Center Hampton, Virginia
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: .001;
+	# final time: 10.;
+	time step: .5e-2;
+
+	linear solver: naive, colamd, mt, 1;
+	nonlinear solver: newton raphson, modified, 5;
+
+	tolerance: 1.e-3;
+	max iterations: 10;
+    
+	derivatives tolerance: 1.e+6;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1e-0;
+    
+	method: ms, .6, .6;
+	# eigenanalysis: 9.99,		# with RPM > 0
+	eigenanalysis: .001,		# with RPM = 0
+		# parameter, 1.e-6,	# with lapack
+		lower frequency limit, 1.,
+		upper frequency limit, 120.,
+		use lapack,
+		#balance, no;
+		#balance, scale;
+		balance, permute,
+		output geometry,
+		output eigenvectors;
+		#balance, all;
+		# parameter, 1.e-4,	# with arpack
+		# use arpack, 40, 100, 0., output sparse matrices, output eigenvectors;
+
+	# output: iterations;
+	# output: residual;
+	# output: solution;
+threads: disable;
+end: initial value;
+
+include: "tm4760_blk.set";
+
+begin: control data;
+	skip initial joint assembly;
+	structural nodes: NSTRUCTNODE;
+	joints: 3;
+	beams: NBEAM;
+	rigid bodies: NBODY;
+
+	# print: all;
+	print: dof stats;
+
+	set: real RPM = 0.;
+	# set: real RPM = 150.;
+	# set: real RPM = 250.;
+	# set: real RPM = 350.;
+	# set: real RPM = 450.;
+	# set: real RPM = 550.;
+	# set: real RPM = 660.;
+	rigid body kinematics:
+		const, angular velocity, 0., 0., (RPM/60)*2*pi;
+		# drive, angular velocity, 0., 0., 1., cosine, 0., pi/1., (660./60)*2*pi/2., half, 0.;
+	# model: static;
+end: control data;
+
+begin: nodes;
+	include: "tm4760_blk.nod";
+end: nodes;
+
+begin: elements;
+	joint: 200204, clamp, GRID_204, node, node;
+	joint: 100204, cardano hinge,
+		GRID_204,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		GRID_200,
+			position, reference, node, null,
+			orientation, reference, node, eye;
+	joint: 204, deformable hinge,
+		GRID_204,
+			orientation, reference, node, eye,
+		GRID_200,
+			orientation, reference, node, eye,
+		linear viscoelastic generic,
+			diag, 0., 0., 464.0,
+			diag, 0., 0., 980.0;
+
+	include: "tm4760_blk.elm";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

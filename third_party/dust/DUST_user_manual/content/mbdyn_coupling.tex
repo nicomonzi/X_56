@@ -1,0 +1,401 @@
+\chapter{Coupling with a structural software through preCICE}
+\label{chap:preCICE}
+\section{Introduction}
+\label{sec:preCICEintro} 
+The communication between DUST and MBDyn is managed by preCICE 
+(Precise Code Interaction Coupling Environment), a coupling library for partitioned 
+multi-physics simulations, originally developed for fluid-structure interaction 
+and conjugate heat transfer simulations.
+preCICE offers methods for transient equation coupling, communication means, 
+and data mapping schemes. It is written in C++ and offers additional bindings 
+for C, Fortran, Matlab, and Python.
+preCICE~(\url{https://github.com/precice/}) is an open-source software released 
+under the LGPL3 license. 
+\subsection{DUST}
+\label{subsec:DUSTpreCICE}
+The DUST component input card is enriched of the following parameters:
+\begin{itemize}
+    \item \param{coupled} \textit{required:} no. \textit{default:} F. \textit{type:} logical.
+    
+    component of a coupled simulation with respect to a structural solver.
+    
+    \item \param{coupling_type} \textit{required:} yes. \textit{type:} string. 
+    type of the coupling:
+    \begin{itemize}
+        \item \opt{rigid}: rigid component and node 
+        \item \opt{rbf}: generic DUST component and node coupling
+    \end{itemize}
+    Although three different types of are implemented, the most general one 
+    is the \opt{rbf} since it can manage all DUST components and can be coupled with both rigid and flexible elements.  
+
+  \item \param{coupling_node} \textit{required:} no. \textit{type:} 
+  real array, length 3. \textit{default:} (0.0, 0.0, 0.0)
+
+    Node for \opt{rigid} coupling in the reference configuration (x, y, z).
+
+  \item \param{coupling_node_file} \textit{required:} yes. \textit{type:} string. 
+
+  File containing the nodes for FSI (fluid structure interaction). 
+  It is required for \opt{rbf} coupling. 
+
+  \item \param{coupling_node_orientation} \textit{required:} no. 
+  \textit{type:} real array, length 3. \textit{default:} (/1.,0.,0., 0.,1.,0., 0.,0.,1./)
+
+  Orientation of the node for rigid coupling. This array contains the local 
+  components (in the local reference frame of the geometrical component) 
+  of the unit vectors of the coupling node reference frame. In the \opt{rbf} 
+  frame indicates the rotation matrix from the structural component to the 
+  DUST component reference frame. 
+
+\end{itemize}
+In the DUST solver input file, a new keyword is added:
+\begin{itemize}
+    \item \param{precice_config} \textit{required:} no. \textit{default:} ./../precice-config.xml. \textit{type:} string.
+    
+    Path of the preCICE XML configuration file.
+\end{itemize}
+\subsection{preCICE XML}
+\label{subsec:preCICEXML}
+preCICE needs to be configured at runtime via an \texttt{xml} file, 
+typically named \texttt{precice-config.xml}. Here, you specify which 
+solvers participate in the coupled simulation, which coupling data 
+values they exchange, which fixed-point acceleration and many other things.
+
+First of all, the fields exposed to communication between the two solvers are declared.
+\begin{lstlisting}[language=XML]
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+  <solver-interface dimensions="3">
+
+    <!-- === Data =========================================== -->
+    
+    <data:vector name="Position" />
+    <data:vector name="rotation" />
+    <data:vector name="Velocity" />
+    <data:vector name="AngularVelocity" />
+    <data:vector name="Force" />
+    <data:vector name="Moment" />
+\end{lstlisting}  
+
+Here follows the definition of the two meshes, for each of which it is 
+declared which data among the declared before are used.
+In this case, both DUST and MBDyn use all the exposed fields.
+\begin{lstlisting}[language=XML]
+    <!-- === Mesh =========================================== -->
+    <mesh name="MBDynNodes">
+      <use-data name="Position" />
+      <use-data name="rotation" />
+      <use-data name="Velocity" />
+      <use-data name="AngularVelocity" />
+      <use-data name="Force" />
+      <use-data name="Moment" />
+    </mesh>
+
+    <mesh name="dust_mesh">
+      <use-data name="Position" />
+      <use-data name="rotation" />
+      <use-data name="Velocity" />
+      <use-data name="AngularVelocity" />
+      <use-data name="Force" />
+      <use-data name="Moment" />
+    </mesh>
+\end{lstlisting} 
+
+In this part are declared the two participants, MBDyn and DUST. 
+For each participant it is indicated which field is received 
+(\texttt{read-data}) and which is sent (\texttt{write-data}). 
+Considering DUST, this receives the kinematic variables and sends the loads. 
+\begin{lstlisting}[language=XML]
+    <!-- === Participants =================================== -->
+    <participant name="MBDyn">
+      <use-mesh   name="MBDynNodes" provide="yes"/>
+      <write-data name="Position"        mesh="MBDynNodes" />
+      <write-data name="rotation"        mesh="MBDynNodes" />
+      <write-data name="Velocity"        mesh="MBDynNodes" />
+      <write-data name="AngularVelocity" mesh="MBDynNodes" />
+      <read-data  name="Force"           mesh="MBDynNodes" />
+      <read-data  name="Moment"          mesh="MBDynNodes" />
+    </participant>
+
+    <participant name="dust">
+      <use-mesh   name="dust_mesh"  provide="yes" />
+      <use-mesh   name="MBDynNodes" from="MBDyn" />
+      <write-data name="Force"           mesh="dust_mesh" />
+      <write-data name="Moment"          mesh="dust_mesh" />
+      <read-data  name="Position"        mesh="dust_mesh" />
+      <read-data  name="rotation"        mesh="dust_mesh" />
+      <read-data  name="Velocity"        mesh="dust_mesh" />
+      <read-data  name="AngularVelocity" mesh="dust_mesh" />
+      <mapping:nearest-neighbor direction="read"  from="MBDynNodes" to="dust_mesh"
+        constraint="consistent" />
+      <mapping:nearest-neighbor direction="write" from="dust_mesh"  to="MBDynNodes"
+        constraint="conservative" />
+    </participant>
+\end{lstlisting}
+
+For each two participants that should exchange data, you have to define 
+an m2n communication. 
+This establishes an m2n (i.e. parallel, from the M processes of the one 
+participant to the N processes of the other) communication channel based 
+on TCP/IP sockets between MBDyn and DUST.
+\begin{lstlisting}[language=XML]
+    <!-- === Communication ================================== -->
+    <m2n:sockets exchange-directory="./../" from="MBDyn" to="dust"/>
+\end{lstlisting}
+
+A coupling scheme can be either serial or parallel and either explicit or 
+implicit. Serial refers to the staggered execution of one participant after 
+the other where the first participant is computed before the second one. 
+With an explicit scheme, both participants are only executed once per time window. 
+With an implicit scheme, the participants are executed multiple times until convergence.
+
+The \texttt{max-time value} field indicates the maximum time (end time) 
+for the coupled simulation  (NOTE: actually the final time is the shorter 
+between this and the final time set in DUST and in the MBDyn input).
+
+With \texttt{time-window-size value}, you can define the coupling time 
+window (=coupling time step) size. If a participant uses a smaller one, 
+it will subcycle until this window size is reached. 
+Setting it equal to -1, it is set according to a specific \texttt{method}, 
+here taking the value form the first participant MBDyn.
+
+To control the number of sub-iterations within an implicit coupling loop, 
+you can specify the maximum number of iterations, \texttt{max-iterations} 
+and you can specify one or several convergence measures:
+\begin{itemize}
+    \item \texttt{relative-convergence-measure} for a relative criterion
+    \item \texttt{absolute-convergence-measure} for an absolute criterion
+    \item \texttt{min-iteration-convergence-measure} to require a minimum of iterations
+\end{itemize}
+
+\begin{lstlisting}[language=XML]
+    <!-- === Coupling scheme ================================ -->
+    <coupling-scheme:serial-implicit>
+      <participants first="MBDyn" second="dust" />
+      <max-time value="100.0" />
+      <time-window-size value="-1" valid-digits="10" method="first-participant" />
+      <exchange data="Position"        from="MBDyn" mesh="MBDynNodes" to="dust" />
+      <exchange data="rotation"        from="MBDyn" mesh="MBDynNodes" to="dust" />
+      <exchange data="Velocity"        from="MBDyn" mesh="MBDynNodes" to="dust" />
+      <exchange data="AngularVelocity" from="MBDyn" mesh="MBDynNodes" to="dust" />
+      <exchange data="Force"           from="dust"  mesh="MBDynNodes" to="MBDyn" />
+      <exchange data="Moment"          from="dust"  mesh="MBDynNodes" to="MBDyn" />
+      <max-iterations value="60"/>
+      <absolute-convergence-measure limit="1.0e-4" data="Position" mesh="MBDynNodes" />
+      <absolute-convergence-measure limit="1.0e-3" data="rotation" mesh="MBDynNodes" />
+      <absolute-convergence-measure limit="1.0e-3" data="Velocity" mesh="MBDynNodes" />
+      <absolute-convergence-measure limit="1.0e-3" data="AngularVelocity" mesh="MBDynNodes" /> 
+\end{lstlisting}
+
+Mathematically, implicit coupling schemes lead to fixed-point 
+equations at the coupling interface. A pure implicit coupling 
+without acceleration corresponds to a simple fixed-point iteration, 
+which still has the same stability issues as an explicit coupling. 
+We need acceleration techniques to stabilize and accelerate the fixed-point iteration. 
+In preCICE, three different types of acceleration can be configured: 
+constant (\texttt{constant} under-relaxation), 
+\texttt{aitken} (adaptive under-relaxation), 
+and various quasi-Newton variants (\texttt{IQN-ILS} aka. 
+Anderson acceleration, \texttt{IQN-IMVJ} aka. generalized Broyden).
+\begin{lstlisting}[language=XML]
+      <acceleration:aitken>
+        <data name="Force" mesh="MBDynNodes"/>
+        <initial-relaxation value="0.1"/>
+      </acceleration:aitken>		
+    </coupling-scheme:serial-implicit>
+
+  </solver-interface>
+
+</precice-configuration>
+\end{lstlisting}
+
+For more details, see \url{https://precice.org}.
+
+\section{Coupling example}
+\label{sec:couplingexample}
+\subsection{MBDyn external force}
+\label{subsec:MBDynexternalforce}
+The aerodynamic loads computed by DUST are introduced in the MBDyn model as an external structural force acting on some nodes\footnote[1]{All the examples are taken form the \texttt{coupled\_wing} example}.
+\begin{inputfile}[frame=single, caption={}, label={}]
+  force: 9, external structural,
+  socket,
+    create, yes,
+    path, "$MBSOCK",
+    no signal,
+  coupling, tight, 
+  sorted, yes,
+  orientation, orientation vector,
+  accelerations, yes,
+  13,
+  # Wing central node 
+  GROUND + RIGHT,
+  # Wing right nodes 
+  GROUND + RIGHT + 1, 
+  GROUND + RIGHT + 2, 
+  GROUND + RIGHT + 3, 
+  GROUND + RIGHT + 4,
+  # Wing left nodes 
+  GROUND + LEFT + 1, 
+  GROUND + LEFT + 2, 
+  GROUND + LEFT + 3, 
+  GROUND + LEFT + 4,
+  # Wing right control surfaces node (in the same ref. sys. of wing right)
+  FLAP_RIGHT + 1, 
+  FLAP_RIGHT + 2,
+  # Wing left control surfaces node (in the same ref. sys. of wing left)
+  FLAP_LEFT + 1, 
+  FLAP_LEFT + 2;
+\end{inputfile}
+
+In DUST, the aerodynamic component is defined reference system: 
+\begin{itemize}
+    \item The X axis goes from leading edge to trailing edge. 
+    \item The Y axis is along the aerodynamic center axis and goes from the root to tip.
+    \item The Z axis is determined by the right and rule.
+\end{itemize}
+Whereas, the MBDyn beam axis reference system defined as: 
+\begin{itemize}
+  \item The X axis moves along the beam elastic axis and goes from beam root to tip, and it is rotated the structural sweep $\lambda$ and dihedral $\delta$ angles.
+  \item The Y axis goes from trailing edge to leading edge, and it rotated by the structural twist angle $\theta$. 
+  \item The Z axis is determined by the right and rule.
+\end{itemize}
+
+In order to pass from local MBDyn beam reference frame to the DUST wind axis reference frame, the following rotation matrices are used: 
+
+\begin{itemize}
+    \item Rotation matrix from the DUST reference frame to the MBDyn reference frame:
+    \begin{equation}
+        \mathbf{R}_{b} = 
+        \begin{bmatrix}
+            0 & 1 & 0\\
+            -1 & 0 & 0\\
+            0 & 0 & 1
+        \end{bmatrix}
+        \label{eq:rotbeam}
+    \end{equation}
+
+    \item Twist rotation of the MBDyn node around the beam axis $x$\footnote[1]{In the case of a rotor blade, this matrix is equal to the identity, since the aerodynamic twist has been already incorporate to build the structural beam. Then, the twist of each region will be zero, since it will be taken from the MBDyn node orientation}. 
+    \begin{equation}
+        \mathbf{R}_{\theta} = 
+        \begin{bmatrix}
+            \cos \theta & 0 & \sin\theta\\ 
+            0 & 1 & 0\\ 
+            -\sin\theta & 0 & \cos\theta
+        \end{bmatrix}
+        \label{eq:rottwist}
+    \end{equation}
+    
+    \item Sweep rotation of the MBDyn node. The sweep is taken positive for a rotation about $-z$. 
+    \begin{equation}
+        \mathbf{R}_{\lambda} = 
+        \begin{bmatrix}
+            \cos\lambda & -\sin\lambda & 0\\ 
+            \sin\lambda & \cos\lambda & 0\\ 
+            0 & 0 & 1 
+        \end{bmatrix}
+        \label{eq:rotsweep}
+    \end{equation}
+    
+    \item Dihedral rotation of the MBDyn node. 
+    \begin{equation}
+        \mathbf{R}_{\delta} = 
+        \begin{bmatrix}
+            1 & 0 & 0\\ 
+            0 & \cos\delta & \sin\delta\\ 
+            0 & -\sin\delta & \cos\delta 
+        \end{bmatrix}
+        \label{eq:rotdih}
+    \end{equation}
+\end{itemize}
+
+Then, the generic rotation matrix for a right wing is: 
+\begin{align*}\label{eq:mbdydust:rightmat}
+    \mathbf{R}_{\text{right}}& =   \mathbf{R}_{b}\mathbf{R}_{\theta}\mathbf{R}_{\lambda}\mathbf{R}_{\delta} = \\
+    &=\begin{bmatrix}
+    \sin\lambda  & 
+    \cos\delta \,\cos\lambda  & 
+    \cos\lambda \,\sin\delta \\
+    -\cos\lambda \,\cos\theta  & 
+    \sin\delta \,\sin\theta +\cos\delta \,\cos\theta \,\sin\lambda  & 
+    \sin\delta \,\cos\theta \,\sin\lambda -\cos\delta \,\sin\theta \\ 
+    -\cos\lambda \,\sin\theta  & 
+    \cos\delta \,\sin\lambda \,\sin\theta -\sin\delta \,\cos\theta  & 
+    \cos\delta \,\cos\theta +\sin\delta \,\sin\lambda \,\sin\theta
+    \end{bmatrix}
+\end{align*}
+
+Whereas, the generic rotation matrix for a left wing is: 
+\begin{align*}
+    \mathbf{R}_{\text{left}}&=   \mathbf{R}_{b}\mathbf{R}_{\theta}\mathbf{R}_{\lambda}^T\mathbf{R}_{\delta}^T =\\
+    &=\begin{bmatrix} 
+    -\sin\lambda  &
+    \cos\delta \,\cos\lambda  &
+    -\cos\lambda \,\sin\delta \\
+    -\cos\lambda \,\cos\theta  & 
+    -\sin\delta \,\sin\theta -\cos\delta \,\cos\theta \,\sin\lambda  & 
+    \sin\delta \,\cos\theta \,\sin\lambda -\cos\delta \,\sin\theta \\ 
+    -\cos\lambda \,\sin\theta  & 
+    \sin\delta \,\cos\theta -\cos\delta \,\sin\lambda \,\sin\theta  &
+    \cos\delta \,\cos\theta +\sin\delta \,\sin\lambda \,\sin\theta  
+    \end{bmatrix}
+\end{align*}
+
+All these rotations are intended to rotate back the structural component in the DUST component reference frame. When this procedure is performed, then the aerodynamic mesh can be constructed as a normal DUST parametric mesh. 
+
+These rotation matrix can be used also to transfer the hinge nodes coordinate from the MBDyn reference frame to the DUST one: to correctly define a coupled hinge, the MBDyn nodes must be in the same reference system of the wing-beam axis, with a certain offset in chord-wise direction, then, those nodal coordinates must be transfer in the DUST component reference system. 
+In order to map the DUST component with the MBDyn nodes two coordinates files must be written: 
+\begin{itemize}
+    \item \texttt{RefConfigNodes.dat}: this file contains the list of coordinates of all MBDyn nodes than are contained in the external force card and that are intended to be coupled with a DUST component. If the node belongs to a beam element the coordinates must be given in the local reference frame of the beam (the feathering axis in the case of a rotor blade). 
+    
+    In case of multiple blades, to differentiate from one blade to the other an offset can be added conveniently in the $z$ coordinates, whereas the $x$ coordinates will be the same for all blades.  
+    \begin{inputfile}[frame=single, caption={}, label={}]
+      # Wing central node
+      0.0  0.0    0.0 
+      # Wing right nodes
+      1.137158042603258  0.0    0.0 
+      2.274316085206515  0.0    0.0 
+      3.411474127809773  0.0    0.0 
+      4.548632170413031  0.0    0.0 
+      # Wing left nodes 
+      -1.137158042603258  0.0    0.0 
+      -2.274316085206515  0.0    0.0 
+      -3.411474127809773  0.0    0.0 
+      -4.548632170413031  0.0    0.0 
+      # Wing right control surfaces node (in the same ref. sys. of wing right)
+      2.0     -0.555  0.0
+      3.5     -0.555  0.0
+      # Wing left control surfaces node (in the same ref. sys. of wing left)
+      -2.0     -0.555  0.0
+      -3.5     -0.555  0.0
+    \end{inputfile}
+    \item \texttt{CouplingNodeFile.in}: this file contains the list of coordinates of MBDyn nodes that are coupled for a single component. A best practice is to write this file as simply a copy of the \texttt{RefConfigNodes.dat} file for what concerns the coordinates related to the components, if the $z$ offset is present, then this will be added to the \texttt{starting\_point} coordinates.  
+    
+    For example, in case of the right wing components this file is: 
+    \begin{inputfile}[frame=single]
+      1.137158042603258  0.0    0.0 
+      2.274316085206515  0.0    0.0 
+      3.411474127809773  0.0    0.0 
+      4.548632170413031  0.0    0.0   
+      2.0     -0.555  0.0
+      3.5     -0.555  0.0
+    \end{inputfile}
+    Then, since the angle of sweep, dihededral, and twist are respetively: $30^\circ$, $15^\circ$ and $10^\circ$, by applying the rotation matrix, the \texttt{coupling_node_orientation} is: 
+    \begin{inputfile}[frame=single]
+      coupling_node_orientation = 
+      (/0.5,   0.836516303737808,   0.224143868042013, 
+      -0.852868531952443,   0.430682165754551,   0.295174760618610, 
+      0.150383733180435,  -0.338752631992439,   0.928779514800424/)
+    \end{inputfile}
+    Then, the origin of the wing must be moved from the elastic axis (located at the 33\% of the chord), to the aerodynamic center, defined by \texttt{reference_chord_fraction}, and a $y$ offset is applied in order to place in the middle the fuselage. 
+    \begin{inputfile}[frame=single]
+      starting_point = (/0.222655776165707,0.595417457320121 ,0.181114485501542/)
+    \end{inputfile}
+    The hinge node must be also moved in the DUST component reference system, by applying the rotation matrix to the last two coordinates of the \texttt{CouplingNodeFile.in} we obtain: 
+    \begin{inputfile}[frame=single]
+      node_1 = (/ 1.473342035233606, 1.434004005481840, 0.284465743940698  /)  
+      node_2 = (/ 2.223342035233606  , 2.688778461088552  , 0.620681546003718/)
+    \end{inputfile}
+    That are the coordinate of the right flap in the DUST reference frame. 
+\end{itemize}

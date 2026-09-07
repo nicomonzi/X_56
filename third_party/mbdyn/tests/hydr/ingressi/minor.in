@@ -1,0 +1,106 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/ingressi/minor.in,v 1.4 2014/12/13 17:15:42 masarati Exp $
+
+begin: data;
+    problem: initial value;
+
+end: data;
+
+begin: initial value;
+  #  abort after: input;
+    time step: (real dt = 2.e-1);
+    initial time: 0.;
+    final time: 400*dt;
+    
+    set: (real Rho = .6);
+    method: ms, Rho, Rho;
+    
+    max iterations: 10;
+    tolerance: 1.e-5;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 10;
+    derivatives tolerance: 1.e-4;
+    
+    fictitious steps number: 2;
+    fictitious steps ratio: 1.e-2;
+    fictitious steps max iterations: 10;
+    fictitious steps tolerance: 1.e-4;
+
+threads: disable;
+end: initial value;
+
+
+
+begin: control data;
+#  output file name: "output";
+
+  
+  
+  hydraulic nodes: 2;       #  numero nodi idraulici
+ 
+  hydraulic elements: 1;    #  numero elementi idraulici
+                            
+  
+
+  forces: 1;                 # una forza generica
+
+  
+  genels: 1;
+                   
+ 
+ end: control data;
+ 
+begin: nodes;
+
+   hydraulic: 1;
+   hydraulic: 2;
+ # hydraulic: 3;
+ # hydraulic: 4;
+
+end: nodes;
+
+
+
+begin: elements;
+ 
+ # density                  800 kg/m^3		kappa		     10 N/m
+ # diametro               0.007 m		precarico	    300 N 
+ # viscosità    	    0.9 kg/m/s		larghezza          5e-3 m
+ # area tubo   	       3.84 e-5 m^2		massa		  1.e-3 kg 
+ # lunghezza		      1	m 		area massima      2.e-4 m^2
+ # area diaframma        2. e-5 m^2 50% area tubo  
+
+
+ 
+ hydraulic: 1,minor losses,1,2,
+		.5,		# kappa
+		3.84e-5,	# area tubo
+		800.;		# densità      
+ 
+   
+ # forza generico: generatore di portata
+   
+   force: 1, abstract, 
+          1, hydraulic,
+           const,-1.e-3;
+          # step, 10*dt,1.,0.;
+          # array, 2,
+	  # random, .01,0.,dt,1000., steps, 10;
+	  # sine, 1*dt, .2*pi,.5,0,0.;  
+   
+   
+# incastro generico: generatore di pressione
+
+   genel: 1, clamp, 
+             2, hydraulic, 
+	     const, 1.e5;
+	 
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

@@ -1,0 +1,68 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/distance/distancewithoffset,v 1.3 2014/12/13 17:15:45 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.e-2;
+	time step: 1.e-3;
+	tolerance: 1e-6;
+	max iterations: 10;
+	method: ms, .6;
+	# output: jacobian;
+	output: iterations;
+	output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	parameter nodes: 1;
+	rigid bodies: 1;
+	joints: 2;
+	forces: 1;
+
+	max iterations: 1; # remove when done with new distance joint (371)
+
+	# default output: none;
+	# skip initial joint assembly;
+end: control data;
+
+set: const real L = 10.;
+set: const real V0 = 1.; # only works with new distance joint (#371); needs at least 1 iteration with old, and yields incorrect solution; set to 0. otherwise
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		0., 0., L,
+		eye,
+		# null,
+		0., 0., V0,
+		null;
+	parameter: 1, element;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, distance with offset,
+		1, 1.,0.,0.,
+		2, 1.,0.,0.,
+		linear, L, V0;
+	bind: 2, joint, 1, string, "d";
+	body: 2, 2, 2., null, diag, 11.,12.,13.;
+	force: 2, follower, 2, position, null, 1.,0.,0., sine, 0.,pi/.1,100.,forever,0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

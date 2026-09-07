@@ -1,0 +1,106 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/beam/hcurv,v 1.4 2014/12/13 17:15:35 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    set: real dt = 1.e-6;
+    time step: dt;
+    initial time: 0.;
+    final time: 1000*dt;
+    
+        method: implicit euler;
+    	max iterations: 100;
+    	tolerance: 1.e-4, test, norm, 1e-4, test, norm;
+    
+    	derivatives coefficient: auto;
+    	derivatives max iterations: 10;
+    	derivatives tolerance: 1.e-6, 1e-2;
+
+        linear solver: umfpack, scale, iterative, always, max iterations, 10;
+        nonlinear solver: linesearch, default solver options, heavy nonlinear, divergence check, no, lambda min, 0., tolerance x, 1e-8;
+        output: iterations, solver condition number, stat, yes;
+    	fictitious steps number: 0;
+        threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    structural nodes: 1+4; 
+    joints: 1;
+    forces: 1;
+    rigid bodies: 1;
+    beams: 4;
+end: control data;
+
+begin: nodes;
+    structural: 1, static,
+                cos(0.),sin(0.),0.,
+		1, -sin(0.),cos(0.),0., 
+		2, cos(0.),sin(0.),0.,
+		null,
+		null;
+    structural: 2, static,
+                cos(pi/8.),sin(pi/8.),0.,
+		1, -sin(pi/8.),cos(pi/8.),0., 
+		2, cos(pi/8.),sin(pi/8.),0.,
+		null,
+		null;
+    structural: 3, static,
+                cos(pi/4.),sin(pi/4.),0.,
+		1, -sin(pi/4.),cos(pi/4.),0., 
+		2, cos(pi/4.),sin(pi/4.),0.,
+		null,
+		null;
+    structural: 4, static,
+                cos(3.*pi/8.),sin(3.*pi/8.),0.,
+		1, -sin(3.*pi/8.),cos(3.*pi/8.),0., 
+		2, cos(3.*pi/8.),sin(3.*pi/8.),0.,
+		null,
+		null;
+    structural: 5, dynamic,
+                cos(pi/2.),sin(pi/2.),0.,
+		1, -sin(pi/2.),cos(pi/2.),0., 
+		2, cos(pi/2.),sin(pi/2.),0.,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+    joint: 1, clamp, 1, node, node;
+    force: 1, conservative, 
+           5, 0.,0.,1., null,
+	   #step, 10.*dt, -10., 0.;
+	   linear, 0., -1.e-0/dt;
+    body: 5, 5, 1., null, eye;
+    hbeam: 1, 
+    	1, null,
+	2, null,
+	linear elastic generic, diag,
+		1.e6, 1.e6, 1.e6, 1.e3, 1.e4, 1.e4;
+    hbeam: 2, 
+    	2, null,
+	3, null,
+	linear elastic generic, diag,
+		1.e6, 1.e6, 1.e6, 1.e3, 1.e4, 1.e4;
+    hbeam: 3, 
+    	3, null,
+	4, null,
+	linear elastic generic, diag,
+		1.e6, 1.e6, 1.e6, 1.e3, 1.e4, 1.e4;
+    hbeam: 4, 
+    	4, null,
+	5, null,
+	linear elastic generic, diag,
+		1.e6, 1.e6, 1.e6, 1.e3, 1.e4, 1.e4;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

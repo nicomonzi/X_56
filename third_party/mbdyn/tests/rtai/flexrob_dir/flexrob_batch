@@ -1,0 +1,380 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/rtai/flexrob_dir/flexrob_batch,v 1.2 2014/12/13 17:15:57 masarati Exp $
+# Prepared by Michele Attolico
+
+
+/*
+
+2 dof manipulator ...
+
+   1 	     2
+   o=========o=========o   
+   |                  
+   |         
+  /|\               
+  		     z
+                    |
+                y   |
+                  \ |
+                   \|      x
+                     ------
+
+*/
+
+set: real A = 0.;
+set: real Ay = 0.;
+set: real Az = 0.;
+set: real Jy = 0.;
+set: real Jz = 0.;
+set: real Jx = 0.;
+set: real E = 0.;
+set: real G = 0.;
+set: real rho = 0.;
+set: real dl= 0.;
+set: real DL = 0.;
+set: real Dm = 0.;	
+set: real jxx = 0.;
+set: real jyy = 0.;
+set: real jzz = 0.;
+
+set: integer ground = 1;
+set: integer body1 = 1000;
+set: integer revolute1 = 1001;
+set: integer body2 = 2000;
+set: integer revolute2 = 2001;
+
+set: real angle1 = 0*pi/180;
+set: real omega1 = 0.;
+set: real angle2 = 0*pi/180;
+set: real omega2 = 0.;
+
+set: real beam_damp = 1.e-3;
+
+set: real dt = 3.e-3;
+set: integer nanodt = 3000000; 
+set: real T = 30.;
+
+set: integer nb1 = 1;
+set: integer nb2 = 1;
+
+set: real t1 = 5.e-3;
+set: real h1 = 10.e-2;
+set: real L1 = 1.;
+set: real t2 = 2.5e-3;
+set: real h2 = 10.e-2;
+set: real L2 = 1.;
+
+reference: ground,
+	reference, global, 0., 0., .5,
+	reference, global, 3, 0., 0., 1., 1, 1., 0., 0.,
+	reference, global, null,
+	reference, global, null;
+
+reference: revolute1,
+	reference, ground, null,
+	reference, ground, eye,
+	reference, ground, null,
+	reference, ground, null;
+reference: body1,
+	reference, revolute1, 0., 0., 0.,
+	reference, revolute1, 3, 0.,0.,1., 1, cos(angle1),sin(angle1),0.,
+	reference, revolute1, null,
+	reference, revolute1, 0.,0.,omega1;
+
+reference: revolute2,
+	reference, body1, L1, 0., 0.,
+	reference, body1, 3, 0.,0.,1., 1, 1.,0.,0.,
+	reference, body1, null,
+	reference, body1, null;
+	
+reference: body2,
+	reference, revolute2, 0., 0., 0.,
+	reference, revolute2, 3, 0., 0., 1., 1, cos(angle2),sin(angle2),0.,
+	reference, revolute2, null,
+	reference, revolute2, 0., 0., omega2;
+	
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: T;
+	time step: dt;
+
+	tolerance: 1.e-6;
+	max iterations: 100;
+
+	method: ms, .6; 
+	
+	#solver: y12;#da cambiare per il real time
+
+	nonlinear solver: newton raphson;
+
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 20;
+	derivatives coefficient: 1.e-6;
+
+/* no RTAI
+	realtime: allow nonroot,
+		mode, period, 
+		time step, nanodt,
+		reserve stack, 1000000,
+		hard real time;
+		#real time log;
+*/
+threads: disable;
+end: initial value;
+
+begin: control data;
+	print: dofstats;
+	default output: none;
+	structural nodes:
+		+1		# ground
+		+1+2*nb1	# body 1
+		+1+2*nb2	# body 2
+	;
+	parameter nodes: 
+		+1	#revolute1
+		+1	#revolute2
+	;
+	
+	rigid bodies:
+		+1+2*nb1	# body 1
+		+1+2*nb2	# body 2
+	;
+	joints:
+		+1	# ground
+		+1	# revolute 1
+		+1	# revolute 2
+	;
+	beams:
+		+nb1	# body 1
+		+nb2	# body 2
+	;
+/* no RTAI
+	rtai output elements: 1;
+	file drivers: 1;
+*/
+	#gravity;
+	forces: 2;
+end: control data;
+
+begin: nodes;
+	structural: ground, static,
+		reference, ground, null,
+		reference, ground, eye,
+		reference, ground, null,
+		reference, ground, null;
+#body1
+	structural: body1, dynamic,
+		reference, body1, null,
+		reference, body1, eye,
+		reference, body1, null,
+		reference, body1, null;
+		
+	set: integer body =body1;
+	set: dl = L1/(2.0*nb1*10.);
+	
+	set: integer curr_label = 10;
+    	include: "flexrob.nod";
+	
+	/*set: curr_label = 30;
+    	include: "flexrob.nod";*/
+#end body1
+
+#body2	
+	structural: body2, dynamic,
+		reference, body2, null,
+		reference, body2, eye,
+		reference, body2, null,
+		reference, body2, null;
+	
+	set: body =body2;
+	set: dl = L2/(2.0*nb2*10.);
+	
+	set: curr_label = 10;
+    	include: "flexrob.nod";
+	
+	/*set: curr_label = 30;
+    	include: "flexrob.nod";*/
+#end body2
+	
+	parameter: 1, /* bound to */ element;
+	parameter: 2, /* bound to */ element;
+end: nodes;
+
+/* no RTAI
+begin: drivers;
+	file: 1,rtai input, 
+		mailbox name, "MBXOUT",		
+		create, yes, 2;
+end: drivers;
+*/
+
+begin: elements;
+	#gravity: 0.,0.,-1., 9.81;
+	joint: ground, clamp, ground, node, node;
+
+	joint: revolute1, revolute hinge,
+		ground,
+			reference, revolute1, null,
+			hinge, reference, revolute1, eye,
+		body1,
+			reference, body1, null,
+			hinge, reference, body1, eye;
+			
+#body 1			
+	set: A = t1*h1;
+	set: Ay = t1*h1*5./6.;
+	set: Az = t1*h1*5./6.;
+
+	set: Jy = 1/12.*h1^3*t1;
+	set: Jz = 1/12.*h1*t1^3;
+	set: Jx = Jy+Jz;
+
+	set: E = 2.07e11;
+	set: G = 2.33e10;
+	set: rho = 7801;
+	
+	set: DL = L1/(4.0*nb1);	
+	
+	body: body1, body1,
+		rho*A*DL,
+		DL/2., 0., 0.,
+		diag,
+			1/12.*rho*DL*(t1*h1^3 + h1*t1^3),
+			1/12.*rho*t1*(h1*DL^3 + DL*h1^3),
+			1/12.*rho*h1*(t1*DL^3 + DL*t1^3);
+		
+	set: DL = L1/(2.0*nb1);
+    	set: Dm = rho*A*DL;
+	set: jxx = 1/12.*rho*DL*(t1*h1^3 + h1*t1^3);
+	set: jyy = 1/12.*rho*t1*(h1*DL^3 + DL*h1^3);
+	set: jzz = 1/12.*rho*h1*(t1*DL^3 + DL*t1^3);
+	
+	set: body =body1;
+	
+   	set: curr_label = body1+10;
+    	include: "flexrob.body";
+   	/*set: curr_label = body1+20;
+    	include: "flexrob.body";
+   	set: curr_label = body1+30;
+    	include: "flexrob.body";*/
+	
+	set: DL = L1/(4.0*nb1);	
+	
+	body: body1+20*nb1, body1+20*nb1,
+		rho*A*DL,
+		-DL/2., 0., 0.,
+		diag,
+			1/12.*rho*DL*(t1*h1^3 + h1*t1^3),
+			1/12.*rho*t1*(h1*DL^3 + DL*h1^3),
+			1/12.*rho*h1*(t1*DL^3 + DL*t1^3);
+			
+   	set: curr_label = body1+10;
+    	include: "flexrob.beam";
+   	/*set: curr_label = body1+30;
+    	include: "flexrob.beam";*/
+	
+	
+#end body1
+			
+	joint: revolute2, revolute hinge,
+		body1+20*nb1,
+			reference, revolute2, null,
+			hinge, reference, revolute2, eye,
+		body2,
+			reference, body2, null,
+			hinge, reference, body2, eye;
+			
+#body2			
+	set: A = t2*h2;
+	set: Ay = t2*h2*5./6.;
+	set: Az = t2*h2*5./6.;
+
+	set: Jy = 1/12.*h2^3*t2;
+	set: Jz = 1/12.*h2*t2^3;
+	set: Jx = Jy+Jz;
+
+	set: E = 7.17e10;
+	set: G = 8.90e9;
+	set: rho = 2740.;
+	
+	set: DL = L2/(4.0*nb2);	
+	
+	body: body2, body2,
+		rho*A*DL,
+		DL/2., 0., 0.,
+		diag,
+			1/12.*rho*DL*(t2*h2^3 + h2*t2^3),
+			1/12.*rho*t2*(h2*DL^3 + DL*h2^3),
+			1/12.*rho*h2*(t2*DL^3 + DL*t2^3);
+		
+	set: DL = L2/(2.0*nb2);
+    	set: Dm = rho*A*DL;
+	set: jxx = 1/12.*rho*DL*(t2*h2^3 + h2*t2^3);
+	set: jyy = 1/12.*rho*t2*(h2*DL^3 + DL*h2^3);
+	set: jzz = 1/12.*rho*h2*(t2*DL^3 + DL*t2^3);
+	
+	set: body = body2;
+	
+   	set: curr_label = body2+10;
+    	include: "flexrob.body";
+   	/*set: curr_label = body2+20;
+    	include: "flexrob.body";
+   	set: curr_label = body2+30;
+    	include: "flexrob.body";*/
+	
+	set: DL = L1/(4.0*nb1);	
+	
+	body: body2+20*nb2, body2+20*nb2,
+		rho*A*DL,
+		-DL/2., 0., 0.,
+		diag,
+			1/12.*rho*DL*(t1*h1^3 + h1*t1^3),
+			1/12.*rho*t1*(h1*DL^3 + DL*h1^3),
+			1/12.*rho*h1*(t1*DL^3 + DL*t1^3);
+			
+   	set: curr_label = body2+10;
+    	include: "flexrob.beam";
+   	/*set: curr_label = body2+30;
+    	include: "flexrob.beam";*/
+	
+#end body2
+
+			
+	bind: revolute1, joint, 1, string, "rz";
+	bind: revolute2, joint, 2, string, "rz";
+
+/* no RTAI
+	rtai output: 1,
+		mailbox name, "MBXINN",
+		create, yes,
+		# host, "mbdyn.aero.polimi.it",
+		2,
+			1, parameter,
+			2, parameter;
+*/
+
+	couple: 1, follower,
+		body1,
+		reference, revolute1, 0.,0.,1., /* no RTAI file, 1, 1; */
+			const, 0.;
+	couple: 2, follower internal,
+		body2,
+		reference, revolute2, 0.,0.,1.,
+		body1+20*nb1, /* no RTAI file, 1, 2; */
+			const, 0.;
+end: elements;
+
+
+
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

@@ -1,0 +1,3 @@
+set: string world = "world";
+remark: "", "hello, " + world + "!";
+

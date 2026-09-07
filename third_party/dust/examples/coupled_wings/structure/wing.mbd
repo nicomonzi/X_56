@@ -1,0 +1,104 @@
+# === data ======================================================
+begin: data;
+  problem: initial value;
+end: data;
+
+include: "wing.set";
+
+# === initial value problem =====================================
+begin: initial value;
+  initial time: t_start;
+  final time: t_end;
+  time step: dt;
+
+  max iterations: 250;
+  tolerance: 1.000000e-02;
+  derivatives tolerance: 1e-3;
+  derivatives max iterations: 100;
+  derivatives coefficient: 1.000000e-03, auto, max iterations, 100, factor, 3.0;
+  linear solver: naive, colamd, pivot factor, 1e-5;
+  method: ms, cosine, 0., pi/0.01, 0.6/2, half, 0.; 
+  output: counter;
+	/*eigenanalysis: 0.5000,
+		output matrices,
+		output eigenvectors,
+		output geometry,
+		upper frequency limit, 200,
+		lower frequency limit, 1,
+		use lapack;
+    output: residual;*/
+	#output: residual;
+end: initial value;
+
+
+# === control data ==============================================
+begin: control data;
+  structural nodes: +1           # central
+                    +4           # left wing
+                    +4           # right wing
+                    +2           # right flap
+                    +2;          # left flap
+  rigid bodies:     +9;          # masses
+  joints:           +1           # ground clamp
+                    +3           # right flap
+                    +3;          # left flap
+  beams:            +2           # left wing
+                    +2;          # right wing
+
+  forces:           +1;           # DUST aero loads
+
+  default output: reference frames;
+	default orientation: orientation vector;
+  output results: netcdf, no text;
+
+end: control data;
+
+# === reference frame ===========================================
+  include: "wing.ref";
+
+# === nodes =====================================================
+begin: nodes;
+  include: "wing.nod";
+end: nodes;
+
+# === elements ==================================================
+begin: elements;
+
+  #> === Bodies ===
+
+  include: "wing_beam.elm";
+  include: "wing_body.elm";
+
+  #> === Joints ===
+
+  include: "wing_joint.elm";
+
+  force: 9, external structural,
+    socket,
+      create, yes,
+      path, "$MBSOCK",
+      no signal,
+    coupling, tight, #, loose
+    sorted, yes,
+    orientation, orientation vector,
+    accelerations, yes,
+    13,
+    GROUND + RIGHT, 
+    GROUND + RIGHT + 1, GROUND + RIGHT + 2, GROUND + RIGHT + 3, GROUND + RIGHT + 4,
+    GROUND + LEFT + 1, GROUND + LEFT + 2, GROUND + LEFT + 3, GROUND + LEFT + 4,
+    FLAP_RIGHT + 1, FLAP_RIGHT + 2,
+    FLAP_LEFT + 1, FLAP_LEFT + 2;
+  
+
+    
+  #inertia: 1, 
+  #position, reference, global, null,
+  #      body, all, output, log;
+
+  /*air properties: 1.225, 340, 
+                  1, 0, 0,
+                  const, air_speed;*/
+
+end: elements;
+
+# vim:ft=mbd

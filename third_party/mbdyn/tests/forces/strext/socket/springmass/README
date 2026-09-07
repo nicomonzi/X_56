@@ -1,0 +1,82 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/strext/socket/springmass/README,v 1.6 2017/01/12 15:03:07 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+Files:
+
+mbdyn.sh		shell script that invokes MBDyn with right paths
+springmass		MBDyn input file
+springmass.py		python script for peer process
+springmass.m		Matlab script for peer process
+
+
+
+General:
+
+	- make sure the right paths are set in mbdyn.sh
+
+
+
+To execute the python script:
+
+	- MBDyn must be compiled with --enable-python
+
+	- make sure the right paths are set in springmass.py
+
+	- execute:
+
+		$ python springmass.py
+
+	- the output will be stored in output.*
+
+
+
+To execute the matlab script:
+
+	- MBDyn must be compiled with --enable-python
+
+	- pymex
+	  <http://www.mathworks.com/matlabcentral/fileexchange/27255-pymex>
+	  must be compiled and installed in Matlab's path
+
+	- make sure the right paths are set in springmass.m
+
+	- from Matlab's command windon execute
+
+		$ springmass
+
+	- the output will be stored in output.*
+
+
+
+Credits:
+
+Python support inspired by Jay Sitaraman
+Matlab support via pymex by Andrea Parrinello
+

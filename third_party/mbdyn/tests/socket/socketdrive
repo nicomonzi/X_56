@@ -1,0 +1,70 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/socket/socketdrive,v 1.4 2014/12/13 17:15:57 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    initial time: 0.;
+    final time: 100.;
+    time step: 1.e-3;
+    
+    method: ms, .6, .6;
+    tolerance: 1.e-9;
+    max iterations: 20;
+    
+    fictitious steps number: 0;
+    
+    derivatives tolerance: 1.e-9;
+    derivatives max iterations: 20;
+    derivatives coefficient: 1.;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    default output: none, forces;
+
+    structural nodes: 2;
+    rigid bodies: 1;
+    joints: 2;
+    forces: 2;
+    file drivers: 2;
+    gravity;
+end: control data;
+
+begin: nodes;
+    structural: 1, static, null, eye, null, null;
+    structural: 2, dynamic, 0.,0.,-1., eye, null, null;
+    
+    output: structural, 2;
+end: nodes;
+
+begin: drivers;
+    file: 1, socket, 2, port, 5550,
+            # no auth;
+	    password, user, "masarati", credentials, prompt;
+	    # pam;
+    file: 2, socket, 5, port, 5551,
+            # no auth;
+	    password, user, "masarati", credentials, prompt;
+	    # pam;
+end: drivers;
+
+begin: elements;
+    body: 2, 2, 1., null, diag, 1.,1.,1.;
+    joint: 1, clamp, 1, node, node;
+    joint: 2, distance, 1, 2, 1.;
+    
+    gravity: 0.,0.,-1., 9.81;
+    
+    force: 1, conservative, 2, 1.,0.,0., null, file, 1, 1;
+    force: 2, conservative, 2, 0.,1.,0., null, file, 2, 4;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

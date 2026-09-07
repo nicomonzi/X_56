@@ -1,0 +1,375 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/invdyn/planar_3link_ergo2.mbd,v 1.6 2017/01/12 15:03:28 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Original Author: Andrea Zanoni
+# Modified for inverse dynamics by: Pierangelo Masarati <masarati@aero.polimi.it>
+
+begin: data;
+	problem: inverse dynamics;
+end: data;
+
+begin: inverse dynamics;
+	problem type: underdetermined fully actuated, weights, 0., 0., 1., 0., 1., 0.;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-2;
+	tolerance: 1e-9;
+	max iterations: 10;
+	# derivatives tolerance: 1e9;
+	threads: 1;
+	# linear solver: umfpack, cc;
+	linear solver: umfpack;
+	output: iterations;
+ 	# output: residual;
+ 	# output: solution;
+ 	# output: jacobian;
+
+	# abort after: input;
+end: inverse dynamics;
+
+set: real K1 = 1e0;
+set: real K2 = 1e0;
+set: real K3 = 1e2;
+
+begin: control data;
+	structural nodes:
+			+1 	# Ground
+			+1	# Link 1
+			+1	# Link 2
+			+1	# Link 3
+	;
+	rigid bodies:
+			+1	# Link 1
+			+1	# Link 2
+			+1	# Link 3
+	;
+	joints:
+			+1	# Ground clamp
+			+1	# Revolute 1
+			+1	# Revolute 2
+			+1	# Revolute 3
+			+1	# prescribed
+			+1	# Torque 1
+			+1	# Torque 2
+			+1	# Torque 3
+			+1	# Ergonomy 1
+			+1	# Ergonomy 2
+			+1	# Ergonomy 3
+	;
+ 
+	print: equation description;
+   	default orientation: orientation vector;
+	default output: accelerations;
+end: control data;
+
+set: integer ground = 1;
+
+reference: ground,
+	null,
+	eye,
+	null,
+	null;
+
+reference: 20,
+	reference, ground, null,
+	reference, ground, euler, 0., 0., pi/6.,
+	null,
+	null;
+
+reference: 25,
+	reference, 20, 0.16, 0., 0., 
+	reference, 20, eye,
+	null,
+	null;
+
+reference: 30,
+	reference, 20, 0.32, 0., 0.,
+	reference, 20, euler, 0., 0., pi/6.,
+	null,
+	null;
+
+reference: 35,
+	reference, 30, 0.16, 0., 0., 
+	reference, 30, eye,
+	null,
+	null;
+
+reference: 40,
+	reference, 30, 0.32, 0., 0., 
+	reference, 30, euler, 0., 0., pi/6.,
+	null,
+	null;
+
+reference: 45,
+	reference, 40, 0.16, 0., 0., 
+	reference, 40, eye,
+	null,
+	null;
+
+reference: 50,
+	reference, 40, 0.32, 0., 0., 
+	reference, 40, eye,
+	null,
+	null;
+
+/*reference: 1000,
+	reference, ground, 0.16*sqrt(3.), 0.48, 0.,
+	reference, 20, eye,
+	null,
+	null;*/
+
+begin: nodes;
+
+	structural: 1, static,
+	null,
+	eye,
+	null,
+	null;
+
+	structural: 2, static,
+	reference, 25, null,
+	reference, 25, eye,
+	null,
+	null;
+
+	structural: 3, static,
+	reference, 35, null,
+	reference, 35, eye,
+	null,
+	null;
+	
+	structural: 4, static,
+	reference, 45, null,
+	reference, 45, eye,
+	null,
+	null;
+
+end: nodes;
+
+begin: elements;
+
+	joint: 1, clamp, 1, node, node;
+
+	body: 1, 2, 
+		1.8, 
+		reference, 20, 0.16, 0., 0.,
+		diag, 0.01, 0.01, 0.015;
+	body: 2, 3,
+		1.6, 
+		reference, 30, 0.16, 0., 0.,
+		diag, 0.01, 0.01, 0.013;
+	body: 3, 4,
+		1.6, 
+		reference, 40, 0.16, 0., 0., 
+		diag, 0.01, 0.01, 0.013;
+
+	joint: 2,
+		total joint,
+		1,
+			position, reference, ground, null,
+			position orientation, reference, ground, eye,
+			# rotation orientation, reference, ground, eye,
+			rotation orientation, reference, node, eye,
+		2,
+			position, reference, 20, null,
+			position orientation, reference, 20, eye,
+			# rotation orientation, reference, 20, eye,
+			rotation orientation, reference, node, eye,
+		position constraint, 1, 1, 1,
+			null,
+			null,
+			null,
+		orientation constraint, 1, 1, 0,
+			null,
+			null,
+			null;
+
+	joint: 12,
+		total joint,
+		1,
+			position, reference, ground, null,
+			position orientation, reference, ground, eye,
+			# rotation orientation, reference, ground, eye,
+			rotation orientation, reference, node, eye,
+		2,
+			position, reference, 20, null,
+			position orientation, reference, 20, eye,
+			# rotation orientation, reference, 20, eye,
+			rotation orientation, reference, node, eye,
+		orientation constraint, 0, 0, 1,
+			null, # not needed
+			null, # not needed
+			null, # not needed
+		inverse dynamics, torque, yes;
+
+	joint: 22,
+		deformable hinge,
+		1,
+			position, reference, ground, null,
+			orientation, reference, ground, eye,
+		2,
+			position, reference, 20, null,
+			orientation, reference, other node, eye,
+		linear elastic, K1,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+
+	joint: 3,
+		total joint,
+		2,
+			position, reference, 30, null,
+			position orientation, reference, 20, eye,
+			# rotation orientation, reference, 20, eye,
+			rotation orientation, reference, node, eye,
+		3,
+			position, reference, 30, null,
+			position orientation, reference, 20, eye,
+			# rotation orientation, reference, 20, eye,
+			rotation orientation, reference, node, eye,
+		position constraint, 1, 1, 1,
+			null,
+			null,
+			null,
+		orientation constraint, 1, 1, 0,
+			null,
+			null,
+			null;
+		
+	joint: 13,
+		total joint,
+		2,
+			position, reference, 30, null,
+			position orientation, reference, 20, eye,
+			# rotation orientation, reference, 20, eye,
+			rotation orientation, reference, node, eye,
+		3,
+			position, reference, 30, null,
+			position orientation, reference, 20, eye,
+			# rotation orientation, reference, 20, eye,
+			rotation orientation, reference, node, eye,
+		orientation constraint, 0, 0, 1,
+			null, # not needed
+			null, # not needed
+			null, # not needed
+		inverse dynamics, torque, yes;
+		
+	joint: 23,
+		deformable hinge,
+		2,
+			position, reference, 30, null,
+			orientation, reference, 20, eye,
+		3,
+			position, reference, 30, null,
+			orientation, reference, other node, eye,
+		linear elastic, K2,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+
+	joint: 4,
+		total joint,
+		3,
+			position, reference, 40, null,
+			position orientation, reference, 30, eye,
+			# rotation orientation, reference, 30, eye,
+			rotation orientation, reference, node, eye,
+		4,
+			position, reference, 40, null,
+			position orientation, reference, 30, eye,
+			# rotation orientation, reference, 30, eye,
+			rotation orientation, reference, node, eye,
+		position constraint, 1, 1, 1,
+			null,
+			null,
+			null,
+		orientation constraint, 1, 1, 0,
+			null,
+			null,
+			null;
+
+	joint: 14,
+		total joint,
+		3,
+			position, reference, 40, null,
+			position orientation, reference, 30, eye,
+			# rotation orientation, reference, 30, eye,
+			rotation orientation, reference, node, eye,
+		4,
+			position, reference, 40, null,
+			position orientation, reference, 30, eye,
+			# rotation orientation, reference, 30, eye,
+			rotation orientation, reference, node, eye,
+		orientation constraint, 0, 0, 1,
+			null, # not needed
+			null, # not needed
+			null, # not needed
+		inverse dynamics, torque, yes;
+
+/*
+	joint: 24,
+		deformable hinge,
+		3,
+			position, reference, 40, null,
+			orientation, reference, 30, eye,
+		4,
+			position, reference, 40, null,
+			orientation, reference, other node, eye,
+		linear elastic, K3,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+*/
+	joint: 24,
+		rod with offset,
+		3,
+			position, reference, 30, .1, .1, 0.,
+		4,
+			position, reference, 40, .2, .1, 0.,
+		from nodes,
+		linear elastic, K3;
+
+	# prescribed motion
+	joint: 5,
+		total joint,
+		1,
+			position, reference, ground, null,
+		4,
+			position, reference, 50, null,
+		position constraint, 1, 1, 0,
+			# model::xposition(5), model::yposition(5), 0, cosine, 0.1, pi, -0.2, half, 1.,
+			4.371281e-01, 7.571281e-01, 0, string, "1. - (Time > .01)*.2*(1 - cos(pi*(Time - .01)))", # cosine, 0.01, pi, -0.2, half, 1.,
+			4.371281e-01, 7.571281e-01, 0, string, "-(Time > .01)*.2*pi*sin(pi*(Time - .01))", # sine, 0.01, pi, 0.2*2*pi, one, 0.,
+			4.371281e-01, 7.571281e-01, 0, string, "-(Time > .01)*.2*pi^2*cos(pi*(Time - .01))", # cosine, 0.01, pi, 0.2*pi^2, half, 0.,
+		inverse dynamics, prescribed motion, yes;
+	
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

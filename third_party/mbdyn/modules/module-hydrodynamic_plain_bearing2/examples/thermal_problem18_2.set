@@ -1,0 +1,6 @@
+set: D_i = Din + 2 * dr * i;
+set: D_ip1 = Din + 2 * dr * (i + 1);
+set: Ar_i = D_i * pi * Wout;
+set: Aa_i = 2 * (D_ip1^2 - D_i^2) * pi / 4.;
+set: m_i = (D_ip1^2 - D_i^2) * pi / 4. * Wout * rho;
+set: dr_i = dr / (1. + (i == 0) + (i == N));

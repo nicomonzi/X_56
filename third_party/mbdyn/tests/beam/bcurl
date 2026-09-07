@@ -1,0 +1,106 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/beam/bcurl,v 1.4 2014/12/13 17:15:35 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    set: real dt = 1.e+3;
+    time step: dt;
+    initial time: 0.;
+    final time: 1000*dt;
+    
+    set: real Rho = .6;
+    method: ms, Rho, Rho;
+    
+    max iterations: 20;
+    tolerance: 1.e-9;
+    
+    derivatives coefficient: 1.e-12;
+    derivatives max iterations: 1;
+    derivatives tolerance: 1.e12;
+    
+    fictitious steps number: 0;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    structural nodes: 1+4; 
+    joints: 1;
+    forces: 2;
+    rigid bodies: 1;
+    beams: 4;
+end: control data;
+
+begin: nodes;
+    structural: 1, static,
+                null,
+		eye,
+		null,
+		null;
+    structural: 2, static,
+                .25,0.,0.,
+		eye,
+		null,
+		null;
+    structural: 3, static,
+                .5,0.,0.,
+		eye,
+		null,
+		null;
+    structural: 4, static,
+                .75,0.,0.,
+		eye,
+		null,
+		null;
+    structural: 5, dynamic,
+                1.,0.,0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+    joint: 1, clamp, 1, node, node;
+    couple: 1, absolute, 
+           5, 0.,1.,0.,
+	   #step, 10.*dt, -10., 0.;
+	   linear, 0., -1.e2/dt;
+    force: 2, absolute, 
+           5, position, reference, node, null,
+	   0.,1.,0.,
+	   #step, 10.*dt, -10., 0.;
+	   linear, 0., -1.e2/dt;
+    body: 5, 5, 1., null, eye;
+    beam2: 1, 
+    	1, null,
+	2, null,
+	eye,
+	linear elastic generic, diag,
+		1.e6, 1.e6, 1.e6, 1.e3, 1.e4, 1.e4;
+    beam2: 2, 
+    	2, null,
+	3, null,
+	eye,
+	linear elastic generic, diag,
+		1.e6, 1.e6, 1.e6, 1.e3, 1.e4, 1.e4;
+    beam2: 3, 
+    	3, null,
+	4, null,
+	eye,
+	linear elastic generic, diag,
+		1.e6, 1.e6, 1.e6, 1.e3, 1.e4, 1.e4;
+    beam2: 4, 
+    	4, null,
+	5, null,
+	eye,
+	linear elastic generic, diag,
+		1.e6, 1.e6, 1.e6, 1.e3, 1.e4, 1.e4;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

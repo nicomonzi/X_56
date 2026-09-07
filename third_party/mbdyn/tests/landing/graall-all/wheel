@@ -1,0 +1,19 @@
+DATI RUOTA/PNEUMATICO ANTERIORE 260
+7 .0658		.0931 		Masse sospese e inerzie
+-100.057 	0. 		Angoli finecorsa superiore ed inferiore
+0.252           .06             #.5 		.2 		Raggio ruota e toro
+465000 				Pressione di gonfiaggio
+1.1 				Esponente politropica pneumatico
+1. 				RK
+0.0 				csi fa molto poco se non nulla
+.075 				rmust
+.0 				xch
+.8 				CoeVol alto ammorbidisce il pneumatico
+20 	Vrif1 ruota questo parametro ha notevole influenza sull'isteresi
+0.005 	Vrif2 pneumatico ha scarsa influenza (in prove quasi statiche)
+1.0 	Coeff. riduttivo camber CRACMB
+TABELLA COEFFICIENTE DI ATTRITO/RAPPORTO DI STRISCIAMENTO
+3
+0.000 	0.000
+.25 	.700
+1. 	.25

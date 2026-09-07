@@ -1,0 +1,95 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/landing/graall-wheel/ws,v 1.5 2014/12/13 17:15:53 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: real dt = 1.e-4;
+set: real t0 = 0.;
+set: real tf = 10000*dt;
+
+begin: initial value;
+    # abort after: input;
+    # abort after: assembly;
+    # abort after: derivatives;
+
+    time step: dt;
+    initial time: t0;
+    final time: tf;
+    
+    tolerance: 1.e-9;
+    max iterations: 20;
+
+    derivatives coefficient: 1.e-6;
+    derivatives tolerance: 1.e6;
+    derivatives max iterations: 1;
+    
+    fictitious steps number: 0;
+
+    set: real Rho = .6;
+    method: ms, Rho, Rho;   
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+        
+    structural nodes: 2;
+    joints: 1;
+    rigid bodies: 2;
+    loadable elements: 1;
+    gravity;
+end: control data;
+
+
+set: integer ruota = 100;
+set: integer gamba = 200;
+
+set: real z0 = -0.50;
+set: real vy = 0.;
+set: real omega = 0.;
+
+begin: nodes;
+    structural: ruota, dynamic,
+                0.,0.,z0,
+		eye,
+		0.,vy,0.,
+		omega,0.,0.;
+    structural: gamba, dynamic,
+                0.,0.,z0,
+		eye,
+		0.,vy,0.,
+		null;
+end: nodes;
+
+begin: elements;
+    #joint: ruota, clamp, ruota, node, node;
+    #joint: gamba, clamp, gamba, node, node;
+
+    body: ruota, ruota, 7.,
+    	null,
+	diag, .0931, .0658, .0658;
+    body: gamba, gamba, 200.,
+	null,
+	diag, 100.,100.,100.;
+   
+
+    # Gli assi sono sbagliati !!!!!
+    joint: 1, plane hinge,
+           ruota, null, hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.,
+	   gamba, null, hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.;
+	   
+    loadable: 1, 
+    	"libmodule-wheel.la",
+              ruota, null, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.,
+	      gamba, "./wheel";
+	      	      	   
+    gravity: 0.,0.,1., const, 9.81;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

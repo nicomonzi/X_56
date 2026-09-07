@@ -1,0 +1,44 @@
+** MBDyn MODAL DATA FILE: x_0 & x_1 == - x_2
+** NODE SET "ALL" 
+**     m_1  o---\/\/\/---o  m_2  the problem has 2 modes: 0 & sqrt(2k/m)
+**                k              m_1 = m_2 = 10.; k = 500.; L = 2.
+** RECORD GROUP 1, HEADER
+**   REVISION,  NODE,  NORMAL, ATTACHMENT, CONSTRAINT, REJECTED MODES.
+      REV0         2         1         0         0         0
+**
+** RECORD GROUP 2, FINITE ELEMENT NODE LIST
+     1 2
+
+**
+** RECORD GROUP 3, INITIAL MODAL DISPLACEMENTS
+ 0
+**
+** RECORD GROUP 4, INITIAL MODALVELOCITIES
+ 0
+**
+** RECORD GROUP 5, NODAL X COORDINATES
+-1
+ 1
+**
+** RECORD GROUP 6, NODAL Y COORDINATES
+ 0
+ 0
+**
+** RECORD GROUP 7, NODAL Z COORDINATES
+ 0
+ 0
+**
+** RECORD GROUP 8, MODE SHAPES
+**    NORMAL MODE SHAPE #  1
+-1 0 0 0 0 0
+ 1 0 0 0 0 0
+**
+** RECORD GROUP 9, MODAL MASS MATRIX
+20.
+**
+** RECORD GROUP 10, MODAL STIFFNESS MATRIX
+2000.
+**
+** RECORD GROUP 11, DIAGONAL OF LUMPED MASS MATRIX
+10 10 10  1  0  0
+10 10 10  1  0  0

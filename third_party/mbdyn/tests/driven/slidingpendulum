@@ -1,0 +1,144 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2023
+# 
+# Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+# Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+/*
+
+			^
+		A	| O
+		o-------o
+	-------------------------
+	/////////////////////////
+
+*/
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1e-2;
+
+	method: ms, 0.6;
+
+	tolerance: 1e-6;
+	max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1		# part A
+	;
+	rigid bodies:
+		+1		# part A
+	;
+	gravity;
+	joints:
+		+1		# point O prescribed motion
+		+1		# sliding constraint
+	;
+end: control data;
+
+set: const integer POINT_O = 0;
+set: const integer PART_A = 100;
+set: const integer SLIDING_PLANE = 200;
+
+set: const real L = 1.2;
+
+reference: POINT_O,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: PART_A,
+	reference, POINT_O, -L, 0., 0.,
+	reference, POINT_O,
+		2, 0., 1., 0.,
+		3, 1., 0., 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+begin: nodes;
+	structural: PART_A, dynamic, at reference, PART_A;
+end: nodes;
+
+begin: elements;
+	body: PART_A, PART_A,
+		1.,
+		null,
+		diag, 1.e-3, 1.e-3, 1.e-3;
+
+	gravity: uniform, 0., 0., -1., 9.81;
+
+	joint: POINT_O, total pin joint,
+		PART_A,
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, PART_A, eye,
+		# ground
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, POINT_O, eye,
+		position constraint, 1, 1, 1,
+			0., 0., 1.,
+				step5, 0., 0., 1., 0.1 + L,
+		orientation constraint, 1, 0, 1, null;
+
+	joint: SLIDING_PLANE, total pin joint,
+		PART_A,
+			position, reference, node, null,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		# ground
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		position constraint, 0, 0, 1, null,
+		orientation constraint, 0, 0, 0, null;
+
+	driven: SLIDING_PLANE,
+		bistop, initial status, active,
+			null,
+			### reattach... works but in rather unreliable manner (usually bounces back)
+			# string, "model::node::structural(PROJECTILE, \"X[3]\") < Z_P",
+			### for the first few steps defer the check, because Fz ~= 0; very sensitive to threshold
+			string, "(Time > 1e-1) && (model::element::joint(SLIDING_PLANE, \"Fz\") > -1.e-0)",
+		initial state, active,
+		existing: joint, SLIDING_PLANE;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

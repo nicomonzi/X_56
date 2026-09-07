@@ -1,0 +1,57 @@
+# this is a comment
+#  0 = Black
+#  1 = Blue
+#  2 = Green
+#  3 = Cyan
+#  4 = Red
+#  5 = Magenta
+#  6 = Brown
+#  7 = Light Gray
+#  8 = Dark Gray
+#  9 = Light Blue
+# 10 = Light Green
+# 11 = Light Cyan
+# 12 = Light Red
+# 13 = Light Magenta
+# 14 = Yellow
+# 15 = White
+# node properties
+prop node 0 0.000000
+# nodes
+11
+ 1  0.2025000000E+02  0.9000000000E+02  0.0000000000E+00 node
+ 2 -0.8100000000E+02  0.9000000000E+02  0.0000000000E+00 node
+ 3  0.1785000038E+02  0.1860000000E+03  0.0000000000E+00 node
+ 4 -0.7140000153E+02  0.1860000000E+03  0.0000000000E+00 node
+ 5  0.1580000019E+02  0.2680000000E+03  0.0000000000E+00 node
+ 6 -0.6320000076E+02  0.2680000000E+03  0.0000000000E+00 node
+ 7  0.1330000019E+02  0.3680000000E+03  0.0000000000E+00 node
+ 8 -0.5320000076E+02  0.3680000000E+03  0.0000000000E+00 node
+ 9  0.1105000019E+02  0.4580000000E+03  0.0000000000E+00 node
+10 -0.4420000076E+02  0.4580000000E+03  0.0000000000E+00 node
+11  0.0000000000E+00  0.0000000000E+00  0.0000000000E+00 node
+# edge properties
+prop edge 0 1
+# edges
+13
+ 1  1  2 edge
+ 2  1  3 edge
+ 3  2  4 edge
+ 4  3  4 edge
+ 5  3  5 edge
+ 6  4  6 edge
+ 7  5  6 edge
+ 8  5  7 edge
+ 9  6  8 edge
+10  7  8 edge
+11  7  9 edge
+12  8 10 edge
+13  9 10 edge
+# side properties
+prop side 14
+# sides
+4
+ 1 4  1  2  4  3 side
+ 1 4  3  4  6  5 side
+ 1 4  5  6  8  7 side
+ 1 4  7  8 10  9 side

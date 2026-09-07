@@ -1,0 +1,92 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/rod/rodwithoffset2,v 1.6 2014/12/13 17:15:52 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e-3;
+	tolerance: 1e-4;
+	max iterations: 10;
+	method: ms, .6;
+
+	#solver: y12, workspace size, 100000;
+
+	#threads: 1;
+
+	#output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 3;
+	rigid bodies: 2;
+	joints: 1+2+1;
+	forces: 1;
+
+	# default output: none;
+	print: equation description;
+
+	max iterations: 20;
+	tolerance: 1e-9;
+	initial stiffness: 1.e+0, 1.e0;
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		0.,0.,0.,
+		eye,
+		null,
+		null;
+	structural: 3, dynamic,
+		2.,0.,0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+
+	joint: 2, revolute hinge,
+		1, null,
+		2, null;
+
+	joint: 3, revolute hinge,
+		1, 2.,0.,0.,
+		3, null;
+
+	constitutive law: 10, name, "GiNaC",
+		1, 
+		# symbolic elastic isotropic,
+		# 	epsilon, "Eps",
+		# 	expression, "10.*Eps";
+		#linear viscoelastic generic, 1.e6, 1e2;
+		linear elastic generic, 1.e6;
+
+	joint: 4, rod with offset,
+		2, 1.,.1,0.,
+		3, -1.,-.1,0.,
+		from nodes,
+		# .2001,
+		reference, 10;
+
+	body: 2, 2, 1., null, diag, 1.,1.,1.e-2;
+	body: 3, 3, 1., null, diag, 1.,1.,1.e-2;
+	couple: 2, follower, 2, 0.,0.,1., sine, 0.,2.*pi/.1,1.,forever,0.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

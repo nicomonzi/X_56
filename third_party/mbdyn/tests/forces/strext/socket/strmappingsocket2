@@ -1,0 +1,244 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/strext/socket/strmappingsocket2,v 1.1 2010/05/21 02:53:42 masarati Exp $
+
+begin: data;
+	integrator: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1;
+	time step: 1e-3;
+
+	tolerance: 1e-6;
+	max iterations: 20;
+
+	derivatives tolerance: 1e-3;
+	derivatives max iterations: 10;
+	#derivatives coefficient: 1.e-6;
+
+	threads: disable;
+
+	output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# clamp
+		+1	# hub
+		+1	# flap
+		+3	# beam
+	;
+	joints:
+		+1	# clamp
+		+1	# hub
+		+1	# flap revolute
+		+1	# pitch revolute
+	;
+	rigid bodies:
+		+3	# beam
+	;
+	beams:
+		+1	# beam
+	;
+	forces:
+		+1	# external structural mapping
+	;
+
+	default orientation: orientation vector;
+end: control data;
+
+set: real L = 1.;
+
+set: real M = 1.e-0;
+set: real JP = 1.e-1;
+
+set: real EA = 1.e9;
+set: real GAY = .8e9;
+set: real GAZ = .2e9;
+set: real GJ = 1.e5;
+set: real EJY = 1.e4;
+set: real EJZ = 1.e5;
+
+# set: real OMEGA = 0;
+set: real OMEGA = 2*pi;
+
+reference: 1,
+	null,
+	eye,
+	null,
+	OMEGA, 0., 0.;
+
+begin: nodes;
+	structural: 9999, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+
+	structural: 0, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+
+	structural: 1000, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+
+	structural: 1, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+
+	structural: 2, dynamic,
+		reference, 1, L/2, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+
+	structural: 3, dynamic,
+		reference, 1, L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	joint: 9999, clamp, 9999, node, node;
+
+	/*
+	joint: 1, revolute hinge,
+		0,
+			position, null,
+			orientation,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.,
+		1000,
+			position, null,
+			orientation,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.;
+
+	joint: 2, revolute hinge,
+		1000,
+			position, null,
+			orientation,
+				3, 1., 0., 0.,
+				2, 0., 1., 0.,
+		1,
+			position, null,
+			orientation,
+				3, 1., 0., 0.,
+				2, 0., 1., 0.,
+	*/
+	joint: 0, total joint,
+		9999,
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		0,
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		position constraint, active, active, active,
+			null,
+		orientation constraint, active, active, active,
+			0., 0., 1.,
+			linear, 0., OMEGA;
+
+	joint: 1, total joint,
+		0,
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		1000,
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		position constraint, active, active, active,
+			null,
+		orientation constraint, active, active, active,
+			0., 1., 0.,
+			# sine, .001, pi/2., .1, forever, 0.;
+			const, 0.;
+
+	joint: 2, total joint,
+		1000,
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		1,
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		position constraint, active, active, active,
+			null,
+		orientation constraint, active, active, active,
+			1., 0., 0.,
+			# sine, .001, pi/.1, .1, forever, 0.;
+			const, 0.;
+
+	beam: 1,
+		1, null,
+		2, null,
+		3, null,
+		eye,
+		linear elastic generic, diag, EA, GAY, GAZ, GJ, EJY, EJZ,
+		same,
+		same;
+
+	body: 1, 1,
+		M/4,
+		L/8, 0., 0.,
+		diag, JP/4, (M/4)*(L/4)^2, (M/4)*(L/4)^2;
+
+	body: 2, 2,
+		M/2,
+		null,
+		diag, JP/2, (M/2)*(L/2)^2, (M/2)*(L/2)^2;
+
+	body: 3, 3,
+		M/4,
+		-L/8, 0., 0.,
+		diag, JP/4, (M/4)*(L/4)^2, (M/4)*(L/4)^2;
+
+	force: 10, external structural mapping,
+		socket,
+		create, yes,
+		path, "/tmp/mbdyn.sock",
+		no signal,
+		coupling,
+			# 2,
+			tight,
+		send after predict, no,
+		# comment for absolute test
+		reference node, 0,
+		points number, 9,
+			1,
+				offset, null,
+				offset, 0., 1., 0.,
+				offset, 0., 0., 1.,
+			2,
+				offset, null,
+				offset, 0., 1., 0.,
+				offset, 0., 0., 1.,
+			3,
+				offset, null,
+				offset, 0., 1., 0.,
+				offset, 0., 0., 1.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

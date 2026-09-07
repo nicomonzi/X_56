@@ -1,0 +1,159 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/actuator/swashplate.in,v 1.4 2014/12/13 17:15:40 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    # abort after: input;
+    time step: (real dt = 1.e-3);
+    initial time: 0.;
+    final time: 500*dt;
+    
+    set: (real Rho = .6);
+    method: ms, Rho, Rho;
+    
+    max iterations: 10;
+    tolerance: 1.e-5;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 20;
+    derivatives tolerance: 1.e-4;
+    
+    fictitious steps number: 2;
+    fictitious steps ratio: 1.e-2;
+    fictitious steps max iterations: 10;
+    fictitious steps tolerance: 1.e-4;
+
+threads: disable;
+end: initial value;
+
+set: real rho = 870.;
+set: real nu = 8.e-5;
+set: real mu = nu*rho;
+
+
+begin: control data;
+    set: integer nact = 1;
+    hydraulic nodes: 2*nact;       #  numero nodi idraulici
+    structural nodes: 2+2*nact;    #  numero nodi strutturali
+    
+    hydraulic elements: 1*nact;    #  numero elementi idraulici
+
+    rigid bodies: 3*nact;
+    joints: 1+1+(2+2)*nact;        # vincoli    
+    forces: 1*nact;                # una forza generica
+    gravity;
+    
+    
+    genels: 1*nact;
+end: control data;
+ 
+begin: nodes;
+    hydraulic: 11, (real p = 1.e6);
+    hydraulic: 12, p;
+    
+    set: integer Helicopter = 1;
+    structural: Helicopter, static,
+                null,
+		eye,
+		null,
+		null;
+		
+    set: real l = 1.;
+    set: integer Swashplate = 2;
+    structural: Swashplate, dynamic,
+                0.,0.,l,
+		eye,
+		null,
+		null;
+		
+    structural: 11, dynamic,
+                1.,0.,.5*l,
+		eye,
+		null,
+		null;
+    structural: 12, dynamic,
+                1.,0.,.5*l,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+
+    joint: Helicopter, clamp, Helicopter, node, node;
+    joint: Swashplate, pin,
+           Swashplate, reference, node, null, 0.,0.,l;
+    body: Swashplate, Swashplate,
+          1., 
+	  null,
+	  diag, 1.,1.,1.;
+
+    # Actuator 1
+    body: 11, 11, 
+          .1,
+	  null,
+	  diag, 1.e-3,1.e-3,1.e-3;
+    body: 12, 12,
+          .1,
+	  null,
+	  diag, 1.e-3,1.e-3,1.e-3;
+    joint: 11, spherical hinge,
+           Helicopter, 
+	   reference, node, 1.,0.,0.,
+	   11,
+	   reference, node, 0.,0.,-.5*l;
+    joint: 12, spherical hinge,
+           Swashplate,
+	   reference, node, 1.,0.,0.,
+	   12,
+	   reference, node, 0.,0.,.5*l;
+    joint: 13, inline,
+           11, null, eye,
+	   12;
+    joint: 14, prismatic,
+           11, 
+	   12;
+
+    hydraulic: 11, actuator,
+               11, 12,            # Nodi idraulici 1&2
+               11, 0.,0.,-.4,     # Nodo strutturale 1  
+	       12, 0.,0.,-.1,     # Nodo strutturale 2	       
+	       # direction, 0.,0.,1.,
+	       4.e-5,		# Area su cui agisce p1
+	       4.e-5,           # Area su cui agisce p2
+	       .8,
+	       
+	       fluid, # incompressible, density, 800.,
+			linear compressible, density, 800., 2.e9, 101325.,
+				viscosity, mu,
+	       fluid, # incompressible, density, 900.;
+			linear compressible, density, 800., 2.e9, 101325.,
+				viscosity, mu;
+		      
+    gravity: 0.,0.,-1., const, 9.81;
+         
+    # forza astratta: generatore di portata
+   
+    force: 111, abstract,
+           11, hydraulic,
+           # const, 1.e-2;
+           # step, 10*dt, -1.e-2, 0.;
+	   # array, 2,
+	   # random, .01,0.,dt,1000., steps, 10;
+	   cosine, 10*dt, pi/(100*dt),-.5e-2,-1,0.;
+   
+   
+    # incastro generico: generatore di pressione
+    genel: 1111, clamp, 
+           12, hydraulic, 
+	   const, p;
+	   #   step, 200*dt, 1.211927e+06, 1.e6;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

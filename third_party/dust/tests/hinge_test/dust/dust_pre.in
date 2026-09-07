@@ -1,0 +1,10 @@
+
+comp_name = Wing
+geo_file = ./wing/wing_hinge.in
+!geo_file = ./wing/wing_deflected.in
+!geo_file = ./wing/wing.in
+!geo_file = ./wing/wing_basic.in
+ref_tag   = Wing_PreCICE
+
+file_name = geo_input.h5 
+

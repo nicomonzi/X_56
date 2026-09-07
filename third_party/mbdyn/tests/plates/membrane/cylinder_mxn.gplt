@@ -1,0 +1,15 @@
+### Set ###
+set terminal x11 enhanced
+
+set grid
+set size square
+
+
+### Plot ###
+# splot 'cylinder_mxn.mov' u 2:3:4 # every ::0::16
+plot 'cylinder_mxn.mov' u 2:3
+
+### Pause ###
+print "Press return to exit...";
+pause -1
+

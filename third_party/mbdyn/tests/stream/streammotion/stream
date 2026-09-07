@@ -1,0 +1,60 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.0;
+	final time: forever; # 10.0;
+	time step: 0.001;
+	max iterations: 10;
+	tolerance: 1e-06;
+	derivatives tolerance: 2.0;
+	derivatives coefficient: 0.001;
+	output: none;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	default output: none;
+	default orientation: orientation matrix;
+	output meter: meter, 0., forever, steps, 33;
+	structural nodes: 1;
+	rigid bodies: 1;
+	output elements: 1;
+end: control data;
+
+begin: nodes;
+	structural: 0, dynamic,
+		reference, global, 0.0, 0.0, 0.0,
+		reference, global, matr,
+			1.0, 0.0, 0.0,
+			0.0, 1.0, 0.0,
+			0.0, 0.0, 1.0,
+		reference, global, 0.,0.,1.,
+		reference, global, null;
+end: nodes;
+
+begin: elements;
+	body: 0, 0, 1.0,
+		0.0, 0.0, 0.0, eye,
+		inertial, matr,
+			1.0, 0.0, 0.0,
+			0.0, 1.0, 0.0,
+			0.0, 0.0, 1.0;
+	stream motion output: 1,
+		stream name, "MAILBX",
+		create, no,
+			port, 5501,
+		no signal,
+                motion,
+		output flags, position,
+		0;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

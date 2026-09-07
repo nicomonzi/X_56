@@ -1,0 +1,134 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/eig/divergence-rigid,v 1.5 2010/02/22 21:11:54 masarati Exp $
+
+/*
+ From naca0012.c81, about 0 deg, CL/alpha(M):
+
+ Mach	CL/alpha [1/rad]	Exp. Omega_0 [radian/s]	MBDyn [radian/s]
+ .00	6.04470473863018e+00	2.44948974278318e+02	244.949
+ .20	6.04470473863018e+00	2.41429117390436e+02	241.424
+ .30	6.30253574643906e+00	2.36608834594697e+02	236.599
+ .40	6.53171886449138e+00	2.29347653863725e+02	229.33
+ .50	7.07602876986567e+00	2.17886540597949e+02	217.863
+ .60	7.79222601377920e+00	2.00344133269225e+02	200.315
+ .70	8.96678949379738e+00	1.69971224107765e+02	169.956
+ .75	1.00267614147894e+01	1.41653106704206e+02	167.260 ***
+ .80	1.13159164538338e+01	9.33900330395232e+01	305.69  ***
+
+ *** the frequency differs from the analytical result because at M >= 0.75
+     the CM in naca0012.c81 depends on alpha and yields a stabilizing contrib.
+
+ */
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-2;
+    
+	tolerance: 1.e-5;
+	max iterations: 10;
+    
+	method: ms, .6, .6;
+
+	eigenanalysis: 1., output matrices, output eigenvectors, use lapack;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 3;
+	air properties;
+	aerodynamic elements: 1;
+end: control data;
+
+reference: 0, 
+           null,
+	   eye,
+	   null,
+	   null;
+reference: 1, 
+           reference, 0, null,
+	   reference, 0,
+		3, 0., 1., 0.,
+		1, 1., 0., 0.,
+	   reference, 0, null,
+	   reference, 0, null;
+
+begin: nodes;
+	structural: 0, static,
+		reference, 0, null,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+	structural: 1, dynamic,
+		reference, 0, null,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+
+	joint: 1, revolute hinge,
+		0,
+			position, reference, 1, null,
+			orientation, reference, 1, eye,
+		1,
+			position, reference, 1, null,
+			orientation, reference, 1, eye;
+
+	joint: 2, deformable hinge,
+		0,
+			# position, reference, 1, null,
+			orientation, reference, 1, eye,
+		1,
+			# position, reference, 1, null,
+			orientation, reference, 1, eye,
+		linear elastic isotropic, 6e4;
+
+	body: 1, 1,
+		1.,
+		null,
+		diag, 1., 1., 1.;
+
+	air properties: std, SI, 
+		single, 1.,0.,0., 
+			# const, 340.*.00;
+			# const, 340.*.20;
+			# const, 340.*.30;
+			# const, 340.*.40;
+			# const, 340.*.50;
+			# const, 340.*.60;
+			# const, 340.*.70;
+			# const, 340.*.75;
+			const, 340.*.80;
+
+	c81data: 1, "../aero/naca0012.c81";
+
+	aerodynamic body: 1, 1,
+		reference, node, null,
+		reference, node,
+			1, -1., 0., 0.,
+			2, 0., 0., 1.,
+		1.,		# span
+		const, 1.,	# chord
+		const, .1,	# e
+		const, 0.,	# b.c.
+		const, 0.,	# twist
+		1,		# integration points no.
+		c81, 1,
+		jacobian, yes;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

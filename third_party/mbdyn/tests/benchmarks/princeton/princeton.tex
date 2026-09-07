@@ -1,0 +1,47 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{url}
+
+\oddsidemargin 0.cm \textwidth 16.5cm \topmargin 0.cm \textheight 22cm
+
+\begin{document}
+
+\title{The Princeton beam experiment: \\ analysis using MBDyn}
+\author{Pierangelo Masarati}
+\date{}
+\maketitle
+
+\section{Introduction}
+This document presents the analysis of the so-called
+Princeton beam experiment \cite{DOWELL-1975-PRINCETON-1194,DOWELL-1975-PRINCETON-1257}
+using MBDyn \url{<http://www.mbdyn.org/>}.
+Refer to \url{<http://www.dymoresolutions.com/Benchmarks/PrincetonBeam/PrincetonBeamDescription.pdf>}
+for more details.
+
+\section{Results}
+Figure~\ref{fig:tip} presents the tip displacement and rotation
+for three load conditions.
+The results have been obtained using MBDyn 1.5.4.
+The model consists of 5 three-node beam elements.
+The input deck is available here: \url{<http://www.mbdyn.org/documentation/examples/princeton.tar.gz>}.
+
+\begin{figure}
+\centering
+\includegraphics[width=.33\textwidth]{princeton_u2}\hfill%
+\includegraphics[width=.33\textwidth]{princeton_u3}\hfill%
+\includegraphics[width=.33\textwidth]{princeton_phi}
+\caption{Flapwise displacement (left),
+lagwise displacement (center),
+and twist (right)
+at the beam tip versus loading angle
+for three loading conditions.}
+\label{fig:tip}
+\end{figure}
+
+
+\bibliographystyle{unsrt}
+\bibliography{../../../manual/mybib}
+
+\end{document}
+

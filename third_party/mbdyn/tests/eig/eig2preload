@@ -1,0 +1,130 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/eig/eig2preload,v 1.1 2010/08/26 19:34:53 masarati Exp $
+
+/*
+ * Eigenvalue extraction from clamped uniform 2 three-node beam
+ *
+
+	+|
+	+|-----o-----o-----o-----o
+	+|
+ 
+ */
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    initial time: 0.;
+    final time: 10.;
+    time step: 1e0;
+    method: bdf;
+    tolerance: 1e-6;
+    max iterations: 50;
+    eigenanalysis: 10.,
+	lower frequency limit, .01,
+	upper frequency limit, 50.,
+	output geometry,
+	output eigenvectors,
+	use lapack;
+    # output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    structural nodes: 5;
+    joints: 1;
+    rigid bodies: 4;
+    beams: 2;
+    forces: 1;
+end: control data;
+
+set: real L = 1.;
+set: real m = 1.;
+set: real J = 1.e-2;
+set: real EA = 1.e6;
+set: real GA = 1.e6;
+set: real GJ = 1.e2;
+set: real EJY = 1.e2;
+set: real EJZ = 1.e3;
+
+set: real A = 0.;
+#set: real A = 100.;
+#set: real A = 200.;
+
+begin: nodes;
+    structural: 1, static,
+                null,
+		eye,
+		null,
+		null;
+    structural: 2, dynamic,
+                1./4.*L, 0., 0.,
+		eye,
+		null,
+		null;
+    structural: 3, dynamic,
+                2./4.*L, 0., 0.,
+		eye,
+		null,
+		null;
+    structural: 4, dynamic,
+                3./4.*L, 0., 0.,
+		eye,
+		null,
+		null;
+    structural: 5, dynamic,
+                4./4.*L, 0., 0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+    joint: 1, clamp, 1, node, node;
+    body: 2, 2,
+          1./4.*m,
+	  null,
+	  diag, 1./4.*J, (1./4.*m)/12.*(1./4.*L)^2., (1./4.*m)/12.*(1./4.*L)^2.;
+    body: 3, 3,
+          1./4.*m,
+	  null,
+	  diag, 1./4.*J, (1./4.*m)/12.*(1./4.*L)^2., (1./4.*m)/12.*(1./4.*L)^2.;
+    body: 4, 4,
+          1./4.*m,
+	  null,
+	  diag, 1./4.*J, (1./4.*m)/12.*(1./4.*L)^2., (1./4.*m)/12.*(1./4.*L)^2.;
+    body: 5, 5,
+          1./8.*m,
+	  -1./16.*L, 0., 0.,
+	  diag, 1./8.*J, (1./8.*m)/12.*(1./8.*L)^2., (1./8.*m)/12.*(1./8.*L)^2.;
+    beam: 1,
+          1, null,
+	  2, null,
+	  3, null,
+	  eye,
+	  linear elastic generic, diag, EA, GA, GA, GJ, EJY, EJZ,
+          same,
+          same;
+    beam: 2,
+          3, null,
+	  4, null,
+	  5, null,
+	  eye,
+	  linear elastic generic, diag, EA, GA, GA, GJ, EJY, EJZ,
+          same,
+          same;
+    force: 0, follower,
+          5, position, null,
+          0., 1., 0.,
+          # 0., 1., 1.e-2,
+              cosine, 0., pi/5., A/2, half, 0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

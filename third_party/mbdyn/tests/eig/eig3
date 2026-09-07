@@ -1,0 +1,79 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/eig/eig3,v 1.3 2014/12/13 17:15:38 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    initial time: 0.;
+    final time: 1e-2;
+    eigenanalysis: 1e-2, use lapack, output matrices, output eigenvectors, upper frequency limit, 60;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    structural nodes: 3;
+    joints: 2;
+    rigid bodies: 3;
+    beams: 1;
+end: control data;
+
+set: real L = 1.;
+set: real m = 1.;
+set: real J = 1.e-2;
+set: real EA = 1.e6;
+set: real GA = 1.e9;
+set: real GJ = 1.e4;
+set: real EJ = 1.e3;
+
+begin: nodes;
+    structural: 1, dynamic,
+                null,
+		eye,
+		null,
+		null;
+    structural: 2, dynamic,
+                .5*L, 0., 0.,
+		eye,
+		null,
+		null;
+    structural: 3, dynamic,
+                L, 0., 0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+    joint: 1, pin, 1, reference, node, null, reference, global, null;
+    joint: 3, pin, 3, reference, node, null, reference, global, L,0.,0.;
+    body: 1, 1,
+    	  .22*m,
+	  .11*L, 0., 0.,
+	  diag, .22*J, (.22*m)/12.*(.22*L)^2, (.22*m)/12.*(.22*L)^2;
+    body: 2, 2,
+          .56*m,
+	  null,
+	  diag, .56*J, (.56*m)/12.*(.56*L)^2, (.56*m)/12.*(.56*L)^2;
+    body: 3, 3,
+          .22*m,
+	  -.11*L, 0., 0.,
+	  diag, .22*J, (.22*m)/12.*(.22*L)^2, (.22*m)/12.*(.22*L)^2;
+
+    beam: 1,
+          1, null,
+	  2, null,
+	  3, null,
+	  eye,
+	  linear elastic generic, diag, EA, GA, GA, GJ, EJ, EJ,
+	  # proportional, 1.e-4,
+	  same,
+	  same;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,90 @@
+include: "andrewssqueezer.set";
+include: "andrewssqueezer.ref";
+
+include: "andrewssqueezer_assembler.set";
+
+reference: POINT_E,
+	reference, POINT_O, POINT_E_X, POINT_E_Y, 0.,
+	reference, POINT_O, eye,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: POINT_F,
+	reference, POINT_O, POINT_F_X, POINT_F_Y, 0.,
+	reference, POINT_O, eye,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: POINT_G,
+	reference, POINT_O, POINT_G_X, POINT_G_Y, 0.,
+	reference, POINT_O, eye,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: POINT_H,
+	reference, POINT_O, POINT_H_X, POINT_H_Y, 0.,
+	reference, POINT_O, eye,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_O_F,
+	reference, POINT_O, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		1, POINT_F_X - POINT_O_X, POINT_F_Y - POINT_O_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_E_F,
+	reference, POINT_E, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		1, POINT_F_X - POINT_E_X, POINT_F_Y - POINT_E_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_H_E,
+	reference, POINT_H, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		1, POINT_E_X - POINT_H_X, POINT_E_Y - POINT_H_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_G_E,
+	reference, POINT_G, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		1, POINT_E_X - POINT_G_X, POINT_E_Y - POINT_G_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_A_G,
+	reference, POINT_A, null,
+	reference, POINT_A,
+		3, 0., 0., 1.,
+		1, POINT_G_X - POINT_A_X, POINT_G_Y - POINT_A_Y, 0.,
+	reference, POINT_A, null,
+	reference, POINT_A, null;
+
+reference: LINK_A_H,
+	reference, POINT_A, null,
+	reference, POINT_A,
+		3, 0., 0., 1.,
+		1, POINT_H_X - POINT_A_X, POINT_H_Y - POINT_A_Y, 0.,
+	reference, POINT_A, null,
+	reference, POINT_A, null;
+
+reference: LINK_E_B_D,
+	reference, POINT_E, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		2, POINT_B_X - POINT_E_X, POINT_B_Y - POINT_E_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: POINT_D,
+	reference, LINK_E_B_D, E_D_X, E_D_Y, 0.,
+	reference, LINK_E_B_D, eye,
+	reference, LINK_E_B_D, null,
+	reference, LINK_E_B_D, null;

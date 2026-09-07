@@ -1,0 +1,3 @@
+constitutive law: const_law_id_beam,
+    6, linear elastic generic,
+    diag, E * A, G * As, G * As, G * Ip, E * Iy, E * Iz;

@@ -1,0 +1,223 @@
+################################################################
+## PARAMETERS
+################################################################
+
+set: real body1_diameter = 10e-3;
+set: real hole_liner_diameter = 10.025e-3;
+
+set: real mu = 0.2;
+set: real Xi = 1.1;
+set: real sigma0 = 1e6;
+set: real sigma1 = 1e4;
+
+set: real gravity_g = 9.81;
+set: real gravity_Zeta = Xi * atan(mu) - pi / 2.;
+set: real gravity_Psi = 0.;
+
+set: real body1_mass = 10.9e-3 + 2.193e-3;
+set: real body1_h = 1000e-3;
+set: real body1_Jxx = body1_mass * (body1_diameter/2.)^2 / 2.;
+set: real body1_Jyy = body1_mass * (3 * (body1_diameter/2.)^2 + body1_h^2) / 12.;
+set: real body1_Jzz = body1_Jyy;
+
+set: real eta = 3e-16;		# dynamic oil viscosity
+set: real rho = 900.;
+set: real initial_time = 0;
+set: real final_time = 1.2;
+set: real output_start_time = 0;
+set: real output_time_step = 5e-2;
+
+set: real time_step = 1e-5;
+set: real max_time_step = 1e-3;
+set: real min_time_step = 1e-4;
+
+################################################################
+## ID NUMBERS
+################################################################
+
+set: integer node_id_ground = 1001;
+set: integer node_id_body1 = 1004;
+
+set: integer body1_id = 2002;
+
+set: integer joint_id_ground = 3001;
+
+set: integer ref_id_ground = 5001;
+set: integer ref_id_body = 5004;
+
+set: integer elem_id_bearing = 6001;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: initial_time;
+	final time: final_time;
+	
+	time step: time_step;
+	min time step: min_time_step;
+	max time step: max_time_step;
+	strategy: factor, 
+			# reduction_factor
+				0.5, 
+			# steps_before_reduction
+				2,
+			# raise_factor
+				2, 
+			# steps_before_raise
+				2, 
+			# min_iterations
+				3, 
+			# max_iterations
+				6;
+	
+	max iterations: 40;
+	tolerance: 1e-4, test, minmax, 1e-4, test, minmax;
+	method: implicit euler;
+	derivatives tolerance: 1e-3, 1e-2;
+	derivatives max iterations: 20;
+	derivatives coefficient: 1e-2, auto;
+	output: iterations;
+    linear solver: umfpack, colamd, scale, row max column max, always, max iterations, 10;
+    include: "noxsolver.set";        
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+    max iterations: 10;
+    output precision: 8;
+    output meter: closest next, output_start_time, forever, const, output_time_step;
+	structural nodes: 2;
+	rigid bodies: 1;
+	loadable elements: 1;
+	joints: 1;
+    gravity;
+	default output: all;
+	default output: reference frames;
+    max iterations: 100;
+    tolerance: 1e-6;
+use automatic differentiation;
+end: control data;
+
+reference: ref_id_ground,
+	# position
+	reference, global, null,
+	# orientation
+	reference, global, eye,
+	# velocity
+	reference, global, null,
+	# angular velocity
+	reference, global, null;
+
+reference: ref_id_body,
+	#position
+	reference, ref_id_ground, null,
+	# orientation
+	reference, ref_id_ground, eye,
+	# velocity
+	reference, ref_id_ground, null,
+	# angular velocity
+	reference, ref_id_ground, null;
+
+begin: nodes;
+    structural: node_id_ground, static,
+        reference, global, null,
+        reference, global, eye,
+        reference, global, null,
+        reference, global, null;
+				
+	structural: node_id_body1, dynamic, 
+		# absolute position
+		reference, ref_id_body, null, 
+		# absolute orientation matrix
+		reference, ref_id_body, eye, 
+		# absolute velocity
+		reference, ref_id_body, null,
+		# absolute angular velocity
+		reference, ref_id_body, null,
+        accelerations, yes;
+end: nodes;
+
+begin: elements;		
+    joint: joint_id_ground, clamp,
+        node_id_ground, node, node;
+
+	body: body1_id, node_id_body1, 
+                # mass
+                body1_mass,
+                # relative center of mass
+                reference, ref_id_body, 0., 0., -0.5*body1_diameter,
+                # inertia matrix
+                diag, body1_Jxx, body1_Jyy, body1_Jzz,
+		inertial, reference, ref_id_body, eye;
+
+    user defined: elem_id_bearing, 
+        hydrodynamic plain bearing2,
+            hydraulic fluid, incompressible,
+                density, rho,
+                viscosity, eta,
+                pressure, 0,
+                temperature, 0,
+            #mesh, linear finite difference, enable mcp, enable_mcp,
+            mesh, quadratic finite element,
+            geometry, cylindrical,
+                mesh position, at shaft,
+                bearing width, body1_h,
+                shaft diameter, body1_diameter,
+                bearing diameter, hole_liner_diameter,
+                shaft node,
+                    node_id_body1,
+                    offset, reference, ref_id_body, null,
+                    orientation, reference, ref_id_body, 3, 1., 0., 0., 
+                                                           1, 0., 0., -1.,
+                bearing node,
+                    node_id_ground,
+                    offset, reference, ref_id_body, 0., 0., 0.01e-3,
+                    orientation, reference, ref_id_body, 3, -1., 0., 0.,
+                                                           1, 0., 0., 1.,
+            number of nodes z, 3,
+            number of nodes Phi, 200,
+            boundary conditions,
+                0.,
+                0.,
+            lubrication grooves, 1,
+                at shaft,
+                    pressure, 0.,
+                    position, 0.5 * body1_diameter * pi, 0.,
+                    rectangle, width, 1.01 * body1_diameter * pi,
+                               height, 1.01 * body1_h,
+            contact model,
+                greenwood williamson lugre,
+                    E1, 0.1e6,
+                    nu1, 0.5,
+                    E2, 0.1e6,
+                    nu2, 0.5,
+                    M0, 2 * 0.014,
+                    M2, 2 * 0.00189,
+                    M4, 2 * 0.001939,
+                    method, implicit euler,
+                    coulomb friction coefficient, mu,
+                    micro slip stiffness, sigma0,
+                    micro slip damping, sigma1,
+            output pressure, yes,
+            output contact pressure, yes,
+            output clearance, yes,
+            output clearance derivative, no,
+            output velocity, no,
+            output stress, no,
+            output contact stress, yes,
+            output reaction force, yes,
+            output mesh, no;
+
+	gravity: cos(gravity_Zeta) * cos(gravity_Psi), 
+             cos(gravity_Zeta) * sin(gravity_Psi), 
+             sin(gravity_Zeta),
+	const, gravity_g;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

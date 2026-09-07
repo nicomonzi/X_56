@@ -1,0 +1,68 @@
+﻿UNSTEADY AERODYNAMICS VALIDATION:
+
+INTRODUCTION
+
+Three simple models have been developed to test and validate the
+unsteady aerodynamics based on the state space representation of 
+the Theodorsen theory.
+
+The three models are pretty much the same and just the position
+of the airfoil axis of rotation changes. 
+
+MODEL DESCRIPTION
+
+The models have two nodes:
+
+- the first node (node 1) is clamped to the ground and an external force 
+and an external couple are applied to the node. Since the node is 
+clamped its resulting movement is null.
+
+- the second node (node 2) is forced to move with respect to the 
+ground. This node undergoes a forced plunging and pitching harmonic motion.
+The plunging reduced frequency is 0.5, whereas the pitching reduced 
+frequency is 0.8; the amplitudes are respectively 0.1 m and 1 deg.
+An aerodynimic body is associated to node 2. 
+
+RESULTS COMPARISON
+
+The frequency domain Theodorsen theory is solved (externally to MBDyn) to
+compute the aerodynamic forces and moments associated with the very same
+harmonic plunging and pitching motion imposed to the node 2 and the obtained
+results are saved in the "TheodorsenForces*.txt" files. These forces and
+moments are applied to the node 1. 
+
+So, it is possible to compare the results of the MBDyn implementation
+of the Theodorsen theory with the results obtained solving the forces
+directly in the frequency domain simply looking at the reaction forces
+on the two joints used respectively to clamp the node 1 (joint 1) and to
+impose the movement of node 2 (joint 2).
+
+FILES:
+
+The three models differ because of the position of the pitching axis:
+
+- ridiss0: in this model the pitch axis is placed at the mid-chord point
+           (a=0 in the Theodorsen theory)
+
+- rigidss05: in this model the pitch axis is placed at 3/4 chord
+           (a=0.5 in the Theodorsen theory)
+
+- rigidssm05: in this model the pitch axis is placed at 1/4 chord
+           (a=-0.5 in the Theodorsen theory)
+
+The corresponding time histories of the Theodersen forces are respectively
+collected in the files:
+
+- TheodorsenForces_a0.txt
+
+- TheodorsenForces_a05.txt
+
+- TheodorsenForces_am05.txt
+
+APPENDIX
+
+In order to select the chordwise position of the pitching axis it is necessary
+modify the "surface_aerodynamic_center" and the "surface_b_c_point" on 
+the aerodynamic body. In practice it is necessary to move the aerodynamic surface
+with respect to the node because actually the pitch axis is always collocated
+on the node.

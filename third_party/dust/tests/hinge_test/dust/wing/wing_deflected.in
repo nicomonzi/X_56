@@ -1,0 +1,31 @@
+!> === Mesh and elements types ===
+mesh_file_type = parametric
+el_type       = p
+!> === coupled with external structural solver (T/F) ===
+coupled      = F
+coupling_type = rbf
+coupling_node_file = ./wing/coupling_nodes.in 
+
+!> === Geometry definition ===
+starting_point = (/ 0.0, 0.0 , 0.0/)
+reference_chord_fraction = 0.0
+
+!coupling_node_orientation = (/ 0.0,1.0,0.0, -1.0,0.0,0.0, 0.0,0.0,1.0 /)
+nelem_chord = 15
+type_chord = uniform
+! First section
+chord = 1.0
+twist = 0.0
+airfoil = ./wing/profile_down.dat
+
+! First region
+span = 4
+sweep = 0.0
+dihed = 0.0
+nelem_span = 8
+type_span = uniform
+
+! Second section
+chord = 1.0
+twist = 0.0
+airfoil = ./wing/profile_down.dat

@@ -1,0 +1,202 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/deformablehinge/motioncapture,v 1.3 2018/10/02 09:44:19 masarati Exp $
+
+/*
+ 
+ \|   s1     s2   ^
+ \o---+------+--- |
+ \|               v
+
+The bar is hinged in 0.  Two motion "sensors" are placed in s1, s2,
+connected to the bar by dummy springs.
+Coherent motion is applied to the "sensors" (finite amplitude harmonic
+oscillation about the reference condition) related to points that are
+slightly offset from the initial position of the sensors.
+The position of the sensors is modified by adding a prestrain that 
+"relaxes" the internal forces in the dummy springs.
+
+*/
+
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.;
+	time step: 1.e-3;
+
+	tolerance: 1e-9;
+	max iterations: 10;
+
+	derivatives tolerance: 1e19;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1e-12;
+
+	method: ms, .6;
+
+	output: iterations;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# body
+		+2	# sensors
+	;
+	joints:
+		+1	# rotation constraint
+		+2	# prescribed sensors motion
+		+2	# elastic connections
+	;
+	file drivers: 1;
+	output elements: 1;
+
+	# tolerance: 1e-2;
+	# max iterations: 10;
+
+	skip initial joint assembly;
+end: control data;
+
+reference: 0,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+set: real L = 1.;
+set: real K = 1e3;
+
+begin: nodes;
+	structural: 0, static,
+		reference, 0, L, 0., 0.,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+	structural: 1, static,
+		# tentative location of sensor
+		reference, 0, .25*L, 0., 0.,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+	structural: 2, static,
+		# tentative location of sensor
+		reference, 0, .75*L, 0., 0.,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+end: nodes;
+
+remark: "MBSKIN:", "$MBSKIN";
+
+begin: drivers;
+	file: 0, stream,
+		stream drive name, "MBSKIN",
+		create, yes,
+		path, "$MBSKIN",
+		# port, 10011,
+		no signal,
+		receive first, no,
+		# timeout, 0.1,
+		timeout, 10,
+		echo, "output-prestrain.echo",
+		4;	# eps_x_1, eps_y_1, eps_x_2, eps_y_2
+end: drivers;
+
+begin: elements;
+	joint: 0, total pin joint,
+		0,
+			position, reference, 0, null,
+			position orientation, reference, 0, eye,
+			rotation orientation, reference, 0, eye,
+		# ground
+			position, reference, 0, null,
+			position orientation, reference, 0, eye,
+			rotation orientation, reference, 0, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 0, null;
+
+	joint: 10, deformable displacement joint,
+		1,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		0, 
+			position, reference, other node, null,
+			orientation, reference, other node, eye,
+		linear elastic generic, diag, K, K, K, # same as isotropic
+			prestrain, component, file, 0, 1, file, 0, 2, const, 0.;
+
+	joint: 20, deformable displacement joint,
+		2,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		0, 
+			position, reference, other node, null,
+			orientation, reference, other node, eye,
+		linear elastic generic, diag, K, K, K, # same as isotropic
+			prestrain, component, file, 0, 3, file, 0, 4, const, 0.;
+
+	# prescribed angular motion (exact)
+	drive caller: 99, string, ".1*sin(2*pi*10.*Var)";
+
+	# actual location of sensor
+	set: real X1 = .2*L;
+	joint: 1, total pin joint,
+		1,
+			position, reference, node, null,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		# ground
+			position, reference, 0, null,
+			position orientation, reference, 0, eye,
+			rotation orientation, reference, 0, eye,
+		position constraint, 1, 1, 1,
+			component,
+				string, "X1*cos(model::drive(99, Time))",
+				string, "X1*sin(model::drive(99, Time))",
+				const, 0.,
+		orientation constraint, 1, 1, 1, null;
+
+	# actual location of sensor
+	set: real X2 = .8*L;
+	joint: 2, total pin joint,
+		2,
+			position, reference, node, null,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		# ground
+			position, reference, 0, null,
+			position orientation, reference, 0, eye,
+			rotation orientation, reference, 0, eye,
+		position constraint, 1, 1, 1,
+			component,
+				string, "X2*cos(model::drive(99, Time))",
+				string, "X2*sin(model::drive(99, Time))",
+				const, 0.,
+		orientation constraint, 1, 1, 1, null;
+
+	stream output: 0,
+		stream name, "MBSKOU",
+		create, yes,
+		path, "$MBSKOU",
+		# port, 8005,
+		no signal,
+		# nonblocking,
+		echo, "output-forces.echo",
+		values, 4,
+			drive, element, 10, joint, string, "Fx", direct,
+			drive, element, 10, joint, string, "Fy", direct,
+			drive, element, 20, joint, string, "Fx", direct,
+			drive, element, 20, joint, string, "Fy", direct;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

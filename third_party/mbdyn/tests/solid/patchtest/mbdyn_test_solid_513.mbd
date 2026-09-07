@@ -1,0 +1,70 @@
+include: "mbdyn_test_solid_513.set";
+begin: data;
+        problem: initial value; # the default
+end: data;
+begin: initial value;
+        initial time: 0;
+        final time: t1 + t2;
+        time step: dt;
+        max iterations: 100;
+tolerance: 1e-4, test, norm, 1e-4, test, norm;
+        output: messages;
+        output: iterations, solver condition number, stat, yes;
+        nonlinear solver: nox,
+                          modified, 30,
+                          keep jacobian matrix,
+                          use preconditioner as solver, no,
+                          linesearch method, backtrack,
+                          direction, newton,
+                          jacobian operator, newton krylov,
+                          forcing term, constant,
+                          linear solver tolerance, 1e-12,
+                          inner iterations before assembly, 15,
+                          linear solver max iterations, 300,
+                          krylov subspace size, 300,
+                          minimum step, 1e-12,
+                          recovery step type, constant,
+                          recovery step, 1e-12,
+                          verbose, 3,
+                          print convergence info, no;
+        linear solver: umfpack, grad, scale, iterative, always, max iterations, 3;
+        derivatives coefficient: 1e-6, auto;
+        derivatives tolerance: 1e-5, 1e-5;
+        derivatives max iterations: 10;
+        threads: assembly, 1;
+        threads: solver, 1;
+        output: cpu time;
+        method: implicit euler;
+threads: disable;
+end: initial value;
+begin: control data;
+       output meter: closest next, t1 + t2, forever, dt;
+       initial assembly of deformable and force elements;
+       output precision: 16;
+model: static;
+       default output: all, solids, accelerations;
+       structural nodes: number_of_nodes;
+       hydraulic nodes: number_of_nodes_hydraulic;
+       solids: number_of_solids;
+       genels: number_of_genels;
+       forces: number_of_forces;
+       surface loads: number_of_surface_loads;
+       joints: number_of_joints;
+       use automatic differentiation;
+gravity;
+rigid body kinematics: const, velocity, 1e-4, 1e-4, 1e-4, angular velocity, 1e-4, 1e-4, 1e-4, acceleration, 1e-4, 1e-4, 1e-4, angular acceleration, 1e-4, 1e-4, 1e-4;
+end: control data;
+include: "mbdyn_test_solid_513.csl";
+begin: nodes;
+       include: "mbdyn_test_solid_513.nod";
+end: nodes;
+begin: elements;
+       include: "mbdyn_test_solid_513.elm";
+gravity: uniform, 0., 0., -1., mult, time, const, 1000.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

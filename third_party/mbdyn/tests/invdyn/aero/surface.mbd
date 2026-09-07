@@ -1,0 +1,174 @@
+
+/* A single aerodynamic surface */
+/* Author: Alessandro Fumagalli <alessandro.fumagalli@polimi.it>*/
+
+set: real theta = 0.*deg2rad;
+set: real m = 1.;
+set: real Vinf = 1.41;
+set: real rho = 2.;
+
+set: real t0 = 0.;
+set: real tf = 10;
+set: real dt = 1.e-3;
+set: real Tman = 1.e-3;
+set: real Tstart = Tman ;
+set: real Tgrav = 3;
+set: real Tlift = 5;
+set: real dZ = 1.;
+set: real dTheta = 3*deg2rad;
+set: real Coeff = 1.e-8;
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: t0;
+	final time: tf;
+	time step: 1.e-3;
+
+	method: ms, .6;
+	tolerance: 1.e-6;
+	max iterations: 50;
+
+	derivatives coefficient: 1.e-6;
+	derivatives tolerance: 1.e-4;
+	derivatives max iterations: 20;
+
+	#nonlinear solver: newton raphson, modified, 4;
+	#solver: umfpack, cc, block size, 2;
+
+	#output: iterations;
+	#output: residual;
+	#output: jacobian;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1		# ground
+		+1		# body
+	;
+	rigid bodies:
+		+1		# body
+	;
+	joints:
+		+1		# ground
+		+1		# total 
+		+1		# total eq 
+		+1		# total reac
+	;
+	air properties;
+	aerodynamic elements:
+		+1		
+	;
+end: control data;
+
+reference: 1,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: 2,
+	reference, 1, null,
+	reference, 1, eye,
+	reference, 1, null,
+	reference, 1, null,
+
+begin: nodes;
+	structural: 1, static,
+		reference, global, null,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+
+	structural: 2, dynamic,
+		reference, global, null,
+		reference, global, 
+			1, cos(theta), sin(theta), 0., 
+			3, 0., 0., 1.,
+		reference, global, null,
+		reference, global, null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, total joint,
+		1, 
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		2,
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		position constraint, active, inactive, active,
+			1, 0, 0, const, 0.,
+		orientation constraint, active, active, inactive,
+			1, 0, 0, const, 0.;
+	
+	joint: 3, total equation,
+		1,
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		2,
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		position constraint, inactive, active, inactive,
+				0., 1., 0.,	
+					string, "(Time <= Tstart) * (0)
+						(Time>Tstart) * (Time <= Tstart + Tlift) *
+							(126*((Time-Tstart)/Tlift)^5+
+							  -420*((Time-Tstart)/Tlift)^6+
+							  540*((Time-Tstart)/Tlift)^7+
+							  -315*((Time-Tstart)/Tlift)^8+
+							  70*((Time-Tstart)/Tlift)^9) * (dZ) 
+						+ (Time > Tstart+Tlift) * (dZ)",
+
+		orientation constraint, inactive, inactive, inactive,
+			0., 0., 1., const, 0;
+
+	joint: 4, total internal reaction,
+		1,
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		2,
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		position constraint, inactive, inactive, inactive,
+		orientation constraint, inactive, inactive, active,
+			total equation, 3;
+
+
+	body: 2, 2,
+		m,
+		reference, node, null,
+		diag, 1., 1., 1.;
+
+	air properties: rho, 340.,
+		1.,0.,0., const, Vinf;
+
+	c81data: 1, "../../../var/naca0012.c81";
+
+	aerodynamic body: 2, 2,
+		reference, node, null,	# offset
+		reference, node, eye,	# relative orient
+		1,			# span
+		const, 1.,		# chord
+		const, 0.,		# aerod. center
+		const, 0.,		# b c points (??)
+		const, 0.,		# twist
+		1,			# integration points
+		c81, 1, jacobian, yes;
+
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

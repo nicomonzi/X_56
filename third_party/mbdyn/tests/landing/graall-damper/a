@@ -1,0 +1,77 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/landing/graall-damper/a,v 1.5 2014/12/13 17:15:53 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: real dt = 1.e-4;
+set: real t0 = 0.;
+set: real tf = 10000*dt;
+
+begin: initial value;
+    # abort after: input;
+    # abort after: assembly;
+
+    time step: dt;
+    initial time: t0;
+    final time: tf;
+    
+    tolerance: 1.e-4;
+    max iterations: 10;
+
+    derivatives coefficient: 1.e-12;
+    derivatives tolerance: 1.e-9;
+    derivatives max iterations: 10;
+    
+    fictitious steps number: 0;
+
+    set: real Rho = .6;
+    method: ms, Rho, Rho;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+        
+    structural nodes: 2;
+    
+    rigid bodies: 1;
+    joints: 2;
+    gravity;
+end: control data;
+
+
+set: real l = 1.;
+set: real vz = -2.;
+begin: nodes;
+    structural: 1, static,
+                null,
+		eye,
+		null,
+		null;
+    structural: 2, dynamic,
+                0.,0.,l,
+		eye,
+		0.,0.,vz,
+		null;
+end: nodes;
+
+module load: "libmodule-damper-graall.la";
+
+begin: elements;
+    body: 2, 2, 200.,
+          null,
+	  diag, 1.,1.,1.;
+    joint: 1, clamp, 1, node, node;
+    joint: 2, rod,
+           2, 1, l,
+	   graall damper, "graall", l;
+	   
+    gravity: 0.,0.,1., const, -9.81;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

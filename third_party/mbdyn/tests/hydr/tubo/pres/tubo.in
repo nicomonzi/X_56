@@ -1,0 +1,148 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/tubo/pres/tubo.in,v 1.4 2014/12/13 17:15:44 masarati Exp $
+
+begin: data;
+    problem: initial value;
+
+end: data;
+
+begin: initial value;
+  #  abort after: input;
+    time step: (real dt = 5.e-6);
+    initial time: 0.;
+    final time: 300*dt;
+    
+    set: (real Rho = .6);
+    method: ms, Rho, Rho;
+    
+    max iterations: 100;
+    tolerance: 1.e-8;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 100;
+    derivatives tolerance: 1.e-5;
+    
+    fictitious steps number: 0;
+    fictitious steps ratio: 1.e-4;
+    fictitious steps max iterations: 10;
+    fictitious steps tolerance: 1.e-7;
+
+linear solver: umfpack, workspace size, 10000;
+threads: disable;
+end: initial value;
+
+
+
+begin: control data;
+#  output file name: "output";
+
+  
+  
+  hydraulic nodes: 2;       #  numero nodi idraulici
+ 
+  hydraulic elements: 1;    #  numero elementi idraulici
+                            
+  
+
+  forces: 0;                 # una forza generica
+
+  
+  genels: 2;
+                   
+ 
+ end: control data;
+ 
+begin: nodes;
+
+#   hydraulic: 1, (real p1=1.e7);
+#   hydraulic: 2, (real p2=1.e5);
+  hydraulic: 1, (real p1=1.e9);
+  hydraulic: 2, (real p2=1.e3);
+# hydraulic: 3, (real p3=1.e3);
+#  hydraulic: 3;
+ #  hydraulic: 4;
+
+end: nodes;
+
+
+
+begin: elements;
+ 
+ # density                  800 kg/m^3		kappa		     10 N/m
+ # diametro               0.007 m		precarico	    300 N 
+ # viscosità    	    0.9 kg/m/s		larghezza          5e-3 m
+ # area tubo   	       3.84 e-5 m^2		massa		  1.e-3 kg 
+ # lunghezza		      1	m 		area massima      2.e-4 m^2
+ # area diaframma        2. e-5 m^2 50% area tubo  
+ # bulk modulus            2.e9 Pa = 300.000 psi
+ 
+
+
+  
+  hydraulic: 11,Tubo ,1,2,
+		800.,		# densità
+		2.e9,           # modulo di bulk
+		.007,		# diametro
+		.9,		# viscosità
+		3.84e-5,	# area
+		1.e-0;		# lunghezza
+		# turbulent,
+		# initialvalue,  -10;
+
+/*  
+  hydraulic: 12,Tubo ,2,3,
+		800.,		# densità
+		2.e9,           # modulo di bulk
+		.007,		# diametro
+		.9,		# viscosità
+		3.84e-5,	# area
+		1.e-0;		# lunghezza
+		# turbulent,
+		# initialvalue,  -10;
+*/
+  
+ # forza generico: generatore di portata
+/*  
+   force: 101, abstract, 
+          1, hydraulic,
+          # const,-0.005;
+           #linear, -0.005,-0.03/dt;
+          step,10.*dt,-1.e-4,0.;
+ */
+ 
+# incastro generico: generatore di pressione
+
+
+   genel: 1001, clamp, 
+             1, hydraulic,   
+            const, p1;       # const, p1;
+            # step,50*dt,p1/2.,p1;  # fine inizio
+            #linear, p1,1.e7/dt; # per il tubo
+            # linear, 1.8e7,1.e7/dt; # per il tubo
+            #linear, 1.e5,40000./dt;  # per la valvola di pressione
+	    # linear, p1,100/dt;
+            #sine, 0.1,pi,16*p1,0,0.;
+            # double step, 75*dt,95*dt,p1,p1/2.;
+            # step, 500*dt,p1*.5,p1; # tempo,fine,inizio
+
+
+# incastro generico: generatore di pressione
+
+   genel: 1002, clamp,
+             2, hydraulic, 
+	     const, p2;
+            # step,50.*dt,1.e3,1.e4;
+            #linear, 1,-1.e6;
+	    # sine, 0.1,pi,1.e6,0,500000.;
+
+
+
+
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

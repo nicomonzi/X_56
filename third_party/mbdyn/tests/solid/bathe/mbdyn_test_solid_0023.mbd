@@ -1,0 +1,46 @@
+ set: real t1 = 1;
+ set: real N = 20;
+ begin: data;
+    problem: initial value; # the default
+ end: data;
+ begin: initial value;
+    initial time: 0;
+    final time: t1;
+    time step: t1 / N;
+    threads: assembly, 1;
+    threads: solver, 1;
+    max iterations: 10000;
+    tolerance: 1.e-6, test, norm, 1e-6, test, norm;
+    linear solver: umfpack, grad, scale, iterative, always, max iterations, 0;
+    method: implicit euler;
+         derivatives tolerance: 1e-4;
+         derivatives max iterations: 10;
+         derivatives coefficient: 1e-9, auto;
+         output: iterations, cpu time, solver condition number, stat, yes;
+    nonlinear solver: nox, modified, 100, keep jacobian matrix, jacobian operator, newton krylov, forcing term, type 2, forcing term min tolerance, 1e-10, forcing term max tolerance, 1e-6, inner iterations before assembly, 20, linear solver max iterations, 40, minimum step, 1e-12, recovery step, 1e-12, verbose, 3;
+threads: disable;
+ end: initial value;
+ begin: control data;
+    model: static;
+    output meter: closest next, t1, forever, t1 / 10;
+        use automatic differentiation;
+    structural nodes: 1023;
+    hydraulic nodes: 0;
+    surface loads: 26;
+    joints: 0;
+    solids: 120;
+    genels: 880;
+ end: control data;
+ begin: nodes;
+include: "mbdyn_test_solid_0023.nod";
+ end: nodes;
+include: "mbdyn_test_solid_0023.csl";
+ begin: elements;
+include: "mbdyn_test_solid_0023.elm";
+ end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

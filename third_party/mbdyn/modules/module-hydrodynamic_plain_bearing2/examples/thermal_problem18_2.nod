@@ -1,0 +1,3 @@
+set: x = (i > 0) * (i <= N) * dr * (i + 0.5) + (i == N + 1) * dr * N;
+
+thermal: node_id_T_0 + i, T0_in + (T0_out - T0_in) * x / (dr * N);

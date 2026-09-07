@@ -1,0 +1,55 @@
+!> === Mesh and elements types ===
+mesh_file_type = parametric
+el_type       = p
+!> === coupled with external structural solver (T/F) ===
+coupled      = F
+coupling_type = rbf
+coupling_node_file = ./wing/coupling_nodes.in 
+
+!> === Geometry definition ===
+starting_point = (/ 0.0, 0.0, 0.0/)
+reference_chord_fraction = 0.25
+
+!coupling_node_orientation = (/ 0.0,1.0,0.0, -1.0,0.0,0.0, 0.0,0.0,1.0 /)
+
+n_hinges = 1
+hinge = {
+    hinge_Tag = Flap_r
+    hinge_nodes_input = parametric 
+    !hinge_Nodes_input_Parametric = {
+    node_1 = (/ 0.5, 0.0, 0.0/)  ! In the local ref.frame
+    node_2 = (/ 0.5, 4.0, 0.0/)
+    n_nodes = 2
+    hinge_adaptive_mesh = F 
+    hinge_ref_dir = (/ 1.0, 0.0, 0.0 /)
+    hinge_offset  = 0.01
+    hinge_spanwise_blending = 0.001
+
+    hinge_rotation_input = function:const
+    hinge_rotation_function = {
+    amplitude = 20.0 ! deg
+    omega = 12.5 ! rad/sec
+    phase = 0.0 ! deg
+    }
+}
+
+
+
+nelem_chord = 15
+type_chord = uniform
+! First section
+chord = 1.0
+twist = 0.0
+airfoil = NACA0012
+
+! First region
+span = 4 
+sweep = 0.0
+dihed = 0.0
+nelem_span = 8
+type_span = uniform
+
+! Second section
+chord = 1.0
+twist = 0.0
+airfoil = NACA0012

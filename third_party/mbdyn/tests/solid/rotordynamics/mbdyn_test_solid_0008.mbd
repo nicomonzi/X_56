@@ -1,0 +1,315 @@
+include: "mbdyn_test_solid_1.set";
+set: integer ref_id_ground = 1001;
+set: integer ref_id_shaft = 1002;
+set: integer ref_id_rotor = 1003;
+set: integer ref_id_bearing1 = 1004;
+set: integer ref_id_bearing2 = 1005;
+set: integer node_id_rotor = 654;
+set: integer node_id_bearing1 = 655;
+set: integer node_id_bearing2 = 656;
+set: integer body_id_unbalance = 2001;
+set: integer joint_id_bearing1 = 3006;
+set: integer joint_id_bearing2 = 3007;
+set: integer joint_id_drive = 3008;
+set: integer elem_id_inertia = 4001;
+set: integer drive_id_rotor_speed = 5001;
+set: integer drive_id_time_step = 5002;
+set: integer drive_id_kinetic_energy = 5003;
+set: real initial_time = 0.;
+set: real final_time = 2. * pi * n / (abs(omega1 + omega0) / 2.);
+begin: data;
+        problem: initial value;
+end: data;
+begin: initial value;
+        initial time: initial_time;
+        final time: final_time;
+        time step: 2. * pi / (360. * abs(omega0));
+        strategy: change, postponed, drive_id_time_step;
+        method: ms, 0.6;
+        tolerance: 1e-5, test, sepnorm, 1e-5, test, norm;
+        derivatives tolerance: 1e-3, 1e-3;
+        max iterations: 100;
+        derivatives max iterations: 10;
+        derivatives coefficient: auto;
+        output: iterations, cpu time, solver condition number, stat, yes;
+        linear solver: umfpack, grad, scale, iterative, always, max iterations, 0;
+        enforce constraint equations: constraint violations;
+      threads: assembly, 1;
+      threads: solver, 1;
+        nonlinear solver: nox, modified, 25,
+             keep jacobian matrix,
+             inner iterations before assembly, 12,
+             use preconditioner as solver, no,
+             jacobian operator, newton krylov,
+             solver, line search based,
+             forcing term, type 2,
+             forcing term min tolerance, 1e-10,
+             forcing term max tolerance, 1e-8,
+             direction, newton,
+             weighted rms absolute tolerance, 0.,
+             weighted rms relative tolerance, 0.,
+             linear solver, gmres,
+             linear solver max iterations, 24,
+             krylov subspace size, 24;
+threads: disable;
+end: initial value;
+begin: control data;
+       use automatic differentiation;
+       default output: none, structural nodes;
+       default orientation: euler123;
+       output precision: 16;
+       max iterations: 10;
+       initial assembly of deformable and force elements;
+       initial stiffness: 1e6, 1e6;
+        structural nodes: 656;
+        solids: 140;
+        joints: 3 + 3;
+        rigid bodies: 1;
+        rigid body kinematics: drive, angular velocity,
+        component,
+           null,
+           null,
+           array, 2,
+             mult, time, const, (omega1 - omega0) / (final_time - initial_time),
+             const, omega0,
+        angular acceleration,
+        component,
+           null,
+           null,
+           const, (omega1 - omega0) / (final_time - initial_time);
+end: control data;
+reference: ref_id_ground,
+        reference, global, null,
+        reference, global, eye,
+        reference, global, null,
+        reference, global, null;
+reference: ref_id_shaft,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, eye,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, null;
+reference: ref_id_rotor,
+        reference, ref_id_shaft, 0., 0., o,
+        reference, ref_id_shaft, eye,
+        reference, ref_id_shaft, null,
+        reference, ref_id_shaft, null;
+reference: ref_id_bearing1,
+        reference, ref_id_shaft,
+                   0.,
+                   0.,
+                   -0.5 * l,
+        reference, ref_id_shaft, eye,
+        reference, ref_id_shaft, null,
+        reference, ref_id_shaft, null;
+reference: ref_id_bearing2,
+        reference, ref_id_shaft,
+                   0.,
+                   0.,
+                   0.5 * l,
+        reference, ref_id_shaft, eye,
+        reference, ref_id_shaft, null,
+        reference, ref_id_shaft, null;
+begin: nodes;
+include: "mbdyn_test_solid_solid.nod";
+end: nodes;
+include: "mbdyn_test_solid_viscoelastic.csl";
+begin: elements;
+       drive caller: drive_id_rotor_speed, string, "(omega1 - omega0) / (final_time - initial_time) * Time + omega0", output, yes;
+       drive caller: drive_id_time_step, string, "2. * pi / (max(1., 360. * abs(model::drive(drive_id_rotor_speed, Time))))";
+      include: "mbdyn_test_solid_solid.elm";
+       body: body_id_unbalance,
+             node_id_rotor,
+                dm,
+                  reference, ref_id_rotor, dr, 0., 0.,
+                  diag, 0., 0., 0.;
+        joint: joint_id_bearing1, total pin joint,
+                node_id_bearing1,
+                        position, reference, ref_id_bearing1, null,
+                        position orientation, reference, ref_id_bearing1, eye,
+                        rotation orientation, reference, ref_id_bearing1, eye,
+                        position, reference, ref_id_bearing1, null,
+                        position orientation, reference, ref_id_bearing1, eye,
+                        rotation orientation, reference, ref_id_bearing1, eye,
+               position constraint,
+                        active, active, active,
+                        null,
+               orientation constraint,
+                        inactive, inactive, inactive,
+                        null;
+        joint: joint_id_bearing2, total pin joint,
+               node_id_bearing2,
+                        position, reference, ref_id_bearing2, null,
+                        position orientation, reference, ref_id_bearing2, eye,
+                        rotation orientation, reference, ref_id_bearing2, eye,
+               position, reference, ref_id_bearing2, null,
+               position orientation, reference, ref_id_bearing2, eye,
+               rotation orientation, reference, ref_id_bearing2, eye,
+               position constraint,
+                        active, active, inactive,
+                        null,
+               orientation constraint,
+                        inactive, inactive, inactive,
+                        null;
+     joint: joint_id_drive, angular velocity,
+             # node label
+             node_id_rotor,
+             # direction
+             0.,0.,1.,
+             # angular velocity
+           null;
+        inertia: elem_id_inertia,
+                 position, reference, ref_id_rotor, null,
+                 orientation, reference, ref_id_rotor, eye,
+                 body, all, solid, all, loadable, all,
+                 output, both;
+
+     drive caller: drive_id_kinetic_energy,
+           array, 140,
+           element, 1, solid, string,"E",direct,
+           element, 2, solid, string,"E",direct,
+           element, 3, solid, string,"E",direct,
+           element, 4, solid, string,"E",direct,
+           element, 5, solid, string,"E",direct,
+           element, 6, solid, string,"E",direct,
+           element, 7, solid, string,"E",direct,
+           element, 8, solid, string,"E",direct,
+           element, 9, solid, string,"E",direct,
+           element, 10, solid, string,"E",direct,
+           element, 11, solid, string,"E",direct,
+           element, 12, solid, string,"E",direct,
+           element, 13, solid, string,"E",direct,
+           element, 14, solid, string,"E",direct,
+           element, 15, solid, string,"E",direct,
+           element, 16, solid, string,"E",direct,
+           element, 17, solid, string,"E",direct,
+           element, 18, solid, string,"E",direct,
+           element, 19, solid, string,"E",direct,
+           element, 20, solid, string,"E",direct,
+           element, 21, solid, string,"E",direct,
+           element, 22, solid, string,"E",direct,
+           element, 23, solid, string,"E",direct,
+           element, 24, solid, string,"E",direct,
+           element, 25, solid, string,"E",direct,
+           element, 26, solid, string,"E",direct,
+           element, 27, solid, string,"E",direct,
+           element, 28, solid, string,"E",direct,
+           element, 29, solid, string,"E",direct,
+           element, 30, solid, string,"E",direct,
+           element, 31, solid, string,"E",direct,
+           element, 32, solid, string,"E",direct,
+           element, 33, solid, string,"E",direct,
+           element, 34, solid, string,"E",direct,
+           element, 35, solid, string,"E",direct,
+           element, 36, solid, string,"E",direct,
+           element, 37, solid, string,"E",direct,
+           element, 38, solid, string,"E",direct,
+           element, 39, solid, string,"E",direct,
+           element, 40, solid, string,"E",direct,
+           element, 41, solid, string,"E",direct,
+           element, 42, solid, string,"E",direct,
+           element, 43, solid, string,"E",direct,
+           element, 44, solid, string,"E",direct,
+           element, 45, solid, string,"E",direct,
+           element, 46, solid, string,"E",direct,
+           element, 47, solid, string,"E",direct,
+           element, 48, solid, string,"E",direct,
+           element, 49, solid, string,"E",direct,
+           element, 50, solid, string,"E",direct,
+           element, 51, solid, string,"E",direct,
+           element, 52, solid, string,"E",direct,
+           element, 53, solid, string,"E",direct,
+           element, 54, solid, string,"E",direct,
+           element, 55, solid, string,"E",direct,
+           element, 56, solid, string,"E",direct,
+           element, 57, solid, string,"E",direct,
+           element, 58, solid, string,"E",direct,
+           element, 59, solid, string,"E",direct,
+           element, 60, solid, string,"E",direct,
+           element, 61, solid, string,"E",direct,
+           element, 62, solid, string,"E",direct,
+           element, 63, solid, string,"E",direct,
+           element, 64, solid, string,"E",direct,
+           element, 65, solid, string,"E",direct,
+           element, 66, solid, string,"E",direct,
+           element, 67, solid, string,"E",direct,
+           element, 68, solid, string,"E",direct,
+           element, 69, solid, string,"E",direct,
+           element, 70, solid, string,"E",direct,
+           element, 71, solid, string,"E",direct,
+           element, 72, solid, string,"E",direct,
+           element, 73, solid, string,"E",direct,
+           element, 74, solid, string,"E",direct,
+           element, 75, solid, string,"E",direct,
+           element, 76, solid, string,"E",direct,
+           element, 77, solid, string,"E",direct,
+           element, 78, solid, string,"E",direct,
+           element, 79, solid, string,"E",direct,
+           element, 80, solid, string,"E",direct,
+           element, 81, solid, string,"E",direct,
+           element, 82, solid, string,"E",direct,
+           element, 83, solid, string,"E",direct,
+           element, 84, solid, string,"E",direct,
+           element, 85, solid, string,"E",direct,
+           element, 86, solid, string,"E",direct,
+           element, 87, solid, string,"E",direct,
+           element, 88, solid, string,"E",direct,
+           element, 89, solid, string,"E",direct,
+           element, 90, solid, string,"E",direct,
+           element, 91, solid, string,"E",direct,
+           element, 92, solid, string,"E",direct,
+           element, 93, solid, string,"E",direct,
+           element, 94, solid, string,"E",direct,
+           element, 95, solid, string,"E",direct,
+           element, 96, solid, string,"E",direct,
+           element, 97, solid, string,"E",direct,
+           element, 98, solid, string,"E",direct,
+           element, 99, solid, string,"E",direct,
+           element, 100, solid, string,"E",direct,
+           element, 101, solid, string,"E",direct,
+           element, 102, solid, string,"E",direct,
+           element, 103, solid, string,"E",direct,
+           element, 104, solid, string,"E",direct,
+           element, 105, solid, string,"E",direct,
+           element, 106, solid, string,"E",direct,
+           element, 107, solid, string,"E",direct,
+           element, 108, solid, string,"E",direct,
+           element, 109, solid, string,"E",direct,
+           element, 110, solid, string,"E",direct,
+           element, 111, solid, string,"E",direct,
+           element, 112, solid, string,"E",direct,
+           element, 113, solid, string,"E",direct,
+           element, 114, solid, string,"E",direct,
+           element, 115, solid, string,"E",direct,
+           element, 116, solid, string,"E",direct,
+           element, 117, solid, string,"E",direct,
+           element, 118, solid, string,"E",direct,
+           element, 119, solid, string,"E",direct,
+           element, 120, solid, string,"E",direct,
+           element, 121, solid, string,"E",direct,
+           element, 122, solid, string,"E",direct,
+           element, 123, solid, string,"E",direct,
+           element, 124, solid, string,"E",direct,
+           element, 125, solid, string,"E",direct,
+           element, 126, solid, string,"E",direct,
+           element, 127, solid, string,"E",direct,
+           element, 128, solid, string,"E",direct,
+           element, 129, solid, string,"E",direct,
+           element, 130, solid, string,"E",direct,
+           element, 131, solid, string,"E",direct,
+           element, 132, solid, string,"E",direct,
+           element, 133, solid, string,"E",direct,
+           element, 134, solid, string,"E",direct,
+           element, 135, solid, string,"E",direct,
+           element, 136, solid, string,"E",direct,
+           element, 137, solid, string,"E",direct,
+           element, 138, solid, string,"E",direct,
+           element, 139, solid, string,"E",direct,
+           element, 140, solid, string,"E",direct,
+           output, yes;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

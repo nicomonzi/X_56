@@ -1,0 +1,509 @@
+% MBDyn (C) is a multibody analysis code. 
+% http://www.mbdyn.org
+% 
+% Copyright (C) 1996-2024
+% 
+% Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+% Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+% 
+% Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+% via La Masa, 34 - 20156 Milano, Italy
+% http://www.aero.polimi.it
+% 
+% Changing this copyright notice is forbidden.
+% 
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation (version 2 of the License).
+% 
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+% 
+
+\section{Hydraulic Element}
+\label{sec:EL:HYDR}
+{\em 
+    Note: under development; syntax subjected to changes \\
+    Initially implemented by: Lamberto Puggelli \\
+    Reviewed by: Pierangelo Masarati
+}
+
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{elem_type} ::= \kw{hydraulic}
+
+    \bnt{normal_arglist} ::= \bnt{hydr_elem_type} , \bnt{hydr_elem_data}
+\end{Verbatim}
+%\end{verbatim}
+The field \nt{hydraulic\_element\_data} usually contains information
+about the required hydraulic fluid properties, which are handled by means of a \hty{HydraulicFluid}.
+This can be directly inserted, following the syntax described in
+Section~\ref{sec:HydraulicFluid} preceded by the keyword \kw{hydraulic fluid}, or a
+previously defined hydraulic fluid can be recalled by using the keyword 
+\kw{reference} followed by the label of the desired hydraulic fluid:
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydraulic_fluid_properties} ::=
+        \{ \bnt{hydraulic_fluid_specification}
+            | \kw{reference} , \bnt{hydraulic_fluid_label} \}
+\end{Verbatim}
+%\end{verbatim}
+
+
+
+\subsection{Accumulator}
+\label{sec:EL:HYDR:ACCUMULATOR}
+This element implements a simple accumulator.
+Three options are available: gas, weight, and spring.
+The element must be connected to a hydraulic network via a hydraulic node.
+The rate of accumulated fluid depends on the pressure difference between the accumulator chamber and of the node.
+Although a \kw{weight} mode is provided, it does not account for the actual gravity field;
+it assumes that the accumulator is mounted with the piston in the vertical position and that gravity is uniform.
+Although the mass of the piston is required, it does not account for the actual motion the system is subjected to;
+it assumes that the cylinder is in an inertial reference frame.  Use with care!
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{accumulator}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node} ,
+        \bnt{stroke} ,
+        [ \kw{start} , \bnt{initial_position} , ]
+        \bnt{area} ,
+        \bnt{pipe_area} ,
+        \bnt{mass} ,
+        [ \kw{loss in} , \bnt{loss_in} , ]
+        [ \kw{loss out} , \bnt{loss_out} , ]
+        [ \kw{gas} , \bnt{press_0} , \bnt{press_max}, \bnt{exponent} , ]
+        [ \kw{weight} , \bnt{weight} , ]
+        [ \kw{spring} , \bnt{spring} , \bnt{force_0} , ]
+        \bnt{c_disp} ,
+        \bnt{c_vel} ,
+        \bnt{c_acc} , 
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid_1}
+\end{Verbatim}
+%\end{verbatim}
+where
+\begin{itemize}
+\item \nt{stroke}, the total stroke of the accumulator, must be positive
+\item \nt{initial\_position}, the initial position of the accumulator, must be non-negative and less than or equal to \nt{stroke}
+\item \nt{area}, the area of the accumulator, must be positive
+\item \nt{pipe\_area}, the area of the pipe leading to the accumulator, must be positive
+\item \nt{mass}, the mass of the accumulator, must be positive
+\item \nt{loss\_in}, (?, must be non-negative); defaults to 1.0
+\item \nt{loss\_out} (?, must be non-negative); defaults to 0.5
+\item if the keyword \kw{gas} is used, it must be followed by
+\begin{itemize}
+\item \nt{press\_0}, the pressure of the gas when the accumulator is empty, must be positive
+\item \nt{press\_max}, the maximum pressure of the gas, must be greater than or equal to \nt{press\_0}
+\item \nt{exponent}, the exponent of the polytropic curve that describes the state of the gas, must be positive
+\end{itemize}
+\item if the keyword \kw{weight} is used, it must be followed by \nt{weight}; must be positive (TBD)
+\item if the keyword \kw{spring} is used, it must be followed by
+\begin{itemize}
+\item \nt{spring}, the stiffness of the spring, must be positive
+\item \nt{force\_0}, the preload of the spring when the accumulator is empty, must be non-negative
+\end{itemize}
+\item \nt{c\_disp}, \nt{c\_vel}, and \nt{c\_acc} are stiffness, damping, and acceleration-related coefficients used to deal with end position reactions; must be non-negative
+\end{itemize}
+The three types of accumulation principles (\kw{gas}, \kw{weight}, and \kw{spring}) can be simultaneously present, although only some combinations make sense.
+
+
+
+\subsection{Actuator}
+The \kw{actuator} element models the hydraulic and interactional aspects
+of a two-way linear hydraulic actuator.
+The two hydraulic nodes represent the pressure in the two chambers
+of the cylinder.
+The two structural nodes represent the cylinder and the piston.
+Their relative motion is assumed to consist essentially
+of a displacement along a given direction in the reference frame
+of the first structural node.
+The user must take care of this by constraining the two nodes
+with an appropriate set of \kw{joint} elements
+(e.g., a \kw{total joint} that only allows relative motion along the axis of the cylinder;
+the relative rotation about the same axis may indifferently be allowed or constrained).
+The mass of the piston must be provided using appropriate elements associated with the piston's node.
+Mechanical friction between the piston and the cylinder (e.g., associated with sealings)
+must be taken care of using appropriate mechanical elements (e.g., a \kw{rod} joint with a viscous constitutive law).
+Other hydraulic aspects of this component, like leakages between
+the two chambers and between the chambers and the outside,
+and the related pressure losses, must be explicitly taken care of,
+e.g.\ by means of \kw{minor loss} elements.
+\label{sec:EL:HYDR:ACTUATOR}
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{actuator}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} , 
+        \bnt{struct_node_1} , (\hty{Vec3}) \bnt{offset_1} ,
+        \bnt{struct_node_2} , (\hty{Vec3}) \bnt{offset_2} ,
+        [ \kw{direction} , ((\ty{Unit})\hty{Vec3}) \bnt{direction} , ]
+        \bnt{area_1} ,
+        \bnt{area_2} ,
+        \bnt{cylinder_length} ,
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid_1} ,
+        \{ \kw{same} | \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid_2} \}
+\end{Verbatim}
+%\end{verbatim}
+The vector \nt{direction} is internally normalized to unit norm.
+It represents the direction of the stroke in the reference system of \nt{struct\_node\_1}.
+By default, it is direction 3 in the reference frame of the \kw{structural}
+node \nt{struct\_node\_1}.
+
+\paragraph{Example.} \
+See the ``actuator'' example at
+\begin{quote}
+\htmladdnormallink{\kw{https://raw.githubusercontent.com/mmorandi/MBDyn-web/main/userfiles/documents/examples/actuator.mbd}}{https://raw.githubusercontent.com/mmorandi/MBDyn-web/main/userfiles/documents/examples/actuator.mbd}
+\end{quote}
+and the related chapter of the tutorials
+\begin{quote}
+\htmladdnormallink{\kw{https://github.com/mmorandi/MBDyn-web/raw/main/userfiles/documents/tutorials.pdf}}{https://github.com/mmorandi/MBDyn-web/raw/main/userfiles/documents/tutorials.pdf}
+\end{quote}
+
+
+
+
+\subsection{Control Valve}
+\label{sec:EL:HYDR:CONTROL_VALVE}
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{control valve}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} ,
+        \bnt{node_3} , \bnt{node_4} ,
+        \bnt{area} ,
+        [ \kw{loss} , \bnt{loss_factor} , ]
+        (\hty{DriveCaller}) \bnt{state} ,
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid}
+\end{Verbatim}
+%\end{verbatim}
+This element represents a valve that connects
+\nt{node\_1} to \nt{node\_2} and \nt{node\_3} to \nt{node\_4}
+when \nt{state} is positive, and \nt{node\_1} to \nt{node\_3}
+and \nt{node\_2} to \nt{node\_4} when \nt{state} is negative.
+The flow area is proportional to \nt{area} times the norm of \nt{state},
+which must be comprised between $-1$ and $1$.
+If \nt{loss\_factor} is defined, it represents the fraction
+of area that leaks when \nt{state} is exactly zero.
+
+
+
+\subsection{Dynamic Control Valve}
+\label{sec:EL:HYDR:DYNAMIC_CONTROL_VALVE}
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{dynamic control valve}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} ,
+        \bnt{node_3} , \bnt{node_4} ,
+        (\hty{DriveCaller}) \bnt{force} ,
+        \bnt{initial_displacement} ,
+        \bnt{max_displacement} ,
+        \bnt{duct_width} ,
+        [ \kw{loss} , \bnt{loss_factor} , ]
+        \bnt{valve_diameter} ,
+        \bnt{valve_density} ,
+        \bnt{displacement_penalty} ,
+        \bnt{velocity_penalty} ,
+        \bnt{acceleration_penalty} ,
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid}
+\end{Verbatim}
+%\end{verbatim}
+This element represents a valve that connects
+\nt{node\_1} to \nt{node\_2} and \nt{node\_3} to \nt{node\_4}
+when the displacement is positive and \nt{node\_1} to \nt{node\_3}
+and \nt{node\_2} to \nt{node\_4} when the displacement is negative,
+accounting for the dynamics of the valve body.
+The control force \nt{force} is applied to the valve, whose 
+geometric and structural properties are described by 
+\nt{initial\_displacement}, \nt{max\_displacement},
+\nt{duct\_width}, \nt{valve\_diameter} and \nt{valve\_density}.
+Again the \nt{loss\_factor}, if defined, represents the fraction
+of the area that leaks when the displacement is zero.
+Finally, \nt{displacement\_penalty}, \nt{velocity\_penalty} and \nt{acceleration\_penalty}
+are the penalty coefficients for displacement, velocity and acceleration
+when the maximum stroke is reached.
+
+
+
+
+\subsection{Dynamic Pipe}
+\label{sec:EL:HYDR:DYNAMIC_PIPE}
+Same syntax as the \kw{pipe} hydraulic element
+(Section~\ref{sec:EL:HYDR:PIPE}),
+it also considers fluid compressibility in terms of pressure time derivative,
+and thus the corresponding dynamic effect.
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{dynamic pipe}
+\end{Verbatim}
+%\end{verbatim}
+
+\subsubsection{Output}
+\begin{itemize}
+\item[1:] label
+\item[2:] pressure at node 1
+\item[3:] pressure at node 2
+\item[4:] pressure derivative at node 1
+\item[5:] pressure derivative at node 2
+\item[6:] flow at node 1
+\item[7:] flow at node 2
+\item[8:] flow rate at node 1
+\item[9:] flow rate at node 2
+\item[10:] density at node 1
+\item[11:] reference density
+\item[12:] density at node 2
+\item[13:] derivative of density with respect to pressure at node 1
+\item[14:] derivative of density with respect to pressure at node 2
+\item[15:] Reynolds number
+\item[16:] flow type flag (boolean; true when flow is turbulent, false otherwise)
+\end{itemize}
+
+
+
+\subsection{Flow Valve}
+\label{sec:EL:HYDR:FLOW_VALVE}
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{flow valve}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} , \bnt{node_3} ,
+        \bnt{diaphragm_area} ,
+        \bnt{valve_mass} ,
+        \bnt{pipe_area} ,
+        \bnt{valve_max_area} ,
+        \bnt{spring_stiffness} ,
+        \bnt{spring_preload} ,
+        \bnt{width} ,
+        \bnt{max_stroke} ,
+        \bnt{displacement_penalty} ,
+        \bnt{velocity_penalty} ,
+        \bnt{acceleration_penalty} ,
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid}
+\end{Verbatim}
+%\end{verbatim}
+
+\subsubsection{Output}
+\begin{itemize}
+\item[1:] label
+\item[2:] valve displacement
+\item[3:] valve velocity
+\item[4:] valve acceleration
+\item[5:] flow through way 1
+\item[6:] flow through way 2
+\item[7:] flow through way 3
+\end{itemize}
+
+
+\subsection{Imposed Flow}
+\label{sec:EL:HYDR:IMPOSED_FLOW}
+No specific element has been implemented to impose the flow at one node.
+The \kw{abstract} variant of the \kw{force} element
+(Section~\ref{sec:EL:FORCE:ABSTRACT}) can be used instead.
+The magnitude of the abstract force is the mass flow extracted
+from the circuit at that node.
+In fact, a negative value of the abstract force means that the flow enters
+the node.
+
+\paragraph{Example.} \
+\begin{verbatim}
+    set: integer HYDRAULIC_NODE_LABEL = 100;
+    set: integer IMPOSED_FLOW_LABEL = 200;
+    force: IMPOSED_PRESSURE_LABEL, abstract,
+        HYDRAULIC_NODE_LABEL, hydraulic,
+        const, -1e-3;
+\end{verbatim}
+
+
+
+\subsection{Imposed Pressure}
+\label{sec:EL:HYDR:IMPOSED_PRESSURE}
+No specific element has been implemented to impose the pressure at one node.
+The \kw{clamp} variant of the \kw{genel} element
+(Section~\ref{sec:EL:GENEL:CLAMP}) can be used instead.
+
+\paragraph{Example.} \
+\begin{verbatim}
+    set: integer HYDRAULIC_NODE_LABEL = 100;
+    set: integer IMPOSED_PRESSURE_LABEL = 200;
+    genel: IMPOSED_PRESSURE_LABEL, clamp,
+        HYDRAULIC_NODE_LABEL, hydraulic,
+        const, 101325.0;
+\end{verbatim}
+
+
+
+
+\subsection{Minor Loss}
+A pressure loss between two pressure nodes.
+\label{sec:EL:HYDR:MINOR_LOSS}
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{minor loss}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} ,
+        \bnt{k12} , \bnt{k21} , \bnt{area} ,
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid}
+\end{Verbatim}
+%\end{verbatim}
+Coefficients \nt{k12} and \nt{k21} characterize the pressure loss
+when the flow goes from \nt{node\_1} to \nt{node\_2} and vice versa.
+Turbulent flow is assumed.
+
+
+
+\subsection{Orifice}
+\label{sec:EL:HYDR:ORIFICE}
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{orifice}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} ,
+        \bnt{pipe_diameter} ,
+        \bnt{orifice_area} , # diaphragm area
+        [ \kw{area} , \bnt{pipe_area} , ] # defaults to (\bnt{pipe_diameter}/2)^2*pi
+        [ \kw{reynolds} , \bnt{critical_reynolds_number} , ] # defaults to 10
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid}
+\end{Verbatim}
+%\end{verbatim}
+
+
+
+\subsection{Pipe}
+\label{sec:EL:HYDR:PIPE}
+This element models a simple pipeline connecting two \kw{hydraulic} nodes.
+In detail, it models the pressure loss due to fluid viscosity
+according to a constitutive law that depends on the Reynolds number
+computed on average fluid velocity and hydraulic diameter.
+Transition between laminar and turbulent flow is also modeled.
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{pipe}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} ,
+        \bnt{hydraulic_diameter} ,
+        [ \kw{area} , \bnt{area} , ]
+        \bnt{length} ,
+        [ \kw{turbulent} , ]
+        [ \kw{initial value} , \bnt{flow} , ]
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid}
+\end{Verbatim}
+%\end{verbatim}
+When \kw{area} is not given, it defaults to the equivalent area
+computed according to the hydraulic diameter.
+The flag \kw{turbulent} forces the flow to be considered turbulent
+since the first iteration, when the initial conditions would fall
+in the transition region.
+The \kw{initial value} parameter is the initial value
+of the flow internal state.
+
+\paragraph{Example.} \
+\begin{verbatim}
+    set: integer NODE_1 = 10;
+    set: integer NODE_2 = 20;
+    set: integer PIPE = 100;
+    set: integer FLUID = 1000;
+    # ...
+    hydraulic: PIPE, pipe, NODE_1, NODE_2,
+        5e-3, 100.e-3,
+        fluid, reference, FLUID;
+\end{verbatim}
+
+
+
+\subsection{Pressure Flow Control Valve}
+\label{sec:EL:HYDR:PRESSURE_FLOW_CONTROL_VALVE}
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{pressure flow control valve}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} ,
+        \bnt{node_3} , \bnt{node_4} ,
+        \bnt{node_5} , \bnt{node_6} ,
+        (\hty{DriveCaller}) \bnt{force} ,
+        \bnt{initial_displacement} ,
+        \bnt{max_displacement} ,
+        \bnt{duct_width} ,
+        [ \kw{loss} , \bnt{loss_factor} , ]
+        \bnt{valve_diameter} ,
+        \bnt{valve_density} ,
+        \bnt{displacement_penalty} ,
+        \bnt{velocity_penalty} ,
+        \bnt{acceleration_penalty} ,
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid}
+\end{Verbatim}
+%\end{verbatim}
+Same as Dynamic Control Valve (\ref{sec:EL:HYDR:DYNAMIC_CONTROL_VALVE}),
+only the pressures at \nt{node\_5} and \nt{node\_6} are applied
+at the sides of the valve body and participate in the force balance.
+
+
+
+\subsection{Pressure Valve}
+\label{sec:EL:HYDR:PRESSURE_VALVE}
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{pressure valve}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} ,
+        \bnt{area} ,
+        \bnt{mass} ,
+        \bnt{max_area} ,
+        \bnt{spring_stiffness} ,
+        \bnt{spring_preload} ,
+        \bnt{width} ,
+        \bnt{displacement_penalty} ,
+        \bnt{velocity_penalty} ,
+        \bnt{acceleration_penalty} ,
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid}
+\end{Verbatim}
+%\end{verbatim}
+
+
+
+\subsection{Tank}
+\label{sec:EL:HYDR:TANK}
+Not documented yet.
+
+
+
+\subsection{Three Way Minor Loss}
+A pressure loss between three pressure nodes,
+depending on the sign of the pressure drop.
+\label{sec:EL:HYDR:THREE_WAY_MINOR_LOSS}
+%\begin{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{hydr_elem_type} ::= \kw{three way minor loss}
+
+    \bnt{hydr_elem_data} ::=
+        \bnt{node_1} , \bnt{node_2} , \bnt{node_3} ,
+        \bnt{k12} , \bnt{k31} , \bnt{area_12} , \bnt{area_31} ,
+        \kw{hydraulic fluid} , (\hty{HydraulicFluid}) \bnt{fluid}
+\end{Verbatim}
+%\end{verbatim}
+Coefficients \nt{k12} and \nt{k31} and the respective values of area
+characterize the pressure loss when the flow goes
+from \nt{node\_1} to \nt{node\_2} and from \nt{node\_3} to \nt{node\_1},
+respectively.
+Turbulent flow is assumed.
+
+
+
+

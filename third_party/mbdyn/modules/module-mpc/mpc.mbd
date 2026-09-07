@@ -1,0 +1,111 @@
+begin: data;
+        problem: initial value; # the default
+end: data;
+
+begin: initial value;
+    threads: assembly, 1;
+        initial time: 0;
+        final time: 1;
+        time step: 1e-2;
+
+    max iterations: 10;
+    linear solver: naive, colamd;
+    nonlinear solver: newton raphson;
+        tolerance: 1e-5, test, norm, 1e-5, test, norm;
+        derivatives tolerance: 1e-3, 1e-3;
+        derivatives max iterations: 20;
+        derivatives coefficient: 1e-6;
+    output: iterations;
+    method: ms, 0.6;
+    #abort after: assembly;
+
+end: initial value;
+
+begin: control data;
+    model: static;
+    print: dof description;
+    print: equation description;
+    output precision: 16;
+    default orientation: orientation vector;
+    output results: netcdf, text;
+    use automatic differentiation;
+    tolerance: 1e-13;
+    max iterations: 10;
+    structural nodes: 3;
+    genels: 6;
+    loadable elements: 1;
+    use: loadable elements, in assembly;
+    forces: 3;
+end: control data;
+
+reference: 1,
+    position, reference, global, null,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 2,
+    position, reference, 1, 0.8, 0., 0.,
+    orientation, reference, 1, eye,
+    velocity, reference, 1, null,
+    angular velocity, reference, 1, null;
+
+reference: 3,
+   position, reference, 1, 1., 0., 0.,
+   orientation, reference, 1, eye,
+   velocity, reference, 1, null,
+   angular velocity, reference, 1, null;
+
+begin: nodes;
+        structural: 1, static displacement,
+                position, reference, 1, null,
+                velocity, reference, 1, null;
+
+        structural: 2, static displacement,
+                position, reference, 2, null,
+                velocity, reference, 2, null;
+
+        structural: 3, static displacement,
+                position, reference, 3, null,
+                velocity, reference, 3, null;
+
+end: nodes;
+
+set: real vx = 0.1;
+set: real vy = 0.2;
+set: real vz = 0.3;
+
+begin: elements;
+         genel: 1, clamp, 1, structural, 1, algebraic, string, "0. -vx * Time";
+         genel: 2, clamp, 1, structural, 2, algebraic, from node;
+         genel: 3, clamp, 1, structural, 3, algebraic, from node;
+
+         genel: 4, clamp, 3, structural, 1, algebraic, string, "1. + vx * Time";
+         genel: 5, clamp, 3, structural, 2, algebraic, string, "0. + vy * Time";
+         genel: 6, clamp, 3, structural, 3, algebraic, string, "0. + vz * Time";
+
+         user defined: 1,
+         mpc,
+           help,
+           nodes, 3,
+                  1, 2, 3,
+           constraints, 3,
+                  null, null, null,
+           constraint matrix,
+                  0.2, 0.0, 0.0, -1.0,  0.0,  0.0, 0.8, 0.0, 0.0,
+                  0.0, 0.2, 0.0,  0.0, -1.0,  0.0, 0.0, 0.8, 0.0,
+                  0.0, 0.0, 0.2,  0.0,  0.0, -1.0, 0.0, 0.0, 0.8;
+
+         drive caller: 1, element, 1, loadable, string, "lambda[1]", direct, output, yes;
+         drive caller: 2, element, 1, loadable, string, "lambda[2]", direct, output, yes;
+         drive caller: 3, element, 1, loadable, string, "lambda[3]", direct, output, yes;
+
+         force: 1, abstract, 2, structural, 1, const, 1.23;
+         force: 2, abstract, 2, structural, 2, const, 2.34;
+         force: 3, abstract, 2, structural, 3, const, 3.45;
+end: elements;
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

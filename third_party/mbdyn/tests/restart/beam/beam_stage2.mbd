@@ -1,0 +1,35 @@
+include: "beam_param.set";
+
+begin: data;
+        problem: initial value; # the default
+end: data;
+
+begin: initial value;
+       include: "beam_initial_value.inv";
+threads: disable;
+end: initial value;
+
+
+begin: control data;
+  print: element connection;
+  skip initial joint assembly;
+  load restart file: "stage1.0.rst";
+  include: "beam_control.cod";
+end: control data;
+
+include: "beam_csl.set";
+
+begin: nodes;
+
+include: "beam_nodes.nod";
+
+end: nodes;
+
+begin: elements;
+        include: "beam_elements.elm";
+end: elements;
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

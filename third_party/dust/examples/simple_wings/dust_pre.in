@@ -1,0 +1,10 @@
+comp_name = right_wing
+geo_file = wing.in
+ref_tag = Right
+
+comp_name = left_wing
+geo_file = wing.in
+ref_tag = Left
+
+file_name = geo_input.h5 
+

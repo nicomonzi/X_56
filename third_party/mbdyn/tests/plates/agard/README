@@ -1,0 +1,35 @@
+AGARD 445.6 wing model
+
+- execute agard.sh
+- execute mbdyn -f agard
+
+current status:
+
+2010-05-27:
+	- agard_elm.awk: generates isotropic plate properties
+	- coefficients defined in agard.set
+	- agard: static analysis for vertical load at wing tip trailing egde
+
+2010-08-06:
+	- agard.awk generates agard_m.nod & agard_m.elm
+	- agard_solid.awk generates companion external grid
+	- agard_mapping.sh executes mapped solution (see comments inside)
+
+2010-08-20:
+	- agard_mapping.py is the peer script in python
+
+2010-09-06:
+	- use plane stress orthotropic material; needs work
+
+2010-09-13:
+	- fixed constitutive law issue; modal analysis:
+
+	original	solid-1		weak-2		weak-5
+	  9.60		  8.63		  8.94		  9.48
+	 38.17		 35.26		 36.51		 38.74
+	 48.35		 45.87		 47.50		 50.40
+	 91.54		 84.23		 87.14		 92.37
+	118.11		112.55		116.57		120.12
+
+	  not too bad :)
+

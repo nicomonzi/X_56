@@ -1,0 +1,114 @@
+# types
+0 @ 0 @ bool
+10 @ 10 @ integer
+10.5 @ 10.5 @ real
+# can't test strings right now
+"ciao" @ ciao @ string
+# unary
+- 2 @ -2 @ unary minus
++ 3 @ 3 @ unary plus
+# math
+1 + 1 @ 2 @ addition
+1 - 1 @ 0 @ subtraction
+4 * 2 @ 8 @ multiplication
+4 / 2 @ 2 @ division
+7 % 4 @ 3 @ modulus
+2^3 @ 8 @ power
+# more math
+1.5 + 2.2 @ 3.7 @ addition
+1.5 - 2.2 @ -0.7 @ subtraction
+1.2 * 1.2 @ 1.44 @ multiplication
+4.2 / 2.1 @ 2 @ division
+1.2^2 @ 1.44 @ power
+0.5^-1 @ 2 @ power
+0.5^-2 @ 4 @ power
+4^(3^2) @ 262144 @ power of power
+(4^3)^2 @ 4096 @ power of power
+4^3^2 @ 262144 @ power of power
+# logical
+5 && 2 @ 1 @ AND
+5 && 0 @ 0 @ AND
+0 && 2 @ 0 @ AND
+0 && 0 @ 0 @ AND
+5 || 2 @ 1 @ OR
+5 || 0 @ 1 @ OR
+0 || 2 @ 1 @ OR
+0 || 0 @ 0 @ OR
+5 ~| 2 @ 0 @ XOR
+5 ~| 0 @ 1 @ XOR
+0 ~| 2 @ 1 @ XOR
+0 ~| 0 @ 0 @ XOR
+!0 @ 1 @ NOT
+!9 @ 0 @ NOT
+# relational
+9 == 9 @ 1 @ equal
+9 == 7 @ 0 @ equal
+9 != 9 @ 0 @ not equal
+9 != 7 @ 1 @ not equal
+9 >= 10 @ 0 @ greater or equal
+9 >= 9 @ 1 @ greater or equal
+9 >= 8 @ 1 @ greater or equal
+9 > 10 @ 0 @ greater
+9 > 9 @ 0 @ greater
+9 > 8 @ 1 @ greater
+9 <= 10 @ 1 @ less or equal
+9 <= 9 @ 1 @ less or equal
+9 <= 8 @ 0 @ less or equal
+9 < 10 @ 1 @ less
+9 < 9 @ 0 @ less
+9 < 8 @ 0 @ less
+# named values
+TRUE @ 1 @ true
+FALSE @ 0 @ false
+integer i @ 0 @ integer variable declaration
+integer i = 10 @ 10 @ integer variable declaration and assignment
+const integer i = 10 @ 10 @ const integer variable declaration and assignment
+ifndef integer i = 10 @ 10 @ ifndef integer variable declaration and assignment of non existing
+ifndef const integer i = 10 @ 10 @ ifndef const integer variable declaration and assignment of non existing
+# brackets
+(1 + 1) @ 2 @ bracketed expression
+(1 + 1) * (2 + 2) @ 8 @ bracketed expression
+# statement list
+(1) @ 1 @ stmtlist
+(TRUE) @ 1 @ stmtlist
+(1 + 1; 2 + 2) @ 4 @ stmtlist
+# plugin (can't test plugins right now)
+# [node,x,1,structural,string="x[1]"] @ 0 @ node plugin
+# variable handling
+(integer i; i = 10) @ 10 @ integer variable assignment
+(integer i = 5; ifndef integer i = 10) @ 5 @ ifndef of existing
+(const integer i = 5; ifndef integer i = 10) @ 5 @ ifndef of existing with different type modifier
+(integer i = 5; ifndef const integer i = 10) @ 5 @ ifndef of existing with different type modifier
+(integer i = 5; ifndef real i = 10.) @ 5 @ ifndef of existing with different type
+(integer i; i = 11) @ 11 @ definition, then assignment
+(integer i = 10; i = i + 1) @ 11 @ definition and increment
+integer i @ 0 @ definition without assignment (FIXME: return value should be undefined)
+(integer i; i) @ 0 @ definition without assignment, then use (FIXME: return value should be undefined)
+# functions
+cos(0) @ 1 @ cosine
+5*cos(0) @ 5 @ cosine
+cos(0) + cos(0) + cos(0) @ 3 @ cosine
+cos(345.) - cos(345.) @ 0 @ cosine
+sin(0) @ 0 @ sine
+atan(1) @ 0.785398 @ atan
+# cast
+bool(1) @ 1 @ cast to true
+bool(22) @ 1 @ cast of non-zero integer to true
+bool(1.e-3) @ 1 @ cast of non-zero real to true
+bool(0) @ 0 @ cast to false
+bool(0.e-3) @ 0 @ cast of zero real to false
+integer(22) @ 22 @ cast of integer to integer
+integer(22.5) @ 22 @ cast of real to integer
+string(TRUE) @ 1 @ cast of bool to string
+string(99) @ 99 @ cast of integer to string
+string(22.5) @ 2.250000e+01 @ cast of real to string
+10 + integer(22.5) @ 32 @ cast in expression
+integer(22.5) + 10 @ 32 @ cast in expression
+100*(integer(22.5) + 10) @ 3200 @ cast in expression
+# namespace
+integer default::i = 9 @ 9 @ variable in default namespace
+default::cos(0) @ 1 @ function in default namespace
+# strings
+"node" @ node @ string
+"node_" + 10 @ node_10 @ string and integer concatenation
+"time_" + 1e-3 @ time_1.000000e-03 @ string and real concatenation

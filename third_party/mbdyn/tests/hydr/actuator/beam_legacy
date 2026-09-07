@@ -1,0 +1,436 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/actuator/beam,v 1.4 2014/12/13 17:15:40 masarati Exp $
+
+/*
+    Esempio tratto da:
+    
+    Jari M\"{a}kinen, Asko Ellman, and Robert Pich\'{e},
+    "Dynamic Simulation of Flexible Hydraulic-Driven Multibody Systems Using
+    Finite Strain Beam Theory",
+    submitted to Fifth Scandinavian International Conference on Fluid Power,
+    Link\"{o}ping, 1997.
+    
+    Problema: 
+    
+      - trave incernierata ad un estremo e libera all'altro, azionata da un
+      martinetto incernierato ad un quarto della lunghezza.
+    
+    Dati:
+      
+        Trave:
+      - densita' lineare:                      13.     kg/m
+      - momento di inerzia flessionale per unita' di lunghezza:
+                                               1.7e-3  kgm
+      - lunghezza:                             2.      m
+      - rigidezza assiale:                     3.36e8  N
+      - rigidezza flessionale:              8960.      Nm^2
+      - rigidezza a scorrimento:               1.47e8  N
+      - massa all'estremita':                 20.      Kg
+      - martinetto a riposo:                  45.      deg
+      
+        Fluido:
+      - viscosita' cinematica:                 8.e-5   m^2/s
+      - densita':                            870.      kg/m^2
+      - celerita' del suono:                   1.4e3   m/s
+      
+        Tubo:
+      - lunghezza:                            20.      m
+      - raggio:                                6.e-3   m
+     
+        Orifizio:
+      - diametro:                              6.e-3   m
+      - coefficiente:                          0.6
+      - numero di Reynolds di transizione:  1000.
+      
+        Cilindro:
+      - area:                                  0.01    m^2
+      - volume iniziale:                       1.e-3   m^3
+      - spostamento critico (attrito):         0.5e-3  m
+      - forza statica:                       100.      N
+      - coefficiente di attrito dinamico:   2500.      N s/m
+      
+    Note: 
+    
+      - non c'e' forza di gravita'
+      - la portata parte da 0., cresce linearmente fino a 2.e-3 m^3/s 
+        in un secondo, poi decresce linearmente fino a zero in un altro
+	secondo.
+*/
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    # abort after: derivatives;
+
+    set: real dt = 1.e-3;
+    time step: dt;
+    initial time: 0.;
+    final time: 50.;
+    
+    method: ms, .6, .6;
+    
+    max iterations: 50;
+    tolerance: 1.e-5;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 20;
+    derivatives tolerance: 1.e-6;
+    
+    fictitious steps number: 0;
+    
+    newton raphson: modified, 4;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+
+    structural nodes: 
+        1       # nodo di inizio, messo a terra con cerniera piana
+       +1       # nodo di messa a terra martinetto
+       +1       # nodo di collegamento tra martinetto e trave
+       +8       # nodi delle quattro travi
+    ;
+    
+    joints: 
+        1       # messa a terra della trave con giunto piano
+       +1       # messa a terra dell'attuatore con giunto sferico
+       +1       # giunto inline per attuatore
+       +1       # giunto prismatic per attuatore
+       +1       # collegamento tra attuatore e trave
+       +1       # dissipazione viscosa nel cilindro
+    ;
+       
+    rigid bodies: 
+        9       # nodi della trave
+    ;
+    
+    beams: 
+        4       # 4 elementi per la trave
+    ;
+    
+    hydraulic nodes: 
+        1       # camera superiore, vuota
+       +1       # camera inferiore
+       +1       # inizio conduttura
+       +1       # termine conduttura
+    ;
+    
+    hydraulic elements:
+        1       # attuatore
+       +1       # orifizio
+       +1       # tubo
+    ;
+
+    genels: 
+        1       # pressione imposta nella camera superiore
+    ;
+    
+    forces:   
+        1       # portata imposta all'inizio della conduttura
+    ;
+end: control data;
+
+set: integer Trave = 100;
+set: integer Attuatore = 200;
+
+set: integer Camera_sup = 1100;
+set: integer Camera_inf = 1200;
+set: integer Inizio_tubo = 1300;
+set: integer Fine_tubo = 1400;
+
+set: real L = 2.;
+set: real EA = 3.36e8;
+set: real EJy = 8.96e3;
+set: real GAz = 1.47e8;
+set: real m = 13.;
+set: real J = 1.7e-3;
+set: real M = 20.;
+set: real damp = 1.8e-3;
+
+set: real fi = 1./sqrt(3.);
+set: real fe = 1.-fi;
+
+set: real dm = m*L/8.;
+set: real dmi = dm*fi;
+set: real dme = dm*fe;
+set: real dli = L/8.*fi;
+set: real dle = L/8.*fe;
+
+set: real p0 = 1.01325e5;
+set: real rho = 870.;
+set: real c = 1.4e3;
+set: real beta = c^2*rho;
+set: real nu = 8.e-5;
+set: real mu = nu*rho;
+
+reference: Trave,
+           reference, global, null,
+	   reference, global, eye,
+	   reference, global, null,
+	   reference, global, null;
+reference: Attuatore,
+           reference, Trave, 0.,0.,-1./4.*L,
+	   reference, Trave, 2, 0.,1.,0., 3, 1.,0.,1.,
+	   reference, Trave, null,
+	   reference, Trave, null;
+
+begin: nodes;
+    # trave
+    structural: Trave, dynamic,
+                reference, Trave, null,
+    	        reference, Trave, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+    structural: Trave+1, dynamic,
+                reference, Trave, 1./8.*L,0.,0.,
+    	        reference, Trave, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+    structural: Trave+2, dynamic,
+                reference, Trave, 2./8.*L,0.,0.,
+    	        reference, Trave, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+    structural: Trave+3, dynamic,
+                reference, Trave, 3./8.*L,0.,0.,
+    	        reference, Trave, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+    structural: Trave+4, dynamic,
+                reference, Trave, 4./8.*L,0.,0.,
+    	        reference, Trave, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+    structural: Trave+5, dynamic,
+                reference, Trave, 5./8.*L,0.,0.,
+    	        reference, Trave, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+    structural: Trave+6, dynamic,
+                reference, Trave, 6./8.*L,0.,0.,
+    	        reference, Trave, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+    structural: Trave+7, dynamic,
+                reference, Trave, 7./8.*L,0.,0.,
+    	        reference, Trave, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+    structural: Trave+8, dynamic,
+                reference, Trave, 8./8.*L,0.,0.,
+    	        reference, Trave, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+		
+    # attuatore
+    structural: Attuatore, static,
+                reference, Attuatore, null,
+    	        reference, Attuatore, eye,
+	        reference, Attuatore, null,
+	        reference, Attuatore, null;
+    structural: Attuatore+1, dynamic,
+                reference, Trave, 2./8.*L,0.,0.,
+    	        reference, Attuatore, eye,
+	        reference, Trave, null,
+	        reference, Trave, null;
+		
+    # camera superiore
+    hydraulic: Camera_sup, p0;
+    
+    # camera inferiore
+    hydraulic: Camera_inf, p0;
+    
+    # inizio conduttura
+    hydraulic: Inizio_tubo, p0;
+    
+    # fine conduttura
+    hydraulic: Fine_tubo, p0;
+    
+end: nodes;
+
+begin: elements;
+    # vincoli trave
+    joint: Trave, plane pin,
+           Trave, reference, node, null,
+	          hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.,
+	   reference, Trave, null,
+	   hinge, reference, Trave, 1, 1.,0.,0., 3, 0.,1.,0.;
+		      
+    # messa a terra attuatore
+    joint: Attuatore, plane pin,
+           Attuatore, reference, node, null,
+	              hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.,
+	   reference, Attuatore, null,
+	   hinge, reference, Attuatore, 1, 1.,0.,0., 3, 0.,1.,0.;
+	   
+    # vincoli dell'attuatore
+    joint: Attuatore+1, inline,
+           Attuatore, reference, Attuatore, null, 
+	              reference, Attuatore, eye,
+	   Attuatore+1;
+    joint: Attuatore+2, prismatic,
+           Attuatore, Attuatore+1;
+	   
+    joint: Attuatore+3, rod,
+           Attuatore, Attuatore+1, from nodes,
+	   linear viscous, 2.5e3;
+	   
+    # vincolo tra attuatore e trave
+    joint: Attuatore+10, spherical hinge,
+           Attuatore+1, reference, node, null,
+	   Trave+2, reference, node, null;
+
+    # elementi della trave
+    beam: Trave+1,
+          Trave, null,
+	  Trave+1, null,
+	  Trave+2, null,
+	  reference, Trave, eye,
+	  # linear elastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	  linear viscoelastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	                               proportional, damp,
+	  reference, Trave, eye,
+	  # linear elastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6;
+	  linear viscoelastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	                               proportional, damp;
+    beam: Trave+2,
+          Trave+2, null,
+	  Trave+3, null,
+	  Trave+4, null,
+	  reference, Trave, eye,
+	  # linear elastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	  linear viscoelastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	                               proportional, damp,
+	  reference, Trave, eye,
+	  # linear elastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	  linear viscoelastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	                               proportional, damp;
+    beam: Trave+3,
+          Trave+4, null,
+	  Trave+5, null,
+	  Trave+6, null,
+	  reference, Trave, eye,
+	  # linear elastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	  linear viscoelastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	                               proportional, damp,
+	  reference, Trave, eye,
+	  # linear elastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	  linear viscoelastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	                               proportional, damp;
+    beam: Trave+4,
+          Trave+6, null,
+	  Trave+7, null,
+	  Trave+8, null,
+	  reference, Trave, eye,
+	  # linear elastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	  linear viscoelastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	                               proportional, damp,
+	  reference, Trave, eye,
+	  # linear elastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	  linear viscoelastic generic, diag, EA, 1.e9, GAz, 1.e6, EJy, 1.e6,
+	                               proportional, damp;
+
+    # corpi rigidi relativi alla trave
+    body: Trave, Trave,
+          dme,
+	  reference, node, dle/2.,0.,0.,
+	  diag, 1., J*dle+1./12.*dme*dle^2, 1.;
+    body: Trave+1, Trave+1,
+          2.*dmi,
+	  reference, node, null,
+	  diag, 1., 2.*J*dli+1./12.*(2.*dmi)*(2.*dli)^2, 1.;
+    body: Trave+2, Trave+2,
+          2.*dme,
+	  reference, node, null,
+	  diag, 1., 2.*J*dle+1./12.*(2.*dme)*(2.*dle)^2, 1.;
+    body: Trave+3, Trave+3,
+          2.*dmi,
+	  reference, node, null,
+	  diag, 1., 2.*J*dli+1./12.*(2.*dmi)*(2.*dli)^2, 1.;
+    body: Trave+4, Trave+4,
+          2.*dme,
+	  reference, node, null,
+	  diag, 1., 2.*J*dle+1./12.*(2.*dme)*(2.*dle)^2, 1.;
+    body: Trave+5, Trave+5,
+          2.*dmi,
+	  reference, node, null,
+	  diag, 1., 2.*J*dli+1./12.*(2.*dmi)*(2.*dli)^2, 1.;
+    body: Trave+6, Trave+6,
+          2.*dme,
+	  reference, node, null,
+	  diag, 1., 2.*J*dle+1./12.*(2.*dme)*(2.*dle)^2, 1.;
+    body: Trave+7, Trave+7,
+          2.*dmi,
+	  reference, node, null,
+	  diag, 1., 2.*J*dli+1./12.*(2.*dmi)*(2.*dli)^2, 1.;
+    body: Trave+8, Trave+8,
+          condense, 2,
+          dme,
+	  reference, node, -dle/2.,0.,0.,
+	  diag, 1., J*dle+1./12.*dme*dle^2, 1.,
+	  M,
+	  reference, node, null, 
+	  null;
+
+    # attuatore
+    hydraulic: Attuatore, actuator,
+               Camera_inf, Camera_sup,     # Nodi idraulici 1&2
+               Attuatore, null,            # Nodo strutturale 1
+               Attuatore+1, reference, Attuatore, 0.,0.,.1, # Nodo strutturale 2
+               direction, reference, Attuatore, 0.,0.,1.,
+               0.01,                       # Area su cui agisce p1
+               0.01,                       # Area su cui agisce p2
+               L/2.,                       # l1
+               fluid, # incompressible, density, rho,
+                      linear compressible, density, rho, beta, p0,
+		      viscosity, mu,
+               fluid, incompressible, density, 1.e-12, viscosity, mu;
+
+    # orifizio
+    hydraulic: Attuatore+1, orifice,
+               Fine_tubo, Camera_inf,
+	       12.e-3,
+	       pi*(6.e-3/2.)^2,
+	       # pi*6.e-3^2,
+	       fluid, linear compressible, density, rho, beta, p0,
+	                                   viscosity, mu;
+	       
+/*	       
+    # tubo
+    hydraulic: Attuatore+2, pipe,
+               Inizio_tubo, Fine_tubo,
+	       12.e-3,
+	       pi*6.e-3^2,
+	       20.,
+	       fluid, linear compressible, density, rho, beta, p0,
+	                                   viscosity, mu;
+*/
+	       
+    # tubo
+    hydraulic: Attuatore+2, dynamic pipe,
+               Inizio_tubo, Fine_tubo,
+	       12.e-3,
+	       pi*6.e-3^2,
+	       # 20.,
+	       fluid, linear compressible, density, rho, beta, p0,
+	                                   viscosity, mu;
+
+
+    # vincolo sulla pressione della camera superiore
+    genel: Camera_sup, clamp,
+           Camera_sup, hydraulic,
+	   const, p0;
+	       
+    force: 1, abstract, Inizio_tubo,
+           hydraulic,
+	   double ramp, -0.002*rho, 0., 1., 0.002*rho, 1., 2., 0.;
+	   # const, 0.002*rho;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,110 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/aero/macrophyllum,v 1.6 2017/01/12 14:58:51 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Model of Big-Leaf Maple (Acer macrophyllum) seed.
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1e-4;
+
+	tolerance: 1e-9;
+	max iterations: 20;
+
+	method: ms, .6;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	rigid bodies: 1;
+	air properties;
+	gravity;
+	aerodynamic elements: 1;
+	default orientation: orientation vector;
+	default output: accelerations;
+end: control data;
+
+# set: const real OMEGA0 = 1.*2*pi;
+# set: const real OMEGA0 = 2.*2*pi;
+# set: const real OMEGA0 = 10.*2*pi;
+# set: const real OMEGA0 = 60.*2*pi;
+set: const real OMEGA0 = 80.*2*pi;
+# set: const real OMEGA0 = 100.*2*pi;
+
+reference: 1,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, 0., 0., OMEGA0;
+
+c81 data: (const integer NACA0012 = 12), "naca0012.c81";
+
+begin: nodes;
+	structural: 1, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	gravity: 0., 0., -1., const, 9.81;
+	body: 1, 1,
+		1.e-3,
+		null,
+		diag, 1e-8, 1.e-7, 1.1e-7;
+	air properties: std, SI, null;
+	aerodynamic body: 1, 1,
+		reference, node, 30.e-3, 0., 0.,
+		reference, node,
+			1, 0., 1., 0.,
+			3, 1., 0., 0.,
+		40.e-3,
+		const, 8.e-3,
+		const, 0.,
+		const, -4.e-3,
+		linear, 0., -2.*deg2rad,
+		5,
+		c81, NACA0012;
+		# theodorsen, c81, NACA0012, jacobian, yes;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

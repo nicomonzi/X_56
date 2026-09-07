@@ -1,0 +1,130 @@
+set: real a = 10e-3;
+set: real b = 30e-3;
+set: real p0 = 0;
+set: real p1 = 15e6;
+
+begin: data;
+        problem: initial value; # the default
+end: data;
+
+begin: initial value;
+    threads: assembly, 1;
+
+        initial time: 0;
+        final time: 1;
+        time step: 1e-3;
+
+    max iterations: 300;
+    linear solver: naive, colamd;
+    nonlinear solver: newton raphson;
+
+    linear solver: umfpack, grad;
+    nonlinear solver: nox, modified, 100, keep jacobian matrix,jacobian operator, newton krylov, forcing term, type 2;
+    method: ms, 0.6;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    use: surface loads, in assembly;
+    default output: surface loads;
+    output meter: closest next, 0., forever, 0.01;
+    print: dof description;
+    print: equation description;
+    output precision: 16;
+    use automatic differentiation;
+    tolerance: 1e-6;
+    max iterations: 30;
+    structural nodes: 4;
+    surface loads: 1;
+    abstract nodes: 4;
+    genels: 16;
+end: control data;
+
+reference: 2,
+    position, reference, global, 0.5 * a, 0.5 * b, 0.,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 3,
+    position, reference, global, -0.5 * a, 0.5 * b, 0.,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 4,
+    position, reference, global, -0.5 * a, -0.5 * b, 0.,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 5,
+    position, reference, global, 0.5 * a, -0.5 * b, 0.,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+begin: nodes;
+        structural: 2, static displacement,
+                position, reference, 2, null,
+                velocity, reference, 2, null,
+                assembly, 1e0, 1e0;
+
+        structural: 3, static displacement,
+                position, reference, 3, null,
+                velocity, reference, 3, null,
+                assembly, 1e0, 1;
+
+        structural: 4, static displacement,
+                position, reference, 4, null,
+                velocity, reference, 4, null,
+                assembly, 1e0, 1;
+
+        structural: 5, static displacement,
+                position, reference, 5, null,
+                velocity, reference, 5, null,
+                assembly, 1e0, 1;
+
+        abstract: 100, p0;
+        abstract: 200, p0;
+        abstract: 300, p0;
+        abstract: 400, p0;
+end: nodes;
+
+begin: elements;
+         set: real vx = 0;
+         set: real vy = 0.;
+         set: real vz = 0.;
+         set: real dvx = a;
+         set: real dvy = b;
+         set: real omegay = 2 * pi;
+
+         genel: 1, clamp, 2, structural, 1, algebraic, string,  "0.5 * (a + dvx * Time) * cos(omegay * Time) + vx * Time";
+         genel: 2, clamp, 2, structural, 2, algebraic, string,  "0.5 * b + (vy + 0.5 * dvy) * Time";
+         genel: 3, clamp, 2, structural, 3, algebraic, string,  "0.5 * (a + dvx * Time) * sin(omegay * Time) + vz * Time";
+
+         genel: 4, clamp, 3, structural, 1, algebraic, string, "-0.5 * (a + dvx * Time) * cos(omegay * Time) + vx * Time";
+         genel: 5, clamp, 3, structural, 2, algebraic, string,  "0.5 * b + (vy + 0.5 * dvy) * Time";
+         genel: 6, clamp, 3, structural, 3, algebraic, string,  "-0.5 * (a + dvx * Time) * sin(omegay * Time) + vz * Time";
+
+         genel: 7, clamp, 4, structural, 1, algebraic, string, "-0.5 * (a + dvx * Time) * cos(omegay * Time) + vx * Time";
+         genel: 8, clamp, 4, structural, 2, algebraic, string, "-0.5 * b + (vy - 0.5 * dvy) * Time";
+         genel: 9, clamp, 4, structural, 3, algebraic, string,  "-0.5 * (a + dvx * Time) * sin(omegay * Time) + vz * Time";
+
+         genel: 10, clamp, 5, structural, 1, algebraic, string,  "0.5 * (a + dvx * Time) * cos(omegay * Time) + vx * Time";
+         genel: 11, clamp, 5, structural, 2, algebraic, string, "-0.5 * b + (vy - 0.5 * dvy) * Time";
+         genel: 12, clamp, 5, structural, 3, algebraic, string,  "0.5 * (a + dvx * Time) * sin(omegay * Time) + vz * Time";
+
+         genel: 13, clamp, 100, abstract, algebraic, string, "p0 + Time * p1";
+         genel: 14, clamp, 200, abstract, algebraic, string, "p0 + Time * p1";
+         genel: 15, clamp, 300, abstract, algebraic, string, "p0 + Time * p1";
+         genel: 16, clamp, 400, abstract, algebraic, string, "p0 + Time * p1";
+
+         pressureq4: 1, 2, 3, 4, 2, from nodes, 100, 200, 300, 400;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

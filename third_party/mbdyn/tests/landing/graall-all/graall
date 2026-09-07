@@ -1,0 +1,34 @@
+AMMORTIZZATORE CARRELLO ANTERIORE 260 (DATI PRINCIPALI)
+1079100.       1 Pressione di precarica+p+acg-cdmp
+0.001527599    2 sezione stantuffo gas
+0.9069         3 Coefintoliogas+scende+acgscende+cdmpsale
+.150           4 Lunghezza iniziale camera gas+sale+acg-cdmp+
+1.37           5 Espon. politropica+scende+acg- +cdmp+
+0.08           6 Coefficiente di attrito+agc+ cdmpcost
+.00101788      7 Area stantuffo olio +sale+agc-cdmpdopoidue001
+843            8 Densita` olio
+.24            9 legge attrito ammortizzatore: t cost
+.816326        10 tlin
+.05            11 temprif
+.01            12 velriferimento
+205.e-6        13 corona per risucchio
+1.01           14 tempo riferimento per risucchio
+22             15 cviscoso di riferimento
+26.6           16 Temperatura iniziale
+AREA DI TRAFILAMENTO (ANDATA) ANTERIORE 260
+1 N.punti tabella x,A
+0 0.000017628
+AREA DI TRAFILAMENTO (CORSA DI RITORNO) ANTERIORE 260
+1 N.punti tabella x,A
+0. .0000098175
+CURVA COEFF.VISCOSO (CORSA DI ANDATA) ANTERIORE 260
+1
+0 0.7
+CURVA COEFF.VISCOSO (CORSA DI RITORNO) ANTERIORE 260
+1
+0. 0.7
+TABELLA TEMPERATURA/COEFF CORRETTIVO
+3 Numero di punti della tabella
+15.5 30
+26.6 22
+37.7 16

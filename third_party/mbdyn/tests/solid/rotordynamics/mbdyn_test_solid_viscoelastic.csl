@@ -1,0 +1,2 @@
+constitutive law: 1, name, "solid1", 6, hookean linear viscoelastic isotropic, E, 2.1000000000000000e+05, nu, 2.9999999999999999e-01, beta, 1e-7;
+constitutive law: 2, name, "solid2", 6, hookean linear viscoelastic isotropic, E, 2.1000000000000000e+07, nu, 2.9999999999999999e-01, beta, 1e-7;

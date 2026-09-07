@@ -1,0 +1,11 @@
+structural: CURR_HUB, static,
+    xW, yW, zW,
+    eye,
+    V0, 0., 0.,
+    null;
+
+structural: CURR_RIM, dynamic,
+    xW, yW, zW,
+    eye,
+    V0, 0., 0.,
+    0., V0/Re, 0.;

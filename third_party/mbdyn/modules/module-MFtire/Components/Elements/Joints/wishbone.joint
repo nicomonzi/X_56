@@ -1,0 +1,31 @@
+# A-UBJ
+joint: CURR_WISHBONE+1, distance,
+	node_CHASSIS,
+		position, reference, node, xA-xCOG, yA-yCOG, zA-zCOG,
+	CURR_HUB,
+		position, reference, node, xX-xW, yX-yW, zX-zW,
+	from nodes;
+
+# B-UBJ
+joint: CURR_WISHBONE+2, distance,
+	node_CHASSIS,
+		position, reference, node, xB-xCOG, yB-yCOG, zB-zCOG,
+	CURR_HUB,
+		position, reference, node, xX-xW, yX-yW, zX-zW,
+	from nodes;
+
+# C-LBJ
+joint: CURR_WISHBONE+3, distance,
+	node_CHASSIS,
+		position, reference, node, xC-xCOG, yC-yCOG, zC-zCOG,
+	CURR_HUB,
+		position, reference, node, xY-xW, yY-yW, zY-zW,
+	from nodes;
+
+# D-LBJ
+joint: CURR_WISHBONE+4, distance,
+	node_CHASSIS,
+		position, reference, node, xD-xCOG, yD-yCOG, zD-zCOG,
+	CURR_HUB,
+		position, reference, node, xY-xW, yY-yW, zY-zW,
+	from nodes;

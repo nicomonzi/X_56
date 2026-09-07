@@ -1,0 +1,141 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/deformablehinge/deformabledisplacementjointoffset,v 1.2 2014/12/13 17:15:45 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.;
+	time step: 1.e-3;
+
+	tolerance: 1e-9;
+	max iterations: 10;
+
+	derivatives tolerance: 1e-6;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1e-12;
+
+	nonlinear solver: newton raphson, modified, 5, keep jacobian;
+
+	method: ms, .6;
+
+	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# ground
+		+1	# elastic body
+		+1	# viscous body
+		+1	# viscoelastic body
+	;
+	rigid bodies:
+		+1	# elastic body
+		+1	# viscous body
+		+1	# viscoelastic body
+	;
+	joints:
+		+1	# ground
+		+2	# elastic
+		+2	# viscous
+		+2	# viscoelastic
+	;
+	forces:
+		+1	# elastic body
+		+1	# viscous body
+		+1	# viscoelastic body
+	;
+end: control data;
+
+set: real vz = 10.;
+set: real A = 10.;
+set: real W = sqrt(1000.);
+set: real K = 1e3;
+set: real C = 1e1;
+set: real m = .25e0;
+set: real J = .25e0;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 10, dynamic,
+		null,
+		eye,
+		0.,0.,vz,
+		null;
+	structural: 20, dynamic,
+		null,
+		eye,
+		0.,0.,vz,
+		null;
+	structural: 30, dynamic,
+		null,
+		eye,
+		0.,0.,vz,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+
+	body: 10, 10, m, null, eye, scale, J;
+	joint: 10, prismatic,
+		1,
+		hinge, reference, node, eye,
+		10,
+		hinge, reference, node, eye;
+	joint: 11, deformable displacement joint,
+		1, reference, node, 1.,1.,1.,
+			hinge, reference, node, eye,
+		10, reference, node, 1.,1.,1.,
+			hinge, reference, node, eye,
+		linear elastic generic, diag, K,K,K;
+	force: 10, follower, 10,
+		# 0.,0.,1., null, sine, 0,W,A,forever,0.;
+		1.,1.,1., null, sine, 0,W,A,one,0.;
+
+	body: 20, 20, m, null, eye, scale, J;
+	joint: 20, prismatic,
+		1,
+		hinge, reference, node, eye,
+		20,
+		hinge, reference, node, eye;
+	joint: 21, deformable displacement joint,
+		1, reference, node, 1.,1.,1.,
+			hinge, reference, node, eye,
+		20, reference, node, 1.,1.,1.,
+			hinge, reference, node, eye,
+		linear viscous generic, diag, C,C,C;
+	force: 20, follower, 20,
+		# 0.,0.,1., null, sine, 0,W,A,forever,0.;
+		1.,1.,1., null, sine, 0,W,A,one,0.;
+
+	body: 30, 30, m, null, eye, scale, J;
+	joint: 30, prismatic,
+		1,
+		hinge, reference, node, eye,
+		30,
+		hinge, reference, node, eye;
+	joint: 31, deformable displacement joint,
+		1, reference, node, 1.,1.,1.,
+			hinge, reference, node, eye,
+		30, reference, node, 1.,1.,1.,
+			hinge, reference, node, eye,
+		linear viscoelastic generic, diag, K,K,K, diag, C,C,C;
+		# linear elastic generic, diag, K,K,K;
+	force: 30, follower, 30,
+		# 0.,0.,1., null, sine, 0,W,A,forever,0.;
+		1.,1.,1., null, sine, 0,W,A,one,0.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

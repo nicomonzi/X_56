@@ -1,0 +1,92 @@
+## inline test for friction, example by Louis Gagnon and Marco Morandini;
+## 2018
+## based on the brake example
+begin: data;
+	problem: initial value;
+end: data;
+
+set: real M = 100.; # mass of node resting on the brake...
+
+begin: initial value;
+	initial time: 0.;
+	final time: 5;
+	time step: 1.e-3;
+#~ 	tolerance: 1e-6;
+	tolerance: 1e-6;
+	derivatives coefficient: 1E-7;
+	derivatives max iterations: 10;
+	derivatives tolerance: 1e-3;
+	max iterations: 50;
+#~ 	max iterations: 1;
+	#newton raphson: modified, 1;
+#~ 	newton raphson: true;
+	#abort after : derivatives;
+	#output: residual, jacobian, solution;
+#~ 	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 2;
+	forces: 1;
+	gravity;
+	
+	print: description;
+	
+	# default output: none;
+end: control data;
+
+begin: nodes;
+	structural: 1, dynamic,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+scalar function: "constfriction", const, 0.3;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	
+ joint: 3, in line,
+   1,
+    position, reference, node, null,
+    orientation, 
+        1, 0., 0., 1.,
+        3, 1., 0., 0.,
+   2
+   ,
+		friction,
+			preload, 1E-10,
+			modlugre, 2000, 2.8,0.,0.71, "constfriction", 
+			simple
+			;
+
+	body: 2, 2, M, null, diag, 1.,1.,.05;
+
+	force: 1, absolute,
+		2,
+			position, reference, node, null,
+		1., 0., 0.,
+			const, 5000.;
+
+	gravity: uniform,
+		0., 0., -1., const, 9.81;
+
+
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

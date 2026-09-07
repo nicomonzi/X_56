@@ -1,0 +1,175 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/eig/divergence-beam3,v 1.3 2010/02/22 21:11:54 masarati Exp $
+
+/*
+ The model consists in a deformable aerodynamic surface.  Only torsion
+ is allowed.  The torsional frequencies are computed for different values
+ of the dynamic pressure, according to the formula
+
+             (  (n*pi)^2                        )
+             (  (----) * K - q * e * cCL/alpha  )
+             (  (2*L )                          )
+ omega = sqrt( -------------------------------- )
+             (                J                 )
+
+ with:
+        n = 1, 3
+        L = 1 m
+        K = 2e4 N m^2
+        J = 1 kg m
+        e = 0.1 m
+        c = 1 m
+        q = 0.5*1.225*(M*340)^2
+        CL/alpha from naca0012.c81, about 0 deg, CL/alpha(M):
+
+ Mach	CL/alpha [1/rad]	Expected Freq_0	[Hz]	MBDyn [Hz]
+ .00	6.04470473863018e+00	35.35534 106.066	34.7884	88.5208
+ .20	6.04470473863018e+00	34.73665 105.861	34.1742	88.3304
+ .30	6.30253574643906e+00	33.88609 105.585	33.3289	88.0739
+ .40	6.53171886449138e+00	32.59700 105.179	32.0453	87.6967
+ .50	7.07602876986567e+00	30.54057 104.560	29.993	87.124
+ .60	7.79222601377920e+00	27.32918 103.667	26.7731	86.3013
+ .70	8.96678949379738e+00	21.49372 102.284	20.8683	85.0334
+ .75	1.00267614147894e+01	15.44182 101.185	20.3142	84.9304 ***
+ .80	1.13159164538338e+01	6.99246i  99.755	45.042	92.1996 ***
+
+ *** the frequency differs from the analytical result because at M >= 0.75
+     the CM in naca0012.c81 depends on alpha and yields a stabilizing contrib.
+
+ */
+
+begin: data;
+        problem: initial value;
+end: data;
+
+begin: initial value;
+        initial time: 0.;
+        final time: 1.;
+        time step: 1.e-2;
+
+        tolerance: 1.e-5;
+        max iterations: 10;
+
+        derivatives coefficient: 1e-9;
+
+        method: ms, .6, .6;
+
+        eigenanalysis: 1., output matrices, output eigenvectors,
+                lower frequency limit, 1.,
+                upper frequency limit, 1000.,
+                use lapack;
+
+        #output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+        structural nodes: 3;
+        rigid bodies: 2;
+        joints: 1;
+        beams: 1;
+        air properties;
+        aerodynamic elements: 1;
+end: control data;
+
+reference: 0,
+           null,
+           eye,
+           null,
+           null;
+reference: 1,
+           reference, 0, null,
+           reference, 0,
+                3, 0., 1., 0.,
+                1, 1., 0., 0.,
+           reference, 0, null,
+           reference, 0, null;
+
+set: real L = 1.;
+set: real M = 1.;
+set: real J = 1.;
+
+begin: nodes;
+        structural: 0, static,
+                reference, 0, null,
+                reference, 0, eye,
+                reference, 0, null,
+                reference, 0, null;
+        structural: 1, dynamic,
+                reference, 0, 0., L/2., 0.,
+                reference, 0, eye,
+                reference, 0, null,
+                reference, 0, null;
+        structural: 2, dynamic,
+                reference, 0, 0., L, 0.,
+                reference, 0, eye,
+                reference, 0, null,
+                reference, 0, null;
+end: nodes;
+
+begin: elements;
+        joint: 0, clamp, 0, node, node;
+
+        body: 1, 1,
+                M/2.,
+                null,
+                diag, (L/2.)^2/12.*(M/2.), J/2., (L/2.)^2/12.*(M/2.);
+
+        body: 2, 2,
+                M/4.,
+                0., -L/8., 0.,
+                diag, (L/4.)^2/12.*(M/4.), J/4., (L/4.)^2/12.*(M/4.);
+
+        beam3: 1,
+                0, null,
+                1, null,
+                2, null,
+                        1, 0., 1., 0.,
+                        3, 0., 0., 1.,
+                linear elastic generic,
+                        diag, 1e9, 1e9, 1e9, 2e4, 1e9, 1e9,
+                same,
+                same;
+
+        air properties: std, SI,
+                single, 1.,0.,0.,
+                        # const, 340.*.00;
+                        # const, 340.*.20;
+                        # const, 340.*.30;
+                        # const, 340.*.40;
+                        # const, 340.*.50;
+                        # const, 340.*.60;
+                        # const, 340.*.70;
+                        # const, 340.*.75;
+                        const, 340.*.80;
+
+        c81data: 1, "../aero/naca0012.c81";
+
+        aerodynamic beam3: 1, 1,
+                reference, node, null,
+                reference, node,
+                        1, -1., 0., 0.,
+                        2, 0., 0., 1.,
+                reference, node, null,
+                reference, node,
+                        1, -1., 0., 0.,
+                        2, 0., 0., 1.,
+                reference, node, null,
+                reference, node,
+                        1, -1., 0., 0.,
+                        2, 0., 0., 1.,
+                const, 1.,	# chord
+                const, .1,	# e
+                const, 0.,	# b.c.
+                const, 0.,	# twist
+                1,		# integration points no.
+                c81, 1,
+                jacobian, yes;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,81 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/auto/auto,v 1.3 2014/12/13 17:15:35 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    # abort after: assembly;
+
+    initial time: 0.;
+    final time: 1.;
+    time step: 1.e-2;
+    
+    tolerance: 1.e-9;
+    max iterations: 20;
+    newton raphson: modified, 4;
+    
+    # method: ms, 1., 1.;   # funziona anche con 1!
+    method: ms, .6, .6;
+    # method: crank nicholson;
+    
+    derivatives coefficient: 1.;
+    derivatives tolerance: 1.e-6;
+    derivatives max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+    
+    structural nodes: 2;
+    joints: 2;
+    rigid bodies: 1;
+end: control data;
+
+
+set: real Omega = 10.;
+set: real l = 5.;
+set: real m = 1.;
+set: real Jz = 1.;
+
+reference: 1, 
+           null,
+	   eye,
+	   null,
+	   0.,0.,Omega;
+
+begin: nodes;
+    structural: 1, static,
+                null,
+		eye,
+		null,
+		null;
+    structural: 2, dynamic,
+                reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+    joint: 1, clamp, 1, node, node;
+    joint: 2, /* spherical */ plane hinge,
+           1, null,
+	   2, null; 
+    body: 2, 2,
+          m, 
+	  l,0.,0.,
+	  diag, 1.e-9,1.e-9,Jz;
+    automatic structural: 2, 
+                          0.,l*Omega*m,0.,
+			  0.,0.,Jz*Omega+l^2*m*Omega,
+			  -.741-l*m*Omega^2,.00196,0.,
+			  null;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,7 @@
+joint: CURR_SPRING, rod,
+	node_CHASSIS,
+		position, reference, node, xM-xCOG, yM-yCOG, zM-zCOG,
+	CURR_HUB,
+		position, reference, node, xX-xW, yX-yW, zX-zW,
+	from nodes,
+	linear viscoelastic, ks*L0, cs*L0;

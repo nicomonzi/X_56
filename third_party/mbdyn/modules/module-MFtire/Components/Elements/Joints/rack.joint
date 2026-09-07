@@ -1,0 +1,32 @@
+include: "../../../VehicleData/Kinematics/DP15/FL.var";
+
+joint: joint_RACK, total joint,
+
+    # position of constraint with respect to node 1
+    node_CHASSIS,
+        position, reference, node, xK-xCOG, 0., zK-zCOG,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, node, eye,
+
+    # position of constraint with respect to node 2
+    node_RACK,
+        position, reference, node, null,
+        position orientation, reference, node, eye,
+        rotation orientation, reference, node, eye,
+
+    # prescribed relative position
+    position constraint, active, active, active,
+        component,
+            const, 0.,
+            step5, 10., 0., 10.3, +0.01,
+            #array, 7,
+            #    step5, 4.00, 0., 4.20, +0.010,
+            #    step5, 4.80, 0., 5.00, -0.030,
+            #    step5, 5.20, 0., 5.40, +0.020,
+            #    step5, 7.00, 0., 7.20, -0.010,
+            #    step5, 7.80, 0., 8.00, +0.030,
+            #    step5, 8.15, 0., 8.35, -0.020,
+            #    step5, 15.0, 0., 15.2, -0.010,
+            #const, 0.,
+            const, 0.,
+    orientation constraint, active, active, active, null;

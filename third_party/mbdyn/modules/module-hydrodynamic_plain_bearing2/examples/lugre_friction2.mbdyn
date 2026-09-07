@@ -1,0 +1,340 @@
+################################################################
+## PARAMETERS
+################################################################
+
+set: real body1_diameter = 100e-3;
+set: real hole_diameter = 100.1e-3;
+
+set: real mu = 0.4;
+set: real sigma0 = 1e6;
+set: real sigma1 = 1e3;
+
+set: real gravity_g = 9.81;
+set: real gravity_Zeta = -pi / 2.;
+set: real gravity_Psi = 0.;
+
+set: real omega2 = 2 * pi * 0.1;
+
+set: real body1_mass = 100e-3;
+set: real body1_h = 20e-3;
+set: real body1_Jxx = body1_mass * (body1_diameter/2.)^2 / 2.;
+set: real body1_Jyy = body1_mass * (3 * (body1_diameter/2.)^2 + body1_h^2) / 12.;
+set: real body1_Jzz = body1_Jyy;
+
+set: real eta = 3e-16;		# dynamic oil viscosity
+set: real rho = 900.;
+
+set: real initial_time = 0;
+set: real final_time = 0.1;
+set: real output_start_time = 0;
+set: real output_time_step = 1e-4;
+
+set: real time_step = 5e-5;
+
+################################################################
+## ID NUMBERS
+################################################################
+
+set: integer node_id_ground = 1000;
+set: integer node_id_body1 = 1100;
+
+set: integer body1_id = 2002;
+
+set: integer joint_id_ground = 3001;
+
+set: integer ref_id_ground = 5001;
+set: integer ref_id_body = 5004;
+
+set: integer elem_id_bearing = 6001;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: initial_time;
+	final time: final_time;
+	
+	time step: time_step;	
+	max iterations: 40;
+	tolerance: 1.e-6, test, minmax, 1e-4, test, minmax;
+	method: implicit euler;
+	derivatives tolerance: 1e-5, 1e-5;
+	derivatives max iterations: 20;
+	derivatives coefficient: 1e-6, auto;
+	threads: disable;
+	linear solver: umfpack, colamd, scale, row max column max, always, max iterations, 10;
+        include: "noxsolver.set";        
+        output: iterations, solver condition number, stat, yes;
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+	output meter: closest next, output_start_time, forever, const, output_time_step;
+	structural nodes: 74;
+	rigid bodies: 1;
+	loadable elements: 1;
+	joints: 1;
+    gravity;
+	output precision: 8;
+	default output: all;
+	default output: reference frames;
+    max iterations: 100;
+    tolerance: 1e-6;
+use automatic differentiation;
+end: control data;
+
+reference: ref_id_ground,
+	# position
+	reference, global, null,
+	# orientation
+	reference, global, eye,
+	# velocity
+	reference, global, null,
+	# angular velocity
+	reference, global, omega2, 0., 0.;
+
+reference: ref_id_body,
+	#position
+	reference, global, 0., 0., -0.048e-3,
+	# orientation
+	reference, global, eye,
+	# velocity
+	reference, global, null,
+	# angular velocity
+	reference, global, null;
+
+begin: nodes;
+    structural: node_id_ground, static,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, eye,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, null;
+				
+	structural: node_id_body1, dynamic, 
+		# absolute position
+		reference, ref_id_body, null, 
+		# absolute orientation matrix
+		reference, ref_id_body, eye, 
+		# absolute velocity
+		reference, ref_id_body, null,
+		# absolute angular velocity
+		reference, ref_id_body, null,
+        accelerations, yes;
+
+    set: real Phi;
+    set: integer i;
+    set: integer N = 36;
+
+    set: i = 1;
+    include: "lugre_friction2.nod";
+
+    set: i = 2;
+    include: "lugre_friction2.nod";
+
+    set: i = 3;
+    include: "lugre_friction2.nod";
+
+    set: i = 4;
+    include: "lugre_friction2.nod";
+
+    set: i = 5;
+    include: "lugre_friction2.nod";
+
+    set: i = 6;
+    include: "lugre_friction2.nod";
+
+    set: i = 7;
+    include: "lugre_friction2.nod";
+
+    set: i = 8;
+    include: "lugre_friction2.nod";
+
+    set: i = 9;
+    include: "lugre_friction2.nod";
+
+    set: i = 10;
+    include: "lugre_friction2.nod";
+
+    set: i = 11;
+    include: "lugre_friction2.nod";
+
+    set: i = 12;
+    include: "lugre_friction2.nod";
+
+    set: i = 13;
+    include: "lugre_friction2.nod";
+
+    set: i = 14;
+    include: "lugre_friction2.nod";
+
+    set: i = 15;
+    include: "lugre_friction2.nod";
+
+    set: i = 16;
+    include: "lugre_friction2.nod";
+
+    set: i = 17;
+    include: "lugre_friction2.nod";
+
+    set: i = 18;
+    include: "lugre_friction2.nod";
+
+    set: i = 19;
+    include: "lugre_friction2.nod";
+
+    set: i = 20;
+    include: "lugre_friction2.nod";
+
+    set: i = 21;
+    include: "lugre_friction2.nod";
+
+    set: i = 22;
+    include: "lugre_friction2.nod";
+
+    set: i = 23;
+    include: "lugre_friction2.nod";
+
+    set: i = 24;
+    include: "lugre_friction2.nod";
+
+    set: i = 25;
+    include: "lugre_friction2.nod";
+
+    set: i = 26;
+    include: "lugre_friction2.nod";
+
+    set: i = 27;
+    include: "lugre_friction2.nod";
+
+    set: i = 28;
+    include: "lugre_friction2.nod";
+
+    set: i = 29;
+    include: "lugre_friction2.nod";
+
+    set: i = 30;
+    include: "lugre_friction2.nod";
+
+    set: i = 31;
+    include: "lugre_friction2.nod";
+
+    set: i = 32;
+    include: "lugre_friction2.nod";
+
+    set: i = 33;
+    include: "lugre_friction2.nod";
+
+    set: i = 34;
+    include: "lugre_friction2.nod";
+
+    set: i = 35;
+    include: "lugre_friction2.nod";
+
+    set: i = 36;
+    include: "lugre_friction2.nod";
+end: nodes;
+
+begin: elements;
+    joint: joint_id_ground, total pin joint,
+        node_id_ground,
+                position, reference, ref_id_ground, null,
+                position orientation, reference, ref_id_ground, eye,
+                rotation orientation, reference, ref_id_ground, eye,   
+            position, reference, ref_id_ground, null,
+            position orientation, reference, ref_id_ground, eye,
+            rotation orientation, reference, ref_id_ground, eye,               
+            position constraint,
+                active, 
+                active,
+                active,
+                component,
+                    const, 0.,
+                    const, 0.,
+                    const, 0.,
+            orientation constraint,
+                active,
+                active,
+                active,
+                component,
+                    mult, const, omega2, time,
+                    const, 0.,
+                    const, 0.;
+
+	body: body1_id, node_id_body1, 
+                # mass
+                body1_mass,
+                # relative center of mass
+                reference, ref_id_body, null,
+                # inertia matrix
+                diag, body1_Jxx, body1_Jyy, body1_Jzz,
+		inertial, reference, ref_id_body, eye;
+
+    user defined: elem_id_bearing, 
+        hydrodynamic plain bearing2,
+            hydraulic fluid, incompressible,
+                density, rho,
+                viscosity, eta,
+                pressure, 0,
+                temperature, 0,
+            mesh, linear finite difference, enable mcp, enable_mcp,
+            geometry, cylindrical,
+                mesh position, at shaft,
+                bearing width, body1_h,
+                shaft diameter, body1_diameter,
+                bearing diameter, hole_diameter,
+                shaft node,
+                    node_id_body1,
+                    offset, reference, ref_id_body, null,
+                    orientation, reference, ref_id_body, 3, 1., 0., 0., 
+                                                           1, 0., 0., -1.,
+                bearing node,
+                    node_id_ground,
+                    offset, reference, ref_id_ground, null,
+                    orientation, reference, ref_id_ground, 3, -1., 0., 0.,
+                                                           1, 0., 0., 1.,
+            number of nodes z, 3,
+            number of nodes Phi, 36,
+            boundary conditions,
+                0.,
+                0.,
+            lubrication grooves, 1,
+                at shaft,
+                    pressure, 0.,
+                    position, 0.5 * body1_diameter * pi, 0.,
+                    rectangle, width, 1.01 * body1_diameter * pi,
+                               height, 1.01 * body1_h,
+            contact model,
+                greenwood williamson lugre,
+                    E1, 210000e6,
+                    nu1, 0.3,
+                    E2, 210000e6,
+                    nu2, 0.3,
+                    M0, 2 * 0.014,
+                    M2, 2 * 0.00189,
+                    M4, 2 * 0.001939,
+                    method, implicit euler,
+                    coulomb friction coefficient, mu,
+                    micro slip stiffness, sigma0,
+                    micro slip damping, sigma1,
+            output pressure, no,
+            output contact pressure, no,
+            output clearance, no,
+            output clearance derivative, no,
+            output velocity, no,
+            output stress, no,
+            output contact stress, no,
+            output reaction force, yes,
+            output mesh, no;
+
+	gravity: cos(gravity_Zeta) * cos(gravity_Psi), 
+             cos(gravity_Zeta) * sin(gravity_Psi), 
+             sin(gravity_Zeta),
+	const, gravity_g;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

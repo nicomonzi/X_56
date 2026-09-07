@@ -319,50 +319,137 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
-def plot_summary(rows: list[dict], output: Path) -> None:
+def external_open_loop(directory: Path | None) -> dict | None:
+    if directory is None:
+        return None
+    source = directory / "sweep_summary.json"
+    raw = json.loads(source.read_text())
+    if not isinstance(raw, list):
+        raise ValueError(f"{source} deve contenere una lista di punti")
+    points = sorted(
+        ({
+            "velocity_mps": float(row["velocity_mps"]),
+            "sigma_per_s": float(row["sigma_swb1_per_s"]),
+            "frequency_hz": float(row["frequency_swb1_hz"]),
+            "classification": row.get("classification", ""),
+        } for row in raw if row.get("identification_valid", False)),
+        key=lambda row: row["velocity_mps"],
+    )
+    bracket = None
+    onset = None
+    for left, right in zip(points, points[1:]):
+        sl, sr = left["sigma_per_s"], right["sigma_per_s"]
+        if sl == 0.0 or sl * sr <= 0.0:
+            vl, vr = left["velocity_mps"], right["velocity_mps"]
+            bracket = [vl, vr]
+            onset = vl if sl == 0.0 else vl - sl * (vr - vl) / (sr - sl)
+            break
+    return {
+        "directory": str(directory),
+        "method": "NASA-style level-flight open loop; matrix-pencil SWB1",
+        "points": points,
+        "bracket_mps": bracket,
+        "onset_velocity_linear_mps": onset,
+    }
+
+
+def physical_comparison(rows: list[dict]) -> list[dict]:
+    by_key = {
+        (
+            row["campaign"], row["velocity_mps"], row["nominal_load_factor"],
+            row["time_step_s"], row["mode7_frequency_scale"],
+        ): row
+        for row in rows if row["identification_valid"]
+    }
+    result = []
+    for key, physical in sorted(by_key.items()):
+        campaign, velocity, load, dt, scale = key
+        if campaign != "prestress_rom":
+            continue
+        baseline = by_key.get(("primary", velocity, load, dt, scale))
+        if baseline is None:
+            continue
+        result.append({
+            "velocity_mps": velocity,
+            "nominal_load_factor": load,
+            "achieved_n_prestress": physical["achieved_n_mean_sas_off"],
+            "sigma_linear_per_s": baseline["mode7_sigma_per_s"],
+            "sigma_prestress_per_s": physical["mode7_sigma_per_s"],
+            "delta_sigma_prestress_minus_linear_per_s": (
+                physical["mode7_sigma_per_s"] - baseline["mode7_sigma_per_s"]
+            ),
+            "linear_verdict": baseline["verdict"],
+            "prestress_verdict": physical["verdict"],
+        })
+    return result
+
+
+def plot_summary(
+    rows: list[dict], onsets: list[dict], output: Path,
+    open_loop: dict | None = None,
+) -> None:
     valid = [row for row in rows if row["identification_valid"]]
     if not valid:
         return
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
-    primary = [
-        row for row in valid
-        if row["campaign"] == "primary"
-        and abs(row["mode7_frequency_scale"] - 1.0) < 1e-12
-    ]
-    for load in sorted({row["nominal_load_factor"] for row in primary}):
-        group = sorted(
-            (row for row in primary if row["nominal_load_factor"] == load),
-            key=lambda row: row["velocity_mps"],
-        )
-        axes[0].plot(
-            [row["velocity_mps"] for row in group],
-            [row["mode7_sigma_per_s"] for row in group], "o-", label=f"n_nom={load:g}"
-        )
-    sensitivity_keys = {
-        (row["velocity_mps"], row["nominal_load_factor"], row["time_step_s"])
-        for row in valid
-        if abs(row["mode7_frequency_scale"] - 1.0) > 1e-12
-    }
-    sensitivity = [
-        row for row in valid
-        if (row["velocity_mps"], row["nominal_load_factor"], row["time_step_s"])
-        in sensitivity_keys
-    ]
-    for load in sorted({row["nominal_load_factor"] for row in sensitivity}):
-        group = sorted(
-            (row for row in sensitivity if row["nominal_load_factor"] == load),
-            key=lambda row: row["mode7_frequency_scale"],
-        )
-        if len(group) > 1:
-            axes[1].plot(
-                [row["mode7_frequency_shift_percent"] for row in group],
-                [row["mode7_sigma_per_s"] for row in group], "o-", label=f"n_nom={load:g}"
+    colors = {1.0: "0.35", 1.3: "tab:blue", 1.6: "tab:red"}
+    campaigns = sorted({row["campaign"] for row in valid})
+    for campaign in campaigns:
+        selected = [
+            row for row in valid
+            if row["campaign"] == campaign
+            and abs(row["mode7_frequency_scale"] - 1.0) < 1e-12
+        ]
+        for load in sorted({row["nominal_load_factor"] for row in selected}):
+            group = sorted(
+                (row for row in selected if row["nominal_load_factor"] == load),
+                key=lambda row: row["velocity_mps"],
             )
-    axes[0].set(xlabel="TAS [m/s]", ylabel="sigma [1/s]", title="Paired onset map")
-    axes[1].set(xlabel="mode-7 frequency shift [%]", ylabel="sigma [1/s]",
-                title="Parametric stiffness screen")
+            physical = campaign == "prestress_rom"
+            axes[0].plot(
+                [row["velocity_mps"] for row in group],
+                [row["mode7_sigma_per_s"] for row in group],
+                "o-" if physical else "o--",
+                color=colors.get(load),
+                alpha=1.0 if physical else 0.55,
+                label=f"{'prestress' if physical else campaign}, n={load:g}",
+            )
+    if open_loop and open_loop["points"]:
+        velocities = [row["velocity_mps"] for row in valid]
+        lower, upper = min(velocities) - 1.0, max(velocities) + 1.0
+        local_open_loop = [
+            row for row in open_loop["points"]
+            if lower <= row["velocity_mps"] <= upper
+        ]
+        axes[0].plot(
+            [row["velocity_mps"] for row in local_open_loop],
+            [row["sigma_per_s"] for row in local_open_loop],
+            "k^:", label="level-flight open loop (NASA method)",
+        )
+    onset_groups = defaultdict(list)
+    for row in onsets:
+        if row["onset_velocity_linear_mps"] is not None:
+            onset_groups[row["campaign"]].append(row)
+    for campaign, group in sorted(onset_groups.items()):
+        group = sorted(group, key=lambda row: row["mean_achieved_n"])
+        physical = campaign == "prestress_rom"
+        axes[1].plot(
+            [row["mean_achieved_n"] for row in group],
+            [row["onset_velocity_linear_mps"] for row in group],
+            "o-" if physical else "o--",
+            label=f"{'prestress ROM' if physical else campaign}",
+        )
+    if open_loop and open_loop["onset_velocity_linear_mps"] is not None:
+        axes[1].axhline(
+            open_loop["onset_velocity_linear_mps"], color="black", linestyle=":",
+            label="level-flight open-loop onset",
+        )
+    axes[0].set(xlabel="TAS [m/s]", ylabel="sigma [1/s]",
+                title="Open-loop growth during the maneuver")
+    axes[1].set(xlabel="mean achieved n in SAS-off", ylabel="onset TAS [m/s]",
+                title="Flutter onset: linear vs prestress")
+    axes[0].axhline(0.0, color="black", linewidth=0.8)
     for axis in axes:
-        axis.axhline(0.0, color="black", linewidth=0.8)
         axis.grid(True, alpha=0.3)
         if axis.lines:
             axis.legend(fontsize=8)
@@ -378,6 +465,10 @@ def main() -> None:
         "--reference-directory", type=Path, action="append", default=[],
         help="completed campaign(s) supplying shared reference points",
     )
+    parser.add_argument(
+        "--open-loop-directory", type=Path,
+        help="NASA-style level-flight open-loop results containing sweep_summary.json",
+    )
     args = parser.parse_args()
     campaign_dir = args.campaign_directory.expanduser().resolve()
     output = campaign_dir / "analysis"
@@ -392,10 +483,17 @@ def main() -> None:
     onsets = onset_summary(rows)
     timestep = timestep_summary(rows)
     sensitivity, decision = stiffness_summary(rows)
+    comparison = physical_comparison(rows)
+    open_loop_path = (
+        None if args.open_loop_directory is None
+        else args.open_loop_directory.expanduser().resolve()
+    )
+    open_loop = external_open_loop(open_loop_path)
     write_csv(output / "paired_results.csv", rows)
     write_csv(output / "onset.csv", onsets)
     write_csv(output / "timestep_convergence.csv", timestep)
     write_csv(output / "stiffness_sensitivity.csv", sensitivity)
+    write_csv(output / "prestress_vs_linear.csv", comparison)
     summary = {
         "target_campaign_directory": str(campaign_dir),
         "reference_directories": [
@@ -408,10 +506,12 @@ def main() -> None:
         "timestep_convergence": timestep,
         "stiffness_sensitivity": sensitivity,
         "prestress_decision_gate": decision,
+        "prestress_vs_linear": comparison,
+        "external_open_loop": open_loop,
         "sigma_resolution_per_s": CONFIG["physics"]["sigma_resolution_per_s"],
     }
     (output / "summary.json").write_text(json.dumps(summary, indent=2))
-    plot_summary(rows, output)
+    plot_summary(rows, onsets, output, open_loop)
     print(json.dumps({
         "analysis": str(output), "complete_pairs": len(rows),
         "valid_pairs": summary["valid_pairs"],

@@ -1,0 +1,414 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2021
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 0.05;
+	# time step: 1.72e-4;
+	#time step: 1e-4;	# not too bad
+	#time step: 1e-5;	# nearly identical
+	time step: 1e-6;	# surely at convergence
+
+	max iterations: 20;
+	tolerance: 1e-6;
+
+	derivatives tolerance: 1e6;
+
+	method: ms, .6;
+
+	#output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	skip initial joint assembly;
+	default output: none;
+	# output precision: 16;
+	structural nodes:
+		+1		# C
+
+		+1		# A-G
+		+1		# A-H
+		+1		# G-E
+		+1		# H-E
+		+1		# B-D-E
+		+1		# E-F
+		+1		# O-F
+	;
+	rigid bodies: 7;
+	joints:
+		+1		# clamp C
+
+		+1		# hinge O-F in O, spherical
+		+1		# hinge A-G in A, spherical
+		+1		# hinge A-H in A, spherical
+		+1		# hinge A-G and G-E in G, revolute
+		+1		# hinge A-H and H-E in H, revolute
+		+1		# hinge G-E and B-D-E in E, revolute
+		+1		# hinge H-E and B-D-E in E, revolute
+		+1		# hinge E-F and B-D-E in E, revolute
+		+1		# hinge B-D-E in B, revolute
+		+1		# hinge E-F and O-F in F, spherical + sliding in z
+
+		+1		# spring between C and D
+	;
+	forces:
+		+1		# torque
+		# +1		# output
+	;
+end: control data;
+
+include: "andrewssqueezer.set";
+include: "andrewssqueezer.ref";
+
+include: "andrewssqueezer_assembler.set";
+
+reference: POINT_E,
+	reference, POINT_O, POINT_E_X, POINT_E_Y, 0.,
+	reference, POINT_O, eye,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: POINT_F,
+	reference, POINT_O, POINT_F_X, POINT_F_Y, 0.,
+	reference, POINT_O, eye,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: POINT_G,
+	reference, POINT_O, POINT_G_X, POINT_G_Y, 0.,
+	reference, POINT_O, eye,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: POINT_H,
+	reference, POINT_O, POINT_H_X, POINT_H_Y, 0.,
+	reference, POINT_O, eye,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_O_F,
+	reference, POINT_O, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		1, POINT_F_X - POINT_O_X, POINT_F_Y - POINT_O_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_E_F,
+	reference, POINT_E, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		1, POINT_F_X - POINT_E_X, POINT_F_Y - POINT_E_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_H_E,
+	reference, POINT_H, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		1, POINT_E_X - POINT_H_X, POINT_E_Y - POINT_H_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_G_E,
+	reference, POINT_G, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		1, POINT_E_X - POINT_G_X, POINT_E_Y - POINT_G_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: LINK_A_G,
+	reference, POINT_A, null,
+	reference, POINT_A,
+		3, 0., 0., 1.,
+		1, POINT_G_X - POINT_A_X, POINT_G_Y - POINT_A_Y, 0.,
+	reference, POINT_A, null,
+	reference, POINT_A, null;
+
+reference: LINK_A_H,
+	reference, POINT_A, null,
+	reference, POINT_A,
+		3, 0., 0., 1.,
+		1, POINT_H_X - POINT_A_X, POINT_H_Y - POINT_A_Y, 0.,
+	reference, POINT_A, null,
+	reference, POINT_A, null;
+
+reference: LINK_E_B_D,
+	reference, POINT_E, null,
+	reference, POINT_O,
+		3, 0., 0., 1.,
+		2, POINT_B_X - POINT_E_X, POINT_B_Y - POINT_E_Y, 0.,
+	reference, POINT_O, null,
+	reference, POINT_O, null;
+
+reference: POINT_D,
+	reference, LINK_E_B_D, E_D_X, E_D_Y, 0.,
+	reference, LINK_E_B_D, eye,
+	reference, LINK_E_B_D, null,
+	reference, LINK_E_B_D, null;
+
+begin: nodes;
+	structural: POINT_C, static,
+		reference, POINT_C, null,
+		reference, POINT_C, eye,
+		reference, POINT_C, null,
+		reference, POINT_C, null;
+
+	structural: LINK_O_F, dynamic,
+		reference, LINK_O_F, null,
+		reference, LINK_O_F, eye,
+		reference, LINK_O_F, null,
+		reference, LINK_O_F, null;
+
+	structural: LINK_E_F, dynamic,
+		reference, LINK_E_F, null,
+		reference, LINK_E_F, eye,
+		reference, LINK_E_F, null,
+		reference, LINK_E_F, null;
+
+	structural: LINK_H_E, dynamic,
+		reference, LINK_H_E, null,
+		reference, LINK_H_E, eye,
+		reference, LINK_H_E, null,
+		reference, LINK_H_E, null;
+
+	structural: LINK_G_E, dynamic,
+		reference, LINK_G_E, null,
+		reference, LINK_G_E, eye,
+		reference, LINK_G_E, null,
+		reference, LINK_G_E, null;
+
+	structural: LINK_A_G, dynamic,
+		reference, LINK_A_G, null,
+		reference, LINK_A_G, eye,
+		reference, LINK_A_G, null,
+		reference, LINK_A_G, null;
+
+	structural: LINK_A_H, dynamic,
+		reference, LINK_A_H, null,
+		reference, LINK_A_H, eye,
+		reference, LINK_A_H, null,
+		reference, LINK_A_H, null;
+
+	structural: LINK_E_B_D, dynamic,
+		reference, LINK_E_B_D, null,
+		reference, LINK_E_B_D, eye,
+		reference, LINK_E_B_D, null,
+		reference, LINK_E_B_D, null;
+end: nodes;
+
+begin: elements;
+	body: LINK_O_F, LINK_O_F, O_F_M, reference, LINK_O_F, O_F_CM_X, O_F_CM_Y, 0., diag, 0., 0., O_F_IZ;
+	body: LINK_E_F, LINK_E_F, E_F_M, reference, LINK_E_F, E_F_CM_X, E_F_CM_Y, 0., diag, 0., 0., E_F_IZ;
+	body: LINK_H_E, LINK_H_E, H_E_M, reference, LINK_H_E, H_E_CM_X, H_E_CM_Y, 0., diag, 0., 0., H_E_IZ;
+	body: LINK_G_E, LINK_G_E, G_E_M, reference, LINK_G_E, G_E_CM_X, G_E_CM_Y, 0., diag, 0., 0., G_E_IZ;
+	body: LINK_A_G, LINK_A_G, A_G_M, reference, LINK_A_G, A_G_CM_X, A_G_CM_Y, 0., diag, 0., 0., A_G_IZ;
+	body: LINK_A_H, LINK_A_H, A_H_M, reference, LINK_A_H, A_H_CM_X, A_H_CM_Y, 0., diag, 0., 0., A_H_IZ;
+	body: LINK_E_B_D, LINK_E_B_D, E_B_D_M, reference, LINK_E_B_D, E_B_D_CM_X, E_B_D_CM_Y, 0., diag, 0., 0., E_B_D_IZ;
+
+	joint: POINT_C, clamp, POINT_C, node, node;
+
+	joint: POINT_O, total pin joint,
+		LINK_O_F,
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, POINT_O,
+				# eye,
+				3, 0., 0., 1.,
+				1, POINT_F_X - POINT_O_X, POINT_F_Y - POINT_O_Y, 0.,
+		# POINT_O
+			position, reference, POINT_O, null,
+			position orientation, reference, POINT_O, eye,
+			rotation orientation, reference, POINT_O, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 0, null;
+
+	joint: POINT_F, total joint,
+		LINK_O_F,
+			position, reference, POINT_F, null,
+			position orientation, reference, POINT_F, eye,
+			rotation orientation, reference, POINT_F, eye,
+		LINK_E_F,
+			position, reference, POINT_F, null,
+			position orientation, reference, POINT_F, eye,
+			rotation orientation, reference, POINT_F, eye,
+		position constraint, 1, 1, 0, null,
+		orientation constraint, 0, 0, 0, null;
+
+	joint: POINT_E + 1, total joint,
+		LINK_E_B_D,
+			position, reference, POINT_E, null,
+			position orientation, reference, POINT_E, eye,
+			rotation orientation, reference, POINT_E, eye,
+		LINK_E_F,
+			position, reference, POINT_E, null,
+			position orientation, reference, POINT_E, eye,
+			rotation orientation, reference, POINT_E, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 0, null;
+
+	joint: POINT_E + 2, total joint,
+		LINK_E_B_D,
+			position, reference, POINT_E, null,
+			position orientation, reference, POINT_E, eye,
+			rotation orientation, reference, POINT_E, eye,
+		LINK_G_E,
+			position, reference, POINT_E, null,
+			position orientation, reference, POINT_E, eye,
+			rotation orientation, reference, POINT_E, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 0, null;
+
+	joint: POINT_E + 3, total joint,
+		LINK_E_B_D,
+			position, reference, POINT_E, null,
+			position orientation, reference, POINT_E, eye,
+			rotation orientation, reference, POINT_E, eye,
+		LINK_H_E,
+			position, reference, POINT_E, null,
+			position orientation, reference, POINT_E, eye,
+			rotation orientation, reference, POINT_E, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 0, null;
+
+	joint: POINT_G, total joint,
+		LINK_A_G,
+			position, reference, POINT_G, null,
+			position orientation, reference, POINT_G, eye,
+			rotation orientation, reference, POINT_G, eye,
+		LINK_G_E,
+			position, reference, POINT_G, null,
+			position orientation, reference, POINT_G, eye,
+			rotation orientation, reference, POINT_G, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 0, 0, 0, null;
+
+	joint: POINT_H, total joint,
+		LINK_A_H,
+			position, reference, POINT_H, null,
+			position orientation, reference, POINT_H, eye,
+			rotation orientation, reference, POINT_H, eye,
+		LINK_H_E,
+			position, reference, POINT_H, null,
+			position orientation, reference, POINT_H, eye,
+			rotation orientation, reference, POINT_H, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 0, 0, 0, null;
+
+	joint: POINT_A + 1, total pin joint,
+		LINK_A_G,
+			position, reference, POINT_A, null,
+			position orientation, reference, POINT_A, eye,
+			rotation orientation, reference, POINT_A, eye,
+		# POINT_A
+			position, reference, POINT_A, null,
+			position orientation, reference, POINT_A, eye,
+			rotation orientation, reference, POINT_A, eye,
+		position constraint, 1, 1, 0, null,
+		orientation constraint, 1, 1, 0, null;
+
+	joint: POINT_A + 2, total pin joint,
+		LINK_A_H,
+			position, reference, POINT_A, null,
+			position orientation, reference, POINT_A, eye,
+			rotation orientation, reference, POINT_A, eye,
+		# POINT_A
+			position, reference, POINT_A, null,
+			position orientation, reference, POINT_A, eye,
+			rotation orientation, reference, POINT_A, eye,
+		position constraint, 1, 1, 0, null,
+		orientation constraint, 1, 1, 0, null;
+
+	joint: POINT_B, total pin joint,
+		LINK_E_B_D,
+			position, reference, POINT_B, null,
+			position orientation, reference, POINT_B, eye,
+			rotation orientation, reference, POINT_B, eye,
+		# POINT_B
+			position, reference, POINT_B, null,
+			position orientation, reference, POINT_B, eye,
+			rotation orientation, reference, POINT_B, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 0, null;
+
+	joint: POINT_D, rod,
+		POINT_C,
+			position, reference, POINT_C, null,
+		LINK_E_B_D,
+			position, reference, POINT_D, null,
+		L0,
+			# linear elastic, 0;
+			linear elastic, K*L0; # remember, the "rod" wants EA = K * L0
+
+	couple: LINK_O_F, absolute,
+		LINK_O_F,
+			position, reference, POINT_O, null,
+		0., 0., 1.,
+			# null;
+			const, TAU;
+
+/*
+drive caller: 0,
+	string, "model::element::body(LINK_O_F, \"E\") \
+		+ model::element::body(LINK_E_F, \"E\") \
+		+ model::element::body(LINK_H_E, \"E\") \
+		+ model::element::body(LINK_G_E, \"E\") \
+		+ model::element::body(LINK_A_G, \"E\") \
+		+ model::element::body(LINK_A_H, \"E\") \
+		+ model::element::body(LINK_E_B_D, \"E\")";
+drive caller: 1,
+	string, "K/2*(model::element::joint(POINT_D, \"L\") - L0)^2";
+
+drive caller: 2,
+	string, "TAU*(model::element::joint(POINT_O, \"rz\") - BETA0)";
+
+	force: POINT_C, absolute,
+		POINT_C,
+			position, null,
+		component,
+			reference, 0,
+			reference, 1,
+			reference, 2;
+*/
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

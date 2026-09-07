@@ -1,0 +1,155 @@
+begin: data;
+        problem: initial value; # the default
+end: data;
+
+begin: initial value;
+    threads: assembly, 1;
+
+        initial time: 0;
+        final time: 1;
+        time step: 1e-2;
+
+    max iterations: 300;
+    linear solver: umfpack, grad, scale, iterative, always, max iterations, 30;
+    nonlinear solver: nox, modified, 30, jacobian operator, newton krylov;
+        tolerance: 1e-8, test, norm;
+        derivatives tolerance: 1e-3, 1e-3;
+        derivatives max iterations: 20;
+        derivatives coefficient: 1e-6;
+    output: iterations;
+
+    dummy steps tolerance: 1e-6;
+    dummy steps max iterations: 300;
+    dummy steps number: 100;
+    dummy steps ratio: 1e-6;
+    dummy steps method: implicit euler;
+    method: msstc5, 0.6;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    print: dof description;
+    print: equation description;
+    output precision: 16;
+    use automatic differentiation;
+       tolerance: 1e-6;
+       max iterations: 30;
+        structural nodes: 5;
+        joints: 1;
+        genels: 12;
+        forces: 1;
+end: control data;
+
+reference: 1,
+    position, reference, global, 0., 0., 1.,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 2,
+    position, reference, global, 0.5, 0.5, 0.,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 3,
+    position, reference, global, -0.5, 0.5, 0.,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 4,
+    position, reference, global, -0.5, -0.5, 0.,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 5,
+    position, reference, global, 0.5, -0.5, 0.,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+begin: nodes;
+        structural: 1, static,
+                position, reference, 1, null,
+                orientation, reference, 1, eye,
+                velocity, reference, 1, 100., 100., 100.,
+                angular velocity, reference, 1, 100., 100., 100.,
+                assembly, 1, 1, no;
+
+        structural: 2, static displacement,
+                position, reference, 2, null,
+                velocity, reference, 2, -10., 20., 30.,
+                assembly, 1e0, 1e0;
+
+        structural: 3, static displacement,
+                position, reference, 3, null,
+                velocity, reference, 3, 100., 20., -30.,
+                assembly, 1e0, 1;
+
+        structural: 4, static displacement,
+                position, reference, 4, null,
+                velocity, reference, 4, -10., -20., 30.,
+                assembly, 1e0, 1;
+
+        structural: 5, static displacement,
+                position, reference, 5, null,
+                velocity, reference, 5, 100., -20., 30.,
+                assembly, 1e0, 1;
+
+        drive caller: 2, string, "sqrt((model::node::structural(1,\"X[1]\") - model::node::structural(2,\"X[1]\"))^2+(model::node::structural(1,\"X[2]\") - model::node::structural(2,\"X[2]\"))^2+(model::node::structural(1,\"X[3]\") - model::node::structural(2,\"X[3]\"))^2)", output, yes;
+        drive caller: 3, string, "sqrt((model::node::structural(1,\"X[1]\") - model::node::structural(3,\"X[1]\"))^2+(model::node::structural(1,\"X[2]\") - model::node::structural(3,\"X[2]\"))^2+(model::node::structural(1,\"X[3]\") - model::node::structural(3,\"X[3]\"))^2)", output, yes;
+        drive caller: 4, string, "sqrt((model::node::structural(1,\"X[1]\") - model::node::structural(4,\"X[1]\"))^2+(model::node::structural(1,\"X[2]\") - model::node::structural(4,\"X[2]\"))^2+(model::node::structural(1,\"X[3]\") - model::node::structural(4,\"X[3]\"))^2)", output, yes;
+        drive caller: 5, string, "sqrt((model::node::structural(1,\"X[1]\") - model::node::structural(5,\"X[1]\"))^2+(model::node::structural(1,\"X[2]\") - model::node::structural(5,\"X[2]\"))^2+(model::node::structural(1,\"X[3]\") - model::node::structural(5,\"X[3]\"))^2)", output, yes;
+
+        drive caller: 6, string, "(2.*(model::node::structural(1,\"X[1]\") - model::node::structural(2,\"X[1]\"))*(model::node::structural(1,\"XP[1]\") - model::node::structural(2,\"XP[1]\"))+2.*(model::node::structural(1,\"X[2]\") - model::node::structural(2,\"X[2]\"))*(model::node::structural(1,\"XP[2]\") - model::node::structural(2,\"XP[2]\"))+2.*(model::node::structural(1,\"X[3]\") - model::node::structural(2,\"X[3]\"))*(model::node::structural(1,\"XP[3]\") - model::node::structural(2,\"XP[3]\")))/(2.*sqrt((model::node::structural(1,\"X[1]\") - model::node::structural(2,\"X[1]\"))^2+(model::node::structural(1,\"X[2]\") - model::node::structural(2,\"X[2]\"))^2+(model::node::structural(1,\"X[3]\") - model::node::structural(2,\"X[3]\"))^2))", output, yes;
+        drive caller: 7, string, "(2.*(model::node::structural(1,\"X[1]\") - model::node::structural(3,\"X[1]\"))*(model::node::structural(1,\"XP[1]\") - model::node::structural(3,\"XP[1]\"))+2.*(model::node::structural(1,\"X[2]\") - model::node::structural(3,\"X[2]\"))*(model::node::structural(1,\"XP[2]\") - model::node::structural(3,\"XP[2]\"))+2.*(model::node::structural(1,\"X[3]\") - model::node::structural(3,\"X[3]\"))*(model::node::structural(1,\"XP[3]\") - model::node::structural(3,\"XP[3]\")))/(2.*sqrt((model::node::structural(1,\"X[1]\") - model::node::structural(3,\"X[1]\"))^2+(model::node::structural(1,\"X[2]\") - model::node::structural(3,\"X[2]\"))^2+(model::node::structural(1,\"X[3]\") - model::node::structural(3,\"X[3]\"))^2))", output, yes;
+        drive caller: 8, string, "(2.*(model::node::structural(1,\"X[1]\") - model::node::structural(4,\"X[1]\"))*(model::node::structural(1,\"XP[1]\") - model::node::structural(4,\"XP[1]\"))+2.*(model::node::structural(1,\"X[2]\") - model::node::structural(4,\"X[2]\"))*(model::node::structural(1,\"XP[2]\") - model::node::structural(4,\"XP[2]\"))+2.*(model::node::structural(1,\"X[3]\") - model::node::structural(4,\"X[3]\"))*(model::node::structural(1,\"XP[3]\") - model::node::structural(4,\"XP[3]\")))/(2.*sqrt((model::node::structural(1,\"X[1]\") - model::node::structural(4,\"X[1]\"))^2+(model::node::structural(1,\"X[2]\") - model::node::structural(4,\"X[2]\"))^2+(model::node::structural(1,\"X[3]\") - model::node::structural(4,\"X[3]\"))^2))", output, yes;
+        drive caller: 9, string, "(2.*(model::node::structural(1,\"X[1]\") - model::node::structural(5,\"X[1]\"))*(model::node::structural(1,\"XP[1]\") - model::node::structural(5,\"XP[1]\"))+2.*(model::node::structural(1,\"X[2]\") - model::node::structural(5,\"X[2]\"))*(model::node::structural(1,\"XP[2]\") - model::node::structural(5,\"XP[2]\"))+2.*(model::node::structural(1,\"X[3]\") - model::node::structural(5,\"X[3]\"))*(model::node::structural(1,\"XP[3]\") - model::node::structural(5,\"XP[3]\")))/(2.*sqrt((model::node::structural(1,\"X[1]\") - model::node::structural(5,\"X[1]\"))^2+(model::node::structural(1,\"X[2]\") - model::node::structural(5,\"X[2]\"))^2+(model::node::structural(1,\"X[3]\") - model::node::structural(5,\"X[3]\"))^2))", output, yes;
+end: nodes;
+
+begin: elements;
+         set: real vx = 1;
+         set: real vy = 0.5;
+         set: real vz = 0.3;
+         set: real dvx = -0.49;
+         set: real dvy = -0.49;
+         set: real omegay = 1 * pi;
+
+         genel: 1, clamp, 2, structural, 1, algebraic, string,  "0.5 * cos(omegay * Time) + (vx + dvx) * Time";
+         genel: 2, clamp, 2, structural, 2, algebraic, string,  "0.5 + (vy + dvy) * Time";
+         genel: 3, clamp, 2, structural, 3, algebraic, string,  "0.5 * sin(omegay * Time) + vz * Time";
+
+         genel: 4, clamp, 3, structural, 1, algebraic, string, "-0.5 * cos(omegay * Time) + (vx - dvx) * Time";
+         genel: 5, clamp, 3, structural, 2, algebraic, string,  "0.5 + (vy + dvy) * Time";
+         genel: 6, clamp, 3, structural, 3, algebraic, string,  "-0.5 * sin(omegay * Time) + vz * Time";
+
+         genel: 7, clamp, 4, structural, 1, algebraic, string, "-0.5 * cos(omegay * Time) + (vx - dvx) * Time";
+         genel: 8, clamp, 4, structural, 2, algebraic, string, "-0.5 + (vy - dvy) * Time";
+         genel: 9, clamp, 4, structural, 3, algebraic, string,  "-0.5 * sin(omegay * Time) + vz * Time";
+
+         genel: 10, clamp, 5, structural, 1, algebraic, string,  "0.5 * cos(omegay * Time) + (vx + dvx) * Time";
+         genel: 11, clamp, 5, structural, 2, algebraic, string, "-0.5 + (vy - dvy) * Time";
+         genel: 12, clamp, 5, structural, 3, algebraic, string,  "0.5 * sin(omegay * Time) + vz * Time";
+
+         joint: 1, rigid body displacement joint,
+                1, 4,
+                2, position, reference, 2,  0.1,  0.1, -0., weight, 1.,
+                3, position, reference, 3, -0.1,  0.1, -0., weight, 1.,
+                4, position, reference, 4, -0.1, -0.1, -0., weight, 1.,
+                5, position, reference, 5,  0.1, -0.1, -0., weight, 1.;
+
+         force: 1, absolute, 1,
+                position, reference, global, 0., 0., 2.,
+                component,
+                        mult, time, 1.,
+                        const, 0.,
+                        const, 0.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

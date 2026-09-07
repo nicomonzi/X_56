@@ -1,0 +1,11 @@
+
+comp_name = right_wing
+geo_file = wing_right.in
+ref_tag = Dynamic
+
+comp_name = left_wing
+geo_file = wing_left.in
+ref_tag = Dynamic
+
+file_name = geo_input.h5 
+

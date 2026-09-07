@@ -1,0 +1,68 @@
+begin: data;
+        problem: initial value;
+end: data;
+
+begin: initial value;
+        initial time: 0.;
+        time step: 1e-04;
+        final time: 5;
+
+        tolerance: 1e-3, 1e-6;
+        max iterations: 50;
+
+        threads: disable;
+
+        method: ms, .6;
+
+        # linear solver: umfpack, cc;
+        # linear solver: naive, colamd;
+        linear solver: umfpack, cc, scale, iterative, always, max iterations, 10;
+        derivatives tolerance: 1e-3, 1e-3;
+        derivatives max iterations: 10;
+        derivatives coefficient: auto;
+        output: iterations, cpu time, solver condition number, stat, yes;
+        # output: residual;
+        # output: jacobian;
+threads: disable;
+end: initial value;
+
+include: "cylinder_mxn.set";
+include: "cylinder_mxn.ref";
+
+begin: control data;
+        # skip initial joint assembly;
+        structural nodes:
+                NNODES
+        ;
+        rigid bodies:
+                + NBODIES
+        ;
+        joints:
+                + NJOINTS
+        ;
+        plates:
+                + NSHELLS
+        ;
+        forces:
+                + NFORCES
+        ;
+        default orientation: euler 123;
+end: control data;
+
+begin: nodes;
+        include: "cylinder_mxn.nod";
+end: nodes;
+
+begin: elements;
+        include: "cylinder_mxn.elm";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

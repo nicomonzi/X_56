@@ -1,0 +1,46 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 2.e-3;
+
+	method: ms, .6;
+	tolerance: 1.e-6;
+	max iterations: 20;
+
+	newton raphson: modified, 4;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 0;
+	electric nodes: 0;
+	thermal nodes: 2;
+	joints: 0;
+	rigid bodies: 0;
+	electric elements: 0;
+	thermal elements: 3;
+
+	print: dof stats;
+end: control data;
+
+begin: nodes;
+	thermal: 1, value, 1.;
+	thermal: 2, value, 2.;
+end: nodes;
+
+begin: elements;
+	thermal: 1, capacitance, 1, 2.;
+	thermal: 2, capacitance, 2, 1.;
+	thermal: 3, resistance, 1, 2, 1.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

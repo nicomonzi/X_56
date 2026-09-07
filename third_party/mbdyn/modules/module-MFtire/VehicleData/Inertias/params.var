@@ -1,0 +1,18 @@
+set: ( # Bodies inertia
+
+	const real ms   = 217.;		# Chassis mass
+	const real xCOG = 0.754;	# Chassis COG height
+	const real yCOG = 0.;		# Chassis COG height
+	const real zCOG = 0.278;	# Chassis COG height
+	const real Jxx  = 15.4;		# Chassis Jxx
+	const real Jyy  = 104.3;	# Chassis Jyy
+	const real Jzz  = 104.1;	# Chassis Jzz
+	const real Jyz	= -0.0406;	# Chassis Jyz
+	const real Jxz	= +0.1706;	# Chassis Jzx
+	const real Jxy	= -0.1647;	# Chassis Jxy
+	const real mus  = 12.;		# Wheel mass
+	const real Jusx = 0.0840;	# Wheel Jxx
+	const real Jusy = 0.1296;	# Wheel Jyy
+	const real Jusz = 0.0843	# Wheel Jzz
+
+);

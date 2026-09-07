@@ -1,0 +1,246 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/plates/sze2004/sze31/sze31_8x1,v 1.11 2017/01/12 15:08:05 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Benchmarks from K.Y. Sze, X.H. Liu, S.H. Lo,
+# "Popular benchmark problems for geometric nonlinear analysis of shells",
+# Finite Elements in Analysis and Design 40 (2004) 1551­1569
+# doi:10.1016/j.finel.2003.11.001
+# 
+# Author: Pierangelo Masarati <masarati@aero.polimi.it> (except when noted)
+# 
+# 3.1 Cantilever subjected to end shear force
+#
+# 8x1 mesh
+
+begin: data;
+	problem: initial value;
+end: data;
+
+set: const integer NINC = 15;
+
+begin: initial value;
+	initial time: 0.;
+	final time: .99;
+	time step: 1./NINC;
+
+	tolerance: 1e-8;
+	max iterations: 50;
+
+	method: ms, .6;
+
+	output: iterations;
+        derivatives max iterations: 10;
+        derivatives coefficient: auto;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+ (1 + 8)*2
+	;
+	joints:
+		+ 2
+	;
+	plates:
+		+ 8
+	;
+	forces:
+		+ 2
+	;
+end: control data;
+
+set: const real E = 1.2e6;
+set: const real nu = 0.;
+set: const real L = 10.;
+set: const real b = 1.;
+set: const real h = 0.1;
+set: const real P0 = 1.;
+set: const real PMAX = 4*P0;
+
+reference: 0,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: 100,
+	reference, 0, 0., -b/2, 0.,
+	reference, 0, eye,
+	reference, 0, null,
+	reference, 0, null;
+
+reference: 200,
+	reference, 0, 0., b/2, 0.,
+	reference, 0, eye,
+	reference, 0, null,
+	reference, 0, null;
+
+begin: nodes;
+	structural: 100, static,
+		reference, 100, 0., 0., 0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+	structural: 101, static,
+		reference, 100, 1./8.*L, 0., 0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+	structural: 102, static,
+		reference, 100, 2./8.*L, 0., 0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+	structural: 103, static,
+		reference, 100, 3./8.*L, 0., 0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+	structural: 104, static,
+		reference, 100, 4./8.*L, 0., 0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+	structural: 105, static,
+		reference, 100, 5./8.*L, 0., 0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+	structural: 106, static,
+		reference, 100, 6./8.*L, 0., 0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+	structural: 107, static,
+		reference, 100, 7./8.*L, 0., 0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+	structural: 199, static,
+		reference, 100, 8./8.*L, 0., 0.,
+		reference, 100, eye,
+		reference, 100, null,
+		reference, 100, null;
+
+	structural: 200, static,
+		reference, 200, 0., 0., 0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+	structural: 201, static,
+		reference, 200, 1./8.*L, 0., 0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+	structural: 202, static,
+		reference, 200, 2./8.*L, 0., 0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+	structural: 203, static,
+		reference, 200, 3./8.*L, 0., 0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+	structural: 204, static,
+		reference, 200, 4./8.*L, 0., 0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+	structural: 205, static,
+		reference, 200, 5./8.*L, 0., 0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+	structural: 206, static,
+		reference, 200, 6./8.*L, 0., 0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+	structural: 207, static,
+		reference, 200, 7./8.*L, 0., 0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+	structural: 299, static,
+		reference, 200, 8./8.*L, 0., 0.,
+		reference, 200, eye,
+		reference, 200, null,
+		reference, 200, null;
+end: nodes;
+
+begin: elements;
+	joint: 100, clamp, 100, node, node;
+	joint: 200, clamp, 200, node, node;
+
+	shell4easans: 1,
+		201, 200, 100, 101,
+		isotropic, E, E, nu, nu, thickness, h;
+	shell4easans: 2,
+		202, 201, 101, 102,
+		isotropic, E, E, nu, nu, thickness, h;
+	shell4easans: 3,
+		203, 202, 102, 103,
+		isotropic, E, E, nu, nu, thickness, h;
+	shell4easans: 4,
+		204, 203, 103, 104,
+		isotropic, E, E, nu, nu, thickness, h;
+	shell4easans: 5,
+		205, 204, 104, 105,
+		isotropic, E, E, nu, nu, thickness, h;
+	shell4easans: 6,
+		206, 205, 105, 106,
+		isotropic, E, E, nu, nu, thickness, h;
+	shell4easans: 7,
+		207, 206, 106, 107,
+		isotropic, E, E, nu, nu, thickness, h;
+	shell4easans: 8,
+		299, 207, 107, 199,
+		isotropic, E, E, nu, nu, thickness, h;
+
+	force: 100, absolute,
+		199,
+		position, null,
+		0., 0., 1.,
+			cosine, 0., pi/1., (PMAX/2)/2, half, 0.;
+	force: 200, absolute,
+		299,
+		position, null,
+		0., 0., 1.,
+			cosine, 0., pi/1., (PMAX/2)/2, half, 0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

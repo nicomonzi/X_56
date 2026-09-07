@@ -1,0 +1,81 @@
+$-------------------------------------------------------------------------- 
+$ BLADE MODAL ANALYSIS WITH PRESTRESS FOR MBDYN
+$--------------------------------------------------------------------------
+$
+$ Updated for MSC Nastran 2024.1
+$ NASTRAN model of an articulated blade with control chain, originally                    
+$ developed for the Rotorcraft Design course at Politecnico di Milano. 
+$ The blade is modelled with shell elements (CQUAD4) using isotropic and  
+$ orthotropic materials. A uniform balancing mass is applied along the 
+$ blade span using a CBAR element without stiffness. 
+$ The centrifugal load is applied using RFORCE elements to simulate the 
+$ prestress due to rotation at 100% RPM. A SOL 106 is performed and at 
+$ the end the modal mass and stiffness matrices are extracted for MBDyn 
+$ using a custom ALTER. Modal shapes and static displacements are outputted 
+$ in standard OP2 format for use with femgen. 
+$
+$ USAGE
+$ Add the following lines to your BDF file:
+$
+$ INCLUDE 'MBDyn_NASTRAN_alter_SOL106_2024.nas' 
+$ 
+$ DISPLACEMENT(PLOT) = ALL $ Output displacements to .op2
+$ VECTOR(PLOT) = ALL $ Output eigenvectors to .op2 
+$ PARAM, OGEOM, YES $ Ensure GEOM1 in OP2 for femgen 
+$ PARAM, POST, -1    $ Ensure OUG1 in OP2 for femgen
+$ 
+$ Author: Alessandro Cocco 
+$          <alessandro.cocco@polimi.it>
+$         Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+
+
+INCLUDE 'MBDyn_NASTRAN_alter_SOL106_2024.nas'
+CEND
+  TITLE = Blade modal Analysis with Prestress for MBDyn 
+  ECHO = NONE
+  DISPLACEMENT(PLOT) = ALL
+  VECTOR(PLOT) = ALL $ Output eigenvectors to .op2
+  SUBCASE = 1 $ 100% RPM - Test case
+    LOAD = 11
+    METHOD = 1
+    SPC = 1
+    NLPARM = 1
+
+BEGIN BULK
+
+NLPARM,1,1,,ITER,1
+
+PARAM, TINY, 0.999
+PARAM, PRGPST, YES
+PARAM, LGDISP, 1
+PARAM, POST, -1   
+PARAM, OGEOM, YES $ Ensure GEOM1 in OP2 for femgen 
+PARAM, AUTOSPC, YES
+PARAM, K6ROT, 100.
+PARAM, MAXRATIO, 1.+17
+PARAM, GRDPNT, 0
+PARAM, NMLOOP, 1 
+PARAM, TESTNEG, 1 
+
+$ Eigenanalysis settings: mass normalized modes up to 100 Hz 
+EIGRL          1            100.       6       0                    MASS
+
+$  Centrifugal forces applied via RFORCE elements
+$									HUB NODE        OMEGA (RAD/S)            Z AXIS
+RFORCE         1    4007       0      0.      0.      0.      1.       2
+RFORCE         2    4007       0   0.637      0.      0.      1.       2
+RFORCE         3    4007       0   1.274      0.      0.      1.       2
+RFORCE         4    4007       0   1.911      0.      0.      1.       2
+RFORCE         5    4007       0   2.548      0.      0.      1.       2
+RFORCE         6    4007       0   3.185      0.      0.      1.       2
+RFORCE         7    4007       0   3.822      0.      0.      1.       2
+RFORCE         8    4007       0   4.459      0.      0.      1.       2
+RFORCE         9    4007       0   5.096      0.      0.      1.       2
+RFORCE        10    4007       0   5.733      0.      0.      1.       2
+RFORCE        11    4007       0    6.37      0.      0.      1.       2 	$100%RPM
+RFORCE        12    4007       0   7.007      0.      0.      1.       2
+RFORCE        13    4007       0   7.644      0.      0.      1.       2
+
+INCLUDE, 'blade_nast.blk' 
+
+ENDDATA

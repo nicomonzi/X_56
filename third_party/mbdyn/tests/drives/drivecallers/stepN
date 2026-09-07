@@ -1,0 +1,74 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2023
+# 
+# Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+# Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-2;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	joints: 1;
+	forces: 2;
+end: control data;
+
+begin: nodes;
+	structural: 1, static, null, eye, null, null;
+end: nodes;
+
+drive caller: 5, step5, 0.1, 1, 0.9, 4;
+drive caller: 7, step7, 0.1, 1, 0.9, 4;
+drive caller: 9, step9, 0.1, 1, 0.9, 4;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+
+	force: 1, absolute, 1, position, null, component,
+		### x
+		step5, 0.1, 1, 0.9, 4,		# direct call to step5
+		### y
+		reference, 7,			# reference call to step7
+		### z
+		string, "model::drive(9)";	# model namespace call to step9
+
+	couple: 2, absolute, 1, position, null, component,
+		### x
+		string, "model::drivep(5)",	# model namespace call to step5 derivative
+		### y
+		string, "model::drivep(7)",	# model namespace call to step7 derivative
+		### z
+		string, "model::drivep(9)";	# model namespace call to step9 derivative
+end: elements;
+
+# vim:ft=mbd

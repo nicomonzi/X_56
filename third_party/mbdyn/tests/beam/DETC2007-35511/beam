@@ -1,0 +1,213 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/beam/DETC2007-35511/beam,v 1.3 2009/08/21 13:55:12 masarati Exp $
+#
+# Copyright 2009 Pierangelo Masarati <masarati@aero.polimi.it>
+#
+# Space manipulator based on DETC2007-35511
+# Proceedings of IDETC/CIE 2007
+# ASME 2007 International Design Engineering Technical Conferences &
+# Computers and Information in Engineering Conference
+# September 4-7, 2007, Las Vegas, USA
+# INVESTIGATION OF BOUNDARY CONDITIONS FOR FLEXIBLE MULTIBODY
+# SPACECRAFT DYNAMICS (DRAFT VERSION)
+# John R. MacLean
+# An Huynh
+# Leslie J. Quiocho
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1e-3;
+
+	linear solver: naive, colamd;
+	nonlinear solver: newton raphson, modified, 5;
+
+	method: ms, .6;
+
+	tolerance: 1e-4;
+	max iterations: 50;
+
+	derivatives tolerance: 1e-4;
+	derivatives max iterations: 10;
+
+	eigenanalysis: 0.,
+		use lapack,
+		lower frequency limit, 1e-3,
+		upper frequency limit, 20,
+		balance, permute,
+		output eigenvectors;
+
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+set: integer NBEAMS = 5;
+# set: integer NBEAMS = 10;
+
+begin: control data;
+	structural nodes:
+		+1		# ground
+		+1		# pin
+		+2*NBEAMS
+	;
+	rigid bodies:
+		+3*NBEAMS
+		+1		# tip
+	;
+	beams:
+		+NBEAMS
+	;
+	joints:
+		+1		# ground clamp
+		+1		# pin
+	;
+	forces:
+		+1		# torque
+	;
+end: control data;
+
+set: integer GROUND = 0;
+set: integer PIN = 1000;
+set: integer TIP = PIN + 2*NBEAMS;
+
+set: real RHO = 2.82;		# kg/m
+set: real EI = 5.974^2*RHO;	# Nm^2
+set: real L = 3.372;		# m
+set: real M_TIP = 5.18*RHO*L;	# kg
+
+set: real DL = L/(2.*NBEAMS);
+set: real DM = RHO*DL;
+set: real DJ = 1e-9;
+
+set: real EA = 1e9;
+set: real GA = EA;
+set: real GJ = 1e2*EI;
+set: real EIY = 1e6*EI;
+
+# set: real COUPLE = 44.;	# Nm, according to the plot
+# set: real COUPLE = 44./9.81;	# Nm, more likely but apparently not yet
+set: real COUPLE = 4.85;	# Nm, more likely but apparently not yet
+
+remark: "EI", EI;
+
+set: integer CURR_BEAM;
+
+reference: GROUND,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: PIN,
+	reference, GROUND, null,
+	reference, GROUND, eye,
+	reference, GROUND, null,
+	reference, GROUND, null;
+
+reference: TIP,
+	reference, PIN, L, 0., 0.,
+	reference, PIN, eye,
+	reference, PIN, null,
+	reference, PIN, null;
+
+begin: nodes;
+	structural: GROUND, static,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: PIN, dynamic,
+		reference, PIN, null,
+		reference, PIN, eye,
+		reference, PIN, null,
+		reference, PIN, null;
+
+	set: CURR_BEAM = 1;
+	include: "beam.nod";
+	set: CURR_BEAM = 2;
+	include: "beam.nod";
+	set: CURR_BEAM = 3;
+	include: "beam.nod";
+	set: CURR_BEAM = 4;
+	include: "beam.nod";
+	set: CURR_BEAM = 5;
+	include: "beam.nod";
+
+/*
+	set: CURR_BEAM = 6;
+	include: "beam.nod";
+	set: CURR_BEAM = 7;
+	include: "beam.nod";
+	set: CURR_BEAM = 8;
+	include: "beam.nod";
+	set: CURR_BEAM = 9;
+	include: "beam.nod";
+	set: CURR_BEAM = 10;
+	include: "beam.nod";
+*/
+end: nodes;
+
+begin: elements;
+	joint: GROUND, clamp, GROUND, node, node;
+
+	joint: PIN, revolute hinge,
+		GROUND,
+			reference, PIN, null,
+			hinge, reference, PIN, eye,
+		PIN,
+			reference, PIN, null,
+			hinge, reference, PIN, eye;
+
+	set: CURR_BEAM = 1;
+	include: "beam.elm";
+	set: CURR_BEAM = 2;
+	include: "beam.elm";
+	set: CURR_BEAM = 3;
+	include: "beam.elm";
+	set: CURR_BEAM = 4;
+	include: "beam.elm";
+	set: CURR_BEAM = 5;
+	include: "beam.elm";
+
+/*
+	set: CURR_BEAM = 6;
+	include: "beam.elm";
+	set: CURR_BEAM = 7;
+	include: "beam.elm";
+	set: CURR_BEAM = 8;
+	include: "beam.elm";
+	set: CURR_BEAM = 9;
+	include: "beam.elm";
+	set: CURR_BEAM = 10;
+	include: "beam.elm";
+*/
+
+	body: TIP, TIP,
+		M_TIP,
+		reference, node, null,
+		null;
+
+	couple: PIN, follower internal,
+		GROUND,
+			position, null,
+		PIN,
+			position, null,
+		0., 0., 1.,
+		array, 6,
+			double step, 0., 1.5, -COUPLE, 0.,
+			double step, 1.5, 3.,  COUPLE, 0.,
+			double step, 3., 3.5, -COUPLE, 0.,
+			double step, 3.5, 4.,  COUPLE, 0.,
+			double step, 4., 4.5, -COUPLE, 0.,
+			double step, 4.5, 5.,  COUPLE, 0.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

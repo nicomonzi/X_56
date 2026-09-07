@@ -1,0 +1,42 @@
+{
+  "model": {
+    "baseline_fem": "../../assets/fem/mbdyn_modal_60.fem",
+    "baseline_fem_sha256": "63e23dc991d2f458d7665412abda8ad34ddbb1654822bfc0867e6512a1df252b",
+    "basis_id": "x56_mbdyn_modal_60_phi0_modes_7_12",
+    "selected_modes": [7, 8, 9, 10, 11, 12],
+    "baseline_load_factor": 1.0,
+    "modal_joint": "MODAL_JOINT",
+    "base_node": "BASE_NODE"
+  },
+  "matrix_cases": [
+    {"load_factor": 1.0, "directory": "matrices/n1p0"},
+    {"load_factor": 1.6, "directory": "matrices/n1p6"}
+  ],
+  "fit": {
+    "load_factor_definition": "nominal_maneuver_class",
+    "symmetry_relative_tolerance": 1e-08,
+    "baseline_match_warning_relative": 0.05,
+    "linearity_warning_relative": 0.05
+  },
+  "mbdyn": {
+    "force_label": "PRESTRESS_ROM_FORCE",
+    "force_numeric_label": 9503,
+    "delta_n_drive": "PRESTRESS_DELTA_N_DRIVE",
+    "drive_numeric_labels": {
+      "PRESTRESS_DELTA_N_DRIVE": 13021,
+      "PRESTRESS_ROLL_DRIVE": 13022,
+      "PRESTRESS_PITCH_DRIVE": 13023,
+      "PRESTRESS_BODY_AZ_DRIVE": 13024
+    },
+    "load_factor_source": "commanded",
+    "q_equilibrium_constants": ["Q_INIT_7", "Q_INIT_8", "Q_INIT_9", "Q_INIT_10", "Q_INIT_11", "Q_INIT_12"]
+  },
+  "nastran": {
+    "case_output_directory": "/home/nicomonzi/ZENO/prestress_stiffness_rom",
+    "alter_sol103": "/home/nicomonzi/src/mbdyn/etc/modal.d/MBDyn_NASTRAN_alter_SOL103_2024.nas",
+    "source_cases": [
+      {"load_factor": 1.0, "directory": "/home/nicomonzi/ZENO/prestress_loads/n1p0"},
+      {"load_factor": 1.6, "directory": "/home/nicomonzi/ZENO/prestress_loads/n1p6"}
+    ]
+  }
+}

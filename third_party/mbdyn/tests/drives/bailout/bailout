@@ -1,0 +1,71 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/drives/bailout/bailout,v 1.1 2008/06/17 16:26:16 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: forever;
+	time step: 1.e-2;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes: 2;
+	genels: 2;
+	forces: 2;
+	file drivers: 1;
+end: control data;
+
+begin: nodes;
+	abstract: 1;
+	abstract: 2;
+end: nodes;
+
+begin: drivers;
+	file: 1, fixed step, 
+		count,
+		1,
+		0.,
+		1.e-2,
+		bailout, any,
+		"bailout.drv";
+end: drivers;
+
+begin: elements;
+	genel: 1, spring support,
+		1, abstract, algebraic,
+		linear elastic, 1.;
+	force: 1, abstract,
+		1, abstract,
+		drive,
+			string, "(Var>0.)*Var",
+			sine, 0., 2*pi/.2, 10., forever, 0.;
+
+	genel: 2, spring support,
+		2, abstract, algebraic,
+		linear elastic, 1.;
+	set: real v;
+	force: 2, abstract,
+		2, abstract,
+		# string, "v=sin(5.*2*pi*Time);10.*v*(v>0.)";
+		/*
+		fourier series,
+			.1,			# initial time
+			3.*2*pi,		# omega
+			2,			# truncation
+				3.,		# a_0
+				.5, 0.,		# a_1, b_1
+				0., .2,		# a_2, b_2
+			forever,		# number of cycles
+			5.;			# initial value
+		*/
+		file, 1, 1;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

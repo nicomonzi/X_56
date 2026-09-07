@@ -1,0 +1,503 @@
+/* 
+ * MBDyn (C) is a multibody analysis code. 
+ * http://www.mbdyn.org
+ *
+ * Copyright (C) 1996-2012
+ *
+ * Pierangelo Masarati	<masarati@aero.polimi.it>
+ * Paolo Mantegazza	<mantegazza@aero.polimi.it>
+ *
+ * Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+ * via La Masa, 34 - 20156 Milano, Italy
+ * http://www.aero.polimi.it
+ *
+ * Changing this copyright notice is forbidden.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation (version 2 of the License).
+ * 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ AUTHOR: Reinhard Resch <mbdyn-user@a1.net>
+        Copyright (C) 2011(-2025) all rights reserved.
+
+        The copyright of this code is transferred
+        to Pierangelo Masarati and Paolo Mantegazza
+        for use in the software MBDyn as described
+        in the GNU Public License version 2.1
+*/
+
+set: integer node_id_rotor 		 = 1001;
+set: integer node_id_stator		 = 1002;
+set: integer hyd_node_id_inlet_p         = 1003;
+set: integer hyd_node_id_outlet_p1       = 1004;
+set: integer hyd_node_id_outlet_p2       = 1005;
+set: integer therm_node_id_inlet_T       = 1006;
+set: integer therm_node_id_outlet_T1     = 1007;
+set: integer therm_node_id_outlet_T2     = 1008;
+set: integer therm_node_id_shaft_T       = 1009;
+set: integer therm_node_id_bearing_T     = 1010;
+set: integer joint_id_rotor 		 = 3001;
+set: integer joint_id_stator 		 = 3002;
+
+set: integer elem_id_bearing		 = 4001;
+set: integer genel_id_inlet_p            = 4002;
+set: integer genel_id_outlet_p1          = 4003;
+set: integer genel_id_outlet_p2          = 4004;
+set: integer genel_id_inlet_T            = 4005;
+set: integer genel_id_outlet_T1          = 4006;
+set: integer genel_id_outlet_T2          = 4007;
+set: integer genel_id_shaft_T            = 4008;
+set: integer genel_id_bearing_T          = 4009;
+set: integer ref_id_bearing              = 5000;
+set: integer ref_id_rotor 		 = 5001;
+set: integer ref_id_stator 		 = 5002;
+
+set: integer drive_id_bearing_Pff = 8005;
+set: integer drive_id_bearing_Pfc = 8006;
+set: integer drive_id_bearing_max_p = 8007;
+set: integer drive_id_bearing_max_pc = 8008;
+set: integer drive_id_bearing_min_h = 8009;
+set: integer drive_id_bearing_min_rho = 8010;
+set: integer drive_id_bearing_max_rho = 8011;
+set: integer drive_id_bearing_min_T = 8012;
+set: integer drive_id_bearing_max_T = 8013;
+set: integer drive_id_bearing_mean_T = 8014;
+
+set: bool f_translate = FALSE;
+set: bool f_rotate = FALSE;
+
+set: real omega1z = 2 * pi * 50;
+set: real omega2z = 0;
+set: real v1z = 0;
+set: real v2z = 0;
+set: real n = 0.1;
+set: integer K = 100;
+set: real t1 = 2 * pi * n / omega1z;
+set: real dt = t1 / (n * K);
+
+set: real d1 = 8.5e-3;
+set: real D2 = 8.52e-3;
+set: real B = 8e-3;
+set: real chamfer_dr = 0.5e-3;
+set: real chamfer_dz = 0.5e-3;
+set: real eta = 2.5e-3;
+set: integer M = 25;
+set: integer N = 100;
+
+set: real Tref = 0;
+set: real p0 = 0.01e5;
+set: real T0 = Tref + 50;
+set: real eta0 = 0.002080141;
+set: real Aeta2 = 3.408E+05;
+set: real Aeta3 = 4556.6;
+set: real rho0 = 900;
+set: real gamma = 1.215e-3;
+set: real beta = 2.4e9;
+set: real cp0 = 1.71e6 / rho0;
+set: real Ac1 = 0.47e-9;
+set: real Ac2 = 0.81e-9;
+set: real Ac3 = 9.3e-4;
+set: real Ac4 = 1.4e-9;
+set: real Ac5 = -0.51e-18;
+set: real lambda0 = 0.137;
+set: real Alambda = 2.96e-4;
+
+set: real p_outlet1 = p0;
+set: real p_outlet2 = p0;
+set: real T_outlet1 = Tref + 40;
+set: real T_outlet2 = Tref + 40;
+set: real p_inlet = p0;
+set: real T_inlet = Tref + 40;
+set: real T_shaft = Tref + 60;
+set: real T_bearing = Tref + 60;
+set: real epsilon_t0 = 0.9;
+set: real epsilon_t1 = epsilon_t0;
+set: real gamma_t0 = 0;
+set: real gamma_t1 = 0;
+set: real delta_t0 = pi;
+set: real delta_t1 = pi;
+
+set: real Phi1x_t0 = atan(gamma_t0 * (D2 - d1) / B);
+set: real Phi1x_t1 = atan(gamma_t1 * (D2 - d1) / B);
+set: real omega1x = (Phi1x_t1 - Phi1x_t0) / t1;
+
+set: real epsilon_dot = (epsilon_t1 - epsilon_t0) / t1;
+set: real delta_dot = (delta_t1 - delta_t0) / t1;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+
+       dummy steps tolerance: 1e-4;
+       dummy steps max iterations: 100;
+       dummy steps number: 100;
+       dummy steps ratio: 1e-2;
+       dummy steps method: implicit euler;
+
+	initial time: 0;
+	final time: t1 + 3 * dt;
+	time step: dt;
+	max iterations: 100;
+	tolerance: 1e-4, test, minmax, 1e-4, test, minmax;
+
+    linear solver: umfpack, map, colamd, scale, row max column max, always, max iterations, 10;
+    set: real enable_mcp = TRUE;
+    nonlinear solver: mcp newton min fb;
+    method: implicit euler;
+    threads: disable;
+    output: messages;
+    derivatives tolerance: 5e-5, 1e-2;
+    derivatives max iterations: 30;
+    derivatives coefficient: 0.1, auto;	## for compressible fluid
+    output: iterations, solver condition number, stat, yes;
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+    skip initial joint assembly;
+    max iterations: 30;
+    initial stiffness: 1e12;
+    tolerance: 1e-6;
+    output meter: closest next, t1, forever, const, dt;
+    use: loadable elements, in assembly;
+    default orientation: euler123;
+	structural nodes: 2;
+    hydraulic nodes: 3;
+    thermal nodes: 5;
+    genels: 8;
+	joints: 2;
+	loadable elements: 1;
+	print: dof stats, to file;
+	print: equation description;
+	print: dof description, to file;
+	print: element connection, to file;
+	print: node connection, to file;	
+    output precision: 8;
+use automatic differentiation;
+end: control data;
+
+reference: ref_id_bearing,
+	reference, global, 150e-3*f_translate, -250e-3*f_translate, 800e-3*f_translate,
+	reference, global, euler123, 30.*pi/180.*f_rotate, 45.*pi/180.*f_rotate, 280.*pi/180.*f_rotate,
+	reference, global, null,
+	reference, global, null;
+
+# X1 = (D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * cos(delta_t0 + delta_dot * Time)
+# X2 = (D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * sin(delta_t0 + delta_dot * Time)
+
+# XP1 = (D2 - d1) / 2 * (epsilon_dot * cos(delta_t0) - epsilon_t0 * sin(delta_t0) * delta_dot);
+# X2P = (D2 - d1) / 2 * (epsilon_dot * sin(delta_t0) + epsilon_t0 * cos(delta_t0) * delta_dot);
+
+reference: ref_id_rotor,
+	reference, ref_id_bearing, 
+        (D2 - d1) / 2 * epsilon_t0 * cos(delta_t0), 
+        (D2 - d1) / 2 * epsilon_t0 * sin(delta_t0), 
+        0.,
+	reference, ref_id_bearing, euler123, 
+        Phi1x_t0, 
+        0., 
+        0.,
+	reference, ref_id_bearing, 
+        (D2 - d1) / 2 * (epsilon_dot * cos(delta_t0) - epsilon_t0 * sin(delta_t0) * delta_dot),
+        (D2 - d1) / 2 * (epsilon_dot * sin(delta_t0) + epsilon_t0 * cos(delta_t0) * delta_dot),
+        v1z,
+	reference, ref_id_bearing, 
+        omega1x, 
+        0., 
+        omega1z;
+
+reference: ref_id_stator,
+	reference, ref_id_bearing, null,
+	reference, ref_id_bearing, eye,
+	reference, ref_id_bearing, 
+        0., 
+        0., 
+        v2z,
+	reference, ref_id_bearing, 
+        0.,
+        0.,
+        omega2z;
+
+begin: nodes;
+	structural: node_id_rotor, static,
+		# position
+		reference, ref_id_rotor, 700e-3*f_translate, 800e-3*f_translate, 300e-3*f_translate,
+		# orientation
+		reference, ref_id_rotor, euler123, 15.*pi/180.*f_rotate, 30.*pi/180.*f_rotate, 80.*pi/180.*f_rotate,
+		# velocity
+		reference, ref_id_rotor, null,
+		# angular velocity
+		reference, ref_id_rotor, null,
+                assembly, 1e13, 1e13, yes;
+				
+	structural: node_id_stator, static,
+		# position
+		reference, ref_id_stator, 170e-3*f_translate, -300e-3*f_translate, 240e-3*f_translate,
+		# orientation
+		reference, ref_id_stator, euler123, -15. * pi / 180.*f_rotate, 45. * pi /180.*f_rotate, 60. * pi / 180.*f_rotate,
+		# velocity
+		reference, ref_id_stator, null,
+		# angular velocity
+		reference, ref_id_stator, null,
+                assembly, 1e13, 1e13, yes;		
+
+    hydraulic: hyd_node_id_inlet_p, value, p_inlet;
+    hydraulic: hyd_node_id_outlet_p1, value, p_outlet1;
+    hydraulic: hyd_node_id_outlet_p2, value, p_outlet2;
+    thermal: therm_node_id_inlet_T, value, T_inlet;
+    thermal: therm_node_id_outlet_T1, value, T_outlet1;
+    thermal: therm_node_id_outlet_T2, value, T_outlet2;
+    thermal: therm_node_id_shaft_T, value, T_shaft;
+    thermal: therm_node_id_bearing_T, value, T_bearing;
+end: nodes;
+
+begin: elements;		
+	joint: joint_id_rotor, total pin joint,
+		node_id_rotor,
+			position, reference, ref_id_rotor, null,
+			position orientation, reference, ref_id_rotor, eye,
+			rotation orientation, reference, ref_id_rotor, eye,
+		position, reference, ref_id_bearing, null,
+		position orientation, reference, ref_id_bearing, eye,
+		rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            string, "(D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * cos(delta_t0 + delta_dot * Time)",
+            string, "(D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * sin(delta_t0 + delta_dot * Time)",
+            mult, const, v1z,
+                  time,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            array, 2, 
+                const, Phi1x_t0,
+                mult, const, omega1x, time,
+            const, 0.,
+            mult, const, omega1z, 
+                  time;
+
+	joint: joint_id_stator, total pin joint,
+		node_id_stator,
+			position, reference, ref_id_stator, null,
+			position orientation, reference, ref_id_stator, eye,
+			rotation orientation, reference, ref_id_stator, eye,
+		position, reference, ref_id_bearing, null,
+		position orientation, reference, ref_id_bearing, eye,
+		rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            const, 0.,
+            const, 0.,
+            mult, const, v2z,
+                  time,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            const, 0.,
+            const, 0.,
+            mult, const, omega2z, 
+                  time;
+
+    genel: genel_id_inlet_p, clamp,
+        hyd_node_id_inlet_p, hydraulic, p_inlet;
+
+    genel: genel_id_inlet_T, clamp,
+        therm_node_id_inlet_T, thermal, algebraic, T_inlet;
+        
+    genel: genel_id_outlet_p1, clamp,
+        hyd_node_id_outlet_p1, hydraulic, p_outlet1;
+
+    genel: genel_id_outlet_p2, clamp,
+        hyd_node_id_outlet_p2, hydraulic, p_outlet2;
+
+    genel: genel_id_outlet_T1, clamp,
+        therm_node_id_outlet_T1, thermal, algebraic, T_outlet1;
+
+    genel: genel_id_outlet_T2, clamp,
+        therm_node_id_outlet_T2, thermal, algebraic, T_outlet2;
+
+    genel: genel_id_shaft_T, clamp,
+        therm_node_id_shaft_T, thermal, algebraic, T_shaft;
+
+
+    genel: genel_id_bearing_T, clamp,
+        therm_node_id_bearing_T, thermal, algebraic, T_bearing;
+
+    user defined: elem_id_bearing, 
+        hydrodynamic plain bearing2,
+            hydraulic fluid, linear thermal compressible,
+                density, rho0,
+                bulk modulus, beta,
+                pressure, p0,
+                thermal expansion, gamma,
+                temperature, T0,
+                viscosity, eta0,
+                non isothermal,
+                Aeta2, Aeta2,
+                Aeta3, Aeta3,
+                specific heat capacity, cp0,
+                Ac1, Ac1,
+                Ac2, Ac2,
+                Ac3, Ac3,
+                Ac4, Ac4,
+                Ac5, Ac5,
+                thermal conductivity, liquid, lambda0,
+                vapour, 0.03 * lambda0,
+                Alambda, Alambda,
+                viscosity vapour, 1e-3 * eta0,
+            mesh, linear finite difference, enable mcp, enable_mcp,
+            geometry, cylindrical,
+                mesh position, at bearing,
+                bearing width, B + 2 * chamfer_dz,
+                shaft diameter, d1,
+                bearing diameter, D2,
+                pockets,
+                    bearing, 3,
+                        position, D2 * pi * 0.5,
+                                  -0.5 * (B + chamfer_dz),
+                            rectangle, 
+                                width, 2 * D2 * pi, 
+                                height, 1.05 * chamfer_dz,
+                            pocket height, 
+                                linear, 
+                                    x, 0., D2 * pi, 
+                                    z, -0.5 * B - chamfer_dz, -0.5 * B,
+                                    delta y, chamfer_dr, 0., 
+                                             chamfer_dr, 0.,
+                        position, D2 * pi * 0.5,
+                                  0.5 * (B + chamfer_dz),
+                            rectangle, 
+                                width, 2 * D2 * pi, 
+                                height, 1.05 * chamfer_dz,
+                            pocket height, 
+                                linear, 
+                                    x, 0., D2 * pi, 
+                                    z, 0.5 * B, 0.5 * B + chamfer_dz, 
+                                    delta y, 0., chamfer_dr,
+                                             0., chamfer_dr,
+                        position, 0., 0.,
+                            circle, 
+                        radius, 0.12 * B,
+                            pocket height,
+                               const, 0.5e-3,
+                shaft node,
+                    node_id_rotor,
+                    offset, reference, ref_id_rotor, null,
+                    orientation, reference, ref_id_rotor, eye,
+                bearing node,
+                    node_id_stator,
+                    offset, reference, ref_id_stator, null,
+                    orientation, reference, ref_id_stator, eye,
+            grid spacing, uniform intervals,
+            number of intervals z, 3,
+            -0.5 * B - chamfer_dz, 1,
+            -0.5 * B, M,
+            0.5 * B, 1,
+            0.5 * B + chamfer_dz,
+            number of intervals x, 1,
+                   0., N,
+            pressure coupling conditions axial,
+                hyd_node_id_outlet_p1,
+                hyd_node_id_outlet_p2,
+            thermal coupling conditions axial,
+                therm_node_id_outlet_T1,
+                therm_node_id_outlet_T2,
+            pressure coupling conditions radial, 1,
+                position, 0., 0.,
+                    circle, 
+                        radius, 0.12 * B,
+                pressure node, hyd_node_id_inlet_p,
+                thermal node, therm_node_id_inlet_T,
+            thermal wall boundary conditions,
+                    coupled,                    
+                        shaft, therm_node_id_shaft_T,
+                        bearing, therm_node_id_bearing_T,
+            initial assembly,
+            hydraulic, yes,
+            thermal, yes,
+            elasticity, no,
+            pressure dof scale, 1e6,
+            theta dof scale, 1e3,
+            reynolds equation scale, 1e-3,
+            energy balance scale, 1,
+            output pressure, yes,
+            output temperature, yes,
+            output density, yes,
+            output clearance, yes,
+            output clearance derivative, no,
+            output velocity, yes,
+            output stress, no,
+            output reaction force, yes,
+            output friction loss, yes,
+            output mesh, yes;
+
+    drive caller: drive_id_bearing_Pff, name, "Pff",
+        element, elem_id_bearing, loadable, string, "Pff", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_Pfc, name, "Pfc",
+        element, elem_id_bearing, loadable, string, "Pfc", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_max_p, name, "maxp",
+        element, elem_id_bearing, loadable, string, "maxp", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_max_pc, name, "maxpc",
+        element, elem_id_bearing, loadable, string, "maxpc", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_min_h, name, "minh",
+        element, elem_id_bearing, loadable, string, "minh", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_min_rho, name, "minrho",
+        element, elem_id_bearing, loadable, string, "minrho", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_max_rho, name, "maxrho",
+        element, elem_id_bearing, loadable, string, "maxrho", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_min_T, name, "minT",
+        element, elem_id_bearing, loadable, string, "minT", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_max_T, name, "maxT",
+        element, elem_id_bearing, loadable, string, "maxT", direct,
+        output trace, yes;
+
+    drive caller: drive_id_bearing_mean_T, name, "meanT",
+        element, elem_id_bearing, loadable, string, "meanT", direct,
+        output trace, yes;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

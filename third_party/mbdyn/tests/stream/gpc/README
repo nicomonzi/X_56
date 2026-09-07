@@ -1,0 +1,47 @@
+GPC REGULATOR TEST
+
+files description:
+
+- system3M_set_s2s
+
+	This file contains the MBDyn model of a 3 masses- 3 springs - 3 dampers mechanical system.
+	The baseline value of masses, stiffness and damping are set in file "system3M.set".
+	The system is controlled using 3 forces applied to the masses and the displacement of the
+	3 masses is measured. 
+	After 50 seconds the system becomes unstable as a consequence of a imposed negative value of the 
+	damping value of the third damper. 
+
+- sockets/controls.sock & sockets/measures.sock
+	
+	These files contains the collected measured sent to the GPC regulator and the control variables
+	computed by the GPC regulator.
+
+- IDinput.txt
+	
+	This file contains the "identification input" used to identify the system. A 10 Hz low-pass
+	filtered random input is used.
+
+- NOISE.txT
+
+	This file contains the measurement noise.
+
+- GPCdata.txt
+
+	This file contains the data for the GPC regulator (it is the input files for the executable "s2s_gpc" 
+	available in ../../../utils). 
+	The identifier is turned on after 10 s and thereafter kept always active. 
+	The controller is turned on after 30 s. Then it is turned off between 70 s and 75 s (when the system
+	is unstable). 
+	The example shows how the GPC regulator can reduce the vibrations of the system, it is able to
+	follow the system variations, keeping the system stable. Moreover it is able to recover stabilty 
+	when the controller is turned off for a short interval and the system response diverges.
+
+usage:
+
+- execute the MBDyn model (from this folder)
+
+	mbdyn -f system3M_set_s2s 
+
+- exacute the GPC regulator (from this folder)
+
+	../../../utils/s2s_gpc GPCdata.txt

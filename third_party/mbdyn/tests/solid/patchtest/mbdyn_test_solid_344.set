@@ -1,0 +1,17 @@
+set: integer number_of_nodes = 22;
+set: integer number_of_nodes_hydraulic = 0;
+set: integer number_of_solids = 2;
+set: integer number_of_genels = 6;
+set: integer number_of_forces = 0;
+set: integer number_of_joints = 0;
+set: integer number_of_surface_loads = 0;
+set: real t1 = 1.0000000000000000e+00;
+set: real t2 = 0.0000000000000000e+00;
+set: real dt = 2.5000000000000001e-02;
+set: integer tpl_drive_id_epsilon0 = 2001;
+set: real epsilon0_1 = 1.0000000000000000e+00;
+set: real epsilon0_2 = 2.0000000000000000e+00;
+set: real epsilon0_3 = 3.0000000000000000e+00;
+set: real epsilon0_4 = 4.0000000000000002e-01;
+set: real epsilon0_5 = 5.0000000000000000e-01;
+set: real epsilon0_6 = 5.9999999999999998e-01;

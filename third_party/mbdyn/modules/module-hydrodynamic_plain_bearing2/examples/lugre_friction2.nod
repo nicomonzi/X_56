@@ -1,0 +1,15 @@
+set: Phi = 2 * pi * i / N;
+
+structural: node_id_ground + i, dummy,
+            node_id_ground,
+            offset, reference, ref_id_ground, 0.,
+                                              0.5 * hole_diameter * cos(Phi), 
+                                              0.5 * hole_diameter * sin(Phi),
+            reference, ref_id_ground, eye;
+
+structural: node_id_body1 + i, dummy,
+            node_id_body1,
+            offset, reference, ref_id_body, 0.,
+                                            0.5 * body1_diameter * cos(Phi), 
+                                            0.5 * body1_diameter * sin(Phi),
+            reference, ref_id_body, eye;

@@ -1,0 +1,16 @@
+	initial time: 0.;
+	final time: 0.05;
+	# time step: 1.72e-4;
+	#time step: 1e-4;	# not too bad
+	#time step: 1e-5;	# nearly identical
+	time step: 1e-6;	# surely at convergence
+
+	max iterations: 20;
+	tolerance: 1e-6;
+
+	derivatives tolerance: 1e6;
+
+	method: ms, .6;
+
+	#output: iterations;
+	#output: residual;

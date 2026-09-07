@@ -1,0 +1,103 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/elec/accelerometer2,v 1.2 2014/06/04 13:04:47 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 2.e-3;
+
+	method: ms, .6;
+	tolerance: 1.e-7;
+	max iterations: 20;
+
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 20;
+	derivatives coefficient: 1.e-6;
+
+	nonlinear solver: newton raphson, modified, 4;
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	abstract nodes: 4;
+	joints: 2;
+	rigid bodies: 1;
+	electric elements: 2;
+	genels: 2;
+	forces: 1;
+
+	print: dof stats;
+
+	default output: accelerations;
+	# output precision: 16;
+end: control data;
+
+reference: 1,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: 2,
+	reference, 1, 1.,0.,0.,
+	reference, 1, eye,
+	reference, 1, null,
+	reference, 1, null;
+
+begin: nodes;
+	structural: 1, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 2, dynamic,
+		reference, 2, null,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+	abstract: 1;
+	abstract: 2;
+
+	abstract: 11;
+	abstract: 12;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, revolute hinge,
+		1, reference, 1, null,
+		2, reference, 1, null;
+	body: 2, 2,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+	electric: 1, accelerometer, translational,
+		2, 1,
+			reference, 2, 0.,1.,0.,
+			position, reference, 2, null;
+	electric: 2, accelerometer, rotational,
+		2, 2,
+			reference, 2, 0.,0.,1.;
+
+	force: 2, follower, 2,
+		position, null,
+		0.,1.,0.,
+		# random, 1., 2., 1., 10.;
+		sine, 1.,pi/.1,1.,forever,2.;
+
+	genel: 11, clamp, 11, abstract, algebraic,
+		node, 2, structural, string, "omegaP[3]", direct;
+	genel: 12, clamp, 12, abstract, algebraic,
+		node, 2, structural, string, "xPP[1]", direct;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

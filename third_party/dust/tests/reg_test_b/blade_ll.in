@@ -1,0 +1,112 @@
+mesh_file_type = parametric
+el_type = l
+
+mesh_reflection = F
+reflection_point = (/0.0,0.0,0.0/)
+reflection_normal = (/0.0,1.0,0.0/)
+
+nelem_chord = 1
+type_chord = uniform   ! uniform  cosineLE  cosineTE
+starting_point = (/0.0,0.075676,0.0/)
+reference_chord_fraction = 0.25
+
+! First section
+chord = 0.168
+twist = 9.061
+airfoil_table = ./airfoils/naca23014_mod.c81
+
+! First region
+span = 0.054
+sweep = 0.0
+dihed = 0.0
+nelem_span = 1
+type_span = uniform
+
+! Second section
+chord = 0.168
+twist = 8.351
+airfoil_table = ./airfoils/naca23014_mod.c81
+
+! Seconf region
+span = 0.054
+sweep = 0.0
+dihed = 0.0
+nelem_span = 1
+type_span = uniform
+
+! section 3
+chord = 0.168
+twist = 8.324
+airfoil_table = ./airfoils/naca23014_mod.c81
+
+!region 3
+span = 0.163
+sweep = 0.0
+dihed = 0.0
+nelem_span = 3
+type_span = uniform
+
+! section 4
+chord = 0.168
+twist = 5.217
+airfoil_table = ./airfoils/naca23014_mod.c81
+
+!region 4
+span = 0.162
+sweep = -4.3
+dihed = 0.0
+nelem_span = 4
+type_span = uniform
+
+! section 5
+chord = 0.168
+twist = -0.005
+airfoil_table = ./airfoils/naca23014_mod.c81
+
+!region 5
+span = 0.108
+sweep = -4.55
+dihed = 0.0
+nelem_span = 2
+type_span = uniform
+
+! section 6
+chord = 0.168
+twist = -2.265
+airfoil_table = ./airfoils/naca23014_mod.c81
+
+!region 6
+span = 0.108
+sweep = 9.7
+dihed = 0.0
+nelem_span = 2
+type_span = uniform
+
+! section 7
+chord = 0.168
+twist = -2.849
+airfoil_table = ./airfoils/naca23014_mod.c81
+
+!region 7
+span = 0.082
+sweep = 24.95
+dihed = 0.0
+nelem_span = 2
+type_span = uniform
+
+! section 8
+chord = 0.168
+twist = -3.54
+airfoil_table = ./airfoils/naca23014_mod.c81
+
+!region 8
+span = 0.054
+sweep = 26.65
+dihed = 0.0
+nelem_span = 1
+type_span = uniform
+
+! section 8
+chord = 0.168
+twist = -4.759
+airfoil_table = ./airfoils/naca23014_mod.c81

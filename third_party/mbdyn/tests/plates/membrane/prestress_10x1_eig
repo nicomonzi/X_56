@@ -1,0 +1,253 @@
+/*
+ *                              |
+ *  /|                          v                          |/
+ *  /|>o----o----o----o----o----o----o----o----o----o----o<|/
+ *  /|                                                     |/
+ *
+ *
+ *     4   201  202  203  204   6   206  207  208  209   3
+ *     o----o----o----o----o----o----o----o----o----o----o
+ *     |    |    |    |    |    |    |    |    |    |    |
+ *     o----o----o----o----o----o----o----o----o----o----o
+ *     1   101  102  103  104   5   106  107  108  109   2
+*/
+
+begin: data;
+	problem: initial value;
+end: data;
+
+set: const real E = 7.0e+10;
+set: const real NU = 3.0e-01;
+
+set: const real L = 2;
+set: const real B = 1e-1;
+
+set: real G = E/(2*(1 + NU));
+
+set: real PRESTRESS = 1e6/B;
+
+set: const real M = 1.;
+set: const real DM = M/20;
+
+remark: "theoretical frequency, Hz", pi/L*sqrt((PRESTRESS*B)/(M/L))/(2*pi);
+
+/*
+ * the model is defined on reference frame REF
+ */
+set: const integer REF = 1;
+reference: REF,
+        reference, global, 0., 0., 0.,
+        reference, global, 1, 1., 0., 0., 3, 0., 0., 1.,
+        # reference, global, 1, 1., 1., 1., 3, -1., -1., 1.,
+        reference, global, null,
+        reference, global, null;
+
+begin: initial value;
+	initial time: 0.;
+	time step: 0.25;
+	final time: 2.;
+
+	tolerance: 1e-2;
+	max iterations: 10;
+
+	derivatives tolerance: 1e-5;
+	derivatives max iterations: 10;
+
+	threads: disable;
+
+	method: ms, .6;
+	# linear solver: umfpack, cc;
+	linear solver: naive, colamd;
+
+	eigenanalysis: 0., use lapack, output eigenvectors, output geometry, lower frequency limit, .1, upper frequency limit, 500;
+
+	# output: iterations;
+	# output: residual;
+	# output: jacobian;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+ 4	# structural
+		+ 18	# structural displacement
+	;
+	rigid bodies:
+		+ 18	# 
+	;
+	joints:
+		+ 4	# clamps
+	;
+	plates:
+		+ 10
+	;
+	default orientation: orientation vector;
+end: control data;
+
+begin: nodes;
+
+	structural: 1, static ,
+		reference, REF, 0., 0., 0.,
+		reference, REF, eye,
+		reference, REF, null,
+		reference, REF, null;
+
+	structural: 2, static ,
+		reference, REF, L, 0., 0.,
+		reference, REF, eye,
+		reference, REF, null,
+		reference, REF, null;
+
+	structural: 3, static ,
+		reference, REF, L, B, 0.,
+		reference, REF, eye,
+		reference, REF, null,
+		reference, REF, null;
+
+	structural: 4, static ,
+		reference, REF, 0., B, 0.,
+		reference, REF, eye,
+		reference, REF, null,
+		reference, REF, null;
+
+	structural: 5, dynamic displacement,
+		reference, REF, L/2, 0., 0.,
+		reference, REF, null;
+	structural: 6, dynamic displacement,
+		reference, REF, L/2, B, 0.,
+		reference, REF, null;
+
+	structural: 101, dynamic displacement,
+		reference, REF, 0.1*L, 0., 0.,
+		reference, REF, null;
+	structural: 102, dynamic displacement,
+		reference, REF, 0.2*L, 0., 0.,
+		reference, REF, null;
+	structural: 103, dynamic displacement,
+		reference, REF, 0.3*L, 0., 0.,
+		reference, REF, null;
+	structural: 104, dynamic displacement,
+		reference, REF, 0.4*L, 0., 0.,
+		reference, REF, null;
+	structural: 106, dynamic displacement,
+		reference, REF, 0.6*L, 0., 0.,
+		reference, REF, null;
+	structural: 107, dynamic displacement,
+		reference, REF, 0.7*L, 0., 0.,
+		reference, REF, null;
+	structural: 108, dynamic displacement,
+		reference, REF, 0.8*L, 0., 0.,
+		reference, REF, null;
+	structural: 109, dynamic displacement,
+		reference, REF, 0.9*L, 0., 0.,
+		reference, REF, null;
+	structural: 201, dynamic displacement,
+		reference, REF, 0.1*L, B, 0.,
+		reference, REF, null;
+	structural: 202, dynamic displacement,
+		reference, REF, 0.2*L, B, 0.,
+		reference, REF, null;
+	structural: 203, dynamic displacement,
+		reference, REF, 0.3*L, B, 0.,
+		reference, REF, null;
+	structural: 204, dynamic displacement,
+		reference, REF, 0.4*L, B, 0.,
+		reference, REF, null;
+	structural: 206, dynamic displacement,
+		reference, REF, 0.6*L, B, 0.,
+		reference, REF, null;
+	structural: 207, dynamic displacement,
+		reference, REF, 0.7*L, B, 0.,
+		reference, REF, null;
+	structural: 208, dynamic displacement,
+		reference, REF, 0.8*L, B, 0.,
+		reference, REF, null;
+	structural: 209, dynamic displacement,
+		reference, REF, 0.9*L, B, 0.,
+		reference, REF, null;
+
+end: nodes;
+
+begin: elements;
+
+	joint: 1, clamp, 1, node, node;
+	joint: 2, clamp, 2, node, node;
+	joint: 3, clamp, 3, node, node;
+	joint: 4, clamp, 4, node, node;
+
+	body: 101, 101, DM;
+	body: 102, 102, DM;
+	body: 103, 103, DM;
+	body: 104, 104, DM;
+	body: 5, 5, DM;
+	body: 106, 106, DM;
+	body: 107, 107, DM;
+	body: 108, 108, DM;
+	body: 109, 109, DM;
+	body: 201, 201, DM;
+	body: 202, 202, DM;
+	body: 203, 203, DM;
+	body: 204, 204, DM;
+	body: 6, 6, DM;
+	body: 206, 206, DM;
+	body: 207, 207, DM;
+	body: 208, 208, DM;
+	body: 209, 209, DM;
+
+/*
+ *     4   201  202  203  204   6   206  207  208  209   3
+ *     o----o----o----o----o----o----o----o----o----o----o
+ *     |    |    |    |    |    |    |    |    |    |    |
+ *     o----o----o----o----o----o----o----o----o----o----o
+ *     1   101  102  103  104   5   106  107  108  109   2
+ */
+
+	membrane4eas: 1,
+		1, 101, 201, 4,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 2,
+		101, 102, 202, 201,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 3,
+		102, 103, 203, 202,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 4,
+		103, 104, 204, 203,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 5,
+		104, 5, 6, 204,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 6,
+		5, 106, 206, 6,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 7,
+		106, 107, 207, 206,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 8,
+		107, 108, 208, 207,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 9,
+		108, 109, 209, 208,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+	membrane4eas: 10,
+		109, 2, 3, 209,
+		isotropic, E, E, nu, NU, thickness, 1.0e-03,
+		prestress, PRESTRESS, 0., 0.; # , 0., 0., 0., 0., 0., 0., 0., 0., 0.
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

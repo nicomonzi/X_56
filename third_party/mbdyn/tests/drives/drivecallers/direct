@@ -1,0 +1,71 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/drives/drivecallers/direct,v 1.7 2017/01/12 15:01:15 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# "direct" drive
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 25.;
+	time step: 1.;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 2;
+	forces: 1;
+end: control data;
+
+begin: nodes;
+	structural: 0, static, null, eye, null, null, output, no;
+	structural: 1, dynamic, null, eye, 0., 0., 1., null;
+end: nodes;
+
+begin: elements;
+	body: 1, 1, 1., null, eye;
+	joint: 0, clamp, 0, node, node;
+	joint: 1, deformable joint, 0, position, null, 1, position, null, linear elastic, 1.;
+	force: 1, absolute,
+		1, position, null, 0., 0., -1.,
+		node, 1, structural, string, "X[1]", direct;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

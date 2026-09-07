@@ -1,0 +1,65 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/drives/filedriver/filedriver,v 1.3 2014/12/13 17:15:37 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 9.99e-2;
+	time step: 1.e-3;
+	output: residuals;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes: 2;
+	genels: 2;
+	forces: 2;
+	file drivers: 2;
+end: control data;
+
+begin: nodes;
+	abstract: 1;
+	abstract: 2;
+end: nodes;
+
+begin: drivers;
+	file: 1, fixed step, 
+		count,
+		2,
+		0.,
+		1.e-2,
+		# interpolation, const,
+		pad zeros, no,
+		"variable.drv";
+	file: 2, variable step, 
+		1,
+		# interpolation, const,
+		pad zeros, no,
+		"variable.drv";
+end: drivers;
+
+begin: elements;
+	genel: 1, spring support,
+		1, abstract, algebraic,
+		linear elastic, 1.;
+	force: 1, abstract,
+		1, abstract,
+		file, 1, 2;
+
+	genel: 2, spring support,
+		2, abstract, algebraic,
+		linear elastic, 1.;
+	force: 2, abstract,
+		2, abstract,
+		file, 2, 1;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,78 @@
+mesh_file_type = parametric
+el_type = p
+
+!> === coupled with external structural solver (T/F) ===
+coupled      = T
+coupling_type = rbf
+coupling_node_file = coupling_nodes_test.in 
+
+coupling_node_orientation = (/0.5000,    0.8660,         0,   -0.8660,    0.5000,         0,         0,         0,    1.0000/)
+
+nelem_chord = 20
+type_chord = cosine   
+starting_point = (/0., 0., 0./)
+reference_chord_fraction = 0.25
+
+n_hinges = 1
+hinge = {
+    hinge_Tag = Aileron_right
+    hinge_nodes_input = parametric      ! or from_file
+    node_1 = (/ 1.48064, 1.45455, 0.  /)  ! In the local ref.frame
+    node_2 = (/2.23064, 2.75359, 0/)
+    n_nodes = 2
+
+    
+    hinge_ref_dir = (/ 1.0, 0.0, 0.0 /)
+    hinge_offset  = 0.02
+    hinge_spanwise_blending = 0.001
+    hinge_merge_tol = 0.15
+
+    hinge_rotation_input = coupling
+    hinge_rotation_coupling = {
+    coupling_node_subset = range
+    coupling_node_first  = 5
+    coupling_node_last  =  6
+  }
+}
+
+! First section
+chord = 2.0
+twist = 0.
+airfoil = NACA0012
+
+! First region
+span = 3.404582542679879
+sweep = 30.0
+dihed = 0.
+nelem_span = 25
+type_span = uniform
+
+! Second section
+chord = 2.0
+twist = 0.
+airfoil = NACA0012
+
+!! First region
+!span = 0.8
+!sweep = 40.0
+!dihed = 25
+!nelem_span = 7
+!type_span = uniform
+!
+!! Second section
+!chord = 1.5
+!twist = 0
+!airfoil = NACA0012
+!
+!! First region
+!span = 0.1
+!sweep = 60.0
+!dihed = 80
+!nelem_span = 7
+!type_span = uniform
+!
+!! Second section
+!chord = 1.0
+!twist = 0
+!airfoil = NACA0012
+!

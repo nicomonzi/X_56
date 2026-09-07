@@ -1,0 +1,81 @@
+# right wing
+
+structural:  GROUND + RIGHT, dynamic,
+    reference, GROUND + RIGHT, null,
+    reference, GROUND + RIGHT, eye,
+    reference, GROUND + RIGHT, null,
+    reference, GROUND + RIGHT, null;
+
+structural:  GROUND + RIGHT + 1, dynamic,
+    reference, GROUND + RIGHT, dL, 0, 0,
+    reference, GROUND + RIGHT, eye,
+    reference, GROUND + RIGHT, null,
+    reference, GROUND + RIGHT, null;
+
+structural:  GROUND + RIGHT + 2, dynamic,
+    reference, GROUND + RIGHT, 2*dL, 0, 0,
+    reference, GROUND + RIGHT, eye,
+    reference, GROUND + RIGHT, null,
+    reference, GROUND + RIGHT, null;
+
+structural:  GROUND + RIGHT + 3, dynamic,
+    reference, GROUND + RIGHT, 3*dL, 0, 0,
+    reference, GROUND + RIGHT, eye,
+    reference, GROUND + RIGHT, null,
+    reference, GROUND + RIGHT, null;
+
+structural:  GROUND + RIGHT + 4, dynamic,
+    reference, GROUND + RIGHT, 4*dL, 0, 0,
+    reference, GROUND + RIGHT, eye,
+    reference, GROUND + RIGHT, null,
+    reference, GROUND + RIGHT, null;
+
+# left wing
+
+structural:  GROUND + LEFT + 1, dynamic,
+    reference, GROUND + LEFT, -dL, 0, 0,
+    reference, GROUND + LEFT, eye,
+    reference, GROUND + LEFT, null,
+    reference, GROUND + LEFT, null;
+
+structural:  GROUND + LEFT + 2, dynamic,
+    reference, GROUND + LEFT, -2*dL, 0, 0,
+    reference, GROUND + LEFT, eye,
+    reference, GROUND + LEFT, null,
+    reference, GROUND + LEFT, null;
+
+structural:  GROUND + LEFT + 3, dynamic,
+    reference, GROUND + LEFT, -3*dL, 0, 0,
+    reference, GROUND + LEFT, eye,
+    reference, GROUND + LEFT, null,
+    reference, GROUND + LEFT, null;
+
+structural:  GROUND + LEFT + 4, dynamic,
+    reference, GROUND + LEFT, -4*dL, 0, 0,
+    reference, GROUND + LEFT, eye,
+    reference, GROUND + LEFT, null,
+    reference, GROUND + LEFT, null;
+
+# flap right
+structural:  FLAP_RIGHT + 1, dynamic, 
+    reference, FLAP_RIGHT + 1, null,
+    reference, FLAP_RIGHT + 1, eye,
+    reference, FLAP_RIGHT + 1, null,
+    reference, FLAP_RIGHT + 1, null;
+structural:  FLAP_RIGHT + 2, dynamic, 
+    reference, FLAP_RIGHT + 2, null,
+    reference, FLAP_RIGHT + 2, eye,
+    reference, FLAP_RIGHT + 2, null,
+    reference, FLAP_RIGHT + 2, null;
+
+# flap left
+structural:  FLAP_LEFT + 1, dynamic, 
+    reference, FLAP_LEFT + 1, null,
+    reference, FLAP_LEFT + 1, eye,
+    reference, FLAP_LEFT + 1, null,
+    reference, FLAP_LEFT + 1, null;
+structural:  FLAP_LEFT + 2, dynamic, 
+    reference, FLAP_LEFT + 2, null,
+    reference, FLAP_LEFT + 2, eye,
+    reference, FLAP_LEFT + 2, null,
+    reference, FLAP_LEFT + 2, null;

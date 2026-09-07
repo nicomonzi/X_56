@@ -1,0 +1,80 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/fullpipe/fp,v 1.3 2014/12/13 17:15:42 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+	set: real dt = 1.e-4;
+    	time step: dt;
+    	initial time: 0.;
+    	final time: 8.; ## FIXME: final time: 100.; does not converge
+    
+        method: bdf;
+    	max iterations: 100;
+    	tolerance: 1.e-6, 1e-4;
+    
+    	derivatives coefficient: 1.e-6;
+    	derivatives max iterations: 10;
+    	derivatives tolerance: 1.e-6, 1e-4;
+
+        linear solver: umfpack, scale, lapack, always, max iterations, 10;
+        nonlinear solver: linesearch, default solver options, heavy nonlinear, divergence check, no, lambda min, 0., tolerance x, 1e-3;
+        output: iterations, solver condition number, stat, yes;
+    	fictitious steps number: 0;
+        threads: disable;
+threads: disable;
+end: initial value;
+
+
+
+begin: control data;
+  	hydraulic nodes: 2;
+  	hydraulic elements: 1;
+  	forces: 1;
+  	genels: 1;
+end: control data;
+ 
+begin: nodes;
+	set: real p = 1.e6;
+	set: integer end = 2;
+
+  	hydraulic: 1, p;
+	hydraulic: end, p;
+end: nodes;
+
+begin: elements;
+	# fluido
+	hydraulic fluid: 1,
+		linear compressible, 
+	        density, 977., 1.95e9, 101325.,
+		viscosity, 0.0799;
+
+	# tubo
+  	hydraulic: 1, dynamic pipe,
+		1, 2,
+		.007,		# diametro
+		area, 3.84e-5,	# area
+		10.,		# lunghezza
+		fluid, reference, 1;
+  
+ 	# forza generica: generatore di portata
+   	force: 1,abstract, 
+          	1, hydraulic,
+          	# step, 5.*dt, -2.5e-2, 0.;
+		# cosine, 5.*dt, pi/(10000.*dt), -1.e-0, -1, 0.;
+		ramp, 1.,0.,1000.,0.;
+ 
+	# incastro generico: generatore di pressione
+   	genel: end, clamp, 
+             	end, hydraulic, 
+	     	const, p;
+
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

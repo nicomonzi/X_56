@@ -1,0 +1,13 @@
+joints tested so far:
+	deformable hinge			v (elastic, viscoelastic)
+	deformable displacement joint		v (elastic, viscoelastic)
+	deformable joint			v (elastic)
+	distance with offset			v (+ gravity, TBV)
+	gimbal rotation				v (+ dh, dwo & gravity)
+	clamp					v
+	inplane					v (+ ddj)
+	revolute hinge				v (+ dh)
+	rod with offset				v (+ gravity, TBV)
+	spherical hinge				v (+ dh)
+	total joint				v (+ ddj)
+

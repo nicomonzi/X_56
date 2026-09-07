@@ -1,0 +1,204 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/puma/puma2,v 1.6 2014/12/13 17:15:56 masarati Exp $
+
+/*
+
+6 dof manipulator ...
+
+  1
+   o
+   |\
+   o r
+   |  \
+   o   o=========o
+  /|\       2
+          
+                     z
+                    |
+                y   |
+                  \ |
+                   \|      x
+                     ------
+
+*/
+
+
+set: integer ground = 1;
+set: integer body1 = 1000;
+set: integer revolute1 = 1001;
+set: integer body2 = 2000;
+set: integer revolute2 = 2001;
+
+set: real angle1 = 0.;
+set: real omega1 = 0.;
+set: real angle2 = 0.;
+set: real omega2 = 0.;
+
+set: real L2 = 1.;
+
+set: real beam_damp = 1.e-9;
+
+set: real dt = .5e-3;	# funziona qui ...
+set: real T = 10.;
+
+reference: ground,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: revolute1,
+	reference, ground, 0.,0.,.1,
+	reference, ground, eye,
+	reference, ground, null,
+	reference, ground, null;
+reference: body1,
+	reference, revolute1, 0.,0.,.1,
+	reference, revolute1, 3, 0.,0.,1., 1, cos(angle1),sin(angle1),0.,
+	reference, revolute1, null,
+	reference, revolute1, 0.,0.,omega1;
+
+reference: revolute2,
+	reference, body1, 0.,-.1,0.,
+	reference, body1, 3, 0.,1.,0., 1, 1.,0.,0.,
+	reference, body1, null,
+	reference, body1, null;
+reference: body2,
+	reference, revolute2, 0.,0.,-.1,
+	reference, revolute2, 3, 0.,0.,1., 1, cos(angle2),sin(angle2),0.,
+	reference, revolute2, null,
+	reference, revolute2, 0.,0.,omega2;
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: T;
+	time step: dt;
+
+	tolerance: 1.e-6;
+	max iterations: 20;
+
+	method: ms, .6;
+
+	newton raphson: modified, 5;
+
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 20;
+	derivatives coefficient: 1.e-9;
+
+	# output: iterations;
+	output: none;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	default output: none;
+	print: dof stats;
+	structural nodes:
+		+1	# ground
+		+1	# body 1
+		+2	# body 2
+	;
+	rigid bodies:
+		+1	# body 1
+		+2	# body 2
+	;
+	joints:
+		+1	# ground
+		+1	# revolute 1
+		+1	# revolute 2
+	;
+	beams:
+		+1	# body 2
+	;
+	forces:
+		+1	# motor 2
+	;
+	gravity;
+end: control data;
+
+begin: nodes;
+	structural: ground, static,
+		reference, ground, null,
+		reference, ground, eye,
+		reference, ground, null,
+		reference, ground, null;
+	structural: body1, dynamic,
+		reference, body1, null,
+		reference, body1, eye,
+		reference, body1, null,
+		reference, body1, null;
+	structural: body2, dynamic,
+		reference, body2, null,
+		reference, body2, eye,
+		reference, body2, null,
+		reference, body2, null;
+	structural: body2+100, dynamic,
+		reference, body2, L2,0.,0.,
+		reference, body2, eye,
+		reference, body2, null,
+		reference, body2, null;
+end: nodes;
+
+begin: elements;
+	gravity: 0.,0.,-1., cosine, 0.,pi/.1,9.81/2.,half,0.;
+	joint: ground, clamp, ground, node, node;
+
+	joint: revolute1, revolute hinge,
+		ground,
+			reference, revolute1, null,
+			hinge, reference, revolute1, eye,
+		body1,
+			reference, revolute1, null,
+			hinge, reference, revolute1, eye;
+	body: body1, body1,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+
+	joint: revolute2, revolute hinge,
+		body1,
+			reference, revolute2, null,
+			hinge, reference, revolute2, eye,
+		body2,
+			reference, revolute2, null,
+			hinge, reference, revolute2, eye;
+	body: body2, body2,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+	beam2: body2,
+		body2, null,
+		body2+100, null,
+		reference, body2, eye,
+		linear viscoelastic generic,
+			diag,
+			1.e9,
+			1./(1./1.e9+L2^2/12./1.e5),
+			1./(1./1.e9+L2^2/12./1.e6),
+			1.e5,
+			1.e6,
+			1.e5,
+			proportional, beam_damp;
+	body: body2+100, body2+100,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+
+	couple: revolute2, follower internal,
+		body1,
+			position, reference, revolute2, 0.,0.,1.,
+		body2,
+			# const, 10.;
+			single, reference, revolute2, 0, 0, 1, 
+			sine, 0.,pi/.2,10.,forever,20.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

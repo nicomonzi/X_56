@@ -1,0 +1,113 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/landing/graall-damper/ac,v 1.5 2014/12/13 17:15:53 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: real dt = 2.e-5; ## FIXME: dt = 1e-4 does not converge
+set: real t0 = 0.;
+set: real tf = 2000*dt;
+
+begin: initial value;
+    # abort after: input;
+    # abort after: assembly;
+
+    time step: dt;
+    initial time: t0;
+    final time: tf;
+    
+    tolerance: 1.e-4;
+    max iterations: 10;
+
+    derivatives coefficient: 1.e-12;
+    derivatives tolerance: 1.e-9;
+    derivatives max iterations: 10;
+    
+    fictitious steps number: 0;
+
+    method: ms2, 0.6;
+    max iterations: 100;
+    tolerance: 1.e-6, test, norm, 1e-6, test, norm;
+
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 10;
+    derivatives tolerance: 1.e-6, 1e-6;
+
+    linear solver: umfpack, scale, iterative, always, max iterations, 10;
+    nonlinear solver: linesearch, default solver options, heavy nonlinear, divergence check, no, lambda min, 0., tolerance x, 1e-8;
+    output: iterations, solver condition number, stat, yes;
+    fictitious steps number: 0;
+    threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+        
+    structural nodes: 3;
+    
+    rigid bodies: 2;
+    joints: 3;
+    gravity;
+end: control data;
+
+
+set: real l = 1.;
+set: real vz = -2.;
+
+reference: 1,
+           reference, global, null,
+	   reference, global, eye,
+	   reference, global, null,
+	   reference, global, null;
+	   
+reference: 2,
+           reference, global, 0.,0.,l+.2,
+	   reference, global, eye,
+	   reference, global, 0.,0.,vz,
+	   reference, global, null;
+
+begin: nodes;
+    structural: 1, static,
+                reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+    structural: 2, dynamic,
+                reference, 2, null,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+    structural: 3, dynamic,
+                reference, 2, 0.,0.,-l,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+end: nodes;
+
+module load: "libmodule-damper-graall.la";
+
+begin: elements;
+    body: 2, 2, 200.,
+          null,
+	  diag, 1.,1.,1.;
+    body: 3, 3, 2.,
+          null,
+	  diag, 1.e-3,1.e-3,1.e-3;
+    joint: 1, clamp, 1, node, node;
+    joint: 2, rod,
+           2, 3, l,
+	   graall damper, "graall", l;
+	   
+    joint: 3, rod,
+           3, 1, .1,
+	   contact elastic, 1.e6, 3.;
+	           
+    gravity: 0.,0.,1., const, -9.81;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

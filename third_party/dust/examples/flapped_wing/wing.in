@@ -1,0 +1,66 @@
+mesh_file_type = parametric
+el_type = p
+
+mesh_symmetry = T
+symmetry_point   = (/0.0 , 0.0,  0.0/)
+symmetry_normal = (/0.0 , 1.0,  0.0/)
+
+nelem_chord = 15
+type_chord = cosine   ! uniform  cosineLE  cosineTE
+starting_point = (/0.0,0.0,0.0/)
+reference_chord_fraction = 0.25
+
+n_hinges = 2
+hinge = {
+  hinge_Tag = Aileron_right
+  hinge_nodes_input = parametric      ! or from_file
+  node_1 = (/ 1.4178, 1.4557, 0.3473/)  ! In the local ref.frame
+  node_2 = (/ 2.4026  , 3.1615  , 0.6946/)
+  n_nodes = 2
+
+  hinge_ref_dir = (/ 1.0, 0.0 , 0.0 /)
+  hinge_offset  = 0.1
+  hinge_spanwise_blending = 0.001
+  hinge_merge_tol = 0.15
+  hinge_rotation_input = function:sin
+  hinge_rotation_function = {
+    amplitude = 30.0    ! deg
+    omega     =  12.5   ! rad/sec
+    phase     =  0.0    ! deg
+  }
+}
+hinge = {
+  hinge_Tag = Aileron_left
+  hinge_nodes_input = parametric      
+  node_2 = (/ 1.4178, -1.4557, 0.3473/)  
+  node_1 = (/ 2.4026  , -3.1615  , 0.6946/)
+  n_nodes = 2
+
+  hinge_ref_dir = (/ 1.0, 0.0 , 0.0 /)
+  hinge_offset  = 0.1
+  hinge_spanwise_blending = 0.001
+  hinge_merge_tol = 0.15
+  hinge_rotation_input = function:sin
+  hinge_rotation_function = {
+    amplitude = -30.0    ! deg
+    omega     =  12.5    ! rad/sec
+    phase     =  0.0     ! deg
+  }
+}
+
+! First section
+chord = 2
+twist = 0.0
+airfoil = NACA0012
+
+! First region
+span = 5.0
+sweep = 30.0
+dihed = 10.0
+nelem_span = 20
+type_span = uniform
+
+! Second section
+chord = 2
+twist = 0.0
+airfoil = NACA0012

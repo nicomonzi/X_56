@@ -1,0 +1,115 @@
+## MBDyn (C) is a multibody analysis code.
+## http://www.mbdyn.org
+##
+## Copyright (C) 1996-2025
+##
+## Pierangelo Masarati	<masarati@aero.polimi.it>
+## Paolo Mantegazza	<mantegazza@aero.polimi.it>
+##
+## Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+## via La Masa, 34 - 20156 Milano, Italy
+## http://www.aero.polimi.it
+##
+## Changing this copyright notice is forbidden.
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation (version 2 of the License).
+##
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+
+structural: 85, static, reference, ref_id_solid, 1.0000000000000000e+00,  0.0000000000000000e+00, 0.0000000000000000e+00, reference, ref_id_solid, euler123, 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, reference, ref_id_solid, null, reference, ref_id_solid, null;
+structural: 86, static, reference, ref_id_solid, 0.0000000000000000e+00,  0.0000000000000000e+00, 0.0000000000000000e+00, reference, ref_id_solid, euler123, 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, reference, ref_id_solid, null, reference, ref_id_solid, null;
+structural: 1, dynamic displacement, reference, ref_id_solid, 1.0000000000000000e+00,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 2, dynamic displacement, reference, ref_id_solid, 1.0000000000000000e+00,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 3, dynamic displacement, reference, ref_id_solid, 9.4999999999999996e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 4, dynamic displacement, reference, ref_id_solid, 0.0000000000000000e+00,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 5, dynamic displacement, reference, ref_id_solid, 0.0000000000000000e+00,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 6, dynamic displacement, reference, ref_id_solid, 0.0000000000000000e+00,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 7, dynamic displacement, reference, ref_id_solid, 0.0000000000000000e+00,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 8, dynamic displacement, reference, ref_id_solid, 5.0000000000000003e-02,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 9, dynamic displacement, reference, ref_id_solid, 5.0000000000000003e-02,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 10, dynamic displacement, reference, ref_id_solid, 4.9999999999999933e-02,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 11, dynamic displacement, reference, ref_id_solid, 4.9999999999999933e-02,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 12, dynamic displacement, reference, ref_id_solid, 1.0000000000000001e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 13, dynamic displacement, reference, ref_id_solid, 1.0000000000000001e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 14, dynamic displacement, reference, ref_id_solid, 9.9999999999999978e-02,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 15, dynamic displacement, reference, ref_id_solid, 9.9999999999999978e-02,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 16, dynamic displacement, reference, ref_id_solid, 1.4999999999999999e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 17, dynamic displacement, reference, ref_id_solid, 1.4999999999999999e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 18, dynamic displacement, reference, ref_id_solid, 1.4999999999999991e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 19, dynamic displacement, reference, ref_id_solid, 1.4999999999999991e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 20, dynamic displacement, reference, ref_id_solid, 2.0000000000000001e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 21, dynamic displacement, reference, ref_id_solid, 2.0000000000000001e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 22, dynamic displacement, reference, ref_id_solid, 2.0000000000000001e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 23, dynamic displacement, reference, ref_id_solid, 2.0000000000000001e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 24, dynamic displacement, reference, ref_id_solid, 2.5000000000000000e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 25, dynamic displacement, reference, ref_id_solid, 2.5000000000000000e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 26, dynamic displacement, reference, ref_id_solid, 2.5000000000000000e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 27, dynamic displacement, reference, ref_id_solid, 2.5000000000000000e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 28, dynamic displacement, reference, ref_id_solid, 2.9999999999999999e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 29, dynamic displacement, reference, ref_id_solid, 2.9999999999999999e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 30, dynamic displacement, reference, ref_id_solid, 2.9999999999999988e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 31, dynamic displacement, reference, ref_id_solid, 2.9999999999999988e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 32, dynamic displacement, reference, ref_id_solid, 3.4999999999999998e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 33, dynamic displacement, reference, ref_id_solid, 3.4999999999999998e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 34, dynamic displacement, reference, ref_id_solid, 3.4999999999999998e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 35, dynamic displacement, reference, ref_id_solid, 3.4999999999999998e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 36, dynamic displacement, reference, ref_id_solid, 4.0000000000000002e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 37, dynamic displacement, reference, ref_id_solid, 4.0000000000000002e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 38, dynamic displacement, reference, ref_id_solid, 3.9999999999999991e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 39, dynamic displacement, reference, ref_id_solid, 3.9999999999999991e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 40, dynamic displacement, reference, ref_id_solid, 4.5000000000000001e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 41, dynamic displacement, reference, ref_id_solid, 4.5000000000000001e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 42, dynamic displacement, reference, ref_id_solid, 4.5000000000000001e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 43, dynamic displacement, reference, ref_id_solid, 4.5000000000000001e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 44, dynamic displacement, reference, ref_id_solid, 5.0000000000000000e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 45, dynamic displacement, reference, ref_id_solid, 5.0000000000000000e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 46, dynamic displacement, reference, ref_id_solid, 5.0000000000000000e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 47, dynamic displacement, reference, ref_id_solid, 5.0000000000000000e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 48, dynamic displacement, reference, ref_id_solid, 5.5000000000000004e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 49, dynamic displacement, reference, ref_id_solid, 5.5000000000000004e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 50, dynamic displacement, reference, ref_id_solid, 5.5000000000000004e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 51, dynamic displacement, reference, ref_id_solid, 5.5000000000000004e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 52, dynamic displacement, reference, ref_id_solid, 6.0000000000000009e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 53, dynamic displacement, reference, ref_id_solid, 6.0000000000000009e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 54, dynamic displacement, reference, ref_id_solid, 5.9999999999999998e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 55, dynamic displacement, reference, ref_id_solid, 5.9999999999999998e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 56, dynamic displacement, reference, ref_id_solid, 6.5000000000000002e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 57, dynamic displacement, reference, ref_id_solid, 6.5000000000000002e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 58, dynamic displacement, reference, ref_id_solid, 6.4999999999999991e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 59, dynamic displacement, reference, ref_id_solid, 6.4999999999999991e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 60, dynamic displacement, reference, ref_id_solid, 7.0000000000000007e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 61, dynamic displacement, reference, ref_id_solid, 7.0000000000000007e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 62, dynamic displacement, reference, ref_id_solid, 6.9999999999999996e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 63, dynamic displacement, reference, ref_id_solid, 6.9999999999999996e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 64, dynamic displacement, reference, ref_id_solid, 7.5000000000000000e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 65, dynamic displacement, reference, ref_id_solid, 7.5000000000000000e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 66, dynamic displacement, reference, ref_id_solid, 7.5000000000000000e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 67, dynamic displacement, reference, ref_id_solid, 7.5000000000000000e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 68, dynamic displacement, reference, ref_id_solid, 8.0000000000000004e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 69, dynamic displacement, reference, ref_id_solid, 8.0000000000000004e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 70, dynamic displacement, reference, ref_id_solid, 8.0000000000000004e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 71, dynamic displacement, reference, ref_id_solid, 8.0000000000000004e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 72, dynamic displacement, reference, ref_id_solid, 8.5000000000000009e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 73, dynamic displacement, reference, ref_id_solid, 8.5000000000000009e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 74, dynamic displacement, reference, ref_id_solid, 8.4999999999999998e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 75, dynamic displacement, reference, ref_id_solid, 8.4999999999999998e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 76, dynamic displacement, reference, ref_id_solid, 1.0000000000000000e+00,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 77, dynamic displacement, reference, ref_id_solid, 1.0000000000000000e+00,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 78, dynamic displacement, reference, ref_id_solid, 9.0000000000000002e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 79, dynamic displacement, reference, ref_id_solid, 9.0000000000000002e-01,  -5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 80, dynamic displacement, reference, ref_id_solid, 9.0000000000000002e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 81, dynamic displacement, reference, ref_id_solid, 9.0000000000000002e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 82, dynamic displacement, reference, ref_id_solid, 9.5000000000000007e-01,  5.0000000000000001e-03, 2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 83, dynamic displacement, reference, ref_id_solid, 9.4999999999999996e-01,  -5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;
+structural: 84, dynamic displacement, reference, ref_id_solid, 9.5000000000000007e-01,  5.0000000000000001e-03, -2.5000000000000001e-02, reference, ref_id_solid, null;

@@ -1,0 +1,7 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/rtai/flexrob_dir/flexrob.body,v 1.3 2007/10/03 14:02:23 masarati Exp $
+# Prepared by Michele Attolico
+
+body: curr_label, curr_label, 
+      Dm,
+      null,
+      diag, jxx, jyy, jzz;

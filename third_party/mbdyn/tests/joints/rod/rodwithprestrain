@@ -1,0 +1,66 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/rod/rodwithprestrain,v 1.1 2013/03/16 10:36:59 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e-2;
+	tolerance: 1e-6;
+	max iterations: 10;
+	method: ms, .0;
+
+	eigenanalysis: list, 2, 0., 10., use lapack, upper frequency limit, 1e3, lower frequency limit, 1e-3;
+
+	#output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 3;
+
+	# default output: none;
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null,
+		output, no;
+	structural: 2, dynamic,
+		0.,0.,1.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 1, node, node;
+
+	joint: 1, total joint,
+		1,
+		2,
+		position constraint, 1, 1, 0, null,
+		orientation constraint, 1, 1, 1, null;
+
+	joint: 2, rod,
+		1,
+		2,
+		from nodes,
+		linear elastic, (2*pi*100)^2,
+		prestrain, cosine, 0., pi/5., -.5/2, half, 0.;
+	body: 2, 2, 1., null, null;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

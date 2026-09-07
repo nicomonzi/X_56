@@ -1,0 +1,108 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/deformablehinge/deformablejoint,v 1.3 2009/05/20 09:57:53 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.;
+	time step: 1.e-3;
+
+	tolerance: 1e-6;
+	max iterations: 10;
+
+	derivatives tolerance: 1e-6;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1e-12;
+
+	nonlinear solver: newton raphson, modified, 5, keep jacobian;
+
+	method: ms, .6;
+
+	# output: iterations, residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 4;
+	rigid bodies: 3;
+	joints:
+		+1	# ground
+		+1	# elastic
+		+1	# viscous
+		+1	# viscoelastic
+	;
+	forces: 3;
+	default orientation: orientation vector;
+end: control data;
+
+set: real wz = 0.;
+set: real A = 10.;
+set: real W = sqrt(1000.);
+set: real K = 1e3;
+set: real C = 1e1;
+set: real J = .25e0;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 10, dynamic,
+		null,
+		eye,
+		null,
+		0.,0.,wz;
+	structural: 20, dynamic,
+		null,
+		eye,
+		null,
+		0.,0.,wz;
+	structural: 30, dynamic,
+		null,
+		eye,
+		null,
+		0.,0.,wz;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+
+	body: 10, 10, 1., null, eye, scale, J;
+	joint: 11, deformable joint,
+		1, null,
+			hinge, reference, node, eye,
+		10, null,
+			hinge, reference, node, eye,
+		linear elastic generic, diag, K,K,K, K,K,K;
+	couple: 10, follower, 10, 0.,0.,1., sine, 0,W,A,forever,0.;
+
+	body: 20, 20, 1., null, eye, scale, J;
+	joint: 21, deformable joint,
+		1, null,
+			hinge, reference, node, eye,
+		20, null,
+			hinge, reference, node, eye,
+		# linear elastic generic, diag, K,K,K, K,K,K;
+		linear viscous generic, diag, C,C,C, C,C,C;
+	couple: 20, follower, 20, 0.,0.,1., sine, 0,W,A,forever,0.;
+
+	body: 30, 30, 1., null, eye, scale, J;
+	joint: 31, deformable joint,
+		1, null,
+			hinge, reference, node, eye,
+		30, null,
+			hinge, reference, node, eye,
+		# linear elastic generic, diag, K,K,K, K,K,K;
+		linear viscoelastic generic, diag, K,K,K, K,K,K, diag, C,C,C, C,C,C;
+	couple: 30, follower, 30, 0.,0.,1., sine, 0,W,A,forever,0.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

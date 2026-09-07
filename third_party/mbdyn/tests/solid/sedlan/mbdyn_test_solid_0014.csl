@@ -1,0 +1,2 @@
+constitutive law: 1, name, "solid1", 6, mooney rivlin elastic, C1, 6.6711140760507004e-01, C2, 1.6677785190126751e-01, kappa, 8.3333333333333258e+02;
+constitutive law: 1, name, "solid1", 7, mooney rivlin elastic, C1, 6.6711140760507004e-01, C2, 1.6677785190126751e-01, kappa, 8.3333333333333258e+02;

@@ -1,0 +1,54 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/modules/template2/template2,v 1.2 2014/12/13 17:15:54 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-5;
+	max iterations: 20;
+	method: ms, .6, .6;
+
+	nonlinear solver: newton raphson, modified, 4;
+	linear solver: naive, colamd, mt, 1;
+	
+	derivatives tolerance: 1.e-1;
+	derivatives max iterations: 20;
+	derivatives coefficient: 1.e-7;
+		
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	joints: 1;
+	loadable elements: 1;
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	module load: "./libmodule-template2.so";
+	user defined: 1000,
+		# template2;
+		template2, help;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

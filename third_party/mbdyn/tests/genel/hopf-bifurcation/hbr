@@ -1,0 +1,72 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/genel/hopf-bifurcation/hbr,v 1.5 2014/06/10 11:03:00 masarati Exp $
+#
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+#
+# Limit-cycle resulting from Hopf bifurcation
+#
+# dot{y} = y*(lambda + b*y^2)
+#
+# b = alpha + j*beta
+#
+# limit solution:
+#
+# y = sqrt(-lambda/alpha)
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 100.;
+	time step: 1e-2;
+
+	max iterations: 20;
+	tolerance: 1e-6;
+
+	method: ms, .6;
+
+	# output: residual;
+	# output: solution;
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes: 1;
+	genels: 1;
+end: control data;
+
+set: real LAMBDA = .1;
+set: real ALPHA = -.01;
+set: real BETA = 1.;
+set: real Z0 = 5.;
+set: real ZP0 = Z0*(LAMBDA + ALPHA*Z0^2);
+
+
+begin: nodes;
+	abstract: 1, differential, value, Z0, derivative, ZP0;
+end: nodes;
+
+set: [dof, ZR, 1, abstract, algebraic];
+
+begin: elements;
+	genel: 1, state space SISO,
+			1, abstract, algebraic,
+			drive, string, "ALPHA*ZR^3",
+		1,
+		matrix A,
+			LAMBDA,
+		matrix B,
+			1.,
+		matrix C,
+			1.,
+		value, Z0;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

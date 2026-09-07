@@ -1,0 +1,145 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/force/force,v 1.3 2014/12/13 17:15:38 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: .001;
+	time step: 1e-4;
+
+	tolerance: 1e-9;
+	max iterations: 10;
+
+	#derivatives tolerance: 10;
+	#derivatives max iterations: 10;
+	#derivatives coefficient: 1.e-6;
+
+	threads: disable;
+
+	# output: iterations;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# ground
+		+1	# excited node1
+		+1	# excited node2
+	;
+	joints:
+		+1	# clamp
+		+1	# spring1
+		+1	# spring2
+	;
+	forces:
+		+1	# absolute
+		+1	# follower
+		+1	# absolute couple
+		+1	# follower couple
+		+1	# absolute internal
+		+1	# follower internal
+		+1	# absolute internal couple
+		+1	# follower internal couple
+		+1	# absolute displacement
+		+1	# absolute internal displacement
+	;
+	output results: netcdf, sync;
+end: control data;
+
+begin: nodes;
+	structural: 0, name, "ground", static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 1, name, "first node", static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, name, "second node", static,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 0, name, "ground", clamp, 0, node, node;
+	joint: 1, name, "node 1 restraint", deformable joint,
+		0,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		1,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		linear elastic isotropic, 1e6;
+	joint: 2, name, "node 2 restraint", deformable joint,
+		0,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		2,
+			position, reference, node, null,
+			orientation, reference, node, eye,
+		linear elastic isotropic, 1e6;
+
+	force: 1, name, "absolute", absolute,
+		1,
+			position, reference, node, 1., 0., 0.,
+		0., 0., 1., cosine, 0., pi/.1, 9.81/2., half, 0.;
+	force: 2, name, "follower", follower,
+		2,
+			position, reference, node, 1., 0., 0.,
+		0., 1., 0., cosine, 0., pi/.1, 5./2., half, 0.;
+
+	couple: 3, name, "absolute", absolute,
+		1,
+		0., 0., 1., cosine, 0., pi/.1, 1.5/2., half, 0.;
+	couple: 4, name, "follower", follower,
+		2,
+		0., 1., 0., cosine, 0., pi/.1, 4., half, 0.;
+
+	force: 11, name, "absolute internal", absolute internal,
+		1,
+			position, reference, node, 0., 1., 0.,
+		2,
+			position, reference, node, 0., 1., 0.,
+		0., 0., 1., cosine, 0., pi/.1, 9.81/2., half, 0.;
+	force: 12, name, "follower internal", follower internal,
+		1,
+			position, reference, node, 0., 1., 0.,
+		2,
+			position, reference, node, 0., 1., 0.,
+		1., 0., 0., cosine, 0., pi/.1, 5./2., half, 0.;
+
+	couple: 13, name, "absolute internal", absolute internal,
+		1,
+			# position, null,	# uncomment to suppress harmless warning
+		2,
+			# position, null,	# uncomment to suppress harmless warning
+		0., 1., 0., cosine, 0., pi/.1, 1.5/2., half, 0.;
+	couple: 14, name, "follower internal", follower internal,
+		1,
+			# position, null,	# uncomment to suppress harmless warning
+		2,
+			# position, null,	# uncomment to suppress harmless warning
+		1., 0., 0., cosine, 0., pi/.1, 4., half, 0.;
+
+	force: 101, name, "absolute displacement", absolute displacement,
+		1,
+		0., 1., 0., ramp, 1., 0., .5, 0.;
+
+	force: 111, name, "absolute internal displacement", absolute internal displacement,
+		1,
+		2,
+		0., 1., 0., string, "(Time > .2) && (Time < .4)";
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

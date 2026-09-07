@@ -1,0 +1,126 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/modalext/edge/edge-rigid-pitching,v 1.2 2010/06/03 19:01:18 masarati Exp $
+
+begin: data;
+	integrator: initial value;
+end: data;
+
+set: real DELTAT = 0.02;
+set: real THETA = 0.;
+set: real OMEGA = 2*pi;
+set: real AMPLITUDE = 2.*deg2rad;
+set: real ALPHA = 0.*deg2rad;
+
+begin: initial value;
+	initial time: 0.;
+	final time: forever;
+	# final time: 1.01;
+	time step: DELTAT;
+
+	tolerance: 1e-4;
+	max iterations: 1000;
+
+	#derivatives tolerance: 1;
+	derivatives max iterations: 1000;
+	#derivatives coefficient: 1;
+
+	threads: disable;
+
+	output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# ground
+		+1	# modal
+	;
+	joints:
+		+1	# clamp
+		+1	# pitching
+		+1	# modal
+	;
+	forces:
+		+1	# extmodal
+	;
+	air properties;
+end: control data;
+
+reference: 1,
+	reference, global, null,
+	reference, global,
+		1, cos(THETA), 0., sin(THETA),
+		2, 0., 1., 0.,
+	reference, global, null,
+	reference, global, 0., OMEGA, 0.;
+
+begin: nodes;
+	structural: 1, static,
+		reference, global, null,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	structural: 9999, modal,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	air properties: std, SI,	# real analysis at 10326.00 Pa, 289.4 K
+		# -1, 0., 0.,
+		cos(ALPHA), 0., sin(ALPHA),
+		231.37;
+
+	joint: 1, clamp, 1, node, node;
+	joint: 3, total joint,
+		1,
+			position, reference, 1, null,
+			position orientation, reference, 1, eye,
+			rotation orientation, reference, 1, eye,
+		9999,
+			position, reference, 1, null,
+			position orientation, reference, 1, eye,
+			rotation orientation, reference, 1, eye,
+		position constraint,
+			active, active, active,
+			null,
+		orientation constraint,
+			active, active, active,
+			0., 1., 0.,
+			sine, DELTAT, OMEGA, AMPLITUDE, forever, 0.;
+	joint: 2, modal,
+		9999,	# modal node
+        	1,	# n. of modes
+		121,	# n. of FEM nodes
+		no damping,
+		# proportional damping, .7,
+		"agard-445.6.fem",
+		0;
+
+	# NOTE: because of developers' laziness, EDGE interface
+	# needs two external modal force elements, one that accounts
+	# for the rigid-body motion and one that accounts for modal
+	# deformability.  Apart from the type, the rest of the
+	# configuration is identical, except that the second one
+	# probably does not need sleeptime
+	force: 10, external modal,
+		EDGE,
+		"rflag.dat",		# EDGE exchange flag file
+		"rdata.dat",		# EDGE exchange data file
+		sleeptime, 4,
+		coupling, tight,
+		2,			# modal joint
+		type, rigid;		# extern force type
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

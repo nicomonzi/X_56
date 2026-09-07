@@ -1,0 +1,70 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/rbk/tnd371/README,v 1.2 2014/12/13 17:15:57 masarati Exp $
+#
+# Rotor blade model for MBDyn > 1.3.4
+# Author: Alessandro Fumagalli <fumagalli@aero.polimi.it>
+#
+# Data from:
+#
+# NASA Technical Note - D-371
+#
+# Natural Frequencies in Bending of Twisted Rotating and Nonrotating Blades
+# G. Isakson and J.G. Eisley
+# Univeristy of Michigan
+#
+# <http://hdl.handle.net/2060/19890068582>
+
+The "tnd371.m" octave script generates the parametric model 
+of a single bladed rotor. There are a few number of parameters that can 
+be chosen to define different situations, see the beginning of the 
+script for details. 
+
+The MBDyn input file "tnd371.mbd" performs teh eigen-analysis of 
+the rotating blade. Setting the following data in "tnd371.m"
+
+rho_r = 1;
+rho_t = 1;
+R = 4; 
+EI1_r = 1.e2; 
+EI1_t = 1.e2; 
+gamma2 = 0.1; 
+theta =  0 * pi/180;
+beta0 =  theta; 
+e = 0.05*R; 
+articulated = 1; 
+beamtype = 3;
+
+the first 30 modes from the ".out" file are:
+
+Mode n.       Real           Imag             Damp %     Freq Hz
+       1:            0 +            0 j               0               0
+       2:            0 +            0 j               0               0
+       3:            0 +            0 j               0               0
+       4:            0 +            0 j               0               0
+       5:            0 +            0 j               0               0
+       6:          nan +          nan j             100               0
+       7:  3.54225e-07 +      13.9213 j    -2.54448e-06         2.21565
+       8:  3.54225e-07 +     -13.9213 j    -2.54448e-06        -2.21565
+       9: -1.31812e-08 +      10.5884 j     1.24487e-07          1.6852
+      10: -1.31812e-08 +     -10.5884 j     1.24487e-07         -1.6852
+      11:  8.71701e-07 +      35.5914 j    -2.44919e-06         5.66455
+      12:  8.71701e-07 +     -35.5914 j    -2.44919e-06        -5.66455
+      13:  3.81369e-07 +      64.2662 j    -5.93421e-07         10.2283
+      14:  3.81369e-07 +     -64.2662 j    -5.93421e-07        -10.2283
+      15:  1.27757e-07 +      54.3841 j    -2.34917e-07          8.6555
+      16:  1.27757e-07 +     -54.3841 j    -2.34916e-07         -8.6555
+      17: -7.98935e-07 +      101.232 j     7.89214e-07         16.1115
+      18: -7.98935e-07 +     -101.232 j     7.89213e-07        -16.1115
+      19:  1.50746e-05 +      144.626 j    -1.04231e-05          23.018
+      20:  1.50746e-05 +     -144.626 j    -1.04231e-05         -23.018
+      21:  9.05681e-07 +      133.124 j    -6.80331e-07         21.1873
+      22:   9.0568e-07 +     -133.124 j     -6.8033e-07        -21.1873
+      23: -1.99056e-06 +      218.388 j     9.11478e-07         34.7575
+      24: -1.99056e-06 +     -218.388 j     9.11478e-07        -34.7575
+      25: -5.22835e-05 +       269.83 j     1.93764e-05         42.9448
+      26: -5.22835e-05 +      -269.83 j     1.93764e-05        -42.9448
+      27: -1.68249e-05 +      246.502 j     6.82545e-06         39.2319
+      28: -1.68249e-05 +     -246.502 j     6.82545e-06        -39.2319
+      29: -2.17176e-05 +      335.875 j     6.46598e-06         53.4561
+      30: -2.17176e-05 +     -335.875 j     6.46598e-06        -53.4561
+
+FIXME: the 6^th mode looks incorrect.

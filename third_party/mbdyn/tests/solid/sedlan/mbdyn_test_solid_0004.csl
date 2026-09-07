@@ -1,0 +1,2 @@
+constitutive law: 1, name, "solid1", 6, mooney rivlin elastic, E, 5.0000000000000000e+00, nu, 4.9998999999999999e-01, delta, 2.5000000000000000e-01;
+constitutive law: 1, name, "solid1", 7, mooney rivlin elastic, E, 5.0000000000000000e+00, nu, 4.9998999999999999e-01, delta, 2.5000000000000000e-01;

@@ -1,0 +1,69 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/modal/modal-clamped,v 1.3 2014/12/13 17:15:38 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: .1;
+	time step: 1e-4;
+
+	tolerance: 1e-9;
+	max iterations: 10;
+
+	derivatives tolerance: 10;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1;
+
+	threads: disable;
+
+	output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# interface
+	;
+	joints:
+		+1	# modal
+	;
+	forces:
+		+1	# modal
+	;
+end: control data;
+
+begin: nodes;
+	structural: 5555, static,
+		1.177590, 0.762000, 0.000000,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 2, modal,
+		clamped,
+        	4,	# n. of modes
+			list, 1, 2, 3, 4,
+		127,	# n. of FEM nodes
+		no damping,
+		# proportional damping, .7,
+		"../../joints/modal/agard-445.6.fem",
+		1,
+        	121, 5555, null;
+
+	force: 10, modal,
+		2,
+		list, 2, 1, 2,
+			const, 1.e-2,
+			linear, 0., 1.e-1;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,5 +1,71 @@
 # MANOUVER_STIFNESS
 
+## Sweep fittizio di softening amplificato
+
+`fictitious_softening_sweep.py` prepara sei sole run nuove, tutte `excited`,
+per `V = 66.25, 66.75, 67.25 m/s` e `n = 1.3, 1.6`. Riusa le shadow già
+completate della campagna fisica `BFF_PULLUP_STIFFNESS_SWEEP` e amplifica a
+quattro volte la matrice di prestress nella dinamica perturbativa:
+
+```text
+K_pert = K_fem + 4 Delta_n K_h,n
+Q_extra = -3 Delta_n K_h,n [q - q_shadow(t)]
+```
+
+Il riferimento mobile registrato rende `Q_extra=0` lungo la shadow; per questo
+non occorre rieseguire le sei traiettorie nominali. Preparazione e run:
+
+```bash
+cd /home/nicomonzi/X_56/workflows/maneuver_bff
+python3 fictitious_softening_sweep.py
+python3 fictitious_softening_sweep.py --execute --jobs 2 --analyse
+```
+
+I nuovi input e risultati sono salvati in
+`C:\Users\Utente\Desktop\BFF_PULLUP_FAKE_SOFTENING_X4`.
+
+## Sweep fisico con correzione di rigidezza Nastran
+
+La campagna `prestress_rom` riproduce la manovra `dive_pullup` validata in
+`BFF_PULLUP_V2`: stabilizzazione iniziale, picchiata, richiamata, rap paired,
+superfici congelate e SAS realmente disattivato per 2.05 s. Non usa il caso
+`pullup` con SAS continuo.
+
+Durante tutta la manovra viene applicata, sui modi FEM 7--12 e nella stessa
+base modale free-free del joint MBDyn, la matrice completa ottenuta dalle run
+Nastran 1 g/1.6 g:
+
+```text
+Delta n_sched(t) = VINF*q_command(t)/GRAVITY
+Q_prestress(t)   = -Delta n_sched(t)*K_h,n*(q(t)-q_eq)
+```
+
+La sorgente è esogena: segue il pitch-rate della manovra ma non usa
+l'accelerazione calcolata da MBDyn, evitando un anello algebrico. La griglia
+contiene 5 velocità (`65.9375, 66.09375, 66.25, 66.75, 67.25 m/s`), due classi
+di carico (`1.3, 1.6`) e una coppia shadow/excited per punto: 20 traiettorie.
+
+Per preparare soltanto gli input sul Desktop:
+
+```bash
+cd /home/nicomonzi/X_56/workflows/maneuver_bff
+python3 run_sweep.py --campaign prestress_rom
+```
+
+Per eseguire e analizzare:
+
+```bash
+python3 run_sweep.py --campaign prestress_rom --execute --jobs 2 --analyse
+```
+
+L'output predefinito è
+`C:\Users\Utente\Desktop\BFF_PULLUP_STIFFNESS_SWEEP`. L'analisi riusa
+`BFF_PULLUP_V2\primary` come baseline lineare e legge
+`BFF_open_loop\sweep_summary.json` come riferimento level-flight. Produce
+`analysis/paired_results.csv`, `analysis/onset.csv`,
+`analysis/prestress_vs_linear.csv`, `analysis/summary.json` e
+`analysis/summary.png`.
+
 ## Rettifica della revisione del 5 settembre 2026
 
 Il precedente gate `physical_prestress_resolved_robust_to_dlm_distribution_build_rom`

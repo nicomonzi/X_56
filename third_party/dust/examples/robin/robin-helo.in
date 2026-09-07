@@ -1,0 +1,9 @@
+
+mesh_file = ./robin-b.cgns
+mesh_file_type = cgns 
+el_type = p
+scaling_factor = 0.001
+
+tol_se_wing = 0.00001
+inner_product_te = -0.5
+

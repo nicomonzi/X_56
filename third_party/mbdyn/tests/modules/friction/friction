@@ -1,0 +1,56 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/modules/friction/friction,v 1.3 2014/12/13 17:15:54 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-4;
+	max iterations: 20;
+	method: ms, .6, .6;
+
+	derivatives tolerance: 1.e-5;
+	derivatives max iterations: 20;
+	derivatives coefficient: 1.e-6;
+
+	newton raphson: modified, 4;
+
+linear solver: umfpack;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes: 1;
+	genels: 1;
+	loadable elements: 1;
+	forces: 1;
+end: control data;
+
+begin: nodes;
+	abstract: 1;
+end: nodes;
+
+begin: elements;
+	genel: 1, spring support, 1, abstract, algebraic, 
+		linear viscoelastic, 1., 1.e-1;
+	loadable: 1000, "module-friction", help,
+		1, abstract,
+		#step, .01;
+		tanh, .07, 1.;
+	force: 1, abstract, 1, abstract,
+		sine, 0., pi/.1, 1., 
+			# forever, 
+			4,
+			0.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

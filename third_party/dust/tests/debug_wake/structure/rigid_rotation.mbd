@@ -1,0 +1,184 @@
+# === label ====================================================
+# nodes
+set: const integer GROUND = 0;
+set: const integer HUB = 1;
+set: const integer BLADE_1 = 2; 
+set: const integer BLADE_2 = 3; 
+
+# elements 
+set: const integer BLADE_1_HUB = 10;
+set: const integer BLADE_2_HUB = 11;
+set: const integer HUB_AXIAL = 12; 
+set: const integer HUB_TRANSLATION = 13;
+set: const integer DUST_FORCE = 14;  
+
+# === data =====================================================
+set: const real OMEGA = 10;   # [rad/sec] 
+set: const real DT = 0.001;   # [sec]
+
+# === data ======================================================
+begin: data;
+  problem: initial value;
+end: data;
+
+# === initial value problem =====================================
+begin: initial value;
+  initial time: 0.0;
+  final time: 2.0;
+  time step: DT;
+  max iterations: 250;
+  tolerance: 1.000000e-06;
+  derivatives tolerance: 1e-3;
+  derivatives max iterations: 100;
+  derivatives coefficient: 1.000000e-03, auto, max iterations, 100, factor, 3.0;
+  linear solver: naive, colamd, pivot factor, 1e-5;
+  method: ms, cosine, 0., pi/0.01, 0.6/2, half, 0.; 
+  
+  output: counter;
+
+end: initial value;
+
+begin: control data;
+
+  structural nodes: +4;           
+  rigid bodies:     +2; 
+  joints:           +4; 
+  forces:           +1;
+
+  default output: reference frames;
+	default orientation: orientation vector;
+  output results: netcdf;
+
+end: control data;
+
+# === reference frame ===========================================
+reference: GROUND,    # align with the first step 
+  reference, global, null,
+  reference, global, 
+    1, cos(OMEGA*DT), -sin(OMEGA*DT), 0.0,
+    3,            0.,             0.,  1.,
+  reference, global, null,
+  reference, global, null;
+
+reference: HUB,
+  reference, GROUND, null,
+  reference, GROUND, eye,
+  reference, GROUND, null,
+  reference, GROUND, 0., 0., OMEGA;
+
+reference: BLADE_1,
+  reference, HUB, 0., 1., 0.,
+  reference, HUB, eye,
+  reference, HUB, null,
+  reference, HUB, null;
+
+reference: BLADE_2,
+  reference, HUB, 0., -1, 0.,
+  reference, HUB, 
+    1, -1.0, 0.0, 0.0,
+    3,  0.0, 0.0, 1.0,
+  reference, HUB, null,
+  reference, HUB, null;
+
+# === nodes =====================================================
+begin: nodes;
+
+  structural:  GROUND, static,  # static,  
+    reference, GROUND, null,
+    reference, GROUND, eye,
+    reference, GROUND, null,
+    reference, GROUND, null;
+  
+  structural:  HUB, static,  # static,  
+    reference, HUB, null,
+    reference, HUB, eye,
+    reference, HUB, null,
+    reference, HUB, null;
+
+  structural:  BLADE_1, dynamic,  # dynamic,
+    reference, BLADE_1, null,
+    reference, BLADE_1, eye,
+    reference, BLADE_1, null,
+    reference, BLADE_1, null;
+
+  structural:  BLADE_2, dynamic,  # dynamic, (different orientation to the coupling node orientation)
+    reference, BLADE_2, null,
+    reference, BLADE_2, 
+      1, 0., 1., 0., 
+      3, 0., 0., 1., 
+    reference, BLADE_2, null,
+    reference, BLADE_2, null;
+
+end: nodes;
+
+begin: elements;
+
+  body: BLADE_1, BLADE_1,
+    1.0,
+    reference, BLADE_1, null,
+    diag, 0., 0., 1.;
+
+  body: BLADE_2, BLADE_2,
+    1.0,
+    reference, BLADE_2, null,
+    diag, 0., 0., 1.;
+
+  #> === Joints ===
+
+  joint: GROUND, clamp, GROUND, node, node; 
+  
+  joint: BLADE_1_HUB, total joint, 
+    HUB, 
+      position, reference, HUB, null,
+      position orientation, reference, HUB, eye,
+      rotation orientation, reference, HUB, eye,
+    BLADE_1, 
+      position, reference, HUB, null,
+      position orientation, reference, HUB, eye,
+      rotation orientation, reference, HUB, eye,
+    position constraint, 
+      1, 1, 1,
+      null, 
+    orientation constraint,
+      1, 1, 1,
+      null;
+
+  joint: BLADE_2_HUB, total joint, 
+    HUB, 
+      position, reference, HUB, null,
+      position orientation, reference, HUB, eye,
+      rotation orientation, reference, HUB, eye,
+    BLADE_2, 
+      position, reference, HUB, null,
+      position orientation, reference, HUB, eye,
+      rotation orientation, reference, HUB, eye,
+    position constraint, 
+      1, 1, 1,
+      null, 
+    orientation constraint,
+      1, 1, 1,
+      null;
+
+  joint: HUB_AXIAL, axial rotation,
+    GROUND,
+      position, reference, GROUND, null, 
+      orientation, reference, GROUND, eye,
+    HUB,
+      position, reference, HUB, null, 
+      orientation, reference, HUB, eye,
+    const, OMEGA; 
+
+  force: DUST_FORCE, external structural,
+    socket,
+      create, yes,
+      path, "$MBSOCK",
+      no signal,
+    coupling, tight,
+    sorted, yes,
+    orientation, orientation vector,
+    accelerations, yes,
+    2,
+    BLADE_1, 
+    BLADE_2;
+
+end: elements;

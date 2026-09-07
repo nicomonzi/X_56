@@ -1,0 +1,87 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/genel/dryden-gust/dryden-gust,v 1.5 2009/03/13 10:53:57 masarati Exp $
+#
+# Dryden gust model
+#
+# author: Alessandro De Gaspari <degaspari@aero.polimi.it>
+
+set: integer VGUST_IDX = 4;	# index of gust velocity abstract node
+set: integer VWT_IDX = 4;	# index of wind-tunnel speed parameter node
+
+set: real SIGMA = 1.;		# Turbulence intensity
+set: real V = 120.;
+set: real L = 0.97216;  	# Turbulence scale length (Wing CMA)
+set: real TAU = L/V;
+
+begin: data;
+	problem: initial value;
+end:data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-3;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes: 1;
+	parameter nodes: 1;
+	genels: 1;
+	air properties;
+end: control data;
+
+begin: nodes;
+	parameter: VWT_IDX, /* bound to */ element;
+	abstract: VGUST_IDX;
+end: nodes;
+
+begin: elements;
+/*
+	# state space SISO form
+	genel: 3, state space SISO,
+		VGUST_IDX, abstract, algebraic,
+		drive, random, 1., 0., 0., forever,
+		2,
+		matrix A,
+			-2/TAU, -1/TAU^2,
+			1., 0.,
+		matrix B,
+			1.,
+			0.,
+		matrix C,
+			sqrt(3.), 1./TAU;
+*/
+	set: seed(0);
+
+	# scalar filter form
+	genel: 3, scalar filter,
+		VGUST_IDX, abstract, algebraic,
+		drive, random, 1., 0., 0., forever,
+		canonical form, controllable,
+		2,
+			2./TAU, 1./(TAU^2),
+		1,
+			sqrt(3.), 1/TAU;
+
+	set: [node, VWT, VWT_IDX, parameter];
+
+	air properties:
+		std, SI,
+		array, 2,
+		1.,0.,0.,
+			array, 2,
+			cosine, .3, pi/.2, 110./2., half, 0.,
+			ramp, (V-110.)/4., 1., 5., 0.,
+		0.,0.,1.,
+			dof, VGUST_IDX, abstract, algebraic,
+				string, "SIGMA*sqrt(VWT/L)*Var",
+		output, yes;
+
+	bind: air properties, VWT_IDX, name, "vxinf";
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

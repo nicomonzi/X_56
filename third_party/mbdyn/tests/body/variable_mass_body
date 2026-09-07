@@ -1,0 +1,109 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/body/variable_mass_body,v 1.2 2014/09/09 16:00:20 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-2;
+	tolerance: 1e-6;
+
+	method: ms, .6;
+
+	tolerance: 1e-6;
+	max iterations: 20;
+
+	output: iterations;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 2;
+	gravity;
+end: control data;
+
+begin: nodes;
+	structural: 1, dynamic,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		null,
+		eye,
+		null,
+		0., 0., 1.;
+end: nodes;
+
+begin: elements;
+	automatic structural: 1,
+		null,
+		null,
+		0., 0., -9.81,
+		null;
+
+	automatic structural: 2,
+		null,
+		null,
+		0., 0., -9.81,
+		null;
+
+	body: 1, 1,
+		1.,
+		null,
+		diag, 1., 1., 1.;
+
+template drive caller: 99, 1, linear, 1., -.5;
+template drive caller: 99, 3, 0., 0., 1., const, 0.;
+template drive caller: 99, "3x3", 
+		component,
+		1., inactive, inactive,
+		inactive, 1., inactive,
+		inactive, inactive, cosine, 0., pi/.2, -.5/2, forever, 1.;
+
+template drive caller: 97, "3x3", 
+		component, sym,
+		1., inactive, inactive,
+		    1., inactive,
+		        cosine, 0., pi/.2, -.5/2, forever, 1.;
+
+template drive caller: 95, "3x3", 
+		component, diag,
+		1., 1., cosine, 0., pi/.2, -.5/2, forever, 1.;
+
+	body: 2, 2,
+		variable mass,
+		linear, 1., -.5,
+		# p"<awk '$1==2' ./x.mov" u (1e-2*$0):10,(-1.*9.81*x + .5*9.81*x*x/2)/(1. - .5*x)
+		null,
+		# 0., 0., 1., const, 0.,
+		# 1., 0., 0., linear, 0., 1.,
+		# 1., 0., 0., 0., 1., 0., 0., 0., 1., const, 1.;
+		# diag, 1., 1., 1., const, 1.;
+		/*
+		component,
+		1., inactive, inactive,
+		inactive, 1., inactive,
+		inactive, inactive, cosine, 0., pi/.2, -.5/2, forever, 1.;
+		*/
+		# reference, 95;
+		# reference, 97;
+		# reference, 99;
+		1., 0., 0., 0., 1., 0., 0., 0., 1., const, 1,
+		1., 0., 0., 0., 1., 0., 0., 0., 1., const, 1;
+	
+	inertia: 99, body, all;
+	gravity: uniform, 0.,0.,-1., 9.81;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,91 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/genel/hopf-bifurcation/hb,v 1.6 2014/06/10 11:03:00 masarati Exp $
+#
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+#
+# Limit-cycle resulting from Hopf bifurcation
+#
+# dot{y} = y*(lambda + b*abs(y)^2)
+#
+# b = alpha + j*beta
+#
+# limit solution:
+#
+# y = sqrt(-lambda/alpha)*e^(-i*beta*lambda/alpha*t)
+#
+# with b, y complex, realized as two real equations:
+#
+# dot{x}_1 = x_1*lambda + (y_1*alpha - y_2*beta)*(y_1^2 + y_2^2)
+# dot{x}_2 = x_2*lambda + (y_1*beta + y_2*alpha)*(y_1^2 + y_2^2)
+# y_1 = x_1
+# y_2 = x_2
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 100.;
+	time step: 1e-2;
+
+	max iterations: 20;
+	tolerance: 1e-9;
+
+	# method: ms, .6;
+	method: crank nicolson;
+
+	# output: residual;
+	# output: solution;
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes: 2;
+	genels: 1;
+end: control data;
+
+set: real LAMBDA = .1;
+set: real ALPHA = -.01;
+set: real BETA = 1.;
+set: real ZR0 = 1.;
+set: real ZI0 = 0.;
+set: real Z2 = ZR0^2 + ZI0^2;
+set: real ZRP0 = ZR0*(LAMBDA + ALPHA*Z2) - ZI0*BETA*Z2;
+set: real ZIP0 = ZR0*BETA*Z2 + ZI0*(LAMBDA + ALPHA*Z2);
+
+begin: nodes;
+	abstract: 1, differential, value, ZR0, derivative, ZRP0;
+	abstract: 2, differential, value, ZI0, derivative, ZIP0;
+end: nodes;
+
+set: [dof, ZR, 1, abstract, algebraic];
+set: [dof, ZI, 2, abstract, algebraic];
+
+begin: elements;
+	genel: 1, state space MIMO,
+		2,
+			1, abstract, algebraic,
+			2, abstract, algebraic,
+		2,
+			drive, string, "(ZR*ALPHA - ZI*BETA)*(ZR^2 + ZI^2)",
+			drive, string, "(ZR*BETA + ZI*ALPHA)*(ZR^2 + ZI^2)",
+		2,
+		matrix A,
+			LAMBDA, 0.,
+			0., LAMBDA,
+		matrix B,
+			1., 0.,
+			0., 1.,
+		matrix C,
+			1., 0.,
+			0., 1.,
+		value, ZR0, ZI0;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

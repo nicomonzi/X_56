@@ -1,0 +1,3 @@
+mesh_file = ./wing/test_mesh_
+mesh_file_type = basic
+el_type = p

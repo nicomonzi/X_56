@@ -1,0 +1,62 @@
+set: i = 1;
+include: "beam_frame_i.ref";
+
+set: i = 2;
+include: "beam_frame_i.ref";
+
+set: i = 3;
+include: "beam_frame_i.ref";
+
+set: i = 4;
+include: "beam_frame_i.ref";
+
+set: i = 5;
+include: "beam_frame_i.ref";
+
+set: i = 6;
+include: "beam_frame_i.ref";
+
+set: i = 7;
+include: "beam_frame_i.ref";
+
+set: i = 8;
+include: "beam_frame_i.ref";
+
+set: i = 9;
+include: "beam_frame_i.ref";
+
+set: i = 10;
+include: "beam_frame_i.ref";
+
+set: i = 11;
+include: "beam_frame_i.ref";
+
+set: i = 12;
+include: "beam_frame_i.ref";
+
+set: i = 13;
+include: "beam_frame_i.ref";
+
+set: i = 14;
+include: "beam_frame_i.ref";
+
+set: i = 15;
+include: "beam_frame_i.ref";
+
+set: i = 16;
+include: "beam_frame_i.ref";
+
+set: i = 17;
+include: "beam_frame_i.ref";
+
+set: i = 18;
+include: "beam_frame_i.ref";
+
+set: i = 19;
+include: "beam_frame_i.ref";
+
+set: i = 20;
+include: "beam_frame_i.ref";
+
+set: i = 21;
+include: "beam_frame_i.ref";

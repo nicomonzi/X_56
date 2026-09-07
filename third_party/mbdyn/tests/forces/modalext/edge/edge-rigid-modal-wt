@@ -1,0 +1,185 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/modalext/edge/edge-rigid-modal-wt,v 1.2 2010/06/03 19:01:18 masarati Exp $
+
+begin: data;
+	integrator: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	# final time: forever;
+	final time: 1.01;
+	time step: 0.0010;
+
+	tolerance: 1e-4;
+	max iterations: 1000;
+
+	derivatives tolerance: 1000;
+	derivatives max iterations: 1000;
+	#derivatives coefficient: 1e-12;
+
+	linear solver: naive, colamd, mt, 1;
+	threads: disable;
+
+	output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# ground
+		+1	# modal
+		+1	# interface
+	;
+	joints:
+		+1	# clamp
+		+2	# symmetry
+		+2	# constraints
+		+1	# modal
+	;
+	forces:
+		+2	# extmodal
+		+1	# excitation
+	;
+	air properties;
+end: control data;
+
+set: integer GROUND = 1;
+set: integer MODAL = 9999;
+set: integer TIP = 5555;
+
+reference: GROUND,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: MODAL,
+	reference, GROUND, null,
+	reference, GROUND, eye,
+	reference, GROUND, null,
+	reference, GROUND, null;
+reference: TIP,
+	reference, MODAL,
+		1.177590, 0.762000, 0.000000,
+	reference, MODAL, eye,
+	reference, MODAL, null,
+	reference, MODAL, null;
+
+begin: nodes;
+	structural: GROUND, static,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+	structural: MODAL, modal,
+		reference, MODAL, null,
+		reference, MODAL, eye,
+		reference, MODAL, null,
+		reference, MODAL, null;
+	structural: TIP, static,
+		reference, TIP, null,
+		reference, TIP, eye,
+		reference, TIP, null,
+		reference, TIP, null;
+end: nodes;
+
+set: real ALPHA = 0.*deg2rad;
+begin: elements;
+	air properties: std, SI,	# real analysis at 10326.00 Pa, 289.4 K
+		# -1, 0., 0.,
+		cos(ALPHA), 0., sin(ALPHA),
+		231.37;
+
+	# ground the ground node
+	joint: GROUND, clamp, GROUND, node, node;
+	# symmetry constraint: do not allow spanwise displacement
+	joint: GROUND + 1, inplane,
+		GROUND,
+			reference, GROUND, null,
+			reference, GROUND, 0., 1., 0.,
+		MODAL;
+	# symmetry constraint: do not allow roll & yaw rotations
+	joint: GROUND + 2, revolute rotation,
+		GROUND,
+			hinge, reference, GROUND,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.,
+		MODAL,
+			hinge, reference, GROUND,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.;
+	# heave spring
+	joint: GROUND + 3, deformable displacement joint,
+		GROUND,
+			reference, GROUND, null,
+			hinge, reference, GROUND, eye,
+		MODAL,
+			reference, GROUND, null,
+			hinge, reference, GROUND, eye,
+		linear elastic generic,
+			diag, 350000., 0., 7000.;
+	# pitch hinge
+	joint: GROUND + 4, deformable hinge,
+		GROUND,
+			hinge, reference, GROUND, eye,
+		MODAL,
+			hinge, reference, GROUND, eye,
+		linear elastic, 1e6;
+	
+	joint: MODAL, modal,
+		MODAL,	# modal node
+        	4,	# n. of modes
+			list, 1, 2, 3, 4,
+		121,	# n. of FEM nodes
+		no damping,
+		# proportional damping, .7,
+		"agard-445.6.fem",
+		1,
+        	121, TIP, null;
+
+	# NOTE: because of developers' laziness, EDGE interface
+	# needs two external modal force elements, one that accounts
+	# for the rigid-body motion and one that accounts for modal
+	# deformability.  Apart from the type, the rest of the
+	# configuration is identical, except that the second one
+	# probably does not need sleeptime
+	force: 10, external modal,
+		EDGE,
+		"rflag.dat",		# EDGE exchange flag file
+		"rdata.dat",		# EDGE exchange data file
+		sleeptime, 5,
+		coupling, tight,
+		MODAL,			# modal joint
+		type, rigid;		# extern force type
+	force: 11, external modal,
+		EDGE,
+		"mflag.dat",	# EDGE exchange flag file
+		"mdata.dat",	# EDGE exchange data file
+		sleeptime, 5,
+		coupling, tight,
+		MODAL,			# modal joint
+		type, modal;		# extern force type
+
+	# excitation
+	force: 12, absolute,
+		TIP,
+		position, null,
+		0., 0., 1.,
+			sine, 0., pi/.1, 1.e+2, one, 0.;
+
+	/*
+	couple: 12, absolute,
+		MODAL, 0., 1., 0.,
+		const, 1.;
+	*/
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

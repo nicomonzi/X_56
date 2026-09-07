@@ -1,0 +1,209 @@
+% MBDyn (C) is a multibody analysis code. 
+% http://www.mbdyn.org
+% 
+% Copyright (C) 1996-2023
+% 
+% Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+% Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+% 
+% Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+% via La Masa, 34 - 20156 Milano, Italy
+% http://www.aero.polimi.it
+% 
+% Changing this copyright notice is forbidden.
+% 
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation (version 2 of the License).
+% 
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+% 
+% Author: Eduardo Okabe
+
+
+\subsection{Module-fab-electric}
+\label{sec:MODULE:FAB-ELECTRIC}
+\emph{Author: Eduardo Okabe}
+
+\noindent
+This module implements several electric components.
+
+
+\subsubsection{BJT}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{bjt}
+
+    \bnt{module_data} ::=
+        \{ \kw{npn} | \kw{pnp} \} ,
+        \bnt{collector_electric_node_label} ,
+        \bnt{base_electric_node_label} ,
+        \bnt{emitter_electric_node_label} ,
+        (\hty{real}) \bnt{base_to_emitter_leakage_saturation_current} ,
+        (\hty{real}) \bnt{base_to_collector_leakage_saturation_current} ,
+        (\hty{real}) \bnt{ideal_maximum_forward_beta} ,
+        (\hty{real}) \bnt{ideal_maximum_reverse_beta} ,
+        [ , \kw{thermal voltage} , (\hty{real}) \bnt{thermal_voltage} ]
+\end{Verbatim}
+
+
+\subsubsection{Capacitor}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{capacitor}
+
+    \bnt{module_data} ::=
+        \bnt{electric_node_1_label} ,
+        \bnt{electric_node_2_label} ,
+        (\hty{real}) \bnt{capacitance}
+\end{Verbatim}
+
+\paragraph{Output.}
+\label{sec:MODULE:FAB-ELECTRIC:CAPACITOR:OUTPUT}
+The format is:
+\begin{itemize}
+\item the label of the element;
+\item the current in the element (\kw{I} in NetCDF format);
+%\item the voltage on the first node (\kw{V1} in NetCDF format);
+%\item the voltage on the second node (\kw{V2} in NetCDF format).
+\end{itemize}
+
+
+\subsubsection{Diode}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{diode}
+
+    \bnt{module_data} ::=
+        \bnt{electric_node_1_label} ,
+        \bnt{electric_node_2_label} ,
+        (\hty{real}) \bnt{forward_saturation_current} ,
+        (\hty{real}) \bnt{forward_ideality_factor} ,
+        (\hty{real}) \bnt{breakdown_current} ,
+        (\hty{real}) \bnt{breakdown_voltage} ,
+        (\hty{real}) \bnt{reverse_ideality_factor}
+        [ , \kw{thermal voltage} , (\hty{real}) \bnt{thermal_voltage} ]
+\end{Verbatim}
+
+
+\subsubsection{Electrical source}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{electrical source}
+
+    \bnt{module_data} ::=
+        \{ \kw{current} | \kw{voltage} \} ,
+            [ \kw{control} , \{ \kw{current} | \kw{voltage} \} ,
+                \bnt{input_electric_node_1_label} ,
+                \bnt{input_electric_node_2_label} , ]
+        \bnt{output_electric_node_1_label} ,
+        \bnt{output_electric_node_2_label} ,
+        (\hty{DriveCaller}) \bnt{source_driver}
+\end{Verbatim}
+
+
+\subsubsection{Ideal transformer}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{ideal transformer}
+
+    \bnt{module_data} ::=
+        \bnt{input_electric_node_1_label} ,
+        \bnt{input_electric_node_2_label} ,
+        \bnt{output_electric_node_1_label} ,
+        \bnt{output_electric_node_2_label} ,
+        (\hty{DriveCaller}) \bnt{tranformer_ratio}
+\end{Verbatim}
+
+
+\subsubsection{Inductor}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{inductor}
+
+    \bnt{module_data} ::=
+        \bnt{electric_node_1_label} ,
+        \bnt{electric_node_2_label} ,
+        (\hty{real}) \bnt{inductance}
+\end{Verbatim}
+
+\paragraph{Output.}
+\label{sec:MODULE:FAB-ELECTRIC:INDUCTOR:OUTPUT}
+The format is:
+\begin{itemize}
+\item the label of the element;
+\item the current in the element (\kw{I} in NetCDF format);
+%\item the voltage on the first node (\kw{V1} in NetCDF format);
+%\item the voltage on the second node (\kw{V2} in NetCDF format).
+\end{itemize}
+
+
+\subsubsection{Operational amplifier}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{operational amplifier}
+
+    \bnt{module_data} ::=
+        \bnt{input_electric_node_1_label} ,
+        \bnt{input_electric_node_2_label} ,
+        \bnt{reference_electric_node_1_label} ,
+        \bnt{output_electric_node_2_label}
+        [ , \kw{gain} , (\hty{real}) \bnt{gain} ]
+        [ , \kw{input resistance} , (\hty{real}) \bnt{input_resistance} ]
+\end{Verbatim}
+
+
+\subsubsection{Proximity sensor}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{proximity sensor}
+
+    \bnt{module_data} ::=
+        \bnt{struct_node_1_label} ,
+            [ , \kw{position}, (\hty{Vec3}) \bnt{node_1_offset} , ]
+        \bnt{struct_node_2_label} ,
+            [ , \kw{position}, (\hty{Vec3}) \bnt{node_2_offset} , ]
+        \bnt{electric_node_1_label} ,
+        \bnt{electric_node_2_label} ,
+        (\hty{ScalarFunction}) \bnt{distance_to_voltage_conversion_function}
+\end{Verbatim}
+
+
+\subsubsection{Resistor}
+\label{sec:MODULE:FAB-ELECTRIC:RESISTOR}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{resistor}
+
+    \bnt{module_data} ::=
+        \bnt{electric_node_1_label} ,
+        \bnt{electric_node_2_label} ,
+        (\hty{real}) \bnt{resistance}
+\end{Verbatim}
+
+\paragraph{Output.}
+\label{sec:MODULE:FAB-ELECTRIC:RESISTOR:OUTPUT}
+The format is:
+\begin{itemize}
+\item the label of the element;
+\item the current in the element (\kw{I} in NetCDF format);
+%\item the voltage on the first node (\kw{V1} in NetCDF format);
+%\item the voltage on the second node (\kw{V2} in NetCDF format).
+\end{itemize}
+
+
+\subsubsection{Switch}
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{switch}
+
+    \bnt{module_data} ::=
+        \bnt{electric_node_1_label} ,
+        \bnt{electric_node_2_label} ,
+        (\hty{DriveCaller}) \bnt{switch_state}
+\end{Verbatim}
+where \nt{switch\_state} is a drive that determines the state of the switch (0: open, 1: closed).
+
+\noindent
+\emph{NOTE: untested!}
+
+
+

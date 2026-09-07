@@ -1,0 +1,325 @@
+/* $Header$ */
+/* 
+ * MBDyn (C) is a multibody analysis code. 
+ * http://www.mbdyn.org
+ *
+ * Copyright (C) 1996-2023
+ *
+ * Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+ * Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+ *
+ * Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+ * via La Masa, 34 - 20156 Milano, Italy
+ * http://www.aero.polimi.it
+ *
+ * Changing this copyright notice is forbidden.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation (version 2 of the License).
+ * 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/* Giunti sferici */
+
+#ifndef SPHERJ_H
+#define SPHERJ_H
+
+#include "joint.h"
+#include "friction2D.h"
+
+
+/* SphericalHingeJoint - begin */
+
+class SphericalHingeJoint : public Joint {
+ private:
+   const StructNode* pNode1;
+   const StructNode* pNode2;
+#ifdef USE_NETCDF
+   MBDynNcVar Var_Phi;
+#endif // USE_NETCDF
+   Vec3 d1;
+   Mat3x3 R1h;
+   Vec3 d2;
+   Mat3x3 R2h;
+   Vec3 F;
+
+   /* friction related data */
+   BasicShapeCoefficient2D *const Sh_c;
+   BasicFriction2D *const fc;
+   const doublereal preF;
+   const doublereal r;
+   Vec3 Ffrict1, Ffrict2;
+   Vec3 M1, M2;
+   static const unsigned int NumSelfDof;
+   static const unsigned int NumDof;
+   Mat3x3 Q, Qold;
+   Vec3 Fold;
+   bool reset_Q, compute_Q;
+#ifdef USE_NETCDF
+   MBDynNcVar Var_MFR;
+   MBDynNcVar Var_n;
+   MBDynNcVar Var_t1;
+   MBDynNcVar Var_t2;
+   MBDynNcVar Var_fc1;
+   MBDynNcVar Var_fc2;
+   MBDynNcVar Var_Fn;
+   MBDynNcVar Var_F1;
+   MBDynNcVar Var_F2;
+#endif // USE_NETCDF
+   /* end of friction related data */
+
+ protected:
+	OrientationDescription od;
+
+ public:
+   /* Costruttore non banale */
+   SphericalHingeJoint(unsigned int uL, const DofOwner* pDO,
+		       const StructNode* pN1, const StructNode* pN2,
+		       const Vec3& dTmp1, const Mat3x3& RTmp1h,
+		       const Vec3& dTmp2, const Mat3x3& RTmp2h,
+		       const OrientationDescription& od,
+		       flag fOut,
+               const doublereal rr = 0.,
+               const doublereal pref = 0.,
+               BasicShapeCoefficient2D *const sh = 0,
+               BasicFriction2D *const f = 0);
+   
+   ~SphericalHingeJoint(void);
+
+   /* Tipo di Joint */
+   virtual Joint::Type GetJointType(void) const override { 
+      return Joint::SPHERICALHINGE; 
+   };
+
+   /* Contributo al file di restart */
+   virtual std::ostream& Restart(std::ostream& out) const override;
+     
+   virtual void Restart(RestartData& oData, RestartData::RestartAction eAction) override;
+
+   virtual unsigned int iGetNumDof(void) const override { 
+      unsigned int i = NumSelfDof;
+      if (fc) {
+          i+=fc->iGetNumDof();
+      }
+      return i;
+   };
+
+   virtual std::ostream& DescribeDof(std::ostream& out,
+		   const char *prefix = "",
+		   bool bInitial = false) const override;
+
+   virtual void DescribeDof(std::vector<std::string>& desc,
+		   bool bInitial = false, int i = -1) const override;
+
+   virtual std::ostream& DescribeEq(std::ostream& out,
+		   const char *prefix = "",
+		   bool bInitial = false) const override;
+
+   virtual void DescribeEq(std::vector<std::string>& desc,
+		   bool bInitial = false, int i = -1) const override;
+
+   virtual DofOrder::Order GetDofType(unsigned int i) const override {
+      ASSERT(i >= 0 && i < iGetNumDof());
+      if (i<NumSelfDof) {
+          return DofOrder::ALGEBRAIC;
+      } else {
+          return fc->GetDofType(i-NumSelfDof);
+      }
+   };
+
+   virtual void AfterConvergence(const VectorHandler& X,
+                        const VectorHandler& XP) override;
+
+   virtual void WorkSpaceDim(integer* piNumRows, integer* piNumCols) const override { 
+      *piNumRows = 15; 
+      *piNumCols = 15; 
+      if (fc) {
+          *piNumRows += fc->iGetNumDof();
+          *piNumCols += fc->iGetNumDof();
+      }
+   };
+   
+   VariableSubMatrixHandler& AssJac(VariableSubMatrixHandler& WorkMat,
+				    doublereal dCoef,
+				    const VectorHandler& XCurr, 
+				    const VectorHandler& XPrimeCurr) override;
+   SubVectorHandler& AssRes(SubVectorHandler& WorkVec,
+			    doublereal dCoef,
+			    const VectorHandler& XCurr, 
+			    const VectorHandler& XPrimeCurr) override;
+			    
+   DofOrder::Order GetEqType(unsigned int i) const override;
+   
+   void OutputPrepare(OutputHandler &OH) override;
+   virtual void Output(OutputHandler& OH) const override;
+ 
+   virtual void SetValue(DataManager *pDM,
+		   VectorHandler& X, VectorHandler& XP,
+		   SimulationEntity::Hints *ph = 0) override;
+
+	virtual Hint *
+	ParseHint(DataManager *pDM, const char *s) const override;
+	         
+   /* funzioni usate nell'assemblaggio iniziale */
+   
+   virtual unsigned int iGetInitialNumDof(void) const override {
+      return 6;
+   };
+   virtual void InitialWorkSpaceDim(integer* piNumRows,
+				    integer* piNumCols) const override { 
+      *piNumRows = 30; 
+      *piNumCols = 30; 
+   };
+   
+   /* Contributo allo jacobiano durante l'assemblaggio iniziale */
+   VariableSubMatrixHandler& InitialAssJac(VariableSubMatrixHandler& WorkMat,
+					   const VectorHandler& XCurr) override;
+   
+   /* Contributo al residuo durante l'assemblaggio iniziale */   
+   SubVectorHandler& InitialAssRes(SubVectorHandler& WorkVec,
+				   const VectorHandler& XCurr) override;
+
+#ifdef DEBUG
+   virtual const char* sClassName(void) const { 
+      return "SphericalHingeJoint";
+   };
+#endif   
+
+   /* *******PER IL SOLUTORE PARALLELO******** */        
+   /* Fornisce il tipo e la label dei nodi che sono connessi all'elemento
+      utile per l'assemblaggio della matrice di connessione fra i dofs */
+   virtual void GetConnectedNodes(std::vector<const Node *>& connectedNodes) const override {
+     connectedNodes.resize(2);
+     connectedNodes[0] = pNode1;
+     connectedNodes[1] = pNode2;
+   };
+   /* ************************************************ */
+
+   /* returns the dimension of the component */
+	const virtual OutputHandler::Dimensions GetEquationDimension(integer index) const override;
+
+};
+
+/* SphericalHingeJoint - end */
+
+
+/* PinJoint - begin */
+
+/* Incastro con liberta' di rotazione sui tre assi */
+
+class PinJoint : public Joint {
+ private:
+   const StructNode* pNode;
+   Vec3 X0;
+   Vec3 d;
+   Vec3 F;
+#ifdef USE_NETCDF
+   MBDynNcVar Var_Phi;
+#endif // USE_NETCDF
+
+ protected:
+	OrientationDescription od;
+
+ public:
+   /* Costruttore non banale */
+   PinJoint(unsigned int uL, const DofOwner* pDO,
+	    const StructNode* pN, 
+	    const Vec3& X0Tmp, const Vec3& dTmp,
+	    const OrientationDescription& od,
+	    flag fOut);
+   
+   ~PinJoint(void);
+
+   /* Tipo di Joint */
+   virtual Joint::Type GetJointType(void) const override {
+      return Joint::PIN; 
+   };
+
+   /* Contributo al file di restart */
+   virtual std::ostream& Restart(std::ostream& out) const override;
+
+   virtual unsigned int iGetNumDof(void) const override { 
+      return 3;
+   };
+   
+   virtual DofOrder::Order GetDofType(unsigned int i) const override {
+      ASSERT(i >= 0 && i < 3);
+      return DofOrder::ALGEBRAIC;
+   };
+   
+   virtual void WorkSpaceDim(integer* piNumRows, integer* piNumCols) const override { 
+      *piNumRows = 9; 
+      *piNumCols = 9; 
+   };
+   
+   VariableSubMatrixHandler& AssJac(VariableSubMatrixHandler& WorkMat,
+				    doublereal dCoef,
+				    const VectorHandler& XCurr, 
+				    const VectorHandler& XPrimeCurr) override;
+   SubVectorHandler& AssRes(SubVectorHandler& WorkVec,
+			    doublereal dCoef,
+			    const VectorHandler& XCurr, 
+			    const VectorHandler& XPrimeCurr) override;
+			    
+   DofOrder::Order GetEqType(unsigned int i) const override;
+  
+   void OutputPrepare(OutputHandler& OH) override;
+   virtual void Output(OutputHandler& OH) const override;
+ 
+   
+   /* funzioni usate nell'assemblaggio iniziale */
+   
+   virtual unsigned int iGetInitialNumDof(void) const override {
+      return 6;
+   };
+   virtual void InitialWorkSpaceDim(integer* piNumRows,
+				    integer* piNumCols) const override { 
+      *piNumRows = 18; 
+      *piNumCols = 18; 
+   };
+   
+   /* Contributo allo jacobiano durante l'assemblaggio iniziale */
+   VariableSubMatrixHandler& InitialAssJac(VariableSubMatrixHandler& WorkMat,
+					   const VectorHandler& XCurr) override;
+   
+   /* Contributo al residuo durante l'assemblaggio iniziale */   
+   SubVectorHandler& InitialAssRes(SubVectorHandler& WorkVec,
+				   const VectorHandler& XCurr) override;
+
+#ifdef DEBUG
+   virtual const char* sClassName(void) const { 
+      return "PinJoint";
+   };
+#endif
+
+   /* *******PER IL SOLUTORE PARALLELO******** */        
+   /* Fornisce il tipo e la label dei nodi che sono connessi all'elemento
+      utile per l'assemblaggio della matrice di connessione fra i dofs */
+   virtual void GetConnectedNodes(std::vector<const Node *>& connectedNodes) const override {
+     connectedNodes.resize(1);
+     connectedNodes[0] = pNode;
+   };
+   /* ************************************************ */ 
+
+   /* returns the dimension of the component */
+	const virtual OutputHandler::Dimensions GetEquationDimension(integer index) const override;
+
+   /* describes the dimension of components of equation */
+   virtual std::ostream& DescribeEq(std::ostream& out,
+		  const char *prefix = "",
+		  bool bInitial = false) const override;
+};
+
+/* PinJoint - end */
+
+#endif

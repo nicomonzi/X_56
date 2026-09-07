@@ -1,0 +1,18 @@
+user defined: CURR_TIRE, MFtire,
+	# wheel structural node label
+	CURR_HUB,
+	CURR_RIM,
+	# wheel axle direction
+	0., 1., 0.,
+	# unloaded radius
+	Ru,
+	# effective rolling radius
+	Re,
+	# tire vertical stiffness
+	kt,
+	# longitudinal friction coefficient drive
+	Dx, Cx, Bx, Ex,
+	# lateral friction coefficient drive for s.r.=0
+	Dy, Cy, By, Ey,
+	# reference vx, sigma
+	low speed, 1, 0.1;

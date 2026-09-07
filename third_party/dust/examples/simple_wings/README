@@ -1,0 +1,27 @@
+Simple case to demonstrate the basic functionalities of DUST.
+
+To run the case copy or link the executables in this folder, then run
+
+./dust_pre
+
+to generate the geometry, then
+
+./dust
+
+to execute the computations and finally
+
+./dust_post
+
+to generate the visualizations of the results.
+
+The results will be stored in the folder Output, while the postprocessed results
+in vtk format are stored in the Postprocessing folder.
+
+To obtain the results in tecplot format, edit the dust_post.in file and 
+substitute
+
+Format = vtk
+
+with 
+
+Format = tecplot

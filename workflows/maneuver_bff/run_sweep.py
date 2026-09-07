@@ -147,7 +147,10 @@ def main() -> None:
     args = parse_args()
     if args.jobs < 1:
         raise SystemExit("--jobs deve essere almeno 1")
-    output = (args.output or DEFAULT_OUTPUT_ROOT / args.campaign).expanduser().resolve()
+    campaign_config = CONFIG["campaigns"][args.campaign]
+    configured_output = campaign_config.get("output_root")
+    default_output = Path(configured_output) if configured_output else DEFAULT_OUTPUT_ROOT / args.campaign
+    output = (args.output or default_output).expanduser().resolve()
     cases, rows, manifest = prepare(args.campaign, output, overwrite=args.overwrite)
     print(f"[prepared] {len(cases)} input in {output / 'cases'}")
     print(f"[manifest] {manifest}")
@@ -178,6 +181,13 @@ def main() -> None:
             "reference_campaigns", []
         ):
             command.extend(["--reference-directory", str(output.parent / reference)])
+        for reference in CONFIG["campaigns"][args.campaign].get(
+            "reference_directories", []
+        ):
+            command.extend(["--reference-directory", str(Path(reference).expanduser().resolve())])
+        open_loop = CONFIG["campaigns"][args.campaign].get("open_loop_directory")
+        if open_loop:
+            command.extend(["--open-loop-directory", str(Path(open_loop).expanduser().resolve())])
         subprocess.run(command, check=True)
 
 

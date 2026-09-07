@@ -1,0 +1,182 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/modal/euler-bernoulli-beam/ebb,v 1.3 2017/01/12 15:04:08 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# 2 flexible rotating beams; the first pulls the second, loaded by triangle
+# shaped forces
+# from "A Multibody Formulation for Helicopter Structural Dynamic Analysis"
+# by O.A. Bauchau & N.K. Kang
+# Journal of the American Helicopter Society (?)
+#
+# See ../two-beams/ for details
+# This variant uses modal elements whose database is created using
+# a single two node engineering beam model based on Euler-Bernoulli formulation,
+# generated using ebb.m
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 50.;
+	time step: 5.e-2;
+
+	method: ms, .6;
+
+	tolerance: 1.e-6;
+	max iterations: 50;
+
+	derivatives coefficient: 1.e-1;
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 20;
+
+	threads: disable;
+
+	# output: iterations;
+	# output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	# skip initial joint assembly;
+	structural nodes: 5;
+	joints: 5;
+end: control data;
+
+set: real L = .5;
+set: real OMEGA = .5;
+
+# reference system located at hinge 1 (rotates about axis 3)
+reference: 101,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, 0., 0., OMEGA;
+# reference system of body 1
+reference: 1,
+	reference, 101, L/2.,0.,0.,
+	reference, 101, eye,
+	reference, 101, null,
+	reference, 101, null;
+# reference system located at hinge 2
+# (rotates about axis 3 of body 2, which is axis 1 of body 1)
+reference: 102,
+	reference, 101, L,0.,0.,
+	reference, 101,
+		3, 1.,0.,0.,
+		2, 0.,-1.,0.,
+	reference, 101, null,
+	reference, 101, null;
+# reference system of body 2
+reference: 2,
+	reference, 102, L/2.,0.,0.,
+	reference, 102, eye,
+	reference, 102, null,
+	reference, 102, null;
+
+begin: nodes;
+	structural: 0, static,
+		reference, global, null,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+
+	structural: 200, static,
+		reference, 101, L, 0., 0.,
+		reference, 101, eye,
+		reference, 101, null,
+		reference, 101, null;
+
+	structural: 400, static,
+		reference, 102, L/2., 0., 0.,
+                reference, 102, eye,
+                reference, 102, null,
+                reference, 102, null;
+
+	structural: 1, modal,
+		reference, 101, null,
+		reference, 101, eye,
+		reference, 101, null,
+		reference, 101, null;
+	structural: 2, modal,
+		reference, 102, null,
+		reference, 102, eye,
+		reference, 102, null,
+		reference, 102, null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+	joint: 101, revolute hinge,
+		0,
+			position, reference, 101, null,
+			orientation, reference, 101, eye,
+		1,
+			position, reference, 101, null,
+			orientation, reference, 101, eye;
+
+	joint: 102, revolute hinge,
+		200,
+			position, reference, 102, null,
+			orientation, reference, 102, eye,
+		2,
+			position, reference, 102, null,
+			orientation, reference, 102, eye;
+
+	joint: 1, modal, 1,
+		6,
+		11,
+		damping from file,
+		"ebb.fem",
+		create binary,
+		update binary,
+		use binary,
+		1,
+		11, 200, null, output, yes;
+
+	joint: 2, modal, 2,
+		6,
+		11,
+		damping from file,
+		"ebb.fem",
+		use binary,
+		1, output, yes,
+		6, 400, null;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

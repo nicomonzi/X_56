@@ -1,0 +1,17 @@
+basename = postpro/ring_re3000
+data_basename = output/ring_re3000
+
+analysis = {
+  name = v1
+  type = Viz
+
+  format = vtk !tecplot
+
+  start_res = 800
+  end_res = 2000
+  step_res = 1
+  wake = T
+
+  variable = vorticity_vector
+  variable = vortex_rad
+}

@@ -1,0 +1,191 @@
+% MBDyn (C) is a multibody analysis code. 
+% http://www.mbdyn.org
+% 
+% Copyright (C) 1996-2023
+% 
+% Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+% Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+% 
+% Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+% via La Masa, 34 - 20156 Milano, Italy
+% http://www.aero.polimi.it
+% 
+% Changing this copyright notice is forbidden.
+% 
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation (version 2 of the License).
+% 
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+% 
+
+\emph{Authors: Matteo Daniele, Alessandro Cocco}
+
+\bigskip
+
+This module implements a PID (Proportional-Integral-Derivative) controller with anti-windup capability.
+The controller can be used to control system outputs by comparing a measured signal with a reference setpoint and computing an appropriate control action.
+
+The implementation uses a filtered derivative term with a washout filter (characterized by the constant $K_n$) to avoid derivative kick and noise amplification.
+Anti-windup is implemented using the back-calculation method with a scaling factor $K_s$.
+
+\subsubsection{Syntax}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{pid}
+
+    \bnt{arglist} ::=
+        [ \kw{setpoint} , (\hty{DriveCaller}) \bnt{setpoint} , ]
+        \kw{measure} , (\hty{DriveCaller}) \bnt{measure} ,
+        \kw{Kp} , (\ty{real}) \bnt{proportional_gain} ,
+        \kw{Ki} , (\ty{real}) \bnt{integral_gain} ,
+        \kw{Kd} , (\ty{real}) \bnt{derivative_gain} ,
+        [ \kw{Kn} , (\ty{real}) \bnt{washout_constant} , ]
+        [ \kw{Ii0} , (\ty{real}) \bnt{initial_integral} , ]
+        [ \kw{Id0} , (\ty{real}) \bnt{initial_derivative_integral} , ]
+        [ \kw{Ks} , (\ty{real}) \bnt{antiwindup_scale} , ]
+        [ \kw{Ymin} , (\hty{DriveCaller}) \bnt{min_saturation} , ]
+        [ \kw{Ymax} , (\hty{DriveCaller}) \bnt{max_saturation} ]
+\end{Verbatim}
+
+\paragraph{Input Parameters}
+\begin{itemize}
+    \item \nt{setpoint}: reference value for the controller (optional, defaults to 0.0);
+    \item \nt{measure}: measured signal from the system to be controlled;
+    \item \nt{proportional\_gain} ($K_p$): proportional gain constant;
+    \item \nt{integral\_gain} ($K_i$): integral gain constant;
+    \item \nt{derivative\_gain} ($K_d$): derivative gain constant;
+    \item \nt{washout\_constant} ($K_n$): derivative washout constant for filtered derivative implementation (optional, defaults to 100.0);
+    \item \nt{initial\_integral} ($I_{i0}$): initial value of the integrator state (optional, defaults to 0.0);
+    \item \nt{initial\_derivative\_integral} ($I_{d0}$): initial value of the derivative filter state (optional, defaults to 0.0);
+    \item \nt{antiwindup\_scale} ($K_s$): anti-windup back-calculation scaling factor (optional, defaults to 1.0);
+    \item \nt{min\_saturation} ($Y_{min}$): minimum output saturation limit (optional, defaults to $-\infty$);
+    \item \nt{max\_saturation} ($Y_{max}$): maximum output saturation limit (optional, defaults to $+\infty$).
+\end{itemize}
+
+
+\begin{comment}
+\subsubsection{Control Law}
+
+The PID controller implements the following control law:
+
+\paragraph{Error Computation.}
+\begin{equation}
+e(t) = r(t) - y(t)
+\end{equation}
+where $r(t)$ is the setpoint and $y(t)$ is the measured value.
+
+\paragraph{Proportional Term.}
+\begin{equation}
+u_p(t) = K_p \, e(t)
+\end{equation}
+
+\paragraph{Integral Term with Anti-Windup.}
+\begin{equation}
+\begin{aligned}
+e_2(t) &= e(t) - K_s \left( u_b(t) - u(t) \right) \\
+u_i(t) &= I_i(t) + K_i \, e_2(t) \, \Delta t \\
+I_i(t+\Delta t) &= u_i(t)
+\end{aligned}
+\end{equation}
+where $u_b$ is the output before saturation, $u$ is the output after saturation, and $I_i$ is the integrator state.
+
+\paragraph{Derivative Term with Filtered Implementation.}
+\begin{equation}
+\begin{aligned}
+e_1(t) &= K_d \, e(t) - I_d(t) \\
+u_d(t) &= K_n \, e_1(t) \\
+I_d(t+\Delta t) &= I_d(t) + u_d(t) \, \Delta t
+\end{aligned}
+\end{equation}
+where $I_d$ is the derivative filter state.
+This implementation avoids derivative kick on setpoint changes and provides natural filtering of measurement noise.
+
+\paragraph{Total Output.}
+\begin{equation}
+\begin{aligned}
+u_b(t) &= u_p(t) + u_i(t) + u_d(t) \\
+u(t) &= \max \left( \min \left( u_b(t), Y_{max} \right), Y_{min} \right)
+\end{aligned}
+\end{equation}
+\end{comment} 
+
+\subsubsection{Output}
+
+This element sends output to both the \texttt{.usr} file and the NetCDF file (if NetCDF output is enabled).
+
+\paragraph{Text Output (\texttt{.usr} file).}
+Each entry contains:
+\begin{itemize}
+\item[1)] element label
+\item[2)] input error $e(t)$
+\item[3)] output after saturation $u(t)$
+\item[4)] proportional output $u_p(t)$
+\item[5)] integral output $u_i(t)$
+\item[6)] derivative output $u_d(t)$
+\item[7)] output before saturation $u_b(t)$
+\item[8)] integrator state $I_i(t)$
+\item[9)] derivative filter state $I_d(t)$
+\end{itemize}
+
+\paragraph{NetCDF Output.}
+When NetCDF output is enabled, the following variables are created:
+\begin{itemize}
+\item \kw{elem.loadable.\bnt{label}.error}:
+\item \kw{elem.loadable.\bnt{label}.output}
+\item \kw{elem.loadable.\bnt{label}.P}
+\item \kw{elem.loadable.\bnt{label}.I}
+\item \kw{elem.loadable.\bnt{label}.D}
+\item \kw{elem.loadable.\bnt{label}.output\_unsat}
+\item \kw{elem.loadable.\bnt{label}.I\_integral}
+\item \kw{elem.loadable.\bnt{label}.D\_integral}
+\end{itemize}
+
+\subsubsection{Private Data}
+
+The following data are available as private data:
+\begin{enumerate}
+\item \kw{"yout"}: output after saturation $u(t)$
+\item \kw{"ybout"}: output before saturation $u_b(t)$
+\end{enumerate}
+
+These can be accessed using the \kw{element} drive caller to use the PID output in other elements.
+
+\subsubsection{Example}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+    set: const integer PID = 1000;
+    module load: "libmodule-pid";
+    
+    user defined: PID, pid,
+        setpoint, const, 1.0,
+        measure, node, 100, structural, string, "X[3]", direct,
+        Kp, 4.0,
+        Ki, 0.4,
+        Kd, 0.1,
+        Kn, 100,
+        Ymin, -5.0*deg2rad,
+        Ymax, +5.0*deg2rad;
+    
+    # Use PID output in a drive caller
+    drive caller: CONTROL_DRIVE,
+        element, PID, loadable, string, "yout", direct;
+\end{Verbatim}
+
+This example creates a PID controller that:
+\begin{itemize}
+    \item Maintains a setpoint of 1.0 (e.g., 1 meter altitude).
+    \item Measures the Z-position of structural node 100.
+    \item Has proportional gain of 4.0, integral gain of 0.4, and derivative gain of 0.1.
+    \item Limits output between $-5^\circ$ and $+5^\circ$.
+    \item Makes its output available via the \texttt{CONTROL\_DRIVE} drive caller.
+        which can be used in other elements (e.g., to control an actuator).
+\end{itemize}

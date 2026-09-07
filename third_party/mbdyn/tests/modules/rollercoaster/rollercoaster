@@ -1,0 +1,66 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/modules/rollercoaster/rollercoaster,v 1.4 2014/12/13 17:15:54 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    # abort after: assembly;
+
+    initial time: 0.;
+    final time: 10.;
+    time step: 1.e-2;
+    
+    tolerance: 1.e-6;
+    max iterations: 20;
+    newton raphson: modified, 4;
+    
+    # method: ms, 1., 1.;   # funziona anche con 1!
+    method: ms, .6, .6;
+    # method: crank nicholson;
+    
+    derivatives coefficient: 1.;
+    derivatives tolerance: 1.e-6;
+    derivatives max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+    
+    structural nodes: 1;
+    rigid bodies: 1;
+    gravity;
+    loadable elements: 1;
+end: control data;
+
+begin: nodes;
+    structural: 1, dynamic,
+                reference, global, -1.,0.,0.,
+		reference, global, 3, 0.,0.,-1, 1, -1.,0.,0.,
+		reference, global, null,
+		reference, global, null;
+end: nodes;
+
+begin: elements;
+    body: 1, 1,
+          1., 
+	  0.,0.,0.,
+	  diag, 1.,1.,1.;
+    gravity: 0.,0.,-1., 9.81;
+    automatic structural: 1,
+        null,
+	null,
+	0.,0.,-9.81,
+	null;
+    loadable:  1, 
+	 "module-rollercoaster", name, "calls",
+        1;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

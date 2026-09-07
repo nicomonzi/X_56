@@ -1,0 +1,115 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# note: generated from the result of "main_assy"
+
+reference: CURR_BAY + POINT_LM, # 5
+	reference, global, 0.0000000000000000e+00, CURR_BAY/BAY*W_BAY, 0.0000000000000000e+00,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: CURR_BAY + POINT_JKM, # 4
+	reference, CURR_BAY + POINT_LM, 0.0000000000000000e+00, 0.0000000000000000e+00, 1.5000000000000000e+01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + FRONT + POINT_DEF, # 1
+	reference, CURR_BAY + POINT_LM, -7.8880318341652327e+01, 0.0000000000000000e+00, -9.7885715569134935e-01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + FRONT + POINT_BEJ, # 2
+	reference, CURR_BAY + POINT_LM, -4.2503343798562575e+01, 0.0000000000000000e+00, 4.1333738168767304e+01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + FRONT + POINT_ABCD, # 3
+	reference, CURR_BAY + POINT_LM, -3.8792267270681663e+01, 0.0000000000000000e+00, 0.0000000000000000e+00,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + FRONT + POINT_FGH, # 6
+	reference, CURR_BAY + POINT_LM, -6.7773879688160434e+01, 0.0000000000000000e+00, -3.8781066356162967e+01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + FRONT + POINT_HI, # 7
+	reference, CURR_BAY + POINT_LM, -2.3003592298551194e+01, 0.0000000000000000e+00, -8.6865485527572289e+01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + FRONT + POINT_CGIK, # 8
+	reference, CURR_BAY + POINT_LM, -3.1074706088454597e+01, 0.0000000000000000e+00, -3.8534779737252705e+01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + REAR + POINT_DEF, # 101
+	reference, CURR_BAY + POINT_LM, 7.8880318341652327e+01, 0.0000000000000000e+00, -9.7885715569134935e-01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + REAR + POINT_BEJ, # 102
+	reference, CURR_BAY + POINT_LM, 4.2503343798562575e+01, 0.0000000000000000e+00, 4.1333738168767304e+01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + REAR + POINT_ABCD, # 103
+	reference, CURR_BAY + POINT_LM, 3.8792267270681663e+01, 0.0000000000000000e+00, 0.0000000000000000e+00,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + REAR + POINT_FGH, # 106
+	reference, CURR_BAY + POINT_LM, 6.7773879688160434e+01, 0.0000000000000000e+00, -3.8781066356162967e+01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + REAR + POINT_HI, # 107
+	reference, CURR_BAY + POINT_LM, 2.3003592298551194e+01, 0.0000000000000000e+00, -8.6865485527572289e+01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+reference: CURR_BAY + REAR + POINT_CGIK, # 108
+	reference, CURR_BAY + POINT_LM, 3.1074706088454597e+01, 0.0000000000000000e+00, -3.8534779737252705e+01,
+	reference, CURR_BAY + POINT_LM, eye,
+	reference, CURR_BAY + POINT_LM, null,
+	reference, CURR_BAY + POINT_LM, null;
+
+# vim:ft=mbd

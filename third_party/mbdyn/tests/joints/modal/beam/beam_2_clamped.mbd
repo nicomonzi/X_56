@@ -1,0 +1,112 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/modal/beam/beam_2_clamped.mbd,v 1.4 2014/12/13 17:15:47 masarati Exp $
+
+# MBDyn test - modal element
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 2.e-3;
+
+	method: ms, .6;
+
+	# nonlinear solver: newton raphson, modified, 4;
+	nonlinear solver: matrix free, gmres;
+
+	tolerance: 1.e-5;
+	max iterations: 100;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	print: dof stats;
+
+	structural nodes:
+		+1		# beam 1 end
+		+1		# modal 2
+		+1		# beam 2 start
+		+1		# beam 2 end
+	;
+	joints:
+		+1		# modal 1
+		+1		# modal 2
+		+1		# hinge
+	;
+	forces:
+		+1		# excitation
+	;
+end: control data;
+
+reference: 1,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: 2,
+	reference, global, 1.,0.,0.,
+	reference, global, 1, 0.,1.,0., 3, 0.,0.,1.,
+	reference, global, null,
+	reference, global, null;
+
+begin: nodes;
+	structural: 2, static,
+		reference, 1, 1.,0.,0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 3, modal,
+		reference, 2, null,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+	structural: 4, static,
+		reference, 2, null,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+	structural: 5, static,
+		reference, 2, 1.,0.,0.,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+end: nodes;
+
+begin: elements;
+	joint: 2, modal, clamped,
+			# position, null,
+			# orientation, eye,
+		5,
+		11,
+		no damping,
+		"beam.fem",
+		origin node, 100,
+		1,
+			200, 2, null;
+	joint: 3, revolute hinge,
+		2, reference, 2, null,
+			hinge, reference, 1, 3, 1.,0.,0., 2, 0.,1.,0.,
+		4, reference, 2, null,
+			hinge, reference, 1, 3, 1.,0.,0., 2, 0.,1.,0.;
+	joint: 4, modal, 3,
+		5,
+		11,
+		no damping,
+		"beam.fem",
+		origin node, 100,
+		2,
+			100, 4, null,
+			200, 5, null;
+	force: 1, follower,
+		5, reference, 1, -1.,0.,1., null,
+		cosine, 0.,pi/.01,50./2.,one,0.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

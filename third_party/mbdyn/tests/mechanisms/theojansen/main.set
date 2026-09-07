@@ -1,0 +1,94 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/mechanisms/theojansen/main.set,v 1.9 2017/01/12 15:05:53 masarati Exp $
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+# Model: Theo Jansen 's Mechanism 
+# From:	<http://il.youtube.com/watch?v=-GgOn66knqA>
+# Data from: <http://www.mechanicalspider.com/elements/jpegs/jansenlinkage.jpg>
+#
+# uses "main_assy_*.ref" computed from the solution of "main_assy"
+
+set: integer POINT_DEF = 1;
+set: integer POINT_BEJ = 2;
+set: integer POINT_ABCD = 3;
+set: integer POINT_JKM = 4;
+set: integer POINT_LM = 5;
+set: integer POINT_FGH = 6;
+set: integer POINT_HI = 7;
+set: integer POINT_CGIK = 8;
+
+set: integer LINK_AL = 1;
+set: integer LINK_B = 2;
+set: integer LINK_C = 3;
+set: integer LINK_D = 4;
+set: integer LINK_E = 5;
+set: integer LINK_F = 6;
+set: integer LINK_G = 7;
+set: integer LINK_H = 8;
+set: integer LINK_I = 9;
+set: integer LINK_J = 10;
+set: integer LINK_K = 11;
+set: integer LINK_M = 13;
+
+set: real L_A = 38.0;
+set: real L_B = 41.5;
+set: real L_C = 39.3;
+set: real L_D = 40.1;
+set: real L_E = 55.8;
+set: real L_F = 39.4;
+set: real L_G = 36.7;
+set: real L_H = 65.7;
+set: real L_I = 49.0;
+set: real L_J = 50.0;
+set: real L_K = 61.9;
+set: real L_L =  7.8;
+set: real L_M = 15.0;
+
+set: real L_AL = sqrt(L_A^2 + L_L^2);
+
+set: integer FRONT = 0;
+set: integer REAR = 100;
+
+set: integer LINK_1 = 10;
+set: integer LINK_2 = 20;
+set: integer LINK_3 = 30;
+set: integer LINK_4 = 40;
+set: integer TOP_BODY = 50;
+set: integer BOTTOM_BODY = 60;
+
+set: integer BAR = 70;
+set: integer CRANK = 80;
+
+set: integer BAY = 10000;
+set: real W_BAY = 50.;
+
+set: integer CURR_BAY;
+set: integer CURR_SIDE;
+
+# vim:ft=mbd

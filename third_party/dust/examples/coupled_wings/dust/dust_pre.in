@@ -1,0 +1,15 @@
+
+comp_name = Wing_right
+geo_file  = wing_right_test.in
+ref_tag   = WingRef
+
+!comp_name = Wing_left
+!geo_file  = wing_left.in
+!ref_tag   = WingRef
+!
+!comp_name = Fuselage
+!geo_file  = fuselage.in
+!ref_tag   = WingRef
+
+file_name = geo_input.h5 
+

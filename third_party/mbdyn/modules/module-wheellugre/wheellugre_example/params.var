@@ -1,0 +1,24 @@
+set: (
+
+    const real Ru       = .198;
+    const real Rt       = .1;
+    const real beta     = .8;
+    const real p        = 1.68e5;
+    const real gamma    = 1.3;
+    const real v0       = 10.;
+
+    const real Fz0 = 1100;
+
+    # Fy hoosier
+    const real By   = 5.8853;
+    const real Cy   = 2.2333;
+    const real Ey   = 0.9998;
+    const real Dy   = 1.0073;
+
+    # Fx hoosier
+    const real Bx   = 11.9192;
+    const real Cx   = 2.1435;
+    const real Ex   = 1.0052;
+    const real Dx   = 1.7105
+
+);

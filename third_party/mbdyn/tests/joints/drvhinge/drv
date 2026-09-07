@@ -1,0 +1,75 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/drvhinge/drv,v 1.5 2014/12/13 17:15:46 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    initial time: 0.;
+    final time: 1.;
+    time step: 1.e-3;
+    tolerance: 1.e-6;
+    max iterations: 10;
+
+    method: ms, const, .6;
+
+    # output: iterations, residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    structural nodes: 3;
+    joints: 4;
+    rigid bodies: 1;
+end: control data;
+
+set: real Omega = 10.*2*pi;
+set: real L = 1.;
+set: real M = 1.;
+
+begin: nodes;
+    structural: 1, static,
+                null,
+		eye,
+		null,
+		null;
+    structural: 2, static,
+                null,
+		eye,
+		null,
+		0.,0.,Omega;
+    structural: 3, dynamic,
+                L,0.,0.,
+		eye,
+		0.,L*Omega,0.,
+		30.*deg2rad*pi/.5,0.,Omega;
+		#0.,0.,Omega;
+end: nodes;
+
+begin: elements;
+    joint: 1, clamp, 1, node, node;
+    joint: 2, revolute hinge,
+	1, reference, node, null,
+	    hinge, reference, node, eye,
+	2, reference, node, null,
+	    hinge, reference, node, eye;
+    joint: 3, spherical hinge, 
+           2, reference, node, 1.,0.,0., 
+	   3, reference, node, null;
+    joint: 4, drive hinge,
+           2, 
+	   3, 
+	   1.,0.,0.,
+		# cosine, 0.,pi/.5,30.*deg2rad,forever,0.;
+		sine, -1.,pi/.5,30.*deg2rad,forever,0.;
+    body: 3, 3,
+          M,
+	  L,0.,0.,
+	  diag, 1.,1.,1.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

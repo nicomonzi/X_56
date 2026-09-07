@@ -1,0 +1,7 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/drives/bailout/bailout.drv,v 1.1 2008/06/17 16:26:16 masarati Exp $
+#
+# bailout test
+#
+0.e-3
+1.e-3
+2.e-3

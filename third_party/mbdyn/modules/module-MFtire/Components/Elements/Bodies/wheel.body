@@ -1,0 +1,6 @@
+body:
+    CURR_RIM_BODY,
+    CURR_RIM_NODE,
+    mus,
+    null,
+    diag, Jusx, Jusy, Jusz; 

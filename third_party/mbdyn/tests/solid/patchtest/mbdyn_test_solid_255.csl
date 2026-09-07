@@ -1,0 +1,2 @@
+constitutive law: 1, name, "solid1", 6, bilinear isotropic hardening, E, 2.1000000000000000e+05, nu, 2.9999999999999999e-01, ET, 2.1000000000000000e+03, sigmayv, 2.3500000000000000e+05;
+constitutive law: 1, name, "solid1", 7, bilinear isotropic hardening, E, 2.1000000000000000e+05, nu, 2.9999999999999999e-01, ET, 2.1000000000000000e+03, sigmayv, 2.3500000000000000e+05;

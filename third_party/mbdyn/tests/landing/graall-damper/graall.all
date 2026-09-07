@@ -1,0 +1,71 @@
+GEOMETRIA X Y X
+0. 0. 0.
+CG
+5 0. 0.718
+punto di perno virtuale
+0. 0. 0.718
+asse ruota
+0 0. .51
+estremo inferiore ammortizzatore
+0. 0. 0
+estremo superiore ammortizzatore
+
+AMMORTIZZATORE CARRELLO ANTERIORE 260 (DATI PRINCIPALI)
+1079100. 1 Pressione di precarica+p+acg-cdmp
+0.001527599 2 sezione stantuffo gas
+0.9069 3 Coefintoliogas+scende+acgscende+cdmpsale
+.150 4 Lunghezza iniziale camera gas+sale+acg-cdmp+
+1.37 5 Espon. politropica+scende+acg- +cdmp+
+0.08 6 Coefficiente di attrito+agc+ cdmpcost
+.00101788 7 Area stantuffo olio +sale+agc-cdmpdopoidue001
+843 8 Densita` olio
+.24 9 legge attrito
+ammortizzatore: t cost
+.816326 10 tlin
+.05 11 temprif
+.01 12 velriferimento
+205.e-6 13 corona per risucchio
+1.01 14 tempo riferimento per risucchio
+22 15 cviscoso
+di riferimento
+26.6 16 Temperatura iniziale
+AREA DI TRAFILAMENTO (ANDATA) ANTERIORE 260
+1 N.punti tabella x,A
+0 0.000017628
+AREA DI TRAFILAMENTO (CORSA DI RITORNO) ANTERIORE 260
+1 N.punti tabella x,A
+0. .0000098175
+CURVA COEFF.VISCOSO (CORSA DI ANDATA) ANTERIORE 260
+1
+0 0.7
+CURVA COEFF.VISCOSO (CORSA DI RITORNO) ANTERIORE 260
+1
+0. 0.7
+TABELLA TEMPERATURA/COEFF CORRETTIVO
+3 Numero di punti della tabella
+15.5 30
+26.6 22
+37.7 16
+
+
+
+
+DATI RUOTA/PNEUMATICO ANTERIORE 260
+7 .0658 .0931 Masse sospese e inerzie
+-100.057 0. Angoli finecorsa superiore ed inferiore
+.1765 .065 Raggio ruota e toro
+343350 Pressione di gonfiaggio
+1.25 Esponente politropica pneumatico
+8.E+3 RK
+0.0 csi fa molto poco se non nulla
+.5 rmust
+.0 xch
+.3 CoeVol alto ammorbidisce il pneumatico
+10 Vrif2 ruota questo parametro ha notevole influenza sull'isteresi
+0.5 Vrif1 pneumatico ha scarsa influenza (in prove quasi statiche)
+1.0 Coeff. riduttivo camber CRACMB
+TABELLA COEFFICIENTE DI ATTRITO/RAPPORTO DI STRISCIAMENTO
+3
+0.000 0.000
+.25 .700
+1. .25

@@ -1,0 +1,107 @@
+# === data ======================================================
+begin: data;
+  problem: initial value;
+end: data;
+
+# === initial value problem =====================================
+begin: initial value;
+  initial time: 0.0;
+  final time: 1.1;
+  time step: 0.1;
+
+  max iterations: 250;
+  tolerance: 1.000000e-02;
+  derivatives tolerance: 1e-3;
+  derivatives max iterations: 100;
+  derivatives coefficient: 1.000000e-03, auto, max iterations, 100, factor, 3.0;
+  linear solver: naive, colamd, pivot factor, 1e-5;
+  method: ms, cosine, 0., pi/0.01, 0.8/2, half, 0.; 
+  
+  output: counter;
+  # output: iterations;
+  # output: residual;
+end: initial value;
+
+# === some variables ============================================
+set: const integer GROUND = 0;
+set: const integer AIRCRAFT = 100;
+
+# === control data ==============================================
+begin: control data;
+  structural nodes: +1;           # aircfraft
+
+  joints:           +1;          # ground clamp
+  forces:           +1;
+
+  default output: reference frames;
+	default orientation: orientation vector;
+  output results: netcdf;
+
+end: control data;
+
+# === reference frame ===========================================
+reference: GROUND,
+  reference, global, 0.0, -6.0, 0.0,
+  reference, global, eye,
+  reference, global, null,
+  reference, global, null;
+
+reference: AIRCRAFT,
+  reference, GROUND, null,
+  reference, GROUND, eye,
+  reference, GROUND, null,
+  reference, GROUND, null;
+
+# === nodes =====================================================
+begin: nodes;
+
+  structural:  AIRCRAFT, dynamic,  # static,
+    reference, AIRCRAFT, null,
+    reference, AIRCRAFT, eye,
+    reference, AIRCRAFT, null,
+    reference, AIRCRAFT, null;
+
+end: nodes;
+# === elements ==================================================
+
+begin: elements;
+  #> === Joints ===
+  joint: AIRCRAFT, total pin joint,
+    AIRCRAFT,
+        position, reference, node, null, 
+        position orientation, reference, AIRCRAFT, eye,
+        rotation orientation, reference, AIRCRAFT, eye,
+    #GROUND,
+        position, reference, other node, null,
+        position orientation, reference, AIRCRAFT, eye,
+        rotation orientation, reference, AIRCRAFT, eye,
+    position constraint,
+        1,
+        1,
+        1,
+    null,
+    orientation constraint,
+        1,  # roll d.o.f.
+        1,
+        1,
+    component,
+        0, 
+        0,
+        0;
+
+  force: 9, external structural,
+    socket,
+      create, yes,
+      path, "$MBSOCK",
+      no signal,
+    coupling, tight,
+    sorted, yes,
+    orientation, orientation vector,
+    accelerations, yes,
+    1,
+    AIRCRAFT
+    ;
+
+end: elements;
+
+# vim:ft=mbd

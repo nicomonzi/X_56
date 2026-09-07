@@ -1,0 +1,17 @@
+{
+  "load_factor": 1.0,
+  "basis_id": "x56_mbdyn_modal_60_phi0_modes_7_12",
+  "modes": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "fem_sha256": "63e23dc991d2f458d7665412abda8ad34ddbb1654822bfc0867e6512a1df252b",
+  "units": "MBDyn FEM modal normalization; K_h in s^-2",
+  "projection": "Phi0 ~= Psi_n*T weighted subspace reconstruction; K_h= T.T@KHH_n@T",
+  "case_fem": "/home/nicomonzi/ZENO/prestress_stiffness_rom/n1p000/prestress_sol103_statsub.fem",
+  "case_fem_sha256": "47dc5c7771f283523ce5645f567b118f747def729d701366adff0dc43e6a727a"
+}

@@ -1,0 +1,66 @@
+begin: data;
+        problem: initial value;
+end: data;
+
+begin: initial value;
+        initial time: 0.;
+        time step: 1e-02;
+        final time: 1;
+
+        tolerance: 1e-6, 1e-6;
+        max iterations: 50;
+
+        threads: disable;
+
+        method: ms, .6;
+        # linear solver: umfpack, cc;
+        linear solver: naive, colamd;
+
+        derivatives tolerance: 1e-3, 1e-3;
+        derivatives max iterations: 10;
+        derivatives coefficient: auto;
+
+        output: iterations, cpu time;
+        # output: residual;
+        # output: jacobian;
+threads: disable;
+end: initial value;
+
+
+begin: control data;
+        # skip initial joint assembly;
+        structural nodes:
+                (8+1) * (8+1)
+        ;
+        rigid bodies:
+                # + NBODIES
+        ;
+        joints:
+                + (8+1)*(8+1)
+        ;
+        plates:
+                + 8 * 8
+        ;
+        forces:
+                + 8+1
+        ;
+        default orientation: euler 123;
+end: control data;
+
+begin: nodes;
+        include: "cook_membrane.nod";
+end: nodes;
+
+begin: elements;
+        include: "cook_membrane.elm";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

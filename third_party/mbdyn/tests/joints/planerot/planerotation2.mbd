@@ -1,0 +1,191 @@
+
+ #-----------------------------------------------------------------------------
+ # [Data Block]
+
+ begin: data;
+     problem: initial value;
+ end: data;
+
+ #-----------------------------------------------------------------------------
+ # [Problem Block]
+
+ begin: initial value;
+     initial time: 0.0;
+     final time: 4.0;
+     time step: 0.001;
+     tolerance: 1e-06;
+     linear solver: klu, cc;
+     derivatives tolerance: 0.0001;
+     derivatives max iterations: 100;
+     derivatives coefficient: auto;
+threads: disable;
+ end: initial value;
+
+ #-----------------------------------------------------------------------------
+ # [Control Data Block]
+
+ begin: control data;
+     max iterations: 1000;
+     default orientation: orientation matrix;
+     omega rotates: no;
+     print: none;
+     initial stiffness: 1.0, 1.0;
+     structural nodes: 2;
+     rigid bodies: 2;
+     joints: 1;
+     print: all;
+     max iterations: 2;
+     finite difference jacobian meter: const, 0.,
+     	output,
+		matrices, yes;
+ end: control data;
+
+ #-----------------------------------------------------------------------------
+ # [Design Variables]
+
+     #Generic bodies
+
+         #body: 1
+             set: integer body_1 = 1; #body label
+             set: real mass_1 = 6.755764941295584; #mass [kg]
+             set: real volume_1 = 0.0008551601191513396; #volume [m^3]
+
+         #body: 2
+             set: integer body_2 = 2; #body label
+             set: real mass_2 = 3.3154831487406327; #mass [kg]
+             set: real volume_2 = 0.00041968141123299144; #volume [m^3]
+
+     #Nodes
+
+         #structural node: 1
+             set: integer structural_node_1 = 1; #node label
+
+         #structural node: 2
+             set: integer structural_node_2 = 2; #node label
+
+     #Joints
+
+         #joint: 1
+             set: integer joint_1 = 1; #joint label
+
+     #Nodes: initial conditions
+
+         #node: 1
+             set: real Px_1 = -0.5003224885567321; #X component of the absolute position [m]
+             set: real Py_1 = 2.6845383630675105e-16; #Y component of the absolute position [m]
+             set: real Pz_1 = 0.07281763141162542; #Z component of the absolute position [m]
+
+             set: real Vx_1 = 0.0; #X component of the absolute velocity [m/s]
+             set: real Vy_1 = 0.0; #Y component of the absolute velocity [m/s]
+             set: real Vz_1 = 0.0; #Z component of the absolute velocity [m/s]
+
+             set: real Wx_1 = 0.0; #X component of the absolute angular velocity [rad/s]
+             set: real Wy_1 = 0.0; #Y component of the absolute angular velocity [rad/s]
+             set: real Wz_1 = 0.0; #Z component of the absolute angular velocity [rad/s]
+
+         #node: 2
+             set: real Px_2 = -0.08525795218124077; #X component of the absolute position [m]
+             set: real Py_2 = -0.15911885879179655; #Y component of the absolute position [m]
+             set: real Pz_2 = -0.00037201030712272367; #Z component of the absolute position [m]
+
+             set: real Vx_2 = 0.0; #X component of the absolute velocity [m/s]
+             set: real Vy_2 = 0.0; #Y component of the absolute velocity [m/s]
+             set: real Vz_2 = 0.0; #Z component of the absolute velocity [m/s]
+
+             set: real Wx_2 = 0.0; #X component of the absolute angular velocity [rad/s]
+             set: real Wy_2 = 0.0; #Y component of the absolute angular velocity [rad/s]
+             set: real Wz_2 = 0.0; #Z component of the absolute angular velocity [rad/s]
+
+ #-----------------------------------------------------------------------------
+ # [Intermediate Variables]
+
+     #Moments of inertia and relative center of mass
+
+         #rigid body->Part
+         #body 1: 
+             set: real Ixx_1 = 0.9045041292353111; #moment of inertia around first axis of inertia [kg*m^2]
+             set: real Iyy_1 = 0.8712723552404941; #moment of inertia around second axis of inertiae [kg*m^2]
+             set: real Izz_1 = 0.03442618932913; #moment of inertia around third axis of inertia [kg*m^2]
+
+             set: real Rx_1 = 0.0; #X component of the relative center of mass [m]
+             set: real Ry_1 = 0.0; #Y component of the relative center of mass [m]
+             set: real Rz_1 = 0.0; #Z component of the relative center of mass [m]
+
+         #rigid body->Part001
+         #body 2: 
+             set: real Ixx_2 = 0.011346709273174; #moment of inertia around first axis of inertia [kg*m^2]
+             set: real Iyy_2 = 0.010884786344691; #moment of inertia around second axis of inertiae [kg*m^2]
+             set: real Izz_2 = 0.001710890553787; #moment of inertia around third axis of inertia [kg*m^2]
+
+             set: real Rx_2 = 0.0; #X component of the relative center of mass [m]
+             set: real Ry_2 = 0.0; #Y component of the relative center of mass [m]
+             set: real Rz_2 = 0.0; #Z component of the relative center of mass [m]
+
+ #-----------------------------------------------------------------------------
+ # [Nodes Block]
+
+ begin: nodes;
+
+     #structural dynamic node->Part
+     structural: structural_node_1,
+                 dynamic,
+                 Px_1, Py_1, Pz_1, #<absolute_position> [m]
+                 3, 0.0, 0.0, 1.0, 2, 0.0, 1.0, 0.0, #<absolute_orientation_matrix>
+                 Vx_1, Vy_1, Vz_1, #<absolute_velocity> [m/s]
+                 Wx_1, Wy_1, Wz_1; #<absolute_angular_velocity> [rad/s]
+
+     #structural dynamic node->Part001
+     structural: structural_node_2,
+                 dynamic,
+                 Px_2, Py_2, Pz_2, #<absolute_position> [m]
+                 3, 0.0, 0.0, 1.0, 2, 0.0, 1.0, 0.0, #<absolute_orientation_matrix>
+                 Vx_2, Vy_2, Vz_2, #<absolute_velocity> [m/s]
+                 Wx_2, Wy_2, Wz_2; #<absolute_angular_velocity> [rad/s]
+
+ end: nodes;
+
+ #-----------------------------------------------------------------------------
+ # [Elements Block]
+
+ begin: elements;
+
+     #-----------------------------------------------------------------------------
+     # [Bodies]
+
+         #rigid body->Part
+         body: body_1,
+               structural_node_1, #<node_label> 
+               mass_1, #<mass> [kg]
+               Rx_1, Ry_1, Rz_1, #<relative_center_of_mass> [m]
+               diag, Ixx_1, Iyy_1, Izz_1, #<inertia matrix> [kg*m^2]
+               orientation, 3, 1.0, 0.0, -2.7755575615628914e-17, 2, 0.0, 0.0, 1.0; 
+
+         #rigid body->Part001
+         body: body_2,
+               structural_node_2, #<node_label> 
+               mass_2, #<mass> [kg]
+               Rx_2, Ry_2, Rz_2, #<relative_center_of_mass> [m]
+               diag, Ixx_2, Iyy_2, Izz_2, #<inertia matrix> [kg*m^2]
+               orientation, 3, 0.12, 0.99, -4.2934406030425975e-19, 2, 0.99, -0.12, 5.204170427930421e-20; 
+
+     #-----------------------------------------------------------------------------
+     # [Joints]
+
+     #ELEMENT_rigid_body_1<->ELEMENT_rigid_body_2->ACTIVATION: Inconditional during assembly and simulation
+     joint: 1, 
+         revolute rotation, 
+         structural_node_1, #<action_entity_label>
+             position, 0.0, 0.0, 0.0, #<relative_offset_1> [m]
+             orientation, 3, 0.01745240643728351, 0.0, 0.9998476951563913, 2, guess, #<relative_orientation_matrix_1> 
+         structural_node_2, #<action_entity_label>
+             position, -0.41506453637549134, 0.15911885879179682, 0.07318964171874814, #<relative_offset_2> [m]
+             orientation, 3, 0.0, 0.0, 1.0, 2, 0.0, 1.0, 0.0; #<relative_orientation_matrix_2> 
+
+ end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,212 @@
+\documentclass[a4paper,oneside,titlepage]{report}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{complexity}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[pdftex]{graphicx} %%Graphics in pdfLaTeX
+\graphicspath{{images/}}
+\usepackage{a4wide} %%Smaller margins, more text per page.
+\usepackage{longtable} %%For tables that exceed a page width
+\usepackage{pdflscape} %%Adds PDF support to the landscape environment of package
+\usepackage{caption} %%Provides many ways to customise the captions in floating environments like figure and table
+\usepackage{float} %%Improves the interface for defining floating objects such as figures and tables
+\usepackage[tablegrid,nochapter]{vhistory} %%Vhistory simplifies the creation of a history of versions of a document
+\usepackage[nottoc]{tocbibind} %%Automatically adds the bibliography and/or the index and/or the contents, etc., to the Table of Contents listing
+\usepackage[toc,page]{appendix} %%The appendix package provides various ways of formatting the titles of appendice
+\usepackage{pdfpages} %%This package simplifies the inclusion of external multi-page PDF documents in LATEX documents
+\usepackage[rightcaption]{sidecap} %%Defines environments called SCfigure and SCtable (analogous to figure and table) to typeset captions sideways
+\usepackage{cite} %%The package supports compressed, sorted lists of numerical citations, and also deals with various punctuation and other issues of representation, including comprehensive management of break points
+\usepackage[]{acronym} %%This package ensures that all acronyms used in the text are spelled out in full at least once. It also provides an environment to build a list of acronyms used
+\usepackage[pdftex,scale={.8,.8}]{geometry} 
+\usepackage{layout} %%The package defines a command \layout, which will show a summary of the layout of the current document
+\usepackage{subfigure} %%Provides support for the manipulation and reference of small or ‘sub’ figures and tables within a single figure or table environment.
+\usepackage[toc]{glossaries} %%The glossaries package supports acronyms and multiple glossaries, and has provision for operation in several languages (using the facilities of either babel or polyglossia).
+\usepackage[left,pagewise,modulo]{lineno} %%Adds line numbers to selected paragraphs with reference possible through the LATEX \ref and \pageref cross reference mechanism
+\usepackage[pdftex,colorlinks=false,hidelinks,pdfstartview=FitV]{hyperref}%%The hyperref package is used to handle cross-referencing commands in LATEX to produce hypertext links in the document. 
+\usepackage{metainfo}
+\usepackage[pagestyles,raggedright]{titlesec}
+\usepackage{etoolbox}
+\usepackage{siunitx}
+\usepackage{%
+  array, %%An extended implementation of the array and tabular environments which extends the options for column formats, and provides "programmable" format specifications
+  booktabs, %%The package enhances the quality of tables in LATEX, providing extra commands as well as behind-the-scenes optimisation
+  dcolumn, %%
+  rotating,
+  shortvrb,
+  %units,
+  url,
+  lastpage,
+  longtable,
+  lscape,
+  tikz-qtree,
+  skmath, 
+}
+\usepackage{booktabs}
+\usepackage[strings]{underscore}
+\usepackage{bm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Listings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+\definecolor{bggrey}{HTML}{E0E0E0}
+% style for input files
+\lstdefinestyle{inputfile}{%
+  language=Fortran,
+  basicstyle=\ttfamily,
+  deletekeywords={in},
+  frame=single,
+  backgroundcolor=\color{gray!30}
+}
+% style for commands
+\lstdefinestyle{command}{%
+  language=bash,
+  basicstyle=\ttfamily,
+  frame=single,
+  captionpos=b
+}
+\lstnewenvironment{inputfile}[1][]{%
+  \renewcommand\lstlistingname{input file}
+  \lstset{style=inputfile,#1}}{}
+\newcounter{inputfilelst}
+\newcounter{commandlst}
+\newcounter{tmp}
+
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.6}
+\definecolor{cyan}{rgb}{0.0,0.6,0.6}
+
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  showstringspaces=false,
+  commentstyle=\color{gray}\upshape
+}
+
+\lstdefinelanguage{XML}
+{
+  morestring=[b]",
+  morestring=[s]{>}{<},
+  morecomment=[s]{<?}{?>},
+  stringstyle=\color{black},
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{cyan},
+  morekeywords={xmlns,version,type},
+  backgroundcolor=\color{gray!15}% list your attributes here
+}
+
+\makeatletter
+% Environment for LaTeX listings; extension for auxiliar file: lll
+\lstnewenvironment{command}[1][]{%
+  \renewcommand\lstlistingname{Command}
+  \setcounter{tmp}{\value{lstlisting}}
+  \setcounter{lstlisting}{\value{commandlst}}
+  \lstset{style=command,nolol,#1}
+}{%
+  \refstepcounter{commandlst}
+  \addcontentsline{lll}{lstlisting}{\protect\numberline{\thelstlisting}\lst@@caption}%
+  \setcounter{lstlisting}{\value{tmp}}
+}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Examples etc
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsthm} 
+\newtheoremstyle{example}{}{}{\itshape}{}{\bfseries}{\smallskip}{\newline}{}
+\theoremstyle{example}
+\newtheorem{example}{Example}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{.5\baselineskip}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Inserting the metadata
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{base/metadata}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Creating the frontpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\AtBeginDocument{
+  \maketitle
+  \thispagestyle{empty}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Creation of the header
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\patchcmd{\chapter}{plain}{short}{}{} %$ <-- the header on chapter 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Creation of page-styles
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpagestyle{long}{%
+  \sethead[\thepage][][\chaptername\ \thechapter:\ \chaptertitle]{\chaptername\ \thechapter:\ \chaptertitle}{}{\thepage}
+  \headrule
+}
+
+\newpagestyle{short}{%
+  \sethead[\thepage][][]{}{}{\thepage}
+  \headrule
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% CUSTOM COMMANDS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\param}[1]{\textbf{\texttt{#1}}}
+\newcommand{\opt}[1]{\texttt{#1}}
+\newcommand{\DUST}{DUST}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\pagenumbering{roman}
+\DeclareGraphicsExtensions{.pdf,.jpg,.png}
+\pagestyle{short}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Version table insertion
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\input{base/history}
+
+\input{base/disclaimer}
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Table of contents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tableofcontents
+
+\input{base/acronyms}
+
+\pagestyle{long}
+
+\pagenumbering{arabic}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Inserting all the content
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\include{content/content}
+\include{content/introduction}
+\include{content/build}
+\include{content/preprocessor}
+\include{content/mbdyn_coupling}
+\include{content/solver}
+\include{content/postprocessor}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Source defintions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% When no use outcomment
+%\include{base/sources}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Inserting the appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% When no use outcomment
+%\include{appendix/appendix}
+\end{document}*/***********************************************************************8  

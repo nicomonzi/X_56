@@ -1,0 +1,22 @@
+Combined Experiment Baseline for YawDyn version 12.5
+SI       Units for input and output [SI or ENGlish]                  
+STEADY  Dynamic stall model [BEDDOES or STEADY]                     
+USE_CM	Aerodynamic pitching moment model [USE_CM ro NO_CM]         
+EQUIL	Inflow model [DYNIN or EQUIL]                               
+NONE    Induction factor model [NONE or WAKE or SWIRL]              
+5.0000E-03	Convergence tolerance for induction factor
+NONE    Tip-loss model (EQUIL only) [PRANdtl, GTECH, or NONE]
+NONE    Hub-loss model (EQUIL only) [PRANdtl or NONE]
+"YawDyn.wnd"
+36.596  Wind reference (hub) height.
+0.0	Tower shadow centerline velocity deficit.
+1.0	Tower shadow half width.
+0.0	Tower shadow reference point.
+1.225   Air density.
+1.625e-4	KinVisc  - Kinematic air viscosity
+1.0000E-03	Time interval for aerodynamic calculations.
+1	Number of airfoil files used. Files listed below:
+"S809_cln.dat"
+1	Number of blade elements per blade
+RELM	   Twist	 DR	 Chord	 File ID	Elem Data	RELM and Twist ignored by ADAMS (but placeholders must be present)
+ 0.0	   0.0000	21.376	 0.8000	   1	         PRINT

@@ -1,0 +1,130 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# H.H. Yoo, J. Chung
+# "Dynamics of Rectangular Plates Undergoing Prescribed Overall Motion"
+# Journal of Sound and Vibration, 239(1), January 4, 2001 (123-137)
+# doi:10.1006/jsvi.2000.3111
+# 
+# Liu Jinyang, Hong Jiazhen
+# "Geometric nonlinear formulation and discretization method
+# for a rectangular plate undergoing large overall motions"
+# Mechanics Research Communications, Volume 32, Issue 5,
+# September-October 2005, Pages 561-571
+# doi:10.1016/j.mechrescom.2004.10.007
+#
+# Beerinder Singh, Inderjit Chopra
+# "Insect-Based Hover-Capable Flapping Wings for Micro Air Vehicles:
+# Experiments and Analysis"
+# AIAA Journal, 2008, 46(9), 2115-2135
+# doi:10.2514/1.28192
+
+begin: data;
+	problem: initial value;
+end: data;
+
+include: "jinyang2005_5_m.set";
+
+set: const real OMEGA_0 = 0.; # radian/s
+set: const real OMEGA_S = 0.; # radian/s
+# set: const real OMEGA_S = 20.; # radian/s
+set: const real T_S = 5.; # s
+
+set: real T_F = 10.;
+
+begin: initial value;
+	initial time: 0.;
+	final time: T_F;
+	time step: 1e-1;
+
+	tolerance: 1.e-4;
+	max iterations: 100;
+
+	# method: ms, .6;
+	method: bdf;
+
+	linear solver: umfpack, cc;
+	# linear solver: naive, colamd;
+
+	derivatives tolerance: 1e+6;
+
+	# threads: disable;
+
+	output: iterations;
+	
+	eigenanalysis: T_F,
+		parameter, 1e-0,
+		use lapack, # balance, no,
+		# use arpack, 50, 150, 0.,
+		output geometry,
+		output eigenvectors,
+		lower frequency limit, .1,
+		upper frequency limit, 100.;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1 + 1 + NNODES;
+	rigid bodies: NBODIES;
+	joints: 1 + NJOINTS;
+	plates: NSHELLS;
+
+	rigid body kinematics: const, angular velocity, 0., 0., 10.;
+end: control data;
+
+include: "jinyang2005_5_m.ref";
+
+drive caller: PRESCRIBED_OMEGA,
+	string, "OMEGA_0 + OMEGA_S*((Time < T_S)*(Time/T_S - sin(2*pi*Time/T_S)/2/pi) + (Time >= T_S))";
+
+begin: nodes;
+	structural: 9999, static,
+		reference, ROOT, null,
+		reference, ROOT, eye,
+		reference, global, null,
+		reference, global, null;
+
+	include: "jinyang2005_5_m.nod";
+
+	structural: 9998, dummy, 100*NL + NB/2, relative frame, NB/2;
+end: nodes;
+
+begin: elements;
+	joint: 9999, clamp, 9999, node, node;
+
+	include: "jinyang2005_5_m.elm";
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

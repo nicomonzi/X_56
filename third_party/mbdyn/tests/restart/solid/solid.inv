@@ -1,0 +1,64 @@
+## MBDyn (C) is a multibody analysis code.
+## http://www.mbdyn.org
+##
+## Copyright (C) 1996-2025
+##
+## Pierangelo Masarati	<masarati@aero.polimi.it>
+## Paolo Mantegazza	<mantegazza@aero.polimi.it>
+##
+## Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+## via La Masa, 34 - 20156 Milano, Italy
+## http://www.aero.polimi.it
+##
+## Changing this copyright notice is forbidden.
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation (version 2 of the License).
+##
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+
+method: implicit euler;
+initial time: 0;
+final time: t1 + t2;
+time step: dt;
+max iterations: 200;
+enforce constraint equations: constraint violations;
+tolerance: 1e-4, test, norm, 1e-8, test, norm;
+output: messages;
+output: iterations, solver condition number, stat, yes;
+nonlinear solver: nox,
+modified, 10,
+linesearch method, backtrack,
+direction, newton,
+jacobian operator, newton krylov,
+forcing term, type 2,
+forcing term max tolerance, 1e-10,
+forcing term min tolerance, 1e-14,
+linear solver tolerance, 1e-12,
+inner iterations before assembly, 10,
+linear solver max iterations, 50,
+linear solver, gmres,
+krylov subspace size, 100,
+minimum step, 1e-12,
+recovery step type, constant,
+recovery step, 1e-8,
+verbose, 1,
+print convergence info, no;
+
+linear solver: umfpack, grad, scale, iterative, always, max iterations, 3;
+derivatives coefficient: auto;
+derivatives tolerance: 1e-4, 1e-6;
+derivatives max iterations: 20;
+
+threads: disable;
+output: cpu time;

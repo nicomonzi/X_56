@@ -1,0 +1,69 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1e-2;
+
+        method: Bathe, 0.6;
+        tolerance: 1.e-6, 1e-6;
+        max iterations: 100;
+
+        derivatives coefficient: auto;
+        derivatives tolerance: 1e-6, 1e-6;
+        derivatives max iterations: 10;
+
+        linear solver: umfpack, grad, scale, iterative, always, max iterations, 10;
+        nonlinear solver: linesearch, default solver options, heavy nonlinear, lambda min, 0., tolerance x, 1e-5;
+        threads: disable;
+        output: iterations, solver condition number, stat, yes;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	joints: 2;
+	rigid bodies: 1;
+	gravity;
+end: control data;
+
+begin: nodes;
+	structural: 0, static,
+		null,
+		eye,
+		null,
+		null,
+		output, no;
+	structural: 1, dynamic,
+		9.812/(2*pi/2.36825)^2, 0., 0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node, output, no;
+	joint: 1, distance,
+		0,
+		1,
+		from nodes;
+	body: 1, 1,
+		1.,
+		null,
+		eye;
+	automatic structural: 1,
+		null,
+		null,
+		0., 0., -1.*9.81,
+		null;
+	gravity: 0., 0., -1., const, 9.81;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

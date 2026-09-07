@@ -1,0 +1,145 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/plates/sze2004/README,v 1.12 2017/01/12 15:07:55 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+Benchmarks from K.Y. Sze, X.H. Liu, S.H. Lo,
+"Popular benchmark problems for geometric nonlinear analysis of shells",
+Finite Elements in Analysis and Design 40 (2004) 1551­1569
+doi:10.1016/j.finel.2003.11.001
+
+Author: Pierangelo Masarati <masarati@aero.polimi.it> (except when noted)
+
+Tests:
+sze31/*: 3.1 Cantilever subjected to end shear force
+sze32/*: 3.2 Cantilever subjected to end moment
+sze33/*: 3.3 Slit annular plate subjected to lifting line force
+sze34/*: 3.4 Hemispherical shell subjected to alternating radial forces
+sze35/*: 3.5 Pullout of an open-ended cylindrical shell
+sze36/*: 3.6 Pinched cylindrical shell mounted over rigid diaphragms
+sze37/*: 3.7 Pinched semi-cylindrical isotropic and laminated shells
+sze38/*: 3.8 Hinged cylindrical isotropic and laminated roofs
+
+3.1 Cantilever subjected to end shear force
+
+sze31_8x1	model with 8x1 mesh
+sze31_16x1	model with 16x1 mesh
+sze31_ref.dat	results from Sze, 2004 (16x1 mesh)
+sze31_8x1.dat	results with 8x1 mesh
+sze31_16x1.dat	results with 16x1 mesh
+sze31.plt	plot script
+sze31.sh	plot preparation script
+
+To produce plot:
+- run mbdyn -f sze31_16x1
+- run sze31.sh sze31_16x1
+- run gnuplot sze31.plt
+
+
+3.2 Cantilever subjected to end moment
+
+sze32_8x1	model with 8x1 mesh
+sze32_16x1	model with 16x1 mesh
+sze32_ref.dat	results from Sze, 2004 (16x1 mesh & exact)
+sze32_8x1.dat	results with 8x1 mesh
+sze32_16x1.dat	results with 16x mesh
+sze32.plt	plot script
+sze32.sh	plot preparation script
+
+To produce plot:
+- run mbdyn -f sze32_16x1
+- run sze32.sh sze32_16x1
+- run gnuplot sze32.plt
+
+Notes:
+- shell4eas does not converge past 20% of Mmax
+- shell4easans does not converge past 60% of Mmax
+
+
+3.3 Slit annular plate subjected to lifting line force
+
+sze33		generic model
+sze33.awk	generic model generation script
+sze33_ref.dat	results from Sze, 2004 (10x80 mesh)
+sze33_6x30.dat	results with 6x30 mesh
+sze33_10x80.dat	results with 10x80 mesh
+sze33.plt	plot script
+sze33.sh	plot preparation script
+
+To produce plot:
+- for mesh in "6x30" "10x80" ; do
+	- run awk -f sze33.awk -v mesh=$mesh
+	- run mbdyn -f sze33 -o sze33_$mesh
+	- run ./sze33.sh sze33_$mesh
+- run gnuplot sze33.plt
+
+Notes:
+- mesh 10x80 quite close to reference
+- mesh 6x30 differs appreciably
+
+
+3.4 Hemispherical shell subjected to alternating radial forces
+
+Notes:
+- not implemented; see tests/plates/HemiShell*
+
+
+3.5 Pullout of an open-ended cylindrical shell
+
+sze35		generic model
+sze35.awk	generic model generation script
+sze35_ref.dat	results from Sze, 2004 (24x36 mesh)
+sze35_16x24.dat	results with 16x24 mesh
+sze35_24x36.dat results with 24x36 mesh
+sze35.plt	plot script
+sze35.sh	plot preparation script
+
+To produce plot:
+- for mesh in "16x24" "24x36" ; do
+	- run awk -f sze35.awk -v mesh=$mesh
+	- run mbdyn -f sze35 -o sze35_$mesh
+	- run ./sze35.sh sze35_$mesh
+- run gnuplot sze35.plt
+
+Notes:
+- results with mesh 16x24 and 24x36 quite close to each other
+- results differ significantly from reference
+- snapthrough occurs at load 25% lower
+- after snapthrough simulation no longer converges
+
+3.6 Pinched cylindrical shell mounted over rigid diaphragms
+
+
+3.7 Pinched semi-cylindrical isotropic and laminated shells
+
+
+3.8 Hinged cylindrical isotropic and laminated roofs
+
+
+
+

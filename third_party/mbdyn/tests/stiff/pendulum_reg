@@ -1,0 +1,66 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 25.;
+	time step: 1e-2;
+
+	# method: crank nicolson;
+	# method: bdf;
+	# method: ms, 1.;
+	# method: ms, .98;
+	method: ms, .96;
+	# method: ms, .6;
+	# method: modified crank nicolson, 0.99;
+
+	tolerance: 1e-6;
+	max iterations: 10;
+        threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	joints: 1;
+	joint regularizations: 1;
+	rigid bodies: 1;
+	gravity;
+
+	print: dof stats;
+end: control data;
+
+begin: nodes;
+	structural: 1, dynamic,
+		9.812/(2*pi/2.36825)^2, 0., 0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 1, revolute pin,
+		1,
+			position, reference, global, null,
+			orientation, reference, global,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.,
+		reference, global, null,
+		orientation, reference, global,
+			3, 0., 1., 0.,
+			1, 1., 0., 0.;
+	joint regularization: 1, Tikhonov, 1e-12;
+	body: 1, 1,
+		1.,
+		null,
+		null;
+	gravity: 0., 0., -1., const, 9.81;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

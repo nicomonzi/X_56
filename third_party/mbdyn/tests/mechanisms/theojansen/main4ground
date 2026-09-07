@@ -1,0 +1,291 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/mechanisms/theojansen/main4ground,v 1.7 2017/01/12 15:05:53 masarati Exp $
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+# Model: Theo Jansen 's Mechanism 
+# From:	<http://il.youtube.com/watch?v=-GgOn66knqA>
+# Data from: <http://www.mechanicalspider.com/elements/jpegs/jansenlinkage.jpg>
+#
+# uses "main_assy.ref" computed from the solution of "main_assy"
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	#final time: 99.99;
+	final time: 9.99;
+	time step: 1e-3;
+
+	method: ms, .6;
+	# method: bdf;
+
+	tolerance: 1e-4;
+	max iterations: 50;
+
+	derivatives coefficient: 1e-3;
+	derivatives tolerance: 1e-0;
+	derivatives max iterations: 20;
+
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+set: integer NBAYS = 4;
+
+begin: control data;
+	structural nodes:
+		+1		# GROUND
+		+1		# BAR
+		+1		# CRANK
+		+NBAYS*(2*6);
+	rigid bodies:
+		+1
+		+1		# CRANK
+		+NBAYS*(2*6);
+	joints:
+		+1		# GROUND
+		+8		# "CONTACT"
+		+1		# CRANK
+		+NBAYS*(9*2);
+
+	gravity;
+
+	default output: reference frames;
+	skip initial joint assembly;
+end: control data;
+
+include: "main.set";
+
+set: real GROUND = 0;
+reference: GROUND,
+	reference, global, 0., W_BAY*1.5, -86.8655, # -86.86549,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+# note: generated from the result of "main_assy"
+set: CURR_BAY = 0;
+include: "main_assy_up.ref";
+set: CURR_BAY = CURR_BAY + BAY;
+include: "main_assy_down.ref";
+set: CURR_BAY = CURR_BAY + BAY;
+include: "main_assy_up.ref";
+set: CURR_BAY = CURR_BAY + BAY;
+include: "main_assy_down.ref";
+
+begin: nodes;
+	structural: 0, static,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BAR, dynamic,
+		reference, POINT_LM, 0., 1.5*W_BAY, 0.,
+		reference, POINT_LM, eye,
+		reference, POINT_LM, null,
+		reference, POINT_LM, null;
+
+	structural: CRANK, dynamic,
+		reference, POINT_JKM, 0., 1.5*W_BAY, 0.,
+		reference, POINT_JKM, eye,
+		reference, POINT_JKM, null,
+		reference, POINT_JKM, null;
+
+	set: CURR_BAY = 0;
+	set: CURR_SIDE = FRONT;
+	include: "half.nod";
+	set: CURR_SIDE = REAR;
+	include: "half.nod";
+
+	set: CURR_BAY = CURR_BAY + BAY;
+	set: CURR_SIDE = FRONT;
+	include: "half.nod";
+	set: CURR_SIDE = REAR;
+	include: "half.nod";
+
+	set: CURR_BAY = CURR_BAY + BAY;
+	set: CURR_SIDE = FRONT;
+	include: "half.nod";
+	set: CURR_SIDE = REAR;
+	include: "half.nod";
+
+	set: CURR_BAY = CURR_BAY + BAY;
+	set: CURR_SIDE = FRONT;
+	include: "half.nod";
+	set: CURR_SIDE = REAR;
+	include: "half.nod";
+end: nodes;
+
+constitutive law: 0, 3,
+	symbolic viscoelastic,
+	epsilon, "e1", "e2", "e3",
+	epsilon prime, "e1p", "e2p", "e3p",
+	expression,
+		"(1-tanh(5e2*e3))*1e1*tanh(e1p)",
+		"(1-tanh(5e2*e3))*1e1*tanh(e2p)",
+		"(1-tanh(5e2*e3))*(1e2*e3 + 1e1*tanh(e3p))";
+
+begin: elements;
+	gravity: 0., 0., -1., cosine, 0., pi/1., 1./2, half, 0.;
+
+	joint: 0, clamp, 0, node, node;
+
+	body: BAR, BAR, 100., 0., 0., -40., diag, 10., 10., 10.;
+	# joint: BAR, clamp, BAR, node, node;
+
+	body: CRANK, CRANK, 1.e-3, null, eye;
+	/*
+	joint: CRANK, total joint,
+		BAR,
+			position, reference, POINT_LM, 0., 1.5*W_BAY, 0.,
+		CRANK,
+			position, reference, POINT_LM, 0., 1.5*W_BAY, 0.,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, angular velocity, 1,
+			0., 1., 0.,
+			cosine, 0., pi/.01, pi, half, 0.;
+	*/
+	joint: CRANK, axial rotation,
+		BAR,
+			position, reference, POINT_LM, 0., 1.5*W_BAY, 0.,
+			orientation, reference, POINT_LM,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.,
+		CRANK,
+			position, reference, POINT_LM, 0., 1.5*W_BAY, 0.,
+			orientation, reference, POINT_LM,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.,
+		cosine, 0., pi/1., .1*pi, half, 0.;
+		# 0.;
+
+	set: CURR_BAY = 0;
+	set: CURR_SIDE = FRONT;
+	include: "half.elm";
+	joint: CURR_BAY + CURR_SIDE + 999, deformable displacement joint,
+		0,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		CURR_BAY + CURR_SIDE + BOTTOM_BODY,
+			position, reference, CURR_BAY + CURR_SIDE + POINT_HI, null,
+			orientation, reference, GROUND, eye,
+		reference, 0;
+
+	set: CURR_SIDE = REAR;
+	include: "half.elm";
+	joint: CURR_BAY + CURR_SIDE + 999, deformable displacement joint,
+		0,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		CURR_BAY + CURR_SIDE + BOTTOM_BODY,
+			position, reference, CURR_BAY + CURR_SIDE + POINT_HI, null,
+			orientation, reference, GROUND, eye,
+		reference, 0;
+
+
+	set: CURR_BAY = CURR_BAY + BAY;
+	set: CURR_SIDE = FRONT;
+	include: "half.elm";
+	joint: CURR_BAY + CURR_SIDE + 999, deformable displacement joint,
+		0,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		CURR_BAY + CURR_SIDE + BOTTOM_BODY,
+			position, reference, CURR_BAY + CURR_SIDE + POINT_HI, null,
+			orientation, reference, GROUND, eye,
+		reference, 0;
+
+	set: CURR_SIDE = REAR;
+	include: "half.elm";
+	joint: CURR_BAY + CURR_SIDE + 999, deformable displacement joint,
+		0,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		CURR_BAY + CURR_SIDE + BOTTOM_BODY,
+			position, reference, CURR_BAY + CURR_SIDE + POINT_HI, null,
+			orientation, reference, GROUND, eye,
+		reference, 0;
+
+	set: CURR_BAY = CURR_BAY + BAY;
+	set: CURR_SIDE = FRONT;
+	include: "half.elm";
+	joint: CURR_BAY + CURR_SIDE + 999, deformable displacement joint,
+		0,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		CURR_BAY + CURR_SIDE + BOTTOM_BODY,
+			position, reference, CURR_BAY + CURR_SIDE + POINT_HI, null,
+			orientation, reference, GROUND, eye,
+		reference, 0;
+
+	set: CURR_SIDE = REAR;
+	include: "half.elm";
+	joint: CURR_BAY + CURR_SIDE + 999, deformable displacement joint,
+		0,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		CURR_BAY + CURR_SIDE + BOTTOM_BODY,
+			position, reference, CURR_BAY + CURR_SIDE + POINT_HI, null,
+			orientation, reference, GROUND, eye,
+		reference, 0;
+
+	set: CURR_BAY = CURR_BAY + BAY;
+	set: CURR_SIDE = FRONT;
+	include: "half.elm";
+	joint: CURR_BAY + CURR_SIDE + 999, deformable displacement joint,
+		0,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		CURR_BAY + CURR_SIDE + BOTTOM_BODY,
+			position, reference, CURR_BAY + CURR_SIDE + POINT_HI, null,
+			orientation, reference, GROUND, eye,
+		reference, 0;
+
+	set: CURR_SIDE = REAR;
+	include: "half.elm";
+	joint: CURR_BAY + CURR_SIDE + 999, deformable displacement joint,
+		0,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		CURR_BAY + CURR_SIDE + BOTTOM_BODY,
+			position, reference, CURR_BAY + CURR_SIDE + POINT_HI, null,
+			orientation, reference, GROUND, eye,
+		reference, 0;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

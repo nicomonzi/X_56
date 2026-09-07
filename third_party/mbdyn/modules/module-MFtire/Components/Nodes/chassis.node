@@ -1,0 +1,6 @@
+structural: node_CHASSIS, dynamic,
+    xCOG, yCOG, zCOG,
+    eye,
+    V0, 0., 0.,
+    null,
+    accelerations, yes;

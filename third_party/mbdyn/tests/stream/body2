@@ -1,0 +1,93 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/stream/body2,v 1.1 2009/11/16 14:55:56 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e-3;
+
+	# method: ms, .6;
+	# method: bdf;
+	# method: crank nicolson;
+	method: implicit euler;
+
+	tolerance: 1.e-6;
+	max iterations: 10;
+
+	linear solver: naive, colamd, mt, 1;
+
+	threads: disable;
+	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	rigid bodies: 1;
+	forces: 1;
+	file drivers: 1;
+	output elements: 1;
+
+	select timeout: 1;
+end: control data;
+
+set: integer NODE = 100;
+set: integer INPUT = 200;
+set: integer BODY = 300;
+set: integer FORCE = 400;
+set: integer OUTPUT = 500;
+
+begin: nodes;
+	structural: NODE, dynamic,
+		reference, global, null,
+		reference, global, eye,
+		reference, global, 1.,0.,0.,
+		reference, global, null;
+end: nodes;
+
+begin: drivers;
+	file: INPUT, stream,
+                stream drive name, "SPRNGF",
+                create, yes,
+                path, "./mbdyn.spring.sock",
+                # port, 8005,
+		# nonblocking,
+		timeout, 1.5,
+		echo, "body-in.echo",
+                1;	# force
+end: drivers;
+
+begin: elements;
+	body: BODY, NODE,
+		1.,
+		null,
+		eye;
+	force: FORCE, absolute,
+		NODE,
+			position, reference, node, null,
+			reference, global, 1.,0.,0.,
+		array, 2,
+			node, NODE, structural, string, "X[1]", linear, 0., -1e4,	# 100 x spring stiffness
+			file, INPUT, 1;
+	stream output: OUTPUT,
+                stream name, "BODYXV",
+                create, yes,
+                path, "./mbdyn.body.sock",
+                # port, 10011,
+		echo, "body-out.echo",
+                values, 2,
+                        nodedof, NODE, structural, 1, algebraic,    # ch 1: x
+                        nodedof, NODE, structural, 1, differential; # ch 2: dot_x
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

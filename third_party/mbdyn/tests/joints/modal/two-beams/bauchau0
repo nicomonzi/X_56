@@ -1,0 +1,153 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/modal/two-beams/bauchau0,v 1.10 2017/01/12 15:04:39 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# 2 rigid rotating beams; the first (Omega = .5) pulls the second
+# from "A Multibody Formulation for Helicopter Structural Dynamic Analysis"
+# by O.A. Bauchau & N.K. Kang
+# Journal of the American Helicopter Society (?)
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time:   1000*.05;
+	time step:   .05;
+	method: ms, .6;
+	tolerance: 1.e-9;
+	max iterations: 20;
+	derivatives max iterations: 10;
+	newton raphson: modified, 4;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	# skip initial joint assembly;
+
+	structural nodes: 3;
+	rigid bodies: 2;
+	joints: 3;
+	forces: 2;
+end: control data;
+
+set: real L = .5;
+set: real OMEGA = 0.;
+
+# reference system located at hinge 1 (rotates about axis 3)
+reference: 101,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, 0., 0., OMEGA;
+# reference system of body 1
+reference: 1,
+	reference, 101, L/2.,0.,0.,
+	reference, 101, eye,
+	reference, 101, null,
+	reference, 101, null;
+# reference system located at hinge 2
+# (rotates about axis 3 of body 2, which is axis 1 of body 1)
+reference: 102,
+	reference, 101, L,0.,0.,
+	reference, 101,
+		3, 1.,0.,0.,
+		2, 0.,-1.,0.,
+	reference, 101, null,
+	reference, 101, null;
+# reference system of body 2
+reference: 2,
+	reference, 102, L/2.,0.,0.,
+	reference, 102, eye,
+	reference, 102, null,
+	reference, 102, null;
+
+begin: nodes;
+	# ground
+	structural: 0, static,
+		reference, global, null,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	# body 1
+	structural: 1, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	# body 2
+	structural: 2, dynamic,
+		reference, 2, null,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+
+	# revolute hinge 1
+	joint: 101, revolute hinge,
+		0,
+			position, reference, 101, null,
+			orientation, reference, 101, eye,
+		1,
+			position, reference, 101, null,
+			orientation, reference, 101, eye;
+
+	force: 1, absolute, 1,
+		position, reference, 102, null,
+		single, reference, global, 0., 1., 0.,
+		double ramp, .1, 0., 10., -.1, 10., 20., 0.;
+	couple: 2, follower, 2,
+		single, reference, 102, 0., 0., 1.,
+		double ramp, .01, 0., 10., -.01, 10., 20., 0.;
+
+	joint: 102, revolute hinge,
+		1,
+			position, reference, 102, null,
+			orientation, reference, 102, eye,
+		2,
+			position, reference, 102, null,
+			orientation, reference, 102, eye;
+
+	set: real m = 1.6*10.28;
+	set: real Ix = 1.e-12;
+	body: 1, 1, m, null, diag, Ix, m/12.*L^2., m/12.*L^2.;
+	body: 2, 2, m, null, diag, Ix, m/12.*L^2., m/12.*L^2.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

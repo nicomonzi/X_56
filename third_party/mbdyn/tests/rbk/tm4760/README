@@ -1,0 +1,46 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/rbk/tm4760/README,v 1.6 2009/01/07 19:52:02 masarati Exp $
+#
+# Rotor blade model for MBDyn > 1.3.4
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+# Data from:
+#
+# NASA Technical Memorandum 4760
+# ARL Technical Report 1389
+#
+# Rotating Shake Test and Modal Analysis of a Model Helicopter Rotor Blade
+# W. Keats Wilkie, Paul H. Mirick, and Chester W. Langston
+# Vehicle Technology Center
+# U.S. Army Research Laboratory
+# Langley Research Center Hampton, Virginia
+#
+# <http://hdl.handle.net/2060/19970021351>
+
+The "tm4760_blk.m" octave script generates the model in a 1:1 correspo-
+ndence with the MSC/NASTRAN provided in the source reference.  Manually
+edit the "beamtype" var to either use beam2 or beam3 elements.
+
+With beam2 elements, the following frequencies are obtained:
+
+rpm	rig.lag	rig.fl.	1st fl.	2nd fl.	1st lag	3rd fl.	1st tor.
+  0	  0.07	  0.00	 11.53	 36.36   42.39   76.68	102.07
+150       0.77	  2.61	 13.09	 37.61	 42.77	 77.84	102.07
+250       1.28    4.36   15.49	 39.73	 43.43	 79.86	102.09
+350	  1.80	  6.10   18.50	 42.70	 44.42	 82.78	102.11
+450	  2.31	  7.84	 21.87	 46.35	 45.69	 86.49	102.14
+550	  2.82	  9.58	 25.46	 50.52	 47.24	 90.88	102.20
+660	  3.38	 11.50	 29.55	 55.55	 49.22	 96.26	102.38
+
+With beam3 elements, the following frequencies are obtained:
+
+rpm	rig.lag	rig.fl.	1st fl.	2nd fl.	1st lag	3rd fl.	1st tor.
+  0	  0.07	  0.00	 11.53	 36.36	 42.39	 76.68	102.07
+150	  0.77	  2.61	 13.09	 37.61	 42.77	 77.85	102.07
+250	  1.28	  4.36	 15.49	 39.74	 43.44	 79.87	102.09
+350	  1.80	  6.10	 18.50	 42.71	 44.42	 82.80	102.11
+450	  2.31	  7.84	 21.87	 46.37	 45.70	 86.53	102.14
+550	  2.82	  9.58	 25.46	 50.54	 47.24	 90.93	102.20
+660	  3.38	 11.50	 29.56	 55.58	 49.22	 96.33	102.38
+
+The "tm4760.m" octave script will generate a native MBDyn model from the
+data tabulated in the source reference (FIXME: not complete yet).
+

@@ -1,0 +1,90 @@
+ set: real t1 = 1;
+ set: real N = 40;
+ begin: data;
+    problem: initial value; # the default
+ end: data;
+ begin: initial value;
+    initial time: 0;
+    final time: t1;
+    time step: t1 / N;
+    min time step: t1 / N / 100;
+    max time step: t1 / N;
+ strategy: factor, 0.8, 1, 1.25, 3, 5, 10;
+    threads: assembly, 1;
+    threads: solver, 1;
+    max iterations: 10000;
+    tolerance: 1.e-3, test, norm, 1e-3, test, norm;
+    linear solver: umfpack, grad, scale, iterative, always, max iterations, 0;
+    method: implicit euler;
+         derivatives tolerance: 1e-4;
+         derivatives max iterations: 10;
+         derivatives coefficient: 1e-9, auto;
+         output: iterations, cpu time, solver condition number, stat, yes;
+    nonlinear solver: nox, modified, 100, keep jacobian matrix, jacobian operator, newton krylov, forcing term, type 2, forcing term min tolerance, 1e-10, forcing term max tolerance, 1e-6, inner iterations before assembly, 30;
+threads: disable;
+ end: initial value;
+ begin: control data;
+    model: static;
+    output meter: closest next, 0., forever, t1 / 20;
+        use automatic differentiation;
+    structural nodes: 163;
+    joints: 52;
+    solids: 32;
+ end: control data;
+ begin: nodes;
+include: "mbdyn_test_solid_0002.nod";
+ end: nodes;
+include: "mbdyn_test_solid_0002.csl";
+ begin: elements;
+    joint: 1, total pin joint,
+                    162,
+                            position,          reference, global, 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, 
+                            position orientation,   reference, global, eye,
+                            rotation orientation,   reference, global, eye,
+                            position,          reference, global, 0.0000000000000000e+00, 0.0000000000000000e+00, 0.0000000000000000e+00, 
+                            position orientation,   reference, global, eye,
+                            rotation orientation,   reference, global, eye,
+                    position constraint, 
+                                    active, 
+                                    active, 
+                                    active,
+                            component, const, 0.,
+                                       const, 0.,
+                                       const, 0.,
+                    orientation constraint,
+                                    active,
+                                    active,
+                                    active,
+                            component, const, 0.,
+                                       const, 0.,
+                                       const, 0.;
+    joint: 2, total pin joint,
+                    163,
+                            position,          reference, global, 2.0000000000000000e+01, 0.0000000000000000e+00, 0.0000000000000000e+00, 
+                            position orientation,   reference, global, eye,
+                            rotation orientation,   reference, global, eye,
+                            position,          reference, global, 2.0000000000000000e+01, 0.0000000000000000e+00, 0.0000000000000000e+00, 
+                            position orientation,   reference, global, eye,
+                            rotation orientation,   reference, global, eye,
+                    position constraint, 
+                                    active, 
+                                    active, 
+                                    active,
+                            component, const, 0.,
+                                       const, 0.,
+                                       const, 0.,
+                    orientation constraint,
+                                    active,
+                                    active,
+                                    active,
+                            component, string, "pi * Time / t1",
+                                       const, 0.,
+                                       const, 0.;
+include: "mbdyn_test_solid_0002.elm";
+ end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

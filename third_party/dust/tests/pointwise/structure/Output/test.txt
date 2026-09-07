@@ -1,0 +1,20 @@
+
+MBDyn - MultiBody Dynamics develop
+configured on Jun 23 2023 at 16:36:36
+
+Copyright 1996-2023 (C) Paolo Mantegazza and Pierangelo Masarati,
+Dipartimento di Ingegneria Aerospaziale <http://www.aero.polimi.it/>
+Politecnico di Milano                   <http://www.polimi.it/>
+
+MBDyn is free software, covered by the GNU General Public License,
+and you are welcome to change it and/or distribute copies of it
+under certain conditions.  Use 'mbdyn --license' to see the conditions.
+There is absolutely no warranty for MBDyn.  Use "mbdyn --warranty"
+for details.
+
+reading from file "rolling_wing.mbd"
+Creating scalar solver with Naive linear solver
+Reading Structural(100)
+Reading Joint(100)
+Reading Force(9)
+LOCAL connection to path="/tmp/.mbdyn_e6euw724/mbdyn.sock"

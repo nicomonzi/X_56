@@ -1,0 +1,36 @@
+        # default output: none;
+	# output precision: 16;
+	structural nodes:
+		+1		# C
+
+		+1		# A-G
+		+1		# A-H
+		+1		# G-E
+		+1		# H-E
+		+1		# B-D-E
+		+1		# E-F
+		+1		# O-F
+	;
+	rigid bodies: 7;
+	joints:
+		+1		# clamp C
+
+		+1		# hinge O-F in O, spherical
+		+1		# hinge A-G in A, spherical
+		+1		# hinge A-H in A, spherical
+		+1		# hinge A-G and G-E in G, revolute
+		+1		# hinge A-H and H-E in H, revolute
+		+1		# hinge G-E and B-D-E in E, revolute
+		+1		# hinge H-E and B-D-E in E, revolute
+		+1		# hinge E-F and B-D-E in E, revolute
+		+1		# hinge B-D-E in B, revolute
+		+1		# hinge E-F and O-F in F, spherical + sliding in z
+
+		+1		# spring between C and D
+	;
+	forces:
+		+1		# torque
+		# +1		# output
+	;
+
+include: "andrewssqueezer_ad.con";

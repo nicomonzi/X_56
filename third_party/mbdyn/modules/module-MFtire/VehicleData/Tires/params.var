@@ -1,0 +1,21 @@
+set: (
+
+	const real Ru       = .198;
+	const real Re       = .195;
+
+	# Tires
+	const real kt  = 9.0e4; # tire Z stiffness
+
+	# Fy hoosier
+	const real By   = 3.8853;
+	const real Cy   = 2.2333;
+	const real Ey   = 0.9998;
+	const real Dy   = -1.3073;
+
+	# Fx hoosier
+	const real Bx   = 3.9192;
+	const real Cx   = 2.1435;
+	const real Ex   = 1.0052;
+	const real Dx   = 1.2105
+
+);

@@ -1,0 +1,104 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/driven/payloaddrop,v 1.2 2010/04/07 16:47:33 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1e-2;
+
+	method: ms, .6;
+
+	tolerance: 1e-6;
+	max iterations: 10;
+
+	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 2;
+	gravity;
+	joints: 1;
+	forces: 1;
+	default output: accelerations;
+end: control data;
+
+set: integer BODY = 1;
+set: integer CONNECTOR = 2;
+set: integer PAYLOAD = 3;
+
+set: real V0 = 100.;		# m/s
+set: real MBODY = 5000.;	# kg
+set: real MPAYLOAD = 100.;	# kg
+set: real ZBODY = 0.;		# m
+set: real ZPAYLOAD = -1.;	# m
+
+set: real TDROP = 1.;		# s
+
+reference: BODY,
+	reference, GLOBAL, 0., 0., ZBODY,
+	reference, GLOBAL, eye,
+	reference, GLOBAL, V0, 0., 0.,
+	reference, GLOBAL, null;
+
+reference: CONNECTOR,
+	reference, BODY, null,
+	reference, BODY, eye,
+	reference, BODY, null,
+	reference, BODY, null;
+
+reference: PAYLOAD,
+	reference, CONNECTOR, 0., 0., ZPAYLOAD,
+	reference, CONNECTOR, eye,
+	reference, CONNECTOR, null,
+	reference, CONNECTOR, null;
+
+begin: nodes;
+	structural: BODY, dynamic,
+		reference, BODY, null,
+		reference, BODY, eye,
+		reference, BODY, null,
+		reference, BODY, null;
+	structural: PAYLOAD, dynamic,
+		reference, PAYLOAD, null,
+		reference, PAYLOAD, eye,
+		reference, PAYLOAD, null,
+		reference, PAYLOAD, null;
+end: nodes;
+
+begin: elements;
+	body: BODY, BODY,
+		MBODY,
+		null,
+		diag, 1., 1., 1.;
+	body: PAYLOAD, PAYLOAD,
+		MPAYLOAD,
+		null,
+		diag, 1., 1., 1.;
+	gravity: 0.,0.,-1., 9.81;
+	driven: CONNECTOR, string, "Time < TDROP",
+	joint: CONNECTOR, spherical hinge,
+		BODY, reference, CONNECTOR, null,
+		PAYLOAD, reference, CONNECTOR, null;
+	force: BODY, absolute,
+		BODY,
+		position, null,
+		0.,0.,1.,
+		array, 2,
+			node, BODY, structural, string, "X[3]",
+				linear, 9.81*(MBODY + MPAYLOAD), -10000.,
+			node, BODY, structural, string, "XP[3]",
+				linear, 0., -5000.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

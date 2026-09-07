@@ -1,0 +1,96 @@
+# module-marsh manual verification deck.
+#
+# A single clamped rigid body under gravity: since it never moves, the
+# quantities published to MARSH are constants, which makes them easy to
+# check by hand (the specific force is steady, the body rates are zero).
+#
+# Both outbound bindings are exercised: SIM_STATE takes its state from an
+# "aircraft instruments" element, which also supplies the geodetic
+# position, whereas MOTION_CUE_EXTRA takes it from the structural node
+# directly, and has one field driven by a drive caller instead.
+#
+# MANUAL_CONTROL.x, once received from the MARSH Manager (or from a
+# throwaway UDP test script), is clamped onto an abstract node so its
+# value shows up in the output files.
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e-2;
+
+	tolerance: 1.e-6;
+	max iterations: 10;
+
+	method: ms, 0.6;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	abstract nodes: 1;
+	rigid bodies: 1;
+	joints: 1;
+	genels: 1;
+	loadable elements: 1;
+	aerodynamic elements: 1;
+	air properties;
+	gravity;
+end: control data;
+
+set: const integer AIRCRAFT = 1;
+set: const integer INSTRUMENTS = 1;
+set: const integer MARSH = 3;
+
+module load: "libmodule-marsh.la";
+# module load: "libmodule-marsh.so";
+
+begin: nodes;
+	structural: AIRCRAFT, dynamic, null, eye, null, null;
+	abstract: 2, differential;
+end: nodes;
+
+begin: elements;
+	body: 1, AIRCRAFT, 1., null, eye;
+
+	joint: 1, clamp, AIRCRAFT, node, node;
+
+	# the "world" of flight mechanics: x north, y west, z up
+	gravity: uniform, 0., 0., -1., const, 9.81;
+
+	# required by "aircraft instruments", which queries the air
+	# properties unconditionally
+	air properties: std, SI, null;
+
+	aircraft instruments: INSTRUMENTS, AIRCRAFT,
+		orientation, flight mechanics,
+		initial latitude, 45.5*deg2rad,
+		initial longitude, 9.15*deg2rad;
+
+	user defined: MARSH, marsh,
+		manager address, "127.0.0.1",
+		manager port, 24400,
+		local port, 25000,
+		heartbeat rate, 1.,
+		# the whole message, geodetic position included
+		send, "SIM_STATE",
+			aircraft instruments, INSTRUMENTS,
+		# body axes motion straight from the node, with one field
+		# driven by the user rather than by the aircraft dynamics
+		send, "MOTION_CUE_EXTRA",
+			node, AIRCRAFT,
+			field, "acc_y", drive, sine, 0., 2.*pi, 0.5, forever, 0.,
+		subscribe, "MANUAL_CONTROL";
+
+	genel: 1, clamp, 2, abstract, differential,
+		element, MARSH, loadable, string, "MANUAL_CONTROL.x", direct;
+end: elements;
+
+# vim:ft=mbd
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

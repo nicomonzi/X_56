@@ -1,0 +1,9 @@
+structural: node_id_1 + i - 1, dynamic,
+                # position
+                reference, ref_node_1 + i - 1, null,
+                # orientation
+                reference, ref_node_1 + i - 1, eye,
+                # velocity
+                reference, ref_node_1 + i - 1, null,
+                # angular velocity
+                reference, ref_node_1 + i - 1, null;

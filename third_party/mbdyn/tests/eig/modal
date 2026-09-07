@@ -1,0 +1,107 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/eig/modal,v 1.2 2014/12/13 17:15:38 masarati Exp $
+
+/*
+
+	Experimental test of eigenvalue extraction
+
+	- run this example; it'll generate a <output>.m file
+	- load that file into octave (or matlab)
+	- execute the mbeig script
+	- compare the resulting l(v) with the square root
+	  of the diagonal terms of the generalized stiffness matrix
+
+	NOTE: build with CPPFLAGS="-D__HACK_EIG__=1"
+
+octave:3> l(v)
+ans =
+
+    -0.000 + 303.769i
+    -0.000 - 303.769i
+     0.000 + 239.794i
+     0.000 - 239.794i
+     0.000 + 575.192i
+     0.000 - 575.192i
+     0.000 +  60.314i
+     0.000 -  60.314i
+
+octave:7> sqrt(diag(K))
+ans =
+
+   60.314
+  239.794
+  303.769
+  575.192
+  742.159
+
+*/
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: .001;
+	time step: 1e-4;
+
+	tolerance: 1e-9;
+	max iterations: 10;
+
+	derivatives tolerance: 10;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1;
+
+	threads: disable;
+
+	output: iterations;
+	output: residual;
+	output: solution;
+
+	eigenanalysis: .001, parameter, 1.e-6, output matrices, output eigenvectors;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	print: all;
+	structural nodes:
+		+1	# modal
+		+1	# interface
+	;
+	joints:
+		+1	# clamp
+		+1	# modal
+	;
+end: control data;
+
+begin: nodes;
+	structural: 9999, modal,
+		null,
+		eye,
+		null,
+		null;
+	structural: 5555, static,
+		1.177590, 0.762000, 0.000000,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 9999, node, node;
+	joint: 2, modal,
+		9999,	# modal node
+        	4,	# n. of modes
+			list, 1, 2, 3, 4,
+		127,	# n. of FEM nodes
+		no damping,
+		# proportional damping, .7,
+		"../joints/modal/agard-445.6.fem",
+		1,
+        	121, 5555, null;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

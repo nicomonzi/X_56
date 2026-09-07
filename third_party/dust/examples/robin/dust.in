@@ -1,0 +1,49 @@
+basename       = ./Output/robin
+
+! free-stream conditions ---------------
+u_inf   = (/ 27.0 , 0.0 , 0.0 /)
+
+! Time ---------------------------------
+tstart = 0.0
+tend = 0.630063
+dt = 0.000751577
+dt_out = 0.000751577
+output_start = T
+
+! geometry -----------------------------
+geometry_file = geo_input.h5
+
+! restart ------------------------------
+restart_from_file= F
+restart_file = ./Output/starting_res.h5
+reset_time = F
+
+! reference frames ---------------------
+reference_file = ./References.in
+
+! Model parameters ---------------------
+vortex_rad = 0.03
+fmm = T
+vortstretch = T
+diffusion = T
+penetration_avoidance = T
+reformulated = F
+integrator = euler
+
+! wake parameters ----------------------
+n_wake_panels = 1
+n_wake_particles = 100000
+particles_box_min = (/ -2.0, -2.0, -7.0/)
+particles_box_max = (/  6.0,  2.0,  1.0/)
+
+! octree parameters--------------------
+box_length = 4
+n_box = (/2,1,2/)
+octree_origin = (/-2.0, -2.0, -7.0/)
+n_octree_levels = 6
+min_octree_part = 5
+multipole_degree = 2
+
+! lifting lines solver-----------------
+ll_tol = 1.0e-4
+ll_damp = 5.0

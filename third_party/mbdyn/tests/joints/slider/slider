@@ -1,0 +1,108 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/slider/slider,v 1.7 2014/05/13 07:53:54 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-5;
+	max iterations: 20;
+	linear solver: naive, colamd;
+
+	method: ms, .6, .6;
+
+	derivatives coefficient: 1.e-6;
+	derivatives tolerance: 1.e-5;
+	derivatives max iterations: 50;
+	output: iterations, residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	skip initial joint assembly;
+
+	structural nodes: 3+1;
+	rigid bodies: 1;
+	beams: 1;
+	joints: 1+1;
+	gravity;
+	#finite difference jacobian meter: const, 1.;
+	print: dof stats, dof description, equation description;
+end: control data;
+
+set: real L = 2.;
+set: real M = 1.e-1;
+
+reference: 1, 
+	reference, global, null,
+	reference, global,
+		1, 1.,0.,-1.,
+		2, 0.,1.,0.,
+	reference, global, null,
+	reference, global, null;
+
+begin: nodes;
+	structural: 1, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 2, static,
+		reference, 1, .5*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 3, static,
+		reference, 1, L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+
+	structural: 10, dynamic,
+		reference, 1, .0*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	beam: 1,
+		1, null,
+		2, null,
+		3, null,
+		reference, 1, eye,
+		linear elastic generic, 
+		# diag, 1.e6,1.e6,1.e6,1.e3,1.e4,1.e4,
+		diag, 1.e10,1.e10,1.e10,1.e8,1.e8,1.e8,
+		same,
+		same;
+
+	body: 10, 10,
+		1.e-1,
+		null,
+		eye;
+	gravity: uniform, 0.,0.,-1.,
+		# 9.81;
+		cosine, 0., pi/.01, 9.81/2., -1, 0.;
+
+	joint: 10, beam slider,
+		10, null,
+			orientation, eye,
+		type, classic,
+		1,
+			1, null, null, null,
+		initial node, 1,
+		smearing, .01;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

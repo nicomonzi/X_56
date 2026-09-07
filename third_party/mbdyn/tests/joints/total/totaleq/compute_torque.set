@@ -1,0 +1,13 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/total/totaleq/compute_torque.set,v 1.1 2009/08/30 19:28:45 masarati Exp $
+# Compute the force needed to move the end point
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+
+# common data
+
+set: real FINAL_TIME = 10.;
+set: real TIME_STEP = 1.e-2;
+
+set: real L = 1.;
+set: real M = 1.;
+set: real EA = 1.e1;
+

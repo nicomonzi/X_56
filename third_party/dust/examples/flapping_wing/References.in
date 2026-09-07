@@ -1,0 +1,126 @@
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = Plunge
+parent_tag = 0
+origin = (/0.0, 0.0, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = F
+moving = T
+motion = {
+
+ pole = {
+  input      = position                      
+  input_type = simple_function               
+  function   = (/  0  ,  0  ,  1  /)         
+  amplitude  = 0.5                          
+  vector     = (/ 0.0 , 0.0 , 1.0 /)         
+  omega      = (/ 1.2 , 0.62832 , 0.62832 /) 
+  phase      = (/ -1.5708 , 0.0 , 0.0 /)     
+  offset     = (/ 0.0 , 0.0 , 0.0 /)         
+  !position_0 = ...                          
+ }
+
+ rotation   = {
+  input      = position                     
+  input_type = simple_function              
+  function   =  0                           
+  Axis       = (/ 0.0 , 1.0 , 0.0 /)        
+  amplitude  = 0.0                          
+  omega      = 2.0                          
+  phase      = 0.0                          
+  offset     = 0.0                          
+  psi_0      = 0.0                          
+ }
+
+}
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = offset1
+parent_tag = Plunge
+origin = (/0.0, 0.3, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = F
+moving = F
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = Flap
+parent_tag = offset1
+origin = (/0.0, 0.0, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = F
+moving = T
+motion = {
+
+ pole = {
+  input      = position                      
+  input_type = simple_function               
+  function   = (/  0  ,  0  ,  0  /)         
+  amplitude  = 1.0                          
+  vector     = (/ 0.0 , 0.0 , 0.0 /)         
+  omega      = (/ 1.2 , 0.62832 , 0.62832 /) 
+  phase      = (/ -1.5708 , 0.0 , 0.0 /)     
+  offset     = (/ 0.0 , 0.0 , 0.0 /)         
+  !position_0 = ...                          
+ }
+
+ rotation   = {
+  input      = position                      
+  input_type = simple_function               
+  function   =  1                            
+  !file       = omega_1.dat                  
+  Axis       = (/ 1.0 , 0.0 , 0.0 /)         
+  amplitude  = 0.349                         
+  omega      = 0.62832                       
+  phase      = 3.14                          
+  offset     = 0.0                          
+  psi_0      = 0.0                          
+ }
+
+}
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = Pitch
+parent_tag = Flap
+origin = (/0.0, 0.0, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = F
+moving = T
+motion = {
+
+ pole = {
+  input      = position                      
+  input_type = simple_function               
+  function   = (/  0  ,  0  ,  0  /)         
+  amplitude  = 1.0                           
+  vector     = (/ 0.0 , 0.0 , 0.0 /)         
+  omega      = (/ 1.2 , 0.62832 , 0.62832 /) 
+  phase      = (/ -1.5708 , 0.0 , 0.0 /)     
+  offset     = (/ 0.0 , 0.0 , 0.0 /)         
+ }
+
+ rotation   = {
+  input      = position                      
+  input_type = simple_function               
+  function   =  1                            
+  !file       = omega_1.dat                  
+  Axis       = (/ 0.0 , 1.0 , 0.0 /)         
+  amplitude  = 0.17453                       
+  omega      = 0.62832                       
+  phase      = -1.5708                       
+  offset     = 0.0                          
+  psi_0      = 0.0                         
+ }
+
+}
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = Wing
+parent_tag = Pitch
+origin = (/0.2, 0.0, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = F
+moving = F
+
+

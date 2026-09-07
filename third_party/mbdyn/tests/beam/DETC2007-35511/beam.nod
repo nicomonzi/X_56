@@ -1,0 +1,26 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/beam/DETC2007-35511/beam.nod,v 1.1 2009/08/20 22:02:14 masarati Exp $
+#
+# Copyright 2009 Pierangelo Masarati <masarati@aero.polimi.it>
+#
+# Space manipulator based on DETC2007-35511
+# Proceedings of IDETC/CIE 2007
+# ASME 2007 International Design Engineering Technical Conferences &
+# Computers and Information in Engineering Conference
+# September 4-7, 2007, Las Vegas, USA
+# INVESTIGATION OF BOUNDARY CONDITIONS FOR FLEXIBLE MULTIBODY
+# SPACECRAFT DYNAMICS (DRAFT VERSION)
+# John R. MacLean
+# An Huynh
+# Leslie J. Quiocho
+
+structural: PIN + 2*CURR_BEAM - 1, dynamic,
+	reference, PIN, (2.*CURR_BEAM - 1)*DL, 0., 0.,
+	reference, PIN, eye,
+	reference, PIN, null,
+	reference, PIN, null;
+
+structural: PIN + 2*CURR_BEAM, dynamic,
+	reference, PIN, (2.*CURR_BEAM)*DL, 0., 0.,
+	reference, PIN, eye,
+	reference, PIN, null,
+	reference, PIN, null;

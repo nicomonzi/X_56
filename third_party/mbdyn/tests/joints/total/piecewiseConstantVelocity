@@ -1,0 +1,102 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1e-2;
+
+	# method: ms, .6;
+	method: bdf;
+
+	tolerance: 1e-6;
+	max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 2;
+
+	default output: accelerations;
+	default orientation: orientation vector;
+	max iterations: 10;
+end: control data;
+
+set: const real T = 1.; # s
+set: const real DUTY_CYCLE = .4; # duty cycle
+set: const real THETA_S = pi/3; # arc during stance
+set: const real OMEGA_S = THETA_S/(T*DUTY_CYCLE);
+set: const real OMEGA_F = (2*pi - THETA_S)/(T*(1 - DUTY_CYCLE));
+
+set: const real THETA_0 = pi/12; # see Fig. 2
+set: const real THETA_I = THETA_0 - THETA_S/2; # angle of beginning of stance
+set: const real THETA_F = THETA_0 + THETA_S/2; # angle of end of stance
+
+set: const integer ANGLE_DRIVE = 1;
+drive caller: ANGLE_DRIVE,
+	periodic, (THETA_0 - THETA_S/2)/OMEGA_S, T,
+	string, "OMEGA_S*Var*(Var < T*DUTY_CYCLE) + (THETA_S + OMEGA_F*(Var - T*DUTY_CYCLE))*(Var >= T*DUTY_CYCLE) + THETA_I";
+
+set: const integer ANGULAR_VELOCITY_DRIVE = 2;
+drive caller: ANGULAR_VELOCITY_DRIVE,
+	periodic, (THETA_0 - THETA_S/2)/OMEGA_S, T,
+	string, "OMEGA_S*(Var < T*DUTY_CYCLE) + OMEGA_F*(Var >= T*DUTY_CYCLE)";
+
+begin: nodes;
+	structural: 0, static, null, eye, null, null, output, no;
+	structural: 1, dynamic,
+		null,
+		eye,
+		null,
+		0., OMEGA_S, 0.;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+
+	body: 1, 1, 1., null, diag, 1., 1., 1.;
+
+	joint: 1, total joint,
+		0,
+		1,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 1, 0., 1., 0., reference, ANGLE_DRIVE;
+		# orientation constraint, 1, angular velocity, 1, 0., 1., 0., reference, ANGULAR_VELOCITY_DRIVE;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

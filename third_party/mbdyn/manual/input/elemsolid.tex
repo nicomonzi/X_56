@@ -1,0 +1,514 @@
+% MBDyn (C) is a multibody analysis code.
+% http://www.mbdyn.org
+%
+% Copyright (C) 1996-2023
+%
+% Pierangelo Masarati  <pierangelo.masarati@polimi.it>
+%
+% Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+% via La Masa, 34 - 20156 Milano, Italy
+% http://www.aero.polimi.it
+%
+% Changing this copyright notice is forbidden.
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation (version 2 of the License).
+%
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+\section{Solid Elements}
+\label{sec:EL:SOLID}
+\emph{Author: Reinhard Resch}
+\subsection{Scope}
+In order to model general three dimensional solid structures with complex shape and subject to large deformations,
+large strain and nonlinear material, a generic family of Isoparametric Finite Elements is implemented in MBDyn.
+Those elements are based on a Total~Lagrangian~Formulation according to \cite{BATHE2016}.
+Elements based on a pure displacement based formulation as well as a displacement/pressure formulation (u/p-c) are available.
+Shape functions and integration points are based on \cite{BATHE2016}, \cite{DHONDT2004} and \cite{CODEASTERR30301}.
+See also table~\ref{sec:EL:SOLID:elemtypes} and table~\ref{sec:EL:SOLID:elemtypes:upc} for a list of supported element types.
+\subsection{Element input format}
+\label{sec:EL:SOLID:INPUT:FORMAT}
+\begin{Verbatim}[commandchars=\\\{\}]
+  \bnt{elem_type} ::= \{ \kw{hexahedron8} | \kw{hexahedron20} | \kw{hexahedron20r} | \kw{hexahedron27} |
+                    \kw{pentahedron15} | \kw{pentahedron18} | \kw{tetrahedron10} | \kw{tetrahedron20}
+                    \kw{hexahedron8upc} | \kw{hexahedron20upc} | \kw{hexahedron20upcr} |
+                    \kw{pentahedron15upc} | \kw{tetrahedron10upc} |
+                    \kw{hexahedron8f} | \kw{hexahedron20f} | \kw{hexahedron20fr} | \kw{hexahedron27f} |
+                    \kw{pentahedron15f} | \kw{pentahedron18f} | \kw{tetrahedron10f} | \kw{tetrahedron20f} \}
+
+    \bnt{normal_arglist} ::=
+        [ \kw{static} , ] [ \kw{lumped mass} , ] \bnt{struct_node_data}, [ \bnt{hydr_node_data}, ]
+        \bnt{nodal_density}, \bnt{constitutive_law_data} ;
+
+     \bnt{struct_node_data} :: =
+        (\ty{StructDispNode}) \bnt{struct_node_1_label} ,
+        (\ty{StructDispNode}) \bnt{struct_node_2_label} ,
+        ... ,
+        (\ty{StructDispNode}) \bnt{struct_node_N_label}
+
+
+     \bnt{hydr_node_data} :: =
+        (\ty{HydraulicNode}) \bnt{hydr_node_1_label} ,
+        (\ty{HydraulicNode}) \bnt{hydr_node_2_label} ,
+        ... ,
+        (\ty{HydraulicNode}) \bnt{hydr_node_N_label}
+
+     \bnt{nodal_density} :: =
+        (\ty{real}) \bnt{rho_1}, (\ty{real}) \bnt{rho_2} , ... , (\ty{real}) \bnt{rho_N}
+
+     \bnt{constitutive_law_data} :: =
+        \{ \bnt{constitutive_law_data_6D} | \bnt{constitutive_law_data_7D} | \bnt{constitutive_law_data_9D} \}
+
+      \bnt{constitutive_law_data_6D} :: =
+        (\htybkw{ConstitutiveLaw}{6D}) \bnt{constitutive_law_1} ,
+        \{ (\htybkw{ConstitutiveLaw}{6D}) \bnt{constitutive_law_2} | \kw{same} \} ,
+        ... ,
+        \{ (\htybkw{ConstitutiveLaw}{6D}) \bnt{constitutive_law_M} | \kw{same} \}
+
+      \bnt{constitutive_law_data_7D} :: =
+        (\htybkw{ConstitutiveLaw}{7D}) \bnt{constitutive_law_1} ,
+        \{ (\htybkw{ConstitutiveLaw}{7D}) \bnt{constitutive_law_2} | \kw{same} \} ,
+        ... ,
+        \{ (\htybkw{ConstitutiveLaw}{7D}) \bnt{constitutive_law_M} | \kw{same} \}
+
+      \bnt{constitutive_law_data_9D} :: =
+        (\htybkw{ConstitutiveLaw}{9D}) \bnt{constitutive_law_1} ,
+        \{ (\htybkw{ConstitutiveLaw}{9D}) \bnt{constitutive_law_2} | \kw{same} \} ,
+        ... ,
+        \{ (\htybkw{ConstitutiveLaw}{9D}) \bnt{constitutive_law_M} | \kw{same} \}
+\end{Verbatim}
+
+\subsection{Constitutive law types to be used for solid elements}
+Each solid element type described in section~\ref{sec:EL:SOLID:INPUT:FORMAT} has a dedicated type of constitutive law which must be used.
+See table~\ref{SEC:EL:ELEMTYPE:CONSTLAW}.
+\begin{table}[h!tp]
+  \begin{tabular}[t]{|l|c|c|c|}
+  \hline
+               & \multicolumn{3}{|c|}{constitutive law} \tabularnewline
+  \hline
+  element type & 6D & 7D & 9D \tabularnewline
+  \hline
+  \kw{hexahedron8} & $\surd$ & & \tabularnewline
+  \hline
+  \kw{hexahedron20} & $\surd$ & & \tabularnewline
+  \hline
+  \kw{hexahedron20r} & $\surd$ & & \tabularnewline
+  \hline
+  \kw{hexahedron27} & $\surd$ & & \tabularnewline
+  \hline
+  \kw{pentahedron15} & $\surd$ & & \tabularnewline
+  \hline
+  \kw{pentahedron18} & $\surd$ & & \tabularnewline
+  \hline  
+  \kw{tetrahedron10} & $\surd$ & & \tabularnewline
+  \hline
+  \kw{tetrahedron20} & $\surd$ & & \tabularnewline
+  \hline
+  \kw{hexahedron8upc} & & $\surd$ & \tabularnewline
+  \hline
+  \kw{hexahedron20upc} & & $\surd$ & \tabularnewline
+  \hline
+  \kw{hexahedron20upcr} & & $\surd$ & \tabularnewline
+  \hline
+  \kw{pentahedron15upc} & & $\surd$ & \tabularnewline
+  \hline
+  \kw{tetrahedron10upc} & & $\surd$ & \tabularnewline
+  \hline
+  \kw{hexahedron8f} & & & $\surd$ \tabularnewline
+  \hline
+  \kw{hexahedron20f} & & & $\surd$ \tabularnewline
+  \hline
+  \kw{hexahedron20fr} & & & $\surd$ \tabularnewline
+  \hline
+  \kw{hexahedron27f} & & & $\surd$ \tabularnewline
+  \hline
+  \kw{pentahedron15f} & & & $\surd$ \tabularnewline
+  \hline
+  \kw{pentahedron18f} & & & $\surd$ \tabularnewline
+  \hline  
+  \kw{tetrahedron10f} & & & $\surd$ \tabularnewline
+  \hline
+  \kw{tetrahedron20f} & & & $\surd$ \tabularnewline
+  \hline
+  \end{tabular}
+  \caption{Constitutive laws to be used for each solid element type}
+  \label{SEC:EL:ELEMTYPE:CONSTLAW}
+\end{table}
+
+\subsection{Displacement based elements versus displacement/pressure elements (u/p-c)}
+All pure displacement based elements (e.g. \kw{hexahedron8}, \ldots) require only structural displacement nodes,
+whereas displacement/pressure based elements (e.g. \kw{hexahedron8upc}, \ldots) require
+additional hydraulic nodes, in order to represent the hydrostatic pressure.
+Usually the number of hydraulic nodes is lower than the number of structural nodes in order to prevent
+locking phenomenon \cite{BATHE2016}.
+Due to the use of dedicated hydraulic nodes, the hydrostatic portion of the stress tensor is always continuous
+across compatible elements with common nodes \cite{BATHE2016}. For that reason, those elements have the
+suffix~*-\kw{upc} in their element names, which stands for displacement/pressure-continuous (u/p-c).
+In addition to that, even fully incompressible constitutive laws like Mooney Rivlin are supported
+by u/p-c~elements \cite{BATHE2016}.
+
+\subsection{Dynamic versus static elements}
+By default, dynamic solid elements with inertia effects enabled are created,
+unless the keyword \kw{static} is used in the element description
+or the statement ``\kw{model}: \kw{static}'' was present inside the control data block according section~\ref{sec:CONTROLDATA:MODEL}.
+\subsection{Gravity and rigid body kinematics}
+All solid elements including static ones, are supporting gravity loads according section~\ref{sec:ELEMENTS:gravity}
+and rigid body kinematics according section~\ref{sec:CONTROLDATA:RBK}.
+\subsection{Material properties and constitutive laws}
+For that reason, the density of the material must be provided also for static solid elements.
+Solid elements may have variable density within a single element.
+Also in case of constant density, density values must be provided for each node, and it will be interpolated between nodes.
+Any linear or nonlinear elastic or viscoelastic constitutive law can be used, if it fulfills the following requirements:
+A constitutive law must expect the components $\boldsymbol{\varepsilon}$ of the Green-Lagrange strain tensor $\boldsymbol{G}$,
+and optionally it's scaled time derivatives $\dot{\boldsymbol{\varepsilon}}^{\star}$ as input, and return the components $\boldsymbol{\sigma}$
+of the Second~Piola-Kirchhoff stress tensor $\boldsymbol{S}$ as output. The following types of constitutive laws are implemented:
+\begin{itemize}
+\item linear elastic isotropic
+\item linear viscoelastic isotropic,
+\item hyperelastic isotropic
+\item elasto-plastic with isotropic hardening
+\item generalized Maxwell~viscoelastic
+\item constitutive laws provided by the \href{thelfer.github.io/tfel/web/index.html}{MFront} code generation tool
+\end{itemize}
+See also section~\ref{sec:CL:hookean:linear:elastic:isotropic}, section~\ref{sec:CL:neo-hookean}, section~\ref{sec:CL:mooney-rivlin},
+section~\ref{sec:CL:bilinear-isotropic-hardening}, section~\ref{sec:CL:linear-viscoelastic-maxwell} and section~\ref{sec:CL:mfront}.
+In case of viscoelastic constitutive laws, the strain rates $\dot{\boldsymbol{\varepsilon}}$ are scaled in order to make
+the effect of structural damping independent on the strain \cite{KUEBLER2005}.
+
+\begin{eqnarray}
+  \label{sec:EL:SOLID:constlaw}
+  \boldsymbol{\sigma} & = & \boldsymbol{f}\left(\boldsymbol{\varepsilon},\, \dot{\boldsymbol{\varepsilon}}^{\star}\right) \\
+  \boldsymbol{\sigma} & = & \begin{pmatrix} S_{11} & S_{22} & S_{33} & S_{12} & S_{23} & S_{31} \end{pmatrix}^T \\
+  \boldsymbol{\varepsilon} & = & \begin{pmatrix} G_{11} & G_{22} & G_{33} & 2\,G_{12} & 2\,G_{23} & 2\,G_{31} \end{pmatrix}^T \\
+  \dot{\boldsymbol{\varepsilon}}^{\star} & = & \begin{pmatrix} \dot{G}_{11}^{\star} & \dot{G}_{22}^{\star} & \dot{G}_{33}^{\star} & 2\,\dot{G}_{12}^{\star} & 2\,\dot{G}_{23}^{\star} & 2\,\dot{G}_{31}^{\star} \end{pmatrix}^T \\
+  \dot{\boldsymbol{G}}^{\star} & = & \boldsymbol{C}^{-1} \, \dot{\boldsymbol{G}} \, \boldsymbol{C}^{-1} \, \det{\boldsymbol{F}} \\
+  \boldsymbol{G} & = & \frac{1}{2}\,\left(\boldsymbol{C} - \boldsymbol{I}\right) \\
+  \boldsymbol{C} & = & \boldsymbol{F}^T\,\boldsymbol{F} \\
+  \boldsymbol{F} & = & \nabla \boldsymbol{u} + \boldsymbol{I}
+\end{eqnarray}
+\begin{description}
+\item[$\boldsymbol{f}$] Constitutive law
+\item[$\boldsymbol{G}$] Green-Lagrange strain tensor
+\item[$\boldsymbol{S}$] Second~Piola-Kirchhoff stress tensor
+\item[$\boldsymbol{C}$] Right~Cauchy-Green strain tensor
+\item[$\boldsymbol{F}$] Deformation gradient
+\item[$\boldsymbol{u}$] Deformation field
+\end{description}
+
+\paragraph{Constitutive laws for incompressible materials}
+All Finite Elements based on a pure displacement based formulation (e.g. \kw{hexahedron8}, \ldots) require 6D constitutive laws,
+whereas elements based on a displacement/pressure (u/p-c) formulation (e.g. \kw{hexahedron8upc}, \ldots) require 7D constitutive laws.
+In the latter case, the additional component of the strain tensor $\boldsymbol{\varepsilon}_7$ is used to pass the interpolated
+hydrostatic pressure $\tilde{p}$, and the additional component of the stress tensor $\boldsymbol{\sigma}_7$ is used to return an
+expression related to the condition of volumetric compatibility. See equations~\ref{SEC:EL:solid:constlaw:upc:eps} to \ref{SEC:EL:solid:constlaw:upc:epsV}.
+\begin{eqnarray}
+  \boldsymbol{\sigma} & = & \begin{pmatrix} S_{11} & S_{22} & S_{33} & S_{12} & S_{23} & S_{31} & \frac{1}{\kappa}\left(\bar{p} - \tilde{p}\right) \end{pmatrix}^T \label{SEC:EL:solid:constlaw:upc:eps} \\
+  \boldsymbol{\varepsilon} & = & \begin{pmatrix} G_{11} & G_{22} & G_{33} & 2\,G_{12} & 2\,G_{23} & 2\,G_{31} & \tilde{p} \end{pmatrix}^T \label{SEC:EL:solid:constlaw:upc:sigma}
+\end{eqnarray}
+For isotropic materials, the condition of volumetric compatibility is \cite{BATHE2016}.
+\begin{equation}
+\int_{V}\frac{1}{\kappa}\left(\bar{p} - \tilde{p}\right)\,\frac{\partial\tilde{p}}{\partial\hat{p}_i}\,dV = 0 \label{SEC:EL:solid:constlaw:upc:epsV}
+\end{equation}
+\begin{description}
+\item[$\bar{p}$] Hydrostatic pressure calculated from the strain tensor $\boldsymbol{G}$
+\item[$\tilde{p}$] Hydrostatic pressure interpolated from the hydraulic nodes of the element
+\item[$\hat{p}$] Hydrostatic pressure at the hydraulic nodes of the element
+\item[$\kappa$] Bulk modulus (e.g. $\kappa=\frac{E}{3\,\left(1-2\nu\right)}$ for linear elastic isotropic materials)
+\end{description}
+
+\paragraph{Constitutive laws based on the deformation gradient and the First~Piola-Kirchhoff stress tensor}
+\label{sec:EL:SOLID:constlaw:F}
+For a few constitutive laws (e.g. \kw{mfront finite strain}), it is necessary to provide
+the unsymmetric deformation gradient $\boldsymbol{F}$ as input value instead of the symmetric
+Green~Lagrange strain tensor $\boldsymbol{G}$.
+As a consequence, it is necessary to use a \htybkw{ConstitutiveLaw}{9D} in order to pass all nine components of the unsymmetric $3 \times 3$ tensor $\boldsymbol{F}$.
+\subparagraph{Conventions}
+Since this type of constitutive law was intended mainly to provide support for a constitutive law called \kw{mfront finite strain},
+the conventions of the \href{https://thelfer.github.io/mgis/web/index.html}{MFrontGenericInterfaceSupport} library are applied\cite{helfer_introducing_2015}. See also section~\ref{sec:CL:mfront}.
+\begin{eqnarray}
+  \boldsymbol{\sigma} & = & \begin{pmatrix} P_{11} & P_{22} & P_{33} & P_{12} & P_{21} & P_{13} & P_{31} & P_{23} & P_{32} \end{pmatrix}^T \\
+  \boldsymbol{\varepsilon} & = & \begin{pmatrix} F_{11} & F_{22} & F_{33} & F_{12} & F_{21} & F_{13} & F_{31} & F_{23} & F_{32} \end{pmatrix}^T \\
+  \boldsymbol{P} & = & \boldsymbol{F} \, \boldsymbol{S}
+\end{eqnarray}
+\begin{description}
+\item[$\boldsymbol{P}$] First~Piola-Kirchhoff stress tensor
+\end{description}
+
+\paragraph{Constitutive laws and integration points}
+One constitutive law must be provided per integration point.
+As a consequence it is possible to build elements with varying elastic properties across a single element.
+The actual number of integration points is shown in table~\ref{sec:EL:SOLID:elemtypes} and table~\ref{sec:EL:SOLID:elemtypes:upc}.
+\subsection{Output}
+\paragraph{Output of stress and strain}
+By default six components of the Cauchy stress tensor $\bar{\boldsymbol{\tau}}$ and six strains $\bar{\boldsymbol{\varepsilon}}$ at element nodes are written to the output file.
+See also equation~\ref{SEC:EL:solid:output:start} to equation~\ref{SEC:EL:solid:output:end} which are based on \cite{WALLRAPP1998}.
+Since stress and strain are evaluated at integration points instead of nodes, it is required to extrapolate $\bar{\boldsymbol{\tau}}$ and $\bar{\boldsymbol{\varepsilon}}$
+from integration points to nodes using Lapack's DGELSD function.
+\begin{eqnarray}
+  \boldsymbol{\tau} & = & \frac{1}{\det{\boldsymbol{F}}} \, \boldsymbol{F} \, \boldsymbol{S} \, \boldsymbol{F}^T   \label{SEC:EL:solid:output:start} \\
+  \bar{\varepsilon}_{\alpha} & = & \sqrt{C_{\alpha\alpha}} - 1 \\
+  \sin{\vartheta_{\alpha\beta}} & = & \frac{C_{\alpha\beta}}{\left(1 + \bar{\varepsilon}_{\alpha}\right)\left(1 + \bar{\varepsilon}_{\beta}\right)}   \label{SEC:EL:solid:output:end}  \\
+  \bar{\boldsymbol{\tau}} & = & \begin{pmatrix}
+    \tau_{11} &
+    \tau_{22} &
+    \tau_{33} &
+    \tau_{12} &
+    \tau_{23} &
+    \tau_{31}
+  \end{pmatrix}^T \\
+  \bar{\boldsymbol{\varepsilon}} & = & \begin{pmatrix}
+    \bar{\varepsilon}_1 &
+    \bar{\varepsilon}_2 &
+    \bar{\varepsilon}_3 &
+    \sin{\vartheta}_{12} &
+    \sin{\vartheta}_{23} &
+    \sin{\vartheta}_{31}
+  \end{pmatrix}^T
+\end{eqnarray}
+
+\paragraph{Output of accelerations}
+By default dynamic solid elements are using a consistent mass matrix. In order to enable output of accelerations
+for dynamic structural nodes, it is required to use a lumped mass matrix.
+For that purpose the keyword \kw{lumped mass} must be used.
+Due to the special handling of accelerations in MBDyn, only solid elements with lumped mass matrix enabled
+can be used to compute accelerations for structural nodes as described in section~\ref{sec:NODE:STRUCTURAL:SYNTAX:accel}.
+
+\begin{table}[h!tp]
+\begin{tabular}[t]{|l|c|c|c|c|c|c|c|}
+  \hline
+  element type & nodes & node order & integration points & order & integration  & references \tabularnewline
+  \hline
+  \kw{hexahedron8} & 8 & \ref{fig:EL:SOLID:HEXAHEDRON8} & 8 & 1 & full & \cite{BATHE2016} \tabularnewline
+  \hline
+  \kw{hexahedron20} & 20 & \ref{fig:EL:SOLID:HEXAHEDRON20} & 27 & 2 & full & \cite{BATHE2016} \tabularnewline
+  \hline
+  \kw{hexahedron20r} & 20 & \ref{fig:EL:SOLID:HEXAHEDRON20R} & 8 & 2 & reduced & \cite{DHONDT2004} \tabularnewline
+  \hline
+  \kw{hexahedron27} & 27 & \ref{fig:EL:SOLID:HEXAHEDRON27} & 27 & 2 & full & \cite{CODEASTERR30301} \tabularnewline
+  \hline
+  \kw{pentahedron15} & 15 & \ref{fig:EL:SOLID:PENTAHEDRON15} & 21 & 2 & full & \cite{CODEASTERR30301} \tabularnewline
+  \hline
+  \kw{pentahedron18} & 18 & \ref{fig:EL:SOLID:PENTAHEDRON18} & 21 & 2 & full & \cite{CODEASTERR30301} \tabularnewline
+  \hline  
+  \kw{tetrahedron10} & 10 & \ref{fig:EL:SOLID:TETRAHEDRON10H} & 5 & 2 & full & \cite{CODEASTERR30301} \tabularnewline
+  \hline
+  \kw{tetrahedron20} & 20 & \ref{fig:EL:SOLID:TETRAHEDRON20} & 11 & 3 & full & ? \tabularnewline
+  \hline
+\end{tabular}
+\caption{Finite Element Types using a pure displacement based formulation}
+\label{sec:EL:SOLID:elemtypes}
+\end{table}
+
+\begin{table}[h!tp]
+\begin{tabular}[t]{|l|c|c|c|c|c|c|c|c|}
+  \hline
+  element type & nodes-u & node order-u & nodes-p & integration points & order & integration & references \tabularnewline
+  \hline
+  \kw{hexahedron8upc} & 8 & \ref{fig:EL:SOLID:HEXAHEDRON8} & 1 & 8 & 1 & full & \cite{BATHE2016} \tabularnewline
+  \hline
+  \kw{hexahedron20upc} & 20 & \ref{fig:EL:SOLID:HEXAHEDRON20} & 8 & 27 & 2 & full & \cite{BATHE2016} \tabularnewline
+  \hline
+  \kw{hexahedron20upcr} & 20 & \ref{fig:EL:SOLID:HEXAHEDRON20R} & 8 & 8 & 2 & reduced & \cite{DHONDT2004} \tabularnewline
+  \hline
+  \kw{pentahedron15upc} & 15 & \ref{fig:EL:SOLID:PENTAHEDRON15} & 6 & 21 & 2 & full & \cite{CODEASTERR30301} \tabularnewline
+  \hline
+  \kw{tetrahedron10upc} & 10 & \ref{fig:EL:SOLID:TETRAHEDRON10H} & 4 & 5 & 2 & full & \cite{CODEASTERR30301} \tabularnewline
+  \hline
+\end{tabular}
+\caption{Finite Element Types using a displacement/pressure formulation}
+\label{sec:EL:SOLID:elemtypes:upc}
+\end{table}
+
+\begin{table}[h!tp]
+\begin{tabular}[t]{|l|c|c|c|c|c|c|c|c|}
+  \hline
+  element type & nodes-u & node order-u  & integration points & order & integration & references \tabularnewline
+  \hline
+  \kw{hexahedron8f} & 8 & \ref{fig:EL:SOLID:HEXAHEDRON8}  & 8 & 1 & full & \cite{BATHE2016} \tabularnewline
+  \hline
+  \kw{hexahedron20f} & 20 & \ref{fig:EL:SOLID:HEXAHEDRON20} & 27 & 2 & full & \cite{BATHE2016} \tabularnewline
+  \hline
+  \kw{hexahedron20fr} & 20 & \ref{fig:EL:SOLID:HEXAHEDRON20R} & 8 & 2 & reduced & \cite{DHONDT2004} \tabularnewline
+  \hline
+  \kw{pentahedron15f} & 15 & \ref{fig:EL:SOLID:PENTAHEDRON15} & 21 & 2 & full & \cite{CODEASTERR30301} \tabularnewline
+  \hline
+  \kw{pentahedron18f} & 18 & \ref{fig:EL:SOLID:PENTAHEDRON18} & 21 & 2 & full & \cite{CODEASTERR30301} \tabularnewline
+  \hline  
+  \kw{tetrahedron10f} & 10 & \ref{fig:EL:SOLID:TETRAHEDRON10H} & 5 & 2 & full & \cite{CODEASTERR30301} \tabularnewline
+  \hline
+  \kw{tetrahedron20f} & 20 & \ref{fig:EL:SOLID:TETRAHEDRON20} & 11 & 3 & full & ? \tabularnewline
+  \hline  
+\end{tabular}
+\caption{Finite Element Types using the deformation gradient and the First~Piola-Kirchhoff stress tensor}
+\label{sec:EL:SOLID:elemtypes:F}
+\end{table}
+
+\paragraph{Private Data}
+\label{sec:EL:SOLID:PRIVATE}
+The following private data is available:
+\begin{enumerate}
+\item \kw{"E"} Kinetic energy
+\end{enumerate}
+Kinetic energy is always zero if the keyword \kw{static} was used or if the statement
+``\kw{model}: \kw{static}'' was present inside the control data block according
+section~\ref{sec:CONTROLDATA:MODEL}.
+
+\begin{figure}[htb]
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=.5\textwidth]{hexahedron8}
+    \caption{hexahedron8}
+    \label{fig:EL:SOLID:HEXAHEDRON8}
+  \end{subfigure}
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=.5\textwidth]{hexahedron20}
+    \caption{hexahedron20}
+    \label{fig:EL:SOLID:HEXAHEDRON20}
+  \end{subfigure}
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=.5\textwidth]{hexahedron20r}
+    \caption{hexahedron20r}
+    \label{fig:EL:SOLID:HEXAHEDRON20R}
+  \end{subfigure}
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=.5\textwidth]{pentahedron15}
+    \caption{pentahedron15}
+    \label{fig:EL:SOLID:PENTAHEDRON15}
+  \end{subfigure}
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=.5\textwidth]{tetrahedron10h}
+    \caption{tetrahedron10}
+    \label{fig:EL:SOLID:TETRAHEDRON10H}
+  \end{subfigure}
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=.5\textwidth]{tetrahedron20}
+    \caption{tetrahedron20}
+    \label{fig:EL:SOLID:TETRAHEDRON20}
+  \end{subfigure}  
+  \caption{Node order}
+  \label{fig:EL:SOLID:NODE_ORDER}
+\end{figure}
+
+\begin{figure}[htb]
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{hexahedron27}
+    \caption{Node order: hexahedron27}
+    \label{fig:EL:SOLID:HEXAHEDRON27}
+  \end{subfigure}
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=.5\textwidth]{pentahedron18}
+    \caption{pentahedron18}
+    \label{fig:EL:SOLID:PENTAHEDRON18}
+  \end{subfigure}
+\end{figure}
+
+\subsection{Example:}
+\begin{verbatim}
+    constitutive law: 1, name, "solid1", 6,
+             linear viscoelastic generic,
+             matr , 2.82e+11, 1.21e+11, 1.21e+11, 0.00e+00, 0.00e+00, 0.00e+00,
+                    1.21e+11, 2.82e+11, 1.21e+11, 0.00e+00, 0.00e+00, 0.00e+00,
+                    1.21e+11, 1.21e+11, 2.82e+11, 0.00e+00, 0.00e+00, 0.00e+00,
+                    0.00e+00, 0.00e+00, 0.00e+00, 8.07e+10, 0.00e+00, 0.00e+00,
+                    0.00e+00, 0.00e+00, 0.00e+00, 0.00e+00, 8.07e+10, 0.00e+00,
+                    0.00e+00, 0.00e+00, 0.00e+00, 0.00e+00, 0.00e+00, 8.07e+10,
+                    proportional, 1.0e-04;
+
+    hexahedron8: 100, 1, 2, 3, 4, 5, 6, 7, 8,
+                  7850., 7850., 7850., 7850., 7850., 7850., 7850., 7850.,
+                  reference, 1, same, same, same, same, same, same, same;
+
+    hexahedron8: 101, 5, 6, 7, 8, 9, 10, 11, 12,
+                  7850., 7850., 7850., 7850., 7850., 7850., 7850., 7850.,
+                  linear elastic isotropic, 210000e6, 0.3, same, same, same, same, same, same, same;
+\end{verbatim}
+
+\subsection{Pre- and post-processing}
+\label{sec:EL:SOLID:preprocessing}
+Since it would become tedious to create the mesh manually, pre- and post-processing of solid models
+can be performed by means of \htmladdnormallink{\texttt{GNU Octave}}{https://octave.org/},
+\htmladdnormallink{\texttt{mboct-fem-pkg}}{https://github.com/octave-user/mboct-fem-pkg}
+and \htmladdnormallink{\texttt{Gmsh}}{https://gmsh.info/}.
+See also the following example and figure~\ref{fig:EL:SOLID:COOKS-MEMBRANE} on how to generate the input files and how to load the output generated by MBDyn:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+  \ty{## load the package}
+  pkg load mboct-fem-pkg;
+  \ty{## load the mesh file in Gmsh format}
+  mesh = \nt{fem_pre_mesh_import}(\kw{"cooks_membrane.msh"}, \kw{"gmsh"});
+  \ty{## Apply a fill in reducing ordering based on METIS}
+  mesh = \nt{fem_pre_mesh_reorder}(mesh);
+  \ty{## assign material properties to material number 1}
+  mesh.material_data(\kw{1}).E = \kw{240000}; \ty{## Young's modulus [Pa]}
+  mesh.material_data(\kw{1}).nu = \kw{0.49}; \ty{## Poisson's ratio [1]}
+  mesh.material_data(\kw{1}).rho = \kw{1000}; \ty{## density [kg/m^3]}
+  mesh.material_data(\kw{1}).type = \kw{"neo hookean"}; \ty{## hyperelastic rubber like material}
+  \ty{## allocate material assignment}
+  mesh.materials.iso20 = \nt{zeros}(\nt{rows}(mesh.elements.iso20), 1, \kw{"int32"});
+  \ty{## locate a group of solid elements with id 10}
+  grp_idx_solid = \nt{find}([[mesh.groups.iso20].id] == \kw{10});
+  \ty{## locate a group of surface elements with id 12}
+  grp_idx_clamp = \nt{find}([[mesh.groups.quad8].id] == \kw{12});
+  \ty{## assign the material number one to all elements in group 10}
+  mesh.materials.iso20(mesh.groups.iso20(grp_idx_solid).elements) = \kw{1};
+  \ty{## allocate a new node number}
+  node_id_interface = \nt{rows}(mesh.nodes) + \kw{1};
+  \ty{## define the position of a new node}
+  mesh.nodes(node_id_interface, \kw{1}:\kw{3}) = [\kw{100e-3}, \kw{50e-3}, \kw{20e-3}];
+  \ty{## create an RBE3 element for the interface node (this will become a rigid body displacement joint)}
+  \ty{## all nodes inside group 13 will be coupled to the interface node}
+  mesh.elements.rbe3 = \nt{fem_pre_mesh_rbe3_from_surf}(mesh, \kw{13}, node_id_interface, \kw{"quad8"});
+  \ty{## allocate the DOF status for all nodes}
+  load_case_dof.locked_dof = \nt{false}(\nt{size}(mesh.nodes));
+  \ty{## lock all DOF's at surface number 12}
+  load_case_dof.locked_dof(mesh.groups.quad8(grp_idx_clamp).nodes, \kw{1}:\kw{3}) = \nt{true};
+  \ty{## apply a force Fx = 5N * sin(2 * pi * t) and Fy = 5N * cos(2 * pi * t) at the interface node}
+  load_case(\kw{1}).loads = [\kw{5}, \kw{0}, \kw{0}, \kw{0}, \kw{0}, \kw{0}];
+  load_case(\kw{2}).loads = [\kw{0}, \kw{5}, \kw{0}, \kw{0}, \kw{0}, \kw{0}];
+  load_case(\kw{1}).loaded_nodes = [node_id_interface];
+  load_case(\kw{2}).loaed_nodes = [node_id_interface];
+  opts.forces.time_function = \{\kw{'string, "sin(2 * pi * Time)"'}, \kw{'string, "cos(2 * pi * Time)"'}\};
+  \ty{## define the node type for all displacement only nodes with three degrees of freedom}
+  opts.struct_nodes.type = \nt{repmat}(\nt{MBDYN_NODE_TYPE_DYNAMIC_STRUCT_DISP}, \nt{rows}(mesh.nodes), \kw{1});
+  \ty{## make sure that a static structural node}
+  \ty{## with six degrees of freedom is created for the interface node}
+  opts.struct_nodes.type(node_id_interface) = \nt{MBDYN_NODE_TYPE_STATIC_STRUCT};
+  \ty{## write all the nodes to file "cooks_membrane.nod"}
+  opts = \nt{mbdyn_pre_solid_write_nodes}(mesh, \kw{"cooks_membrane.nod"}, opts);
+  \ty{## write all the constitutive laws to file "cooks_membrane.csl"}
+  opts = \nt{mbdyn_pre_solid_write_const_laws}(mesh, \kw{"cooks_membrane.csl"}, opts);
+  \ty{## write all the elements to file "cooks_membrane.elm"}
+  opts = \nt{mbdyn_pre_solid_write_elements}(mesh, load_case_dof, load_case, \kw{"cooks_membrane.elm"}, opts);
+  \ty{## define the location of the output file}
+  opt_sol.output_file = \kw{"cooks_membrane_output"};
+  \ty{## run MBDyn}
+  info = \nt{mbdyn_solver_run}(\kw{"cooks_membrane.mbd"}, opt_sol);
+  \ty{## load the output}
+  [mesh_sol, sol] = \nt{mbdyn_post_load_output_sol}(opt_sol.output_file);
+  \ty{## display results using Gmsh}
+  \nt{fem_post_sol_external}(mesh_sol, sol);
+\end{Verbatim}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=.25\textwidth]{elemsolid}
+\caption{Cook's membrane: deformed shape and VON MISES stress rendered using Gmsh}
+\label{fig:EL:SOLID:COOKS-MEMBRANE}
+\end{figure}
+\clearpage

@@ -1,0 +1,28 @@
+  rigid body kinematics: drive,
+        angular velocity, component,
+          string, "Wx * (Time - initial_time) / (final_time - initial_time)",
+          string, "Wy * (Time - initial_time) / (final_time - initial_time)",
+          string, "Wz * (Time - initial_time) / (final_time - initial_time)",
+        acceleration, component,
+          string, "XPPx * (Time - initial_time) / (final_time - initial_time)",
+          string, "XPPy * (Time - initial_time) / (final_time - initial_time)",
+          string, "XPPz * (Time - initial_time) / (final_time - initial_time)",
+        angular acceleration, component,
+          string, "WPx * (Time - initial_time) / (final_time - initial_time)",
+          string, "WPy * (Time - initial_time) / (final_time - initial_time)",
+          string, "WPz * (Time - initial_time) / (final_time - initial_time)";
+
+
+    include: "beam_ad.cod";
+    include: "beam_static.cod";
+    output precision: 16;
+
+    default beam output: none;
+    structural nodes: number_of_nodes;
+    rigid bodies: number_of_nodes + 1;
+    beams: number_of_elements;
+
+    default orientation: euler123;
+    forces: 1;
+    joints: 1;
+    gravity;

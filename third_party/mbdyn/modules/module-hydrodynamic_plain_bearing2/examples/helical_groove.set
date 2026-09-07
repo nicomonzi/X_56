@@ -1,0 +1,17 @@
+set: string SNAIL_name = "SG1a";
+set: real SNAIL_D = 1.1299999999999999e-002;
+set: real SNAIL_H = 1.5299999999999999e-002;
+set: real SNAIL_NG = 1.0000000000000000e+000;
+set: real SNAIL_W_s = 1.1999999999999999e-003;
+set: real SNAIL_H_g = 5.5000000000000003e-004;
+set: real SNAIL_H_s = 5.0000000000000002e-005;
+set: real SNAIL_Theta = 3.3161255787892258e-001;
+set: real omega1z = 0.0000000000000000e+000;
+set: real omega2z = -2.0943951023931953e+002;
+set: real g = 9.8100000000000005e+000;
+set: real H = 8.8999999999999996e-002;
+set: real p_inlet = 6.2700000000000000e+004;
+set: real eta_fluid = 2.0000000000000000e-003;
+set: real rho_fluid = 7.8500000000000000e+002;
+set: real SNAIL_K1 = 6.0000000000000000e+000;
+set: real SNAIL_K2 = 3;

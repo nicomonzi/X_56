@@ -1,0 +1,11 @@
+couple: CURR_TRQ, follower internal,
+    CURR_RIM,
+        position, reference, node, null,
+    CURR_HUB,
+        position, reference, node, null,
+    single, reference, node, 0.,1.,0.,
+        array, 4,
+            step5, 0., 0., 1., +50.,
+            step5, 3., 0., 4., -50.,
+            step5, 7., 0., 8., +100.,
+            step5, 8., 0., 9., -100.;

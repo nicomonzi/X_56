@@ -1,0 +1,141 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e-2;
+	tolerance: 1e-6;
+	max iterations: 10;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	print: dof stats;
+	structural nodes: 3;
+	rigid bodies: 2;
+	joints: 4;
+
+	# default output: none;
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		null,
+		eye,
+		null,
+		null;
+	structural: 3, dynamic,
+		0, 1, 0,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, position, node, orientation, node;
+/*	joint: 2, in plane,
+		1, null, 0, 0, 1,
+		2;
+	joint: 3, in plane,
+		1, null, 0, 0, 1,
+		3;
+	joint: 4, revolute rotation,
+		1,
+		2;
+	joint: 5, revolute rotation,
+		1, 
+		3;
+*/	
+/*	joint: 4, prismatic,
+		2,
+		3;
+
+	joint: 5, in line,
+		2, 0, 1, 0, 
+			1, 0, 0, 1,
+			2, 1, 0, 0,
+		3;
+
+	joint: 6, distance,
+		2,
+		3,
+		from nodes;
+*/
+	joint: 6, total joint,
+		2,
+			position, reference, global, null,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		3,
+			position, reference, global, null,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		position constraint, active, active, active,
+				null,
+		orientation constraint, active, active, active,
+				null
+		;
+
+	body: 2, 2, 
+		1,
+		null,
+		eye;
+	body: 3, 3, 
+		1,
+		null,
+		eye;
+
+	joint: 7, total equation,
+		1,
+			position, reference, node, null,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		2,
+			position, reference, node, null,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		position constraint, active, active, inactive,
+				component, 
+					string, "(Time < 1) *
+							(12.0000*Time^5+
+							  -30.0000*Time^4+
+							   20.0000*Time^3) 
+						+ (Time >= 1) * 2.",
+					string, "(Time < 1) * 
+							(12.0000*Time^5+
+							  -30.0000*Time^4+
+							   20.0000*Time^3)
+						+ (Time >= 1) * 2.",
+					0.
+			;
+
+	joint: 8, total internal reaction,
+		1,
+			position, reference, node, 1, 1, 0,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		3,
+			position, reference, node, 0., 0, 0.,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+		position constraint, active, active, inactive,
+			total equation, 7;
+
+
+	
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

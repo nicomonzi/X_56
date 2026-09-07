@@ -1,0 +1,239 @@
+set: real a = 120e-3;
+set: real b = 120e-3;
+set: real c = 10e-3;
+
+set: real rhol = 1000;
+set: real rhos = 1000;
+set: real z0 = c * (0.5 - rhos / rhol) - 1;
+set: real m = rhos * a * b * c;
+set: real CG = 0;
+set: real J1 = m * (b^2 + c^2) / 12.;
+set: real J2 = m * (a^2 + c^2) / 12.;
+set: real J3 = m * (a^2 + b^2) / 12.;
+set: real g = 9.81;
+
+set: real Wx = 2 * pi * 0.5;
+set: real Wy = 2 * pi * 0.3;
+set: real Wz = 2 * pi * 0.2;
+set: real loo = a * b^3 / 12.;
+set: real V = a * b * c * rhos / rhol;
+set: real GM = loo / V - CG;
+
+begin: data;
+        problem: initial value; # the default
+end: data;
+
+begin: initial value;
+    threads: assembly, 1;
+
+        initial time: 0;
+        final time: 10;
+        time step: 1e-2;
+
+    max iterations: 300;
+    tolerance: 1e-6,1e-6;
+    linear solver: umfpack, grad, scale, row max column max, always, max iterations, 10;
+    nonlinear solver: linesearch, default solver options, heavy nonlinear, divergence check, no;
+    derivatives max iterations: 100;
+    derivatives coefficient: 1e-6, auto, max iterations, 3;
+
+    method: DIRK54;
+    output: iterations;
+
+   eigenanalysis: list, 1, 10,
+        parameter, 1e-3,
+        use lapack, balance, permute, suffix format, "%02d";
+threads: disable;
+end: initial value;
+
+begin: control data;
+    output meter: closest next, 0., forever, 1e-3;
+    print: dof description;
+    print: equation description;
+    output precision: 16;
+    use automatic differentiation;
+    tolerance: 1e-6;
+    max iterations: 30;
+    structural nodes: 9;
+    rigid bodies: 1;
+    joints: 8;
+    gravity;
+    abstract nodes: 8;
+    genels: 16;
+    surface loads: 6;
+end: control data;
+
+        reference: 0,
+           position, reference, global, 0., 0., z0,
+           orientation, reference, global, euler123, 90. * pi / 180., 0., 0.,
+           velocity, reference, global, null,
+           angular velocity, reference, global, null;
+
+        reference: 1,
+                position, reference, 0, 0.5 * a, 0.5 * b, 0.5 * c,
+                orientation, reference, 0, eye,
+                velocity, reference, 0, null,
+                angular velocity, reference, 0, null;
+
+        reference: 2,
+                position, reference, 0, -0.5 * a, 0.5 * b, 0.5 * c,
+                orientation, reference, 0, eye,
+                velocity, reference, 0, null,
+                angular velocity, reference, 0, null;
+
+        reference: 3,
+                position, reference, 0, -0.5 * a, -0.5 * b, 0.5 * c,
+                orientation, reference, 0, eye,
+                velocity, reference, 0, null,
+                angular velocity, reference, 0, null;
+
+        reference: 4,
+                position, reference, 0, 0.5 * a, -0.5 * b, 0.5 * c,
+                orientation, reference, 0, eye,
+                velocity, reference, 0, null,
+                angular velocity, reference, 0, null;
+
+        reference: 5,
+                position, reference, 0, 0.5 * a, 0.5 * b, -0.5 * c,
+                orientation, reference, 0, eye,
+                velocity, reference, 0, null,
+                angular velocity, reference, 0, null;
+
+        reference: 6,
+                position, reference, 0, -0.5 * a, 0.5 * b, -0.5 * c,
+                orientation, reference, 0, eye,
+                velocity, reference, 0, null,
+                angular velocity, reference, 0, null;
+
+        reference: 7,
+                position, reference, 0, -0.5 * a, -0.5 * b, -0.5 * c,
+                orientation, reference, 0, eye,
+                velocity, reference, 0, null,
+                angular velocity, reference, 0, null;
+
+        reference: 8,
+                position, reference, 0, 0.5 * a, -0.5 * b, -0.5 * c,
+                orientation, reference, 0, eye,
+                velocity, reference, 0, null,
+                angular velocity, reference, 0, null;
+
+begin: nodes;
+        structural: 0, dynamic,
+                    position, reference, 0, null,
+                    orientation, reference, 0, eye,
+                    velocity, reference, 0, null,
+                    angular velocity, reference, 0, Wx, Wy, Wz;
+
+        structural: 1, static displacement,
+                position, reference, 1, null,
+                velocity, reference, 1, null;
+
+        structural: 2, static displacement,
+                position, reference, 2, null,
+                velocity, reference, 2, null;
+
+        structural: 3, static displacement,
+                position, reference, 3, null,
+                velocity, reference, 3, null;
+
+        structural: 4, static displacement,
+                position, reference, 4, null,
+                velocity, reference, 4, null;
+
+        structural: 5, static displacement,
+                position, reference, 5, null,
+                velocity, reference, 5, null;
+
+        structural: 6, static displacement,
+                position, reference, 6, null,
+                velocity, reference, 6, null;
+
+        structural: 7, static displacement,
+                position, reference, 7, null,
+                velocity, reference, 7, null;
+
+        structural: 8, static displacement,
+                position, reference, 8, null,
+                velocity, reference, 8, null;
+
+        abstract: 1, differential;
+        abstract: 2, differential;
+        abstract: 3, differential;
+        abstract: 4, differential;
+        abstract: 5, differential;
+        abstract: 6, differential;
+        abstract: 7, differential;
+        abstract: 8, differential;
+end: nodes;
+
+begin: elements;
+       joint: 1, offset displacement joint,
+                0,
+                1, position, reference, 1, null;
+
+       joint: 2, offset displacement joint,
+                0,
+                2, position, reference, 2, null;
+
+       joint: 3, offset displacement joint,
+                0,
+                3, position, reference, 3, null;
+
+       joint: 4, offset displacement joint,
+                0,
+                4, position, reference, 4, null;
+
+       joint: 5, offset displacement joint,
+                0,
+                5, position, reference, 5, null;
+
+       joint: 6, offset displacement joint,
+                0,
+                6, position, reference, 6, null;
+
+       joint: 7, offset displacement joint,
+                0,
+                7, position, reference, 7, null;
+
+       joint: 8, offset displacement joint,
+                0,
+                8, position, reference, 8, null;
+
+       body: 0, 0, m, reference, node, 0., 0., CG, diag, J1, J2, J3;
+
+       constitutive law: 0, 1, linear elastic generic, 1.;
+       constitutive law: 1, 1, linear elastic, rhol * g;
+
+       genel: 10, spring support, 1, abstract, algebraic, reference, 0;
+       genel: 20, spring support, 2, abstract, algebraic, reference, 0;
+       genel: 30, spring support, 3, abstract, algebraic, reference, 0;
+       genel: 40, spring support, 4, abstract, algebraic, reference, 0;
+       genel: 50, spring support, 5, abstract, algebraic, reference, 0;
+       genel: 60, spring support, 6, abstract, algebraic, reference, 0;
+       genel: 70, spring support, 7, abstract, algebraic, reference, 0;
+       genel: 80, spring support, 8, abstract, algebraic, reference, 0;
+
+       genel: 11, cross spring support, 1, abstract, algebraic, 1, structural, 3, algebraic, reference, 1;
+       genel: 21, cross spring support, 2, abstract, algebraic, 2, structural, 3, algebraic, reference, 1;
+       genel: 31, cross spring support, 3, abstract, algebraic, 3, structural, 3, algebraic, reference, 1;
+       genel: 41, cross spring support, 4, abstract, algebraic, 4, structural, 3, algebraic, reference, 1;
+       genel: 51, cross spring support, 5, abstract, algebraic, 5, structural, 3, algebraic, reference, 1;
+       genel: 61, cross spring support, 6, abstract, algebraic, 6, structural, 3, algebraic, reference, 1;
+       genel: 71, cross spring support, 7, abstract, algebraic, 7, structural, 3, algebraic, reference, 1;
+       genel: 81, cross spring support, 8, abstract, algebraic, 8, structural, 3, algebraic, reference, 1;
+
+       pressureq4: 1, 1, 2, 3, 4, from nodes, 1, 2, 3, 4;
+       pressureq4: 2, 8, 7, 6, 5, from nodes, 8, 7, 6, 5;
+       pressureq4: 3, 4, 3, 7, 8, from nodes, 4, 3, 7, 8;
+       pressureq4: 4, 5, 6, 2, 1, from nodes, 5, 6, 2, 1;
+       pressureq4: 5, 1, 4, 8, 5, from nodes, 1, 4, 8, 5;
+       pressureq4: 6, 3, 2, 6, 7, from nodes, 3, 2, 6, 7;
+
+       gravity: uniform, 0, 0, -1., const, g;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

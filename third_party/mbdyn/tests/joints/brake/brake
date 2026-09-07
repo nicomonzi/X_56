@@ -1,0 +1,91 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/brake/brake,v 1.3 2014/12/13 17:15:45 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e-3;
+	tolerance: 1e-6;
+	derivatives coefficient: 1E-7;
+	derivatives max iterations: 10;
+	derivatives tolerance: 1e-3;
+	max iterations: 20;
+	#newton raphson: modified, 1;
+	newton raphson: true;
+	#abort after : derivatives;
+	#output: residual, jacobian, solution;
+	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	parameter nodes: 2;
+	rigid bodies: 1;
+	joints: 3;
+	forces: 0;
+	
+	# default output: none;
+end: control data;
+
+begin: nodes;
+	structural: 1, dynamic,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		null,
+		eye,
+		null,
+		0., 0., 10.;
+	parameter: 1, element;
+	parameter: 2, element;
+end: nodes;
+
+scalar function: "constfriction", const, 0.3;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, revolute hinge,
+		1, reference, node, null,
+		hinge, reference, node, eye,
+		2, reference, node, null,
+		hinge, reference, node, eye
+	;
+	joint: 3, brake,
+		1, reference, node, null,
+		hinge, reference, node, eye,
+		2, reference, node, null,
+		hinge, reference, node, eye
+		,
+		friction, 1,
+			preload, 1E-10,
+			modlugre, 2000, 2.8,0.,0.71, "constfriction", 
+#			discrete coulomb, "constfriction", 
+			simple,
+#			simple plane hinge, 0.1,
+			cosine, 0.1, pi/1., 20./2., half, 0.
+	;
+	bind: 2, joint, 1, string, "rz";
+	bind: 2, joint, 2, string, "wz";
+	body: 2, 2, 1., null, diag, 1.,1.,.05;
+/*
+	couple: 2, follower, 2, 0.,0.,1.,
+		const, 2.9999;
+		# array, 2,
+		# dof, 1, parameter, string, "-4e-1*Var",
+		# dof, 2, parameter, string, "-2e0*Var*(1-exp(-1*Time))";
+	force: 3, conservative, 2, 1.,0.,0., null, const, 10.;
+*/
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,387 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{psfrag}
+\usepackage{subfigure}
+\usepackage[a4paper, text={14.5cm,22.0cm},centering]{geometry}
+
+\newcommand{\mesh}[2]{#1$\times$#2}
+
+\begin{document}
+
+\title{Application of MBDyn's Shell Element \\ to Standard Benchmark Problems}
+\author{Pierangelo Masarati \\ \url{masarati@aero.polimi.it}}
+\date{\today}
+\maketitle
+
+\section{Introduction}
+MBDyn 1.3 provides a four-node shell element
+implemented by Marco Morandini and Riccardo Vescovini.
+This document analyzes some of the benchmarks
+discussed in \cite{SZE-2004}:
+
+\begin{itemize}
+\item Test 3.1: Cantilever subjected to end shear force
+\item Test 3.2: Cantilever subjected to end moment
+\item Test 3.3: Slit annular plate subjected to lifting line force
+\item Test 3.4: Hemispherical shell subjected to alternating radial forces (todo)
+\item Test 3.5: Pullout of an open-ended cylindrical shell
+\item Test 3.6: Pinched cylindrical shell mounted over rigid diaphragms
+\item Test 3.7: Pinched semi-cylindrical isotropic and laminated shells (todo)
+\item Test 3.8: Hinged cylindrical isotropic and laminated roofs (todo)
+\end{itemize}
+
+
+
+\subsection{Test 3.1: Cantilever subjected to end shear force}
+\paragraph{Files:}
+\begin{itemize}
+\item \verb!sze31_8x1!: model with \mesh{8}{1} mesh
+\item \verb!sze31_16x1!: model with \mesh{16}{1} mesh
+\item \verb!sze31_ref.dat!: results from \cite{SZE-2004} (\mesh{16}{1} mesh)
+\item \verb!sze31_8x1.dat!: results with \mesh{8}{1} mesh
+\item \verb!sze31_16x1.dat!: results with \mesh{16}{1} mesh
+\item \verb!sze31.plt!: plot script
+\item \verb!sze31.sh!: plot preparation script
+\end{itemize}
+
+\paragraph{Data:}
+\begin{itemize}
+\item $E$ = 1.2$\times$10$^6$
+\item $\nu$ = 0
+\item $L$ = 10
+\item $b$ = 1
+\item $h$ = 0.1
+\item $P_0$ = $EI/L^2$ = 1
+\item $P_\text{max}$ = $4P_0$ = 4
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\psfrag{-Utip}{\footnotesize $-U_{\text{tip}}$}
+\psfrag{Wtip}{\footnotesize $W_{\text{tip}}$}
+\psfrag{16x1}{\footnotesize \mesh{16}{1}}
+\includegraphics[width=.7\textwidth]{sze31/sze31}
+\caption{Test 3.1: Cantilever subjected to end shear force}
+\label{fig:sze31}
+\end{figure}
+
+\paragraph{To produce plot:}
+\begin{itemize}
+\item run \verb!mbdyn -f sze31_16x1!
+\item run \verb!sze31.sh sze31_16x1!
+\item run \verb!gnuplot sze31.plt!
+\end{itemize}
+
+\paragraph{Notes:}
+\begin{itemize}
+\item The $8\times1$ and $16\times1$ meshes produce nearly identical results.
+\end{itemize}
+
+\paragraph{Dynamic test:}
+First frequency of cantilever beam:
+\begin{equation*}
+	\omega_0
+	=
+	\left(\frac{1.8751}{L}\right)^2
+	\sqrt{\frac{EI}{\rho A}}
+\end{equation*}
+Density for desired frequency:
+\begin{equation*}
+	\rho
+	=
+	\left(\frac{1.8751}{L}\right)^4
+	\frac{EI}{\omega_0^2 A}
+\end{equation*}
+\begin{itemize}
+\item $A$ = $bh$ = 0.1
+\item $EI$ = $P L^2$ = 100 (from \cite{SZE-2004})
+\item $\omega_0$ = 10 Hz = 62.8 rad/s
+\item $\rho$ = 3.1314$\times$10$^{-4}$
+\end{itemize}
+File \verb!sze31_8x1_dyn! (\mesh{8}{1} mesh):
+\begin{itemize}
+\item direct eigenanalysis: 10.0355 Hz
+\item time integration of free vibrations: 10.03148 Hz ($\Delta t$ = 0.001 s).
+\end{itemize}
+
+
+
+\subsection{Test 3.2: Cantilever subjected to end moment}
+
+\paragraph{Files:}
+\begin{itemize}
+\item \verb!sze32_8x1!: model with \mesh{8}{1} mesh
+\item \verb!sze32_16x1!: model with \mesh{16}{1} mesh
+\item \verb!sze32_ref.dat!: results from \cite{SZE-2004} (\mesh{16}{1} mesh \& exact)
+\item \verb!sze32_8x1.dat!: results with \mesh{8}{1} mesh
+\item \verb!sze32_16x1.dat!: results with \mesh{16}{1} mesh
+\item \verb!sze32.plt!: plot script
+\item \verb!sze32.sh!: plot preparation script
+\end{itemize}
+
+\paragraph{Data:}
+\begin{itemize}
+\item $E$ = 1.2$\times$10$^6$
+\item $\nu$ = 0
+\item $L$ = 12
+\item $b$ = 1
+\item $h$ = 0.1
+\item $M_0$ = $EI/L^2$ = 25/3
+\item $M_\text{max}$ = $4M_0$ = 50$\pi$/3
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\psfrag{-Utip}{\footnotesize $-U_{\text{tip}}$}
+\psfrag{Wtip}{\footnotesize $W_{\text{tip}}$}
+\psfrag{16x1}{\footnotesize \mesh{16}{1}}
+\includegraphics[width=.7\textwidth]{sze32/sze32}
+\caption{Test 3.2: Cantilever subjected to end moment}
+\label{fig:sze32}
+\end{figure}
+
+\paragraph{To produce plot:}
+\begin{itemize}
+\item run \verb!mbdyn -f sze32_16x1!
+\item run \verb!sze32.sh sze32_16x1!
+\item run \verb!gnuplot sze32.plt!
+\end{itemize}
+
+\paragraph{Notes:}
+\begin{itemize}
+\item shell4eas does not converge past 20\% of Mmax
+\item shell4easans does not converge past 60\% of Mmax
+\item results with \mesh{8}{1} and \mesh{16}{1} do not differ significantly
+\end{itemize}
+
+
+\subsection{Test 3.3: Slit annular plate subjected to lifting line force}
+
+
+\paragraph{Files:}
+\begin{itemize}
+\item \verb!sze33!: generic model
+\item \verb!sze33.awk!: generic model generation script
+\item \verb!sze33_ref.dat!: results from \cite{SZE-2004} (\mesh{10}{80} mesh)
+\item \verb!sze33_6x30.dat!: results with \mesh{6}{30} mesh
+\item \verb!sze33_10x80.dat!: results with \mesh{10}{80} mesh
+\item \verb!sze33.plt!: plot script
+\item \verb!sze33.sh!: plot preparation script
+\end{itemize}
+
+\paragraph{Data:}
+\begin{itemize}
+\item $E$ = 21$\times$10$^6$
+\item $\nu$ = 0
+\item $R_i$ = 6
+\item $R_o$ = 10
+\item $h$ = 0.03
+\item $M_0$ = $EI/L^2$ = 25/3
+\item $P_\text{max}$ = 0.8 (force/length)
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\psfrag{WA}{\footnotesize $W_\text{A}$}
+\psfrag{WB}{\footnotesize $W_\text{B}$}
+\psfrag{6x30}{\footnotesize \mesh{6}{30}}
+\psfrag{10x80}{\footnotesize \mesh{10}{80}}
+\includegraphics[width=.7\textwidth]{sze33/sze33}
+\caption{Test 3.3: Slit annular plate subjected to lifting line force}
+\label{fig:sze33}
+\end{figure}
+
+\paragraph{To produce plot:}
+\begin{itemize}
+\item for \verb!mesh! in \verb!"6x30" "10x80"! ; do
+	\begin{itemize}
+	\item run \verb!awk -f sze33.awk -v mesh=$mesh!
+	\item run \verb!mbdyn -f sze33 -o sze33_$mesh!
+	\item run \verb!sze33.sh sze33_$mesh!
+	\end{itemize}
+\item run \verb!gnuplot sze33.plt!
+\end{itemize}
+
+\paragraph{Notes:}
+\begin{itemize}
+\item mesh \mesh{10}{80} quite close to reference
+\item mesh \mesh{6}{30} differs appreciably
+\end{itemize}
+
+
+\subsection{Test 3.4: Hemispherical shell subjected to alternating radial forces}
+
+\paragraph{Notes:}
+\begin{itemize}
+\item not implemented; see \verb!tests/plates/HemiShell*!
+\end{itemize}
+
+
+\subsection{Test 3.5: Pullout of an open-ended cylindrical shell}
+
+\paragraph{Files:}
+\begin{itemize}
+\item \verb!sze35!: generic model
+\item \verb!sze35.awk!: generic model generation script
+\item \verb!sze35_ref.dat!: results from \cite{SZE-2004} (\mesh{24}{36} mesh)
+\item \verb!sze35_16x24.dat!: results with \mesh{16}{24} mesh
+\item \verb!sze35_24x36.dat!: results with \mesh{24}{36} mesh
+\item \verb!sze35.plt!: plot script
+\item \verb!sze35.sh!: plot preparation script
+\end{itemize}
+
+\paragraph{Data:}
+\begin{itemize}
+\item $E$ = 10.5$\times$10$^6$
+\item $\nu$ = 0.3125
+\item $R$ = 4.953
+\item $L$ = 10.35
+\item $h$ = 0.094
+\item $P_\text{max}$ = 40,000
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\psfrag{WA}{\footnotesize $W_\text{A}$}
+\psfrag{-UB}{\footnotesize $-U_\text{B}$}
+\psfrag{-UC}{\footnotesize $-U_\text{C}$}
+\psfrag{16x24}{\footnotesize \mesh{16}{24}}
+\psfrag{24x36}{\footnotesize \mesh{24}{36}}
+\subfigure[Imposed force at point A]{%
+	\includegraphics[width=.49\textwidth]{sze35/sze35}%
+	\label{fig:sze35}%
+}\hfill%
+\subfigure[Imposed displacement at point A]{%
+	\includegraphics[width=.49\textwidth]{sze35/sze35_d}%
+	\label{fig:sze35_d}%
+}
+\caption{Test 3.5: Pullout of an open-ended cylindrical shell}
+\end{figure}
+
+\paragraph{To produce plot:}
+\begin{itemize}
+\item for \verb!mesh! in \verb!"16x24" "24x36"! ; do
+	\begin{itemize}
+	\item run \verb!awk -f sze35.awk -v mesh=$mesh!
+	\item run \verb!mbdyn -f sze35 -o sze35_$mesh!
+	\item run \verb!sze35.sh sze35_$mesh!
+	\end{itemize}
+\item run \verb!gnuplot sze35.plt!
+\end{itemize}
+
+\paragraph{Notes:}
+\begin{itemize}
+\item results with mesh \mesh{16}{24} and \mesh{24}{36} quite close to each other
+\item results differ significantly from reference
+\item snapthrough occurs at load 25\% lower
+\item with the EAS ANS implementation the simulation no longer converges after the snapthrough
+\item with the EAS implementation, the analysis does not converge right before the snapthrough.
+\end{itemize}
+When the displacement of point A is imposed:
+\begin{itemize}
+\item the simulations run smoothly to the end (Figure~\ref{fig:sze35_d})
+\item the snapthrough results in an appreciable droop of required force
+\item the results with the \mesh{16}{24} and the \mesh{24}{36} mesh
+are essentially identical up to the snapthrough
+\end{itemize}
+
+
+
+\subsection{Test 3.6: Pinched cylindrical shell mounted over rigid diaphragms}
+
+\paragraph{Files:}
+\begin{itemize}
+\item \verb!sze36!: generic model
+\item \verb!sze36.awk!: generic model generation script
+\item \verb!sze36_ref.dat!: results from \cite{SZE-2004} (\mesh{48}{48} mesh)
+\item \verb!sze36_40x40.dat!: results with \mesh{40}{40} mesh
+\item \verb!sze36_48x48.dat!: results with \mesh{48}{48} mesh
+\item \verb!sze36.plt!: plot script
+\item \verb!sze36.sh!: plot preparation script
+\end{itemize}
+
+\paragraph{Data:}
+\begin{itemize}
+\item $E$ = 30$\times$10$^3$
+\item $\nu$ = 0.3
+\item $R$ = 100
+\item $L$ = 200
+\item $h$ = 1
+\item $P_\text{max}$ = 12,000
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\psfrag{-WA}{\footnotesize $-W_\text{A}$}
+\psfrag{UB}{\footnotesize $U_\text{B}$}
+\psfrag{40x40}{\footnotesize \mesh{40}{40}}
+\psfrag{48x48}{\footnotesize \mesh{48}{48}}
+\subfigure[Imposed force at point A]{%
+	\includegraphics[width=.49\textwidth]{sze36/sze36}%
+	\label{fig:sze36}%
+}\hfill%
+\subfigure[Imposed displacement at point A]{%
+	\includegraphics[width=.49\textwidth]{sze36/sze36_d}%
+	\label{fig:sze36_d}%
+}
+\caption{Test 3.6: Pinched cylindrical shell mounted over rigid diaphragms}
+\end{figure}
+
+\paragraph{To produce plot:}
+\begin{itemize}
+\item for \verb!mesh! in \verb!"40x40" "48x48"! ; do
+	\begin{itemize}
+	\item run \verb!awk -f sze36.awk -v mesh=$mesh!
+	\item run \verb!mbdyn -f sze36 -o sze36_$mesh!
+	\item run \verb!sze36.sh sze36_$mesh!
+	\end{itemize}
+\item run \verb!gnuplot sze36.plt!
+\end{itemize}
+
+\paragraph{Notes:}
+\begin{itemize}
+\item results with mesh \mesh{40}{40} and \mesh{48}{48} quite close to each other
+\item results differ a bit from reference
+\item the analysis does not converge about the snapthrough.
+\end{itemize}
+When the displacement of point A is imposed:
+\begin{itemize}
+\item the simulations run smoothly to the end (Figure~\ref{fig:sze36_d})
+\end{itemize}
+
+
+\subsection{Test 3.7: Pinched semi-cylindrical isotropic and laminated shells}
+
+\paragraph{Data:}
+\begin{itemize}
+\item isotropic shell:
+	\begin{itemize}
+	\item $E$ = 2.0685$\times$10$^7$
+	\item $\nu$ = 0.3
+	\end{itemize}
+\item laminated shell:
+	\begin{itemize}
+	\item $E_L$ = 2068.5 (note: probably $E_L$ = 2.0685$\times$10$^7$)
+	\item $E_T$ = 517.125
+	\item $G_{LT}$ = 795.6
+	\item $\nu_{LT}$ = $\nu_{TT}$ = 0.3
+	\end{itemize}
+\item $R$ = 101.6
+\item $L$ = 304.8
+\item $h$ = 3
+\item $P_\text{max}$ = 2,000
+\end{itemize}
+Note: some of the geometrical data is missing from \cite{SZE-2004};
+it has been recovered from \cite{SZE-2002}.
+
+
+\subsection{Test 3.8: Hinged cylindrical isotropic and laminated roofs}
+
+
+\bibliographystyle{unsrt}
+\bibliography{mybib}
+
+\end{document}

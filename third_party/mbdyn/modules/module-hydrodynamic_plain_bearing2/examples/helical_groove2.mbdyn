@@ -1,0 +1,321 @@
+/*
+ * MBDyn (C) is a multibody analysis code.
+ * http://www.mbdyn.org
+ *
+ * Copyright (C) 1996-2012
+ *
+ * Pierangelo Masarati	<masarati@aero.polimi.it>
+ * Paolo Mantegazza	<mantegazza@aero.polimi.it>
+ *
+ * Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+ * via La Masa, 34 - 20156 Milano, Italy
+ * http://www.aero.polimi.it
+ *
+ * Changing this copyright notice is forbidden.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation (version 2 of the License).
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ AUTHOR: Reinhard Resch <mbdyn-user@a1.net>
+        Copyright (C) 2011(-2025) all rights reserved.
+
+        The copyright of this code is transferred
+        to Pierangelo Masarati and Paolo Mantegazza
+        for use in the software MBDyn as described
+        in the GNU Public License version 2.1
+*/
+
+include: "helical_groove.set";
+
+set: integer node_id_rotor                              = 1001;
+set: integer node_id_stator				= 1002;
+
+set: integer hyd_node_id_inlet = 2001;
+set: integer hyd_node_id_outlet = 2002;
+
+set: integer joint_id_rotor                     = 3001;
+set: integer joint_id_stator                            = 3002;
+
+set: integer elem_id_bearing				= 4001;
+
+set: integer ref_id_bearing                 = 5000;
+set: integer ref_id_rotor                                       = 5001;
+set: integer ref_id_stator                                      = 5002;
+
+set: integer genel_id_inlet = 6001;
+set: integer genel_id_outlet = 6002;
+
+set: real v1z = 0;
+set: real v2z = 0;
+set: real n = 1e-6;
+set: integer K = 10;
+set: real t1 = 2 * pi * n / max(0.01, abs(omega2z));
+set: real dt = t1 / K;
+set: real scale_reynolds = 1e8;
+
+set: real SNAIL_dx = SNAIL_W_s / sin(SNAIL_Theta) / SNAIL_K1;
+set: real SNAIL_W_c = (SNAIL_H_g + SNAIL_H_s) * SNAIL_K2;
+
+set: real p_outlet = p_inlet + rho_fluid * g * H;
+set: real epsilon_t0 = 0;
+set: real epsilon_t1 = 0;
+set: real gamma_t0 = 0.;
+set: real gamma_t1 = 0.;
+set: real delta_t0 = 0.;
+set: real delta_t1 = 0.;
+
+set: real Phi1x_t0 = atan(gamma_t0 * 2 * (SNAIL_H_s) / SNAIL_H);
+set: real Phi1x_t1 = atan(gamma_t1 * 2 * (SNAIL_H_s) / SNAIL_H);
+set: real omega1x = (Phi1x_t1 - Phi1x_t0) / t1;
+
+set: real epsilon_dot = (epsilon_t1 - epsilon_t0) / t1;
+set: real delta_dot = (delta_t1 - delta_t0) / t1;
+
+begin: data;
+        problem: initial value; # the default
+end: data;
+
+begin: initial value;
+        initial time: 0;
+        final time: t1 + 2 * dt;
+        time step: dt;
+
+        max iterations: 30;
+        tolerance: 1e-4, test, minmax, 1e-4, test, minmax;
+
+        linear solver: umfpack, map, colamd, scale, row max column max, always, max iterations, 100;
+        include: "noxsolver.set";            
+        enforce constraint equations: constraint violations, scale factor, 1e4;
+        threads: disable;
+        method: bdf;
+        output: messages;
+        derivatives tolerance: 1e-4, 1e-2;
+        derivatives max iterations: 10;
+        derivatives coefficient: 1e2, auto;
+        output: iterations, solver condition number, stat, yes;
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+    max iterations: 10;
+    output meter: closest next, t1, forever, const, dt;
+    default orientation: euler123;
+        structural nodes: 2;
+        hydraulic nodes: 2;
+        genels: 2;
+        joints: 2;
+        loadable elements: 1;
+        print: dof stats, to file;
+        print: equation description, to file;
+        print: dof description, to file;
+        print: element connection, to file;
+        print: node connection, to file;
+    output precision: 8;
+use automatic differentiation;
+end: control data;
+
+reference: ref_id_bearing,
+        reference, global, null,
+        reference, global, eye,
+        reference, global, null,
+        reference, global, null;
+
+reference: ref_id_rotor,
+        reference, ref_id_bearing,
+        SNAIL_H_s * epsilon_t0 * cos(delta_t0),
+        SNAIL_H_s * epsilon_t0 * sin(delta_t0),
+        0.,
+        reference, ref_id_bearing, euler123,
+        Phi1x_t0,
+        0.,
+        0.,
+        reference, ref_id_bearing,
+        SNAIL_H_s * (epsilon_dot * cos(delta_t0) - epsilon_t0 * sin(delta_t0) * delta_dot),
+        SNAIL_H_s * (epsilon_dot * sin(delta_t0) + epsilon_t0 * cos(delta_t0) * delta_dot),
+        v1z,
+        reference, ref_id_bearing,
+        omega1x,
+        0.,
+        omega1z;
+
+reference: ref_id_stator,
+        reference, ref_id_bearing, null,
+        reference, ref_id_bearing, euler123, 0., 0.,  pi / 2.,
+        reference, ref_id_bearing,
+        0.,
+        0.,
+        v2z,
+        reference, ref_id_bearing,
+        0.,
+        0.,
+        omega2z;
+
+begin: nodes;
+        structural: node_id_rotor, static,
+                # position
+                reference, ref_id_rotor, null,
+                # orientation
+                reference, ref_id_rotor, eye,
+                # velocity
+                reference, ref_id_rotor, null,
+                # angular velocity
+                reference, ref_id_rotor, null,
+                assembly, 1e10, 1e10, yes;
+
+        structural: node_id_stator, static,
+                # position
+                reference, ref_id_stator, null,
+                # orientation
+                reference, ref_id_stator, eye,
+                # velocity
+                reference, ref_id_stator, null,
+                # angular velocity
+                reference, ref_id_stator, null,
+                assembly, 1e10, 1e10, yes;
+
+    hydraulic: hyd_node_id_inlet;
+    hydraulic: hyd_node_id_outlet;
+end: nodes;
+
+begin: elements;
+    genel: genel_id_inlet, clamp,
+        hyd_node_id_inlet, hydraulic, p_inlet;
+
+    genel: genel_id_outlet, clamp,
+        hyd_node_id_outlet, hydraulic, p_outlet;
+
+        joint: joint_id_rotor, total pin joint,
+                node_id_rotor,
+                        position, reference, ref_id_rotor, null,
+                        position orientation, reference, ref_id_rotor, eye,
+                        rotation orientation, reference, ref_id_rotor, eye,
+                position, reference, ref_id_bearing, null,
+                position orientation, reference, ref_id_bearing, eye,
+                rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            string, "SNAIL_H_s * (epsilon_t0 + epsilon_dot * Time) * cos(delta_t0 + delta_dot * Time)",
+            string, "SNAIL_H_s * (epsilon_t0 + epsilon_dot * Time) * sin(delta_t0 + delta_dot * Time)",
+            mult, const, v1z,
+                  time,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            array, 2,
+                const, Phi1x_t0,
+                mult, const, omega1x, time,
+            const, 0.,
+            mult, omega1z, time;
+
+        joint: joint_id_stator, total pin joint,
+                node_id_stator,
+                        position, reference, ref_id_stator, null,
+                        position orientation, reference, ref_id_stator, eye,
+                        rotation orientation, reference, ref_id_stator, eye,
+                position, reference, ref_id_bearing, null,
+                position orientation, reference, ref_id_bearing, eye,
+                rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            const, 0.,
+            const, 0.,
+            mult, const, v2z,
+                  time,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            const, 0.,
+            const, 0.,
+            array, 2, pi / 2., mult, omega2z, time;
+
+    user defined: elem_id_bearing,
+        hydrodynamic plain bearing2,
+            hydraulic fluid, incompressible,
+                density, rho_fluid,
+                viscosity, eta_fluid,
+                pressure, 0.,
+                temperature, 0.,            
+            mesh, quadratic finite element,
+            geometry, cylindrical,
+                mesh position, at shaft,
+                bearing width, SNAIL_H,
+                shaft diameter, SNAIL_D,
+                bearing diameter, SNAIL_D + 2 * SNAIL_H_s,
+                pockets,
+                    shaft, 1,
+                        position, 0.,
+                                  0.,
+                            complete surface,
+                            pocket height,
+                                helical groove,
+                                        profile,
+                                           null,
+                                           helical groove shape,
+                                                          bar width, SNAIL_W_s,
+                                                          chamfer width, SNAIL_W_c,
+                                                          groove depth, SNAIL_H_g,
+                                        pitch angle,
+                                            pi - SNAIL_Theta,
+                                        origin,
+                                             (SNAIL_W_c + 0.5 * SNAIL_W_s) / sin(pi - SNAIL_Theta) - 0.5 * SNAIL_H / tan(pi - SNAIL_Theta),
+                                             -0.5 * SNAIL_H,
+                                        number of segments, SNAIL_NG,                              
+                shaft node,
+                    node_id_rotor,
+                    offset, reference, ref_id_rotor, null,
+                    orientation, reference, ref_id_rotor, eye,
+                bearing node,
+                    node_id_stator,
+                    offset, reference, ref_id_stator, null,
+                    orientation, reference, ref_id_stator, eye,
+            mesh geometry, helical groove pump,
+            pitch angle, pi - SNAIL_Theta,
+            number of segments, SNAIL_NG,
+            bar width, SNAIL_W_s,
+            chamfer width, SNAIL_W_c,
+            mesh size, SNAIL_dx,
+            pressure coupling conditions axial,
+                 hyd_node_id_inlet,
+                 hyd_node_id_outlet,
+            pressure dof scale, 400000.,
+            reynolds equation scale, 12. * eta_fluid / rho_fluid * scale_reynolds,
+            output pressure, yes,
+            output density, no,
+            output clearance, yes,
+            output clearance derivative, no,
+            output velocity, no,
+            output stress, no,
+            output mass flux, yes,
+            output volume flux, yes,
+            output reaction force, yes,
+            output mesh, yes;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

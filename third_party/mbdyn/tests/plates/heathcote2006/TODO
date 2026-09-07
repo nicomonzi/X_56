@@ -1,0 +1,5 @@
+- move here Heathcote's models here
+- compare static "linear" analysis with ABAQUS (data from Marco Morandini)
+- compare static/dynamic beam and shell models
+- convergence study for static case chord/span ratio
+

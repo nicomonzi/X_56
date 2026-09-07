@@ -1,0 +1,17 @@
+set: Phi_i = Phi_max * ( i - 1 ) / ( number_of_nodes - 1 );
+
+#######################################################################################################################################################
+# REFERENCE FRAMES
+#######################################################################################################################################################
+
+reference: ref_node_1 + i - 1,
+        # position
+        reference, global, -R * cos(Phi_i), R * sin(Phi_i), 0.,
+        # orientation
+        reference, global, matr, sin(Phi_i),  -cos(Phi_i), 0.,
+                                        cos(Phi_i),   sin(Phi_i), 0.,
+                                        0.,              0.,          1.,
+        # velocity
+        reference, global, null,
+        # angular velocity
+        reference, global, null;

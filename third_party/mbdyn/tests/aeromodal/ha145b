@@ -1,0 +1,129 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/aeromodal/ha145b,v 1.9 2014/12/13 17:15:35 masarati Exp $
+
+# Bisplinghoff Ashley Halfman BAH Jet Transport Wing 
+# cantilevered wing with modal aerodynamic frequency responce
+# computed by a double-lattice method at Mach 0.0
+# data extracted from MSC-NASTRAN  example file ha145b
+# aerodynamic state-space fitting computed using a Padè polynomial
+# approximation (by Pasinetti, Mantegazza & Quaranta)
+# quantity are expressed in inches and pounds
+# flutter velocity 12672 in/s 
+# divergence at 19812 in/s
+#
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+    	set: real dt = 1.e-3;
+    	time step: dt;
+    	initial time: 0.;
+    	final time: 10.;
+
+    	set: real Rho = .6;
+    	method: ms, Rho, Rho;
+
+	linear solver: naive, colamd;
+	nonlinear solver: newton raphson, modified, 5;
+
+	# eigenanalysis: 0, use lapack;
+
+    	max iterations: 10;
+    	tolerance: 1.e-6;
+    	derivatives coefficient: 1.e-6;
+    	derivatives max iterations: 1;
+    	derivatives tolerance: 1.e12;
+
+    	fictitious steps number: 0;
+threads: disable;
+end: initial value;
+
+set: integer Wing = 1000;
+set: integer WingTipFw = 1001;
+set: integer WingTipB  = 1002;
+
+reference: Wing,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+begin: control data;
+    	#default output: none;
+        structural nodes:
+		+1	# 1 - wing modal
+		+2	# 2 - interface with wing at tip/root
+	;
+        air properties;
+        aeromodals:
+		+1	# 1 - wing modal aerodynamic 
+	;
+	joints:
+		+1	# 1 - ground
+		+1 	# 1 - modal wing
+	;
+	forces:
+		+1	# wing tip load
+	;
+
+	print: dof stats;
+end: control data;
+
+begin: nodes;
+	structural: Wing, modal,
+		reference, Wing, null,
+		reference, Wing, eye,
+		reference, Wing, null,
+		reference, Wing, null;
+
+	structural: WingTipFw, static,
+		reference, Wing, 11.05, 458., 0., 
+		reference, Wing, eye,
+		reference, Wing, null,
+		reference, Wing, null;
+
+	structural: WingTipB, static,
+		reference, Wing, -44.20, 458., 0.,
+		reference, Wing, eye,
+		reference, Wing, null,
+		reference, Wing, null;
+        output: structural, Wing, WingTipFw, WingTipB;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, Wing, node, node;
+
+	joint: Wing, modal,
+		Wing, 10, 11, no damping, 
+		"ha145b.fem",
+		2,
+		9, WingTipFw, null,
+		10, WingTipB, null;
+
+       	air properties: 1.1468e-7, 13385.8,
+		single, 1.,0.,0.,
+			# const, 1056.*12.;	# flutter (NASTRAN)
+			const, 1080.*12.;	# flutter (MBDyn)
+			# const, 1651.*12.;	# divergence (NASTRAN)
+			# const, 1680.*12.;	# divergence (MBDyn)
+			# linear, 1000.*12., 10*12.;
+
+      	aeromodal: Wing, Wing,
+		eye,
+		131.25, 10, "ha145b.fea";
+
+	force: Wing, absolute,
+		WingTipFw,
+			position, null,
+			0., 0., 1.,
+		sine, 0., 2.*pi*2., 1000., 1, 0.;
+        output: joint, 1, Wing;
+        output: force, Wing; 
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,245 @@
+% MBDyn (C) is a multibody analysis code.
+% http://www.mbdyn.org
+%
+% Copyright (C) 1996-2026
+%
+% Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+% Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+%
+% Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+% via La Masa, 34 - 20156 Milano, Italy
+% http://www.aero.polimi.it
+%
+% Changing this copyright notice is forbidden.
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation (version 2 of the License).
+%
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+%
+
+\emph{Author: Andrea Zanoni}
+
+\bigskip
+
+This module allows MBDyn to act as the \emph{Flight Dynamics Module} node of
+a MARSH (Modular Aircraft Research Simulator Handler,
+\htmladdnormallink{\texttt{https://marsh-sim.github.io/}}{https://marsh-sim.github.io/})
+flight simulator.
+MARSH is a modular simulator framework whose nodes (flight model, pilot
+controls, visualisation, instruments, motion platform, \ldots) exchange
+MAVLink
+(\htmladdnormallink{\texttt{https://mavlink.io/}}{https://mavlink.io/})
+messages over UDP, routed by a central component called the \emph{MARSH
+Manager}.
+
+The element publishes the state of a structural node as MAVLink messages,
+and decodes incoming messages, making the received values available to the
+rest of the model as private data.
+Which messages are published and which are subscribed to is declared in the
+input file.
+A \kw{HEARTBEAT} message is sent periodically, and incoming \kw{HEARTBEAT}
+messages from the Manager are tracked.
+
+\subsubsection{Syntax}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{marsh}
+
+    \bnt{module_data} ::=
+        [ \kw{manager address} , (\ty{string}) " \bnt{manager_address} " , ]
+        [ \kw{manager port} , (\ty{integer}) \bnt{manager_port} , ]
+        [ \kw{local port} , (\ty{integer}) \bnt{local_port} , ]
+        [ \kw{system id} , (\ty{integer}) \bnt{system_id} , ]
+        [ \kw{component id} , (\ty{integer}) \bnt{component_id} , ]
+        [ \kw{heartbeat rate} , (\ty{real}) \bnt{heartbeat_rate} , ]
+        [ \bnt{message_clause} [ , ... ] ]
+        [ , \bnt{output_flag} ]
+
+    \bnt{message_clause} ::=
+        { \kw{send} , (\ty{string}) " \bnt{outbound_message} " \bnt{outbound_data}
+        | \kw{subscribe} , (\ty{string}) " \bnt{inbound_message} " }
+\end{Verbatim}
+
+\paragraph{Element Ordering}
+The elements this one refers to, namely any \kw{aircraft instruments}
+element used as the source of an outbound message, must be declared
+\emph{before} it; and so must this element with respect to any element that
+reads its private data.
+
+\paragraph{Input Parameters}
+\begin{itemize}
+    \item \nt{manager\_address}: IP address or host name of the MARSH
+        Manager (optional; defaults to \kw{"127.0.0.1"});
+    \item \nt{manager\_port}: UDP port the MARSH Manager listens on
+        (optional; defaults to 24400, the MARSH default);
+    \item \nt{local\_port}: UDP port the element binds locally (optional;
+        defaults to 0, meaning the operating system assigns an ephemeral
+        port);
+    \item \nt{system\_id}: MAVLink system ID, which in MARSH identifies the
+        simulation session; all the nodes taking part in one simulation
+        should share it (optional; defaults to 1);
+    \item \nt{component\_id}: MAVLink component ID, which in MARSH
+        identifies the role of the node (optional; defaults to 26,
+        \kw{MARSH\_COMP\_ID\_FLIGHT\_MODEL});
+    \item \nt{heartbeat\_rate}: rate, in Hz, at which \kw{HEARTBEAT}
+        messages are sent (optional; defaults to 1.0, the rate MARSH
+        currently expects); must be positive;
+    \item \nt{output\_flag}: the usual output flag of elements.
+\end{itemize}
+
+Each \nt{message\_clause} adds one message to those handled by the element;
+clauses may be repeated, in any order, and the same message should not be
+declared twice.
+Note that the Manager only forwards to a component the messages that are
+relevant for its component ID, and that only the first component in a
+network with a given system ID and component ID has its messages forwarded;
+the messages of any further ones are ignored.
+
+\subsubsection{Outbound Messages}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{outbound_message} ::= { \kw{SIM_STATE} | \kw{MOTION_CUE_EXTRA} }
+
+    \bnt{outbound_data} ::=
+        [ , \bnt{message_source} ]
+        [ , \kw{field} , (\ty{string}) " \bnt{field_name} " ,
+            (\hty{ScalarValue}) \bnt{field_value} [ , ... ] ]
+
+    \bnt{message_source} ::=
+        { \kw{aircraft instruments} , \bnt{aircraft_instruments_label}
+        | \kw{node} , \bnt{node_label}
+            [ , \kw{position} , (\hty{Vec3}) \bnt{offset} ]
+            [ , \kw{orientation} , (\hty{OrientationMatrix}) \bnt{orientation} ] }
+\end{Verbatim}
+
+MAVLink expresses the motion in body axes, with $x$ pointing forward, $y$ to
+the right and $z$ down; angles are in radians, angular velocities in rad/s
+and accelerations in m/s$^2$, and the ``world'' components in a
+North-East-Down frame.
+Both messages are sent once per converged time step.
+
+\paragraph{Message Source}
+The state published by a message may come either from an
+\htmlref{\kw{aircraft instruments}}{sec:EL:AERO:AIRCRAFTINSTRUMENTS}
+element, or from a structural node.
+
+Referring to an \kw{aircraft instruments} element is the recommended choice,
+and the only one that fills in the whole of \kw{SIM\_STATE}: that element
+resolves the orientation of the aircraft with respect to its node,
+the flight mechanics angles, and the geodetic position, which the module
+converts from the radians of MBDyn to the degrees of MAVLink.
+Recall that an \kw{aircraft instruments} element requires an
+\kw{air properties} element to be defined.
+
+Referring to a structural node directly is meant for the cases in which no
+\kw{aircraft instruments} element is needed, for instance when only
+\kw{MOTION\_CUE\_EXTRA} is published.
+The point and the reference frame the motion refers to may then be moved
+with respect to the node by \nt{offset} and \nt{orientation}; the latter
+also is the intended means to reconcile the axes of the node with the
+convention MAVLink expects.
+The geodetic position and the Euler angles are not available in this case,
+and are left null unless the corresponding fields are set explicitly.
+
+\begin{itemize}
+    \item \kw{SIM\_STATE} reports the attitude, as a quaternion and, when
+        available, as Euler angles, the angular velocity, the acceleration,
+        the geodetic position and the ground velocity.
+        The standard deviation fields are left null.
+    \item \kw{MOTION\_CUE\_EXTRA} is a MARSH specific message intended for
+        motion cueing; it reports the angular velocity and the acceleration,
+        in the surge, sway and heave sense.
+\end{itemize}
+
+Be aware that MAVLink defines the acceleration reported by these messages as
+the \emph{specific force}, namely the quantity an accelerometer would
+measure, which includes the contribution of gravity; a body at rest thus
+reports a vector whose magnitude is that of the gravity acceleration, rather
+than a null one.
+The element accounts for this, subtracting the gravity acceleration of the
+\kw{gravity} element, if one is defined, from that of the aircraft.
+
+\paragraph{Fields}
+Any field of a message may be set explicitly to \nt{field\_value}, which is
+an arbitrary \hty{ScalarValue}, namely either
+\kw{drive} , (\hty{DriveCaller}) \nt{drive\_caller}
+or
+\kw{node dof} , (\hty{ScalarDof}) \nt{scalar\_dof}.
+An explicitly set field overrides whatever the message source computed for
+it, so this serves both to complete what a source leaves out, and to publish
+quantities that the dynamics of the aircraft does not describe, such as
+special effects or the simulation of a faulty sensor.
+Since a source is optional, a message may as well be assembled out of
+\kw{field} clauses alone.
+
+The \nt{field\_name} is that of the corresponding MAVLink message field:
+\kw{q1} to \kw{q4}, \kw{roll}, \kw{pitch}, \kw{yaw},
+\kw{xacc}, \kw{yacc}, \kw{zacc}, \kw{xgyro}, \kw{ygyro}, \kw{zgyro},
+\kw{lat}, \kw{lon}, \kw{alt}, \kw{std\_dev\_horz}, \kw{std\_dev\_vert},
+\kw{vn}, \kw{ve} and \kw{vd} for \kw{SIM\_STATE};
+\kw{vel\_roll}, \kw{vel\_pitch}, \kw{vel\_yaw},
+\kw{acc\_x}, \kw{acc\_y} and \kw{acc\_z} for \kw{MOTION\_CUE\_EXTRA}.
+Note that \kw{lat} and \kw{lon} are in degrees, as MAVLink defines them.
+
+\subsubsection{Inbound Messages}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{inbound_message} ::= \kw{MANUAL_CONTROL}
+\end{Verbatim}
+
+\begin{itemize}
+    \item \kw{MANUAL\_CONTROL} carries the pilot control inputs, as produced
+        by the MARSH controls node.
+        Its axes and buttons are made available as private data.
+\end{itemize}
+
+\subsubsection{Output}
+
+This element sends output to the \texttt{.usr} file.
+Currently, each entry contains
+\begin{itemize}
+\item[1)] the label
+\item[2)] a flag, 1 if a \kw{HEARTBEAT} message has been received from the
+    MARSH Manager, 0 otherwise
+\end{itemize}
+
+\subsubsection{Private Data}
+
+Each subscribed message contributes its own private data, named after the
+message.
+Subscribing to \kw{MANUAL\_CONTROL} makes the following data available:
+\begin{enumerate}
+\item \kw{"MANUAL\_CONTROL.x"} the $x$ axis of the control input
+\item \kw{"MANUAL\_CONTROL.y"} the $y$ axis of the control input
+\item \kw{"MANUAL\_CONTROL.z"} the $z$ axis of the control input
+\item \kw{"MANUAL\_CONTROL.r"} the $r$ axis of the control input
+\item \kw{"MANUAL\_CONTROL.buttons"} the button bitfield
+\end{enumerate}
+The four axes are those of the MAVLink message, normalized by the sender in
+the range $[-1000, 1000]$, and are passed on unscaled; in the MARSH
+convention they respectively correspond to roll, pitch, thrust and yaw
+control.
+They can be accessed with the \kw{element} drive caller, to use the pilot
+input elsewhere in the model.
+
+\subsubsection{Notes}
+
+MBDyn is expected to run in real time when used as a node of a simulator;
+see the \kw{real time} card in the \kw{initial value} problem block.
+Messages are sent and received once per converged time step, so the rate at
+which they are exchanged follows the time step of the simulation, and the
+periodic \kw{HEARTBEAT} message is timed on the simulation time.
+
+Further details, including the MARSH specific MAVLink dialect the module is
+built against and how to extend it with further messages, are documented in
+\texttt{modules/module-marsh/README.md}.

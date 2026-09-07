@@ -1,0 +1,125 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/landing/graall-wheel/w,v 1.4 2014/12/13 17:15:53 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: real dt = 1.e-4;
+set: real t0 = 0.;
+set: real tf = 1.;
+
+begin: initial value;
+    # abort after: input;
+    # abort after: assembly;
+
+    time step: dt;
+    initial time: t0;
+    final time: tf;
+    
+    tolerance: 1.e-9;
+    max iterations: 20;
+
+    derivatives coefficient: 1.e-12;
+    derivatives tolerance: 1.e-9;
+    derivatives max iterations: 10;
+    
+    fictitious steps number: 0;
+
+    set: real Rho = .6;
+    method: ms, Rho, Rho;   
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+        
+    structural nodes: 2;
+    rigid bodies: 2;
+    joints: 1;
+    loadable elements: 1;
+    gravity;
+end: control data;
+
+
+set: integer ruota = 100;
+set: integer gamba = 200;
+
+set: real z0 = 0.1765;
+set: real omega = 0.;
+set: real vz0 = 0.;
+set: real vy0 = 0.;
+
+# Riferimento velivolo (asse z verso il basso)
+reference: 1, 
+           reference, global, null,
+	   reference, global, 1, 1.,0.,0., 3, 0.,0.,-1.,
+	   reference, global, 0.,vy0,vz0,
+	   reference, global, null;
+# Gamba (in realta' punto di giunzione gamba ruota)
+reference: gamba,
+           reference, 1, 0.,0.,z0,
+	   reference, 1, eye,
+	   reference, 1, null,
+	   reference, 1, null;
+# Ruota (coincide con il precedente)
+reference: ruota,
+           reference, gamba, null,
+	   reference, gamba, eye,
+	   reference, gamba, null,
+	   reference, gamba, null;
+# Coincide con il precedente, ma l'asse 3 e' l'asse della ruota
+reference: ruota+1,
+           reference, ruota, null,
+	   reference, ruota, 3, 1.,0.,0., 2, 0.,1.,0.,
+	   reference, ruota, null,
+	   reference, ruota, null;
+# coincide con il precedente, ma e' in rotazione attorno all'asse ruota
+reference: ruota+2,
+           reference, ruota+1, null,
+	   reference, ruota+1, eye,
+	   reference, ruota+1, null,
+	   reference, ruota+1, 0.,0.,omega;
+
+
+set: real z0 = -0.1765;
+set: real vy = 60.;
+set: real omega = 0.;
+
+begin: nodes;
+    structural: ruota, dynamic,
+                0.,0.,z0,
+		eye,
+		0.,vy,0.,
+		omega,0.,0.;
+    structural: gamba, dynamic,
+                0.,0.,z0,
+		eye,
+		0.,vy,0.,
+		null;
+end: nodes;
+
+begin: elements;
+    body: ruota, ruota, 7.,
+          null,
+	  diag, .0931, .0658, .0658;
+    body: gamba, gamba, 200.,
+          null,
+	  diag, 100.,100.,100.;
+    joint: 1, plane hinge,
+           ruota, null, hinge, reference, node, 2, 0.,1.,0., 3, 1.,0.,0.,
+	   gamba, null, hinge, reference, node, 2, 0.,1.,0., 3, 1.,0.,0.;
+	   
+    loadable: 1, "libmodule-wheel.la",
+              ruota, null, reference, node, 2, 0.,1.,0., 3, 1.,0.,0.,
+	      gamba, "./wheel";
+	      	      	   
+    gravity: 0.,0.,1., const, 9.81;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

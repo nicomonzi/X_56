@@ -1,0 +1,94 @@
+# Rigid aerodynamic body with forced pitch motion
+# Intended for the evaluation of unsteady aerodynamic models
+#
+# Author: Pierangelo Masarati
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 5.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-6;
+	max iterations: 10;
+	# output: residual;
+	# output: solution;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	joints: 1;
+	air properties;
+	aerodynamic elements: 1;
+	print: all;
+	max iterations: 10;
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+set: real VINF = 10.;		# m/s
+set: real CHORD = 2.;		# m
+set: real KAPPA = 5;		# adim
+
+begin: elements;
+	joint: 1, total pin joint,
+		1, 
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		# ground
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+		position constraint,
+			active, active, active,
+			0., 0., 1.,
+				sine, 0e-2, .5*VINF/(CHORD/2), 0.1, forever, 0.,
+				#sine, 0e-2, .0*VINF/(CHORD/2), 0.1, forever, 0.,
+		orientation constraint,
+			active, active, active,
+			0., 1., 0.,
+				sine, 0e-2, .8*VINF/(CHORD/2), 1.*deg2rad, forever, 0.;
+				#sine, 0e-2, .0*VINF/(CHORD/2), 1.*deg2rad, forever, 0.;
+				# cosine, 1e-2, pi/.002, 1.*deg2rad/2., half, 0.;
+	air properties: std, SI,
+		1., 0., 0.,
+			const, VINF;
+	c81 data: 12, "naca0012.c81";
+	#c81 data: 12, "ThinAirfoil2.c81", free format;
+	aerodynamic body: 1, 1,
+		reference, node, null,
+		reference, node,
+			1, -1., 0., 0.,
+			3, 0., 1., 0.,
+		10.,
+		const, CHORD,
+		#const, 0.25*CHORD,
+		#const, -.25*CHORD,
+		#const, 0.*CHORD,
+		#const, -.5*CHORD,
+		const, 0.5*CHORD,
+		const, .0*CHORD,
+		const, 0.,
+		3,
+		theodorsen, c81, 12,
+		jacobian, yes;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

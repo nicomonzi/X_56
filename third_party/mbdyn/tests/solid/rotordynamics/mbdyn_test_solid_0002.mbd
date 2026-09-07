@@ -1,0 +1,175 @@
+include: "mbdyn_test_solid_1.set";
+set: integer ref_id_ground = 1001;
+set: integer ref_id_shaft = 1002;
+set: integer ref_id_rotor = 1003;
+set: integer ref_id_bearing1 = 1004;
+set: integer ref_id_bearing2 = 1005;
+set: integer node_id_rotor = 2002;
+set: integer node_id_bearing1 = 2003;
+set: integer node_id_bearing2 = 2004;
+set: integer body_id_unbalance = 3000;
+set: integer elem_id_rotor = 3005;
+set: integer joint_id_bearing1 = 3006;
+set: integer joint_id_bearing2 = 3007;
+set: integer joint_id_drive = 3008;
+set: integer elem_id_inertia = 3010;
+set: integer drive_id_rotor_speed = 5001;
+set: integer drive_id_time_step = 5002;
+set: real initial_time = 0.;
+set: real final_time = 2. * pi * n / (abs(omega1 + omega0) / 2.);
+begin: data;
+        problem: initial value;
+end: data;
+begin: initial value;
+        initial time: initial_time;
+        final time: final_time;
+        time step: 2. * pi / (360. * abs(omega0));
+        strategy: change, postponed, drive_id_time_step;
+        method: ms, 0.6;
+        tolerance: 1e-6, test, norm, 1e-6, test, norm;
+        derivatives tolerance: 1e-4, 1e-4;
+        max iterations: 100;
+        derivatives max iterations: 10;
+        derivatives coefficient: auto;
+        output: iterations;
+        linear solver: naive, colamd, scale, row max column max, always, max iterations, 100;
+        nonlinear solver: nox, modified, 10,
+             keep jacobian matrix,
+             inner iterations before assembly, 6,
+             jacobian operator, newton krylov,
+             solver, line search based,
+             forcing term, type 2,
+             direction, newton,
+             weighted rms absolute tolerance, 0.,
+             weighted rms relative tolerance, 0.,
+             linear solver, gmres,
+             linear solver max iterations, 12,
+             krylov subspace size, 12;
+        enforce constraint equations: constraint violations;
+        threads: assembly, 1;
+threads: disable;
+end: initial value;
+begin: control data;
+       default output: none, structural nodes;
+       default orientation: euler123;
+       output precision: 16;
+       max iterations: 10;
+       initial assembly of deformable and force elements;
+       initial stiffness: 1e6, 1e6;
+        structural nodes:
+                +1           # modal
+                +1           # interface 1
+                +1              # interface 2
+        ;
+        joints:
+                +1           # modal
+                +1           # bearing1
+                +1           # bearing2
+                +1              # drive
+        ;
+        rigid bodies: 1;
+end: control data;
+reference: ref_id_ground,
+        reference, global, null,
+        reference, global, eye,
+        reference, global, null,
+        reference, global, null;
+reference: ref_id_shaft,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, eye,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, 0., 0., omega0;
+reference: ref_id_rotor,
+        reference, ref_id_shaft, 0., 0., o,
+        reference, ref_id_shaft, eye,
+        reference, ref_id_shaft, null,
+        reference, ref_id_shaft, null;
+reference: ref_id_bearing1,
+        reference, ref_id_shaft,
+                   0.,
+                   0.,
+                   -0.5 * l,
+        reference, ref_id_shaft, eye,
+        reference, ref_id_shaft, null,
+        reference, ref_id_shaft, null;
+reference: ref_id_bearing2,
+        reference, ref_id_shaft,
+                   0.,
+                   0.,
+                   0.5 * l,
+        reference, ref_id_shaft, eye,
+        reference, ref_id_shaft, null,
+        reference, ref_id_shaft, null;
+begin: nodes;
+        structural: node_id_rotor, modal,
+                reference, ref_id_rotor, null,
+                reference, ref_id_rotor, eye,
+                reference, ref_id_rotor, null,
+                reference, ref_id_rotor, null;
+        structural: node_id_bearing1, static,
+                reference, ref_id_bearing1, null,
+                reference, ref_id_bearing1, eye,
+                reference, ref_id_bearing1, null,
+                reference, ref_id_bearing1, null;
+        structural: node_id_bearing2, static,
+                reference, ref_id_bearing2, null,
+                reference, ref_id_bearing2, eye,
+                reference, ref_id_bearing2, null,
+                reference, ref_id_bearing2, null;
+end: nodes;
+begin: elements;
+       drive caller: drive_id_rotor_speed, string, "(omega1 - omega0) / (final_time - initial_time) * Time + omega0", output, yes;
+       drive caller: drive_id_time_step, string, "2. * pi / (max(1., 360. * abs(model::drive(drive_id_rotor_speed, Time))))";
+       body: body_id_unbalance,
+             node_id_rotor,
+                dm,
+                reference, ref_id_rotor, dr, 0., 0.,
+                diag, 0., 0., 0.;
+        joint: joint_id_bearing1, total pin joint,
+                node_id_bearing1,
+                        position, reference, ref_id_bearing1, null,
+                        position orientation, reference, ref_id_bearing1, eye,
+                        rotation orientation, reference, ref_id_bearing1, eye,
+                        position, reference, ref_id_bearing1, null,
+                        position orientation, reference, ref_id_bearing1, eye,
+                        rotation orientation, reference, ref_id_bearing1, eye,
+               position constraint,
+                        active, active, active,
+                        null,
+               orientation constraint,
+                        inactive, inactive, inactive,
+                        null;
+        joint: joint_id_bearing2, total pin joint,
+               node_id_bearing2,
+                        position, reference, ref_id_bearing2, null,
+                        position orientation, reference, ref_id_bearing2, eye,
+                        rotation orientation, reference, ref_id_bearing2, eye,
+               position, reference, ref_id_bearing2, null,
+               position orientation, reference, ref_id_bearing2, eye,
+               rotation orientation, reference, ref_id_bearing2, eye,
+               position constraint,
+                        active, active, inactive,
+                        null,
+               orientation constraint,
+                        inactive, inactive, inactive,
+                        null;
+     joint: joint_id_drive, angular velocity,
+             # node label
+             node_id_rotor,
+             # direction
+             0.,0.,1.,
+             # angular velocity
+             reference, drive_id_rotor_speed;
+        include: "mbdyn_test_solid_cms.elm";
+        inertia: elem_id_inertia,
+                 position, reference, ref_id_rotor, null,
+                 orientation, reference, ref_id_rotor, eye,
+                 body, all, joint, all, loadable, all,
+                 output, both;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

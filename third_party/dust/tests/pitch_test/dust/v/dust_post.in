@@ -1,0 +1,18 @@
+basename = Postpro/test
+data_basename = Output/test
+
+analysis = {
+  name = v1
+  type = Viz
+
+  format = vtk !tecplot
+
+  start_res = 1
+  end_res = 11
+  step_res = 1
+  wake = T
+
+  variable = Vorticity
+  variable = Pressure
+
+}

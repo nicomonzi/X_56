@@ -1,0 +1,84 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/stream/spring,v 1.9 2016/04/24 10:23:40 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1.e-3;
+
+	method: ms, .6;
+
+	tolerance: 1.e-12;
+	max iterations: 10;
+
+	linear solver: naive, colamd, mt, 1;
+
+	threads: disable;
+	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes: 1;
+	genels: 1;
+	forces: 1;
+	file drivers: 1;
+	output elements: 1;
+end: control data;
+
+set: integer NODE = 100;
+set: integer INPUT = 200;
+set: integer SPRING = 300;
+set: integer FORCE = 400;
+set: integer OUTPUT = 500;
+
+begin: nodes;
+	abstract: NODE;
+end: nodes;
+
+begin: drivers;
+	file: INPUT, stream,
+		stream drive name, "BODYXV",
+		# create, yes,
+		path, "./mbdyn.body.sock",
+		# port, 10011,
+		no signal,
+		receive first, no,
+		# timeout, 0.1,
+		timeout, 1.5,
+		2;	# x, dot_x
+end: drivers;
+
+begin: elements;
+	genel: SPRING, spring support,
+		NODE, abstract, algebraic,
+		linear elastic, 1.;	# node displacement == force
+	force: FORCE, abstract,
+		NODE, abstract,
+		array, 2,
+			file, INPUT, 1, amplitude, -1.e2,	# k * x
+			file, INPUT, 2, amplitude, -2.e-1;	# r * dot_x
+	stream output: OUTPUT,
+		stream name, "SPRNGF",
+		# send after, convergence,
+		# create, yes,
+		path, "./mbdyn.spring.sock",
+		# port, 8005,
+		no signal,
+		# nonblocking,
+		values, 1,
+			drive, node, NODE, abstract, string, "x", direct;	# force
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

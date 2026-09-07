@@ -1,0 +1,52 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/plane/output,v 1.3 2014/12/13 17:15:47 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+	tolerance: 1e-6;
+	max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 2;
+	forces: 1;
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		null,
+		eye,
+		null,
+		0.,0.,0.;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, revolute hinge,
+		1, reference, node, null,
+		hinge, reference, node, eye,
+		2, reference, node, null,
+		hinge, reference, node, eye;
+	body: 2, 2, 1., 1.,1.,1., diag, 1.,1.,.05;
+	couple: 2, follower, 2, 0.,0.,1., const, 1.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,167 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2023
+# 
+# Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+# Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Rotating beam
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    set: real dt = 1.e-3;
+    time step: dt;
+    initial time: 0.;
+    final time: 5.;
+    
+    method: ms, .6;
+    
+    max iterations: 20;
+    tolerance: 1.e-5;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 1;
+    derivatives tolerance: 1.e12;
+    
+    fictitious steps number: 0;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    structural nodes: 6;
+    joints: 6;
+    forces: 1;
+    rigid bodies: 1;
+    beams: 1;
+end: control data;
+
+set: integer body = 1;
+set: integer beam = 2;
+set: real l = 5.5;
+set: real omega = 40.;
+set: real omega0 = 0.;
+reference: body,
+	null,
+	eye,
+	null,
+	0.,0.,omega0;
+reference: beam,
+	reference, body, .05*l,0.,0.,
+	reference, body, eye,
+	reference, body, null,
+	reference, body, null;	
+
+begin: nodes;
+    structural: 1000, static,
+                null,
+		eye,
+		null,
+		null;
+    structural: 1001, static,
+		reference, body, null,
+		reference, body, eye,
+		reference, body, null,
+		reference, body, null;
+    structural: 1002, static,
+                reference, beam, null,
+                reference, beam, eye,
+                reference, beam, null,
+                reference, beam, null;
+
+    structural: 1, static,
+                reference, beam, null,
+		reference, beam, eye,
+		reference, beam, null,
+		reference, beam, null;
+    structural: 2, static,
+            reference, beam, l/2., 0., 0.,
+            reference, beam, eye,
+            reference, beam, null,
+            reference, beam, null;
+    structural: 3, dynamic,
+            reference, beam, l, 0., 0.,
+            reference, beam, eye,
+            reference, beam, null,
+            reference, beam, null;
+end: nodes;
+
+begin: elements;
+    joint: 1000, clamp, 1000, node, node;
+    joint: 1001, axial rotation,
+	1000, null,
+	1001, null,
+	cosine, 0.,pi/.5,(omega-omega0)/2.,-1,0.;
+    joint: 1002, revolute hinge,
+	1001, reference, beam, null,
+		hinge, reference, beam, 1, 1.,0.,0.,  3, 0.,1.,0.,
+	1002, reference, beam, null,
+		hinge, reference, beam, 1, 1.,0.,0.,  3, 0.,1.,0.;
+    drive caller: 99, string, "Time < 2.";
+    driven: 1003, reference, 99,
+    joint: 1003, deformable hinge,
+	1001,
+	1002,
+	linear viscous, 1.e4;
+
+    joint: 1004, revolute hinge,
+        1002, reference, beam, null,
+        1, reference, beam, null;
+    driven: 1005, reference, 99,
+    joint: 1005, deformable hinge,
+        1002,
+        1,
+        linear viscoelastic, 1.e7, 1.e7;
+    force: 1, absolute, 
+           3,
+		position, null,
+	   0.,0.,1.,
+	   # step, 10.*dt, 10., 0.;
+	   ramp, 10./.5,0.,.5,0.;
+
+    body: 1000, 3,
+	30.,
+	null,
+	null;
+	   
+    beam: 2,
+      	1, null,
+      	2, null,
+      	3, null,
+      	eye,
+      	linear viscoelastic generic,
+      	diag, 1.e9,1.e9,1.e9,1.e6,1.e6,1.e7, proportional, 1.e-2,
+      	same,
+      	same;	   
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,114 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/invdyn/invdyn1,v 1.8 2017/01/12 15:03:27 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Original Author: Alessandro Fumagalli
+# Modified by: Pierangelo Masarati <masarati@aero.polimi.it>
+
+begin: data;
+	problem: inverse dynamics;
+end: data;
+
+begin: inverse dynamics;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-2;
+
+	tolerance: 1e-9;
+	max iterations: 10;
+	# output: residual;
+	# output: solution;
+	# output: jacobian;
+	output: counter;
+	# output: none;
+
+	threads: disable;
+end: inverse dynamics;
+
+begin: control data;
+	default output: accelerations;
+	default orientation: orientation vector;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 2;
+end: control data;
+
+begin: nodes;
+	structural: 0, static,
+		null,
+		eye,
+		null,
+		null,
+		output, no;
+	structural: 1, static,
+		.5, 0., 0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	body: 1, 1,
+		10.,
+		null,
+		diag, 4., 2., 2.;
+	joint: 0, clamp, 0, node, node;
+	joint: 1, total joint,
+		0,
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		1,
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		position constraint, active, active, active,
+			null,
+			null,
+			null,
+		orientation constraint, active, active, active,
+			0., 1., 0.,
+			#const, 0.,
+			parabolic, 0., 0., 0.5,
+			#cosine, 0.,2.*pi/.1,1.,forever,0.,
+			0., 1., 0.,
+			#const, 0.,
+			linear, 0., 1., 
+			#sine, 0.,2.*pi/.1,-1.*(2.*pi/.1),forever,0.,
+			0., 1., 0.,
+			#const, 0.;
+			const, 1.;
+			#cosine, 0.,2.*pi/.1,-1.*(2.*pi/.1)^2,forever,0.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

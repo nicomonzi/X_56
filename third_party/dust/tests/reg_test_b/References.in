@@ -1,0 +1,93 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = Root
+parent_tag = 0
+origin = (/0.0, 0.0, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = F
+moving = F
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+reference_tag = shaft
+parent_tag = Root
+origin = (/0.0, 0.0, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = F
+moving = F
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+reference_tag = nacelle
+parent_tag = shaft
+!origin = (/367.21, -1699.21, -750.0/)
+origin = (/0.39698, -1.8370, -0.9/) !scaled to unit radius
+orientation = (/0.0,1.0,0.0, 0.0,0.0,1.0, 1.0,0.0,0.0/)
+multiple = F
+moving = F
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+reference_tag = wing_inboard
+parent_tag = Root
+!origin = (/367.21, -1699.21, -750.0/)
+origin = (/0.39698, -1.8370, -0.9/) !scaled to unit radius
+orientation = (/0.0,1.0,0.0, 0.0,0.0,1.0, 1.0,0.0,0.0/)
+multiple = F
+moving = F
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+reference_tag = wing_outboard
+parent_tag = shaft
+!origin = (/0.0, 0.0, 0.0/)
+!origin = (/367.21, -1699.21, -750.0/)
+origin = (/0.39698, -1.8370, -0.9/) !scaled to unit radius
+orientation = (/0.0,1.0,0.0, 0.0,0.0,1.0, 1.0,0.0,0.0/)
+multiple = F
+moving = F
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = Hub01
+parent_tag = shaft
+origin = (/0.0, 0.0, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = T
+moving = F
+
+multiplicity = {
+  mult_type = rotor
+  n_blades = 4
+  !n_blades = 2
+  rot_axis = (/0.0, 0.0, 1.0/)
+  rot_rate = 6.28318530717959 !2*pi, T=1
+  psi_0 = 0.0
+  hub_offset = 0.0
+
+  n_dofs = 3
+  dof = {
+    hinge_type = Flap
+    hinge_offset = (/ 0.0 , 0.032432 , 0.0 /)
+    !Collective  =  3.0     ! deg
+    Collective  =  0.5     ! deg
+    cyclic_ampl =  0.0     ! deg
+    cyclic_phas =  0.0     ! deg
+  }
+  dof = {
+    hinge_type = Lag
+    hinge_offset = (/ 0.0 , 0.021622 , 0.0 /)
+    !Collective  = -10.0     ! deg
+    Collective  = -5.5     ! deg
+    cyclic_ampl =  0.0     ! deg
+    cyclic_phas =  0.0     ! deg
+  }
+  dof = {
+    hinge_type = Pitch
+    hinge_offset = (/ 0.0 , 0.086486 , 0.0 /)
+    !Collective  = 12.0     ! deg
+    Collective  = 6.0     ! deg
+    cyclic_ampl = 0.0     ! deg
+    cyclic_phas = 0.0     ! deg
+  }
+
+}
+

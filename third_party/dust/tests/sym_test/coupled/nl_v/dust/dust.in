@@ -1,0 +1,35 @@
+! Simulation names
+basename       = ./Output/test
+
+! Timings ---------------------
+tstart = 0.0
+tend = 1.0
+dt = 0.1
+dt_out = 0.1
+output_start = T
+
+! reference values ---------------------
+u_inf = (/10.0, 0.0, 0.0/)
+
+! geometry input -----------------
+geometry_file = geo_input.h5
+reference_file = References.in
+
+! Model parameters -------------------
+particles_box_min = (/ -5, -10, -5 /)
+particles_box_max = (/ 20,  10,  5 /)
+Kvortex_rad = 1
+fmm = F
+vortstretch = T
+diffusion = T
+penetration_avoidance = T
+
+! wake parameters  -------------
+n_wake_panels = 1
+
+vl_tol = 1.0e-2
+vl_relax = 0.3
+vl_maxiter = 20 
+vl_startstep = 0
+vl_dynstall = F
+aitken_relaxation = T

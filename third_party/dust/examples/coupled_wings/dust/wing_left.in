@@ -1,0 +1,78 @@
+mesh_file_type = parametric
+el_type = p
+
+!> === coupled with external structural solver (T/F) ===
+coupled      = T
+coupling_type = rbf
+coupling_node_file = coupling_nodes_left.in 
+
+coupling_node_orientation = (/-0.5,   0.836516303737808,  -0.224143868042013, -0.852868531952443,  -0.430682165754551,   0.295174760618610,  0.150383733180435,   0.338752631992439,   0.928779514800424/)
+mesh_mirror = T
+mirror_point   = (/0.0 , 0.0,  0.0/)
+mirror_normal = (/0.0 , 1.0,  0.0/)
+
+nelem_chord = 20
+type_chord = cosine   ! uniform  cosineLE  cosineTE
+starting_point = (/0.222655776165707,0.595417457320121 ,0.181114485501542/)
+reference_chord_fraction = 0.25
+
+n_hinges = 1
+hinge = {
+  hinge_Tag = Aileron_left
+  hinge_nodes_input = parametric      ! or from_file
+  node_1 = (/ 2.223342035233606  , -2.688778461088552  , 0.620681546003718/)
+  node_2 = (/ 1.473342035233606, -1.434004005481840, 0.284465743940698  /)  ! In the local ref.frame
+  n_nodes = 2
+  hinge_ref_dir = (/ 1.0, 0.0, 0.0 /)
+  hinge_offset  = 0.02
+  hinge_spanwise_blending = 0.001
+  hinge_merge_tol = 0.15
+
+  hinge_rotation_input = coupling
+  hinge_rotation_coupling = {
+  coupling_node_subset = range
+  coupling_node_first  = 5
+  coupling_node_last  =  6
+  }
+}
+
+! First section
+chord = 2.0
+twist = 10
+airfoil = NACA0012
+
+! First region
+span = 3.404582542679879
+sweep = 30.0
+dihed = 15
+nelem_span = 25
+type_span = uniform
+
+! Second section
+chord = 2.0
+twist = 10
+airfoil = NACA0012
+
+! First region
+span = 0.8
+sweep = 40.0
+dihed = 25
+nelem_span = 7
+type_span = uniform
+
+! Second section
+chord = 1.5
+twist = 0
+airfoil = NACA0012
+
+! First region
+span = 0.1
+sweep = 70.0
+dihed = 80
+nelem_span = 7
+type_span = uniform
+
+! Second section
+chord = 1.0
+twist = 0
+airfoil = NACA0012

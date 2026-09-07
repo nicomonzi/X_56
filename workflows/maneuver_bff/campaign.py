@@ -22,6 +22,7 @@ def _model_path(value: str) -> Path:
 
 MANEUVER_DIR = _model_path(MODEL["maneuver_directory"])
 BASELINE_DIR = _model_path(MODEL["baseline_directory"])
+PRESTRESS_DIR = _model_path(MODEL["prestress_rom_directory"])
 MODEL_REVISION = "manouver_stifness_v2_reduced_window_and_output"
 
 
@@ -40,6 +41,9 @@ def _load_module(name: str, path: Path):
 
 
 MANEUVER = _load_module("stiffness_source_maneuver_case", MANEUVER_DIR / "maneuver_case.py")
+PRESTRESS = _load_module(
+    "physical_prestress_renderer", PRESTRESS_DIR / "render_mbdyn_case.py"
+)
 
 
 @dataclass(frozen=True)
@@ -78,15 +82,25 @@ class StudyCase:
         q_deg_s, amplitude_deg = command_for_class(
             self.velocity_mps, self.nominal_load_factor
         )
+        physical_prestress = bool(
+            CONFIG["campaigns"][self.campaign].get("physical_prestress", False)
+        )
         data.update(
             model_revision=MODEL_REVISION,
             pitch_rate_command_deg_s=q_deg_s,
             pitch_amplitude_deg=amplitude_deg,
             stiffness_delta_k7=stiffness_delta_k7(self.mode7_frequency_scale),
             modification=(
-                "none_linear_modal_stiffness"
+                "nastran_fixed_basis_full_matrix_time_varying_prestress"
+                if physical_prestress
+                else "none_linear_modal_stiffness"
                 if abs(self.mode7_frequency_scale - 1.0) < 1e-12
                 else "parametric_mode7_stiffness_force_not_physical_prestress"
+            ),
+            physical_prestress=physical_prestress,
+            prestress_load_schedule=(
+                "delta_n=VINF*q_command/GRAVITY"
+                if physical_prestress else "none"
             ),
         )
         return data
@@ -305,6 +319,13 @@ def render_case(case: StudyCase) -> str:
     text = MANEUVER.render_point(point)
     text = _rediscretize(text, case.time_step_s)
     text = _inject_stiffness_screen(text, case)
+    if CONFIG["campaigns"][case.campaign].get("physical_prestress", False):
+        text = PRESTRESS.render_text(
+            text,
+            PRESTRESS_DIR / "config.json",
+            "maneuver_pitch_rate",
+            PRESTRESS_DIR / "generated",
+        )
     text = _optimize_production_output(text, case)
     metadata = json.dumps(case.metadata(), sort_keys=True, separators=(",", ":"))
     text = text.replace(
@@ -324,6 +345,15 @@ def render_case(case: StudyCase) -> str:
     )
     if not all(item in text for item in required):
         raise RuntimeError(f"invarianti del caso non soddisfatte per {case.stem}")
+    if CONFIG["campaigns"][case.campaign].get("physical_prestress", False):
+        physical_required = (
+            "PRESTRESS_ROM_INJECTED",
+            "force: PRESTRESS_ROM_FORCE, modal, MODAL_JOINT",
+            "DIVE_PULLUP_ENABLE*VINF*model::drive(MANEUVER_Q_COMMAND_DRIVE,Time)/GRAVITY",
+            "((Time<SAS_OFF_START)||(Time>=SAS_ON_START))",
+        )
+        if not all(item in text for item in physical_required):
+            raise RuntimeError(f"prestress fisico incompleto per {case.stem}")
     return text
 
 
@@ -354,6 +384,10 @@ def source_fingerprints() -> dict[str, str]:
         "baseline_run_case": BASELINE_DIR / "run_case.py",
         "baseline_main": BASELINE_DIR / "main_bff_open_loop.mbd",
         "fem": Path(MODEL["fem_file"]),
+        "prestress_renderer": PRESTRESS_DIR / "render_mbdyn_case.py",
+        "prestress_config": PRESTRESS_DIR / "config.json",
+        "prestress_constants": PRESTRESS_DIR / "generated/prestress_constants.mbd",
+        "prestress_force": PRESTRESS_DIR / "generated/prestress_modal_force.mbd",
     }
     return {
         name: hashlib.sha256(path.read_bytes()).hexdigest()

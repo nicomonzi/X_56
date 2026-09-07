@@ -1,0 +1,7 @@
+include: "../../VehicleData/Kinematics/DP15/FL.var";
+
+structural: node_RACK, static,
+    xK, 0., zK,
+    eye,
+    V0, 0., 0.,
+    null;

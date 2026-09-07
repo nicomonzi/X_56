@@ -1,0 +1,168 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/modal/hand-made/hand-made,v 1.5 2014/12/13 17:15:47 masarati Exp $
+
+# Tarocco a mano senza massa
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    initial time: 0.;
+    final time:   5.;
+    time step:   1.e-3;
+
+    method: ms, .6;  
+
+    tolerance: 1.e-4;
+    max iterations: 50;
+
+    derivatives coefficient: 1.e-9;
+    derivatives tolerance: 1.e-9;
+    derivatives max iterations: 20;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+    structural nodes:
+	+ 1	# ground
+	+ 1	# modal 1
+	+ 3	# fem 1
+	+ 1	# modal 2
+	+ 3	# fem 2
+    ;
+    rigid bodies:
+	+ 1	# cg
+    ;
+    joints:
+	+ 1	# ground
+	+ 2	# cerniere 1
+	+ 1	# modal 1
+	+ 2	# cerniere 2
+	+ 1	# modal 2
+    ;
+    forces:
+	+ 1	# excitation 1
+	+ 1	# excitation 1
+    ;
+end: control data;
+
+begin: nodes;
+    # ground
+    structural: 1, static, 
+                reference, global, null,
+                reference, global, eye,
+                reference, global, null,
+                reference, global, null;
+
+    structural: 1000, modal,
+                reference, global, null,
+                reference, global, eye,
+                reference, global, null,
+                reference, global, null;
+    
+    structural: 1001, static,
+                reference, global, 0.,-2.,0.,
+                reference, global, eye,              
+                reference, global, null,
+                reference, global, null;
+    structural: 1002, dynamic,
+                reference, global, null,
+                reference, global, eye,              
+                reference, global, null,
+                reference, global, null;
+    structural: 1003, static,
+                reference, global, 0.,2.,0.,
+                reference, global, eye,              
+                reference, global, null,
+                reference, global, null;
+
+    structural: 2000, modal,
+                reference, global, null,
+                reference, global, eye,
+                reference, global, null,
+                reference, global, null;
+    
+    structural: 2001, static,
+                reference, global, 0.,-2.,0.,
+                reference, global, eye,              
+                reference, global, null,
+                reference, global, null;
+    structural: 2002, static,
+                reference, global, null,
+                reference, global, eye,              
+                reference, global, null,
+                reference, global, null;
+    structural: 2003, static,
+                reference, global, 0.,2.,0.,
+                reference, global, eye,              
+                reference, global, null,
+                reference, global, null;
+end: nodes;
+
+
+begin: elements;
+    joint: 1, clamp, 1, node, node;
+    joint: 1001, spherical hinge,
+	1, reference, global, 0.,-2.,0.,
+		hinge, reference, global, 3, 1.,0.,0., 2, 0.,1.,0.,
+	1001, reference, global, 0.,-2.,0.,
+		hinge, reference, global, 3, 1.,0.,0., 2, 0.,1.,0.;
+    joint: 1003, spherical hinge,
+	1, reference, global, 0.,2.,0.,
+		hinge, reference, global, 3, 1.,0.,0., 2, 0.,1.,0.,
+	1003, reference, global, 0.,2.,0.,
+		hinge, reference, global, 3, 1.,0.,0., 2, 0.,1.,0.;
+
+    joint: 1000, modal, 1000, 
+           3, 
+           3,
+	   no damping,
+           "hand-made-static.fem",
+           3,
+           1001, 1001, null,
+           1002, 1002, null,
+           1003, 1003, null;
+
+    body: 1002, 1002,
+	1.,
+	null,
+	eye;
+
+    force: 1002, absolute, 1002,
+	0.,0.,1.,
+	null,
+	sine, .1,pi/.1,1.,forever,0.;
+
+    joint: 2001, spherical hinge,
+	1, reference, global, 0.,-2.,0.,
+		hinge, reference, global, 3, 1.,0.,0., 2, 0.,1.,0.,
+	2001, reference, global, 0.,-2.,0.,
+		hinge, reference, global, 3, 1.,0.,0., 2, 0.,1.,0.;
+    joint: 2003, spherical hinge,
+	1, reference, global, 0.,2.,0.,
+		hinge, reference, global, 3, 1.,0.,0., 2, 0.,1.,0.,
+	2003, reference, global, 0.,2.,0.,
+		hinge, reference, global, 3, 1.,0.,0., 2, 0.,1.,0.;
+
+    joint: 2000, modal, 2000, 
+           3, 
+           3,
+	   no damping,
+           "hand-made-dynamic.fem",
+           3,
+           1001, 2001, null,
+           1002, 2002, null,
+           1003, 2003, null;
+
+    force: 2002, absolute, 2002,
+	0.,0.,1.,
+	null,
+	sine, .1,pi/.1,1.,forever,0.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

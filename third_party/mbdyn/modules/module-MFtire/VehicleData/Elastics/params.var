@@ -1,0 +1,9 @@
+set: ( 
+	
+	# Springs and dampers
+	const real ksf = 5.2e4; # spring stiffness
+	const real csf = 2.0e3; # damper constant
+	const real ksr = 5.2e4; # spring stiffness
+	const real csr = 2.0e3 # damper constant
+
+);

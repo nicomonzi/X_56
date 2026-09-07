@@ -1,0 +1,58 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = Root
+parent_tag = 0
+origin = (/0.0, 0.0, 0.0/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = F
+moving = F
+
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = Gimbal
+parent_tag = Root
+origin = (/0.690, 0.0, 0.184/)
+orientation = (/0.9986,0.0,0.0523, 0.0,1.0,0.0, -0.0523,0.0,0.9986/)
+multiple = F
+moving = F
+
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+reference_tag = Hub
+parent_tag = Gimbal
+origin = (/0.0, 0.0, 0.090/)
+orientation = (/1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0/)
+multiple = T
+moving = F
+
+multiplicity = {
+  mult_type = rotor
+  n_blades = 4
+  rot_axis = (/0.0, 0.0, 1.0/)
+  rot_rate = 209.0
+  psi_0 = 45.0
+  !psi_0 = 0.0
+  hub_offset = 0.049
+
+  n_dofs = 3
+  dof = {
+    hinge_type = Flap
+    hinge_offset = (/ 0.0 , 0.0 , 0.0 /)
+    Collective  =  1.7     ! deg
+    cyclic_ampl =  0.0     ! deg
+    cyclic_phas =  0.0     ! deg
+  }
+  dof = {
+    hinge_type = Lag
+    hinge_offset = (/ 0.0 , 0.0 , 0.0 /)
+    Collective  =  0.0     ! deg
+    cyclic_ampl =  0.0     ! deg
+    cyclic_phas =  0.0     ! deg
+  }
+  dof = {
+    hinge_type = Pitch
+    hinge_offset = (/ 0.0 , 0.0 , 0.0 /)
+    Collective  = 6.86 
+    cyclic_ampl =  3.81
+    cyclic_phas =  -59.1
+  }
+
+}
+

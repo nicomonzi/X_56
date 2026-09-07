@@ -1,0 +1,42 @@
+mesh_file_type = parametric
+el_type = p
+
+starting_point = (/0.0,0.0,0.0/) !Beginning of the extruded geometry
+reference_chord_fraction = 0.0   !fraction of chord at which the extrusion line
+                                 !is placed
+
+nelem_chord = 8                  !number of elements in chord direction 
+                                 !(must be one for all the component)
+
+type_chord = cosineLE            !type of element distribution in chord
+                                 ! uniform , cosine , coisneLE , cosineTE
+
+! First section (ideally a wing rib)
+chord = 1.0           !chord length
+twist = 10            !chord twist (deg)
+airfoil = NACA3018    !airfoil profile (only 4 digits naca supported at the 
+                      ! moment, dufferent profiles could be loaded from file)
+
+! First region (ideally a wing bay)
+span = 2.5            !span of the region
+sweep = -10.0         !sweep angle (deg)
+dihed = 10.0          !dihedral angle (deg)
+nelem_span = 20       !number of elements in span region 
+type_span = uniform   !distribution of elements in span
+
+! Second section
+chord = 0.6
+twist = 0.0
+airfoil = NACA2012
+
+! Second region
+span = 2.0
+sweep = 5.0
+dihed = -3.0
+nelem_span = 16
+type_span = uniform
+
+! Third section
+chord = 0.2
+twist = -2.0
+airfoil = NACA0012

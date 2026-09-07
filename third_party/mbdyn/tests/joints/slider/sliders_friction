@@ -1,0 +1,459 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/slider/sliders,v 1.9 2014/05/13 07:53:54 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: .2;
+	time step: 1e-5;
+
+	tolerance: 1.e-6;
+	max iterations: 20, at most;
+
+	# linear solver: umfpack, cc, pivot factor, 1.;
+	linear solver: naive, colamd;
+
+	method: ms, .6;
+	#method: bdf;
+
+	derivatives coefficient: 1.e-5;
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 20;
+
+	# nonlinear solver: newton raphson, modified, 4, keep jacobian;
+
+	#output: iterations;
+
+/*
+    nonlinear solver: matrix free, gmres,
+	tolerance, 1.e-5,
+	steps, 20,
+	tau, 1.e-3,
+	# eta, 1.e-2,
+	preconditioner, full jacobian, steps, 30;
+*/
+threads: disable;
+end: initial value;
+
+begin: control data;
+	skip initial joint assembly;
+
+	structural nodes: 1+5*2+5*2+1;
+	rigid bodies: 1+5*2+5*2;
+	beams: 5*1+5*1;
+	joints: 1+2;
+	gravity;
+	forces: 1;
+end: control data;
+
+set: real L = 2.;
+set: real M = 1.e+0;
+set: real m = 1.e-1;
+
+reference: 1, 
+	reference, global, null,
+	reference, global,
+		1, 1.,0.,0.,
+		2, 0.,1.,0.,
+	reference, global, null,
+	reference, global, null;
+
+begin: nodes;
+	structural: 51, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 52, dynamic,
+		reference, 1, .1*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 53, dynamic,
+		reference, 1, .2*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 54, dynamic,
+		reference, 1, .3*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 55, dynamic,
+		reference, 1, .4*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 56, dynamic,
+		reference, 1, .5*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 57, dynamic,
+		reference, 1, .6*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 58, dynamic,
+		reference, 1, .7*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 59, dynamic,
+		reference, 1, .8*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 60, dynamic,
+		reference, 1, .9*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 61, dynamic,
+		reference, 1, 1.*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+
+	structural: 1, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 2, dynamic,
+		reference, 1, .1*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 3, dynamic,
+		reference, 1, .2*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 4, dynamic,
+		reference, 1, .3*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 5, dynamic,
+		reference, 1, .4*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 6, dynamic,
+		reference, 1, .5*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 7, dynamic,
+		reference, 1, .6*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 8, dynamic,
+		reference, 1, .7*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 9, dynamic,
+		reference, 1, .8*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 10, dynamic,
+		reference, 1, .9*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 11, dynamic,
+		reference, 1, 1.*L, 0., 0.,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+###set: real EA=1.e6;
+###set: real EJ=1.e3;
+set: real EA=1.e8;
+set: real EJ=1.e6;
+
+scalar function: "constfriction", const, 0.01;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+
+	beam: 51,
+		51, null,
+		52, null,
+		53, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	beam: 52,
+		53, null,
+		54, null,
+		55, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		# diag, 1.e10,1.e10,1.e10,1.e8,1.e8,1.e8,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	beam: 53,
+		55, null,
+		56, null,
+		57, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	beam: 54,
+		57, null,
+		58, null,
+		59, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	beam: 55,
+		59, null,
+		60, null,
+		61, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	body: 51, 51,
+		.05*m,
+		.025*L,0.,0.,
+		diag, .5, (.05*m)*(.05*L)^2/12., (.05*m)*(.05*L)^2/12.;
+
+	body: 52, 52,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 53, 53,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 54, 54,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 55, 55,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 56, 56,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 57, 57,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 58, 58,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 59, 59,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 60, 60,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 61, 61,
+		.05*m+M,
+		-.025*L,0.,0.,
+		diag, .5, (.05*m)*(.05*L)^2/12., (.05*m)*(.05*L)^2/12.;
+
+	beam: 1,
+		1, null,
+		2, null,
+		3, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	beam: 2,
+		3, null,
+		4, null,
+		5, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	beam: 3,
+		5, null,
+		6, null,
+		7, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	beam: 4,
+		7, null,
+		8, null,
+		9, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	beam: 5,
+		9, null,
+		10, null,
+		11, null,
+		reference, 1, eye,
+		linear viscoelastic generic, 
+		diag, EA,EA,EA,EJ,EJ,EJ,
+		proportional, 1.e-4,
+		same,
+		same;
+
+	body: 2, 2,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 3, 3,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 4, 4,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 5, 5,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 6, 6,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 7, 7,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 8, 8,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 9, 9,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 10, 10,
+		.1*m,
+		null,
+		diag, 1., (.1*m)*(.1*L)^2/12., (.1*m)*(.1*L)^2/12.;
+
+	body: 11, 11,
+		.05*m,
+		-.025*L,0.,0.,
+		diag, .5, (.05*m)*(.05*L)^2/12., (.05*m)*(.05*L)^2/12.;
+
+	gravity: uniform, 0.,0.,-1.,
+		# 9.81;
+		cosine, 0., pi/.01, 9.81/2., -1, 0.;
+
+	set: real smr = .1;
+	joint: 100, beam slider,
+		51, null,
+			orientation, eye,
+		type, classic,
+		5,
+			1, null, null, null,
+			2, null, null, null,
+			3, null, null, null,
+			4, null, null, null,
+			5, null, null, null,
+		initial beam, 1,
+		initial node, 1,
+		smearing, smr,
+		friction,
+			preload, 1.E-3,
+			modlugre, 2000, 2.8, 0., 0.7, "constfriction",
+			#discrete coulomb, "test", const, 1.,
+			simple
+	;
+	joint: 101, beam slider,
+		11, null,
+			orientation, eye,
+		type, classic,
+		5,
+			51, null, null, null,
+			52, null, null, null,
+			53, null, null, null,
+			54, null, null, null,
+			55, null, null, null,
+		initial beam, 5,
+		initial node, 3,
+		smearing, smr,
+		friction,
+			preload, 1.E-3,
+			modlugre, 2000, 2.8, 0., 0.7, "constfriction",
+			#discrete coulomb, "test", const, 1.,
+			simple
+	;
+
+	force: 61, follower,
+		61,
+		position, null,
+		.02,0.,1.,
+			cosine, 0., pi/.01, 1.e4, half, 0.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

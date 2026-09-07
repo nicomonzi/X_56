@@ -1,0 +1,314 @@
+include: "VehicleData/Kinematics/init.var";
+include: "VehicleData/Elastics/params.var";
+include: "VehicleData/Inertias/params.var";
+include: "VehicleData/Tires/params.var";
+include: "VehicleData/Brakes/params.var";
+include: "Labels.var";
+include: "IC.var";
+
+begin: data;
+
+	problem: initial value;
+
+end: data;
+
+begin: initial value;
+
+	initial time:					0.;
+	final time:						3;
+	time step:						3.e-4;
+
+	max iterations:					20;
+	tolerance:						1.e-3, test, sepnorm;
+
+	linear solver: 					naive, colamd, pivotfactor, 1.;
+	nonlinear solver: 				Newton Raphson, modified, 5;
+
+	method: 						ms, 0.6;
+
+	derivatives coefficient:		1.e-6;
+	derivatives tolerance:			1.e-3;
+	derivatives max iterations: 	100;
+
+	#realtime: POSIX,
+		#mode, period, time step, 1.e6,
+		#output, no;
+
+	# output: residual;
+
+end: initial value;
+
+begin: control data;
+
+	max iterations: 100;
+
+	structural nodes:
+		+1		# chassis
+		+1		# steering rack
+		+4		# hub
+		+4		# rim
+	;
+
+	rigid bodies:
+		+1		# chassis
+		+4		# rim
+	;
+
+	joints:
+		+4*1 	# springs & dampers			4  equations (?)
+		+4*5	# distance control arms		20 equations
+		+4*1	# spindle					20 equations
+		+1		# steering rack	prismatic	6 equations
+		+4		# brakes
+	;
+
+	forces:
+		+4		# Torques at wheel
+	;
+
+	loadable elements:
+		+4
+	;
+
+	# output elements: 1;
+
+	default output: none;
+	# output results: netcdf;
+	
+	default orientation: orientation vector;
+
+	gravity;
+	
+end: control data;
+
+begin: nodes;
+
+	include: "Components/Nodes/chassis.node";
+	include: "Components/Nodes/rack.node";
+
+	# front left wheel nodes
+	set: integer CURR_HUB = node_HUB + 1;
+	set: integer CURR_RIM = node_RIM + 1;
+	include: "VehicleData/Kinematics/DP15/FL.var";
+	include: "Components/Nodes/wheel.node";
+
+	# front right wheel nodes
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	include: "VehicleData/Kinematics/DP15/FR.var";
+	include: "Components/Nodes/wheel.node";
+
+	# rear left wheel nodes
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	include: "VehicleData/Kinematics/DP15/RL.var";
+	include: "Components/Nodes/wheel.node";
+
+	# rear right wheel nodes
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	include: "VehicleData/Kinematics/DP15/RR.var";
+	include: "Components/Nodes/wheel.node";
+
+end: nodes;
+
+begin: elements;
+
+	include: "Components/Elements/Bodies/chassis.body";
+
+	# front left wheel bodies
+	set: integer CURR_RIM_NODE = node_RIM + 1;
+	set: integer CURR_RIM_BODY = body_RIM + 1;
+	include: "Components/Elements/Bodies/wheel.body";
+
+	# front right wheel bodies
+	set: CURR_RIM_NODE = CURR_RIM_NODE + 1;
+	set: CURR_RIM_BODY = CURR_RIM_BODY + 1;
+	include: "Components/Elements/Bodies/wheel.body";
+	
+	# rear left wheel bodies
+	set: CURR_RIM_NODE = CURR_RIM_NODE + 1;
+	set: CURR_RIM_BODY = CURR_RIM_BODY + 1;
+	include: "Components/Elements/Bodies/wheel.body";
+
+	# rear right wheel bodies
+	set: CURR_RIM_NODE = CURR_RIM_NODE + 1;
+	set: CURR_RIM_BODY = CURR_RIM_BODY + 1;
+	include: "Components/Elements/Bodies/wheel.body";
+
+	# ------------------------------------------------------------------------------------
+
+	include: "Components/Elements/Joints/rack.joint";
+
+	# ------------------------------------------------------------------------------------
+
+	# front left suspension
+	set: CURR_HUB = node_HUB + 1;
+	set: CURR_RIM = node_RIM + 1;
+	set: integer CURR_SPRING = joint_SPRING + 1;
+	set: integer CURR_WISHBONE = joint_WISHBONE + 10;
+	set: integer CURR_TIE = joint_TIE + 1;
+	set: integer CURR_SPINDLE = joint_SPINDLE + 1;
+	include: "VehicleData/Kinematics/DP15/FL.var";
+	set: real L0 = sqrt((zM - zX)^2 + (yM - yX)^2 + (xM - xX)^2);
+	set: real ks = ksf;
+	set: real cs = csf;
+	include: "Components/Elements/Joints/wishbone.joint";
+	include: "Components/Elements/Joints/tie.front.joint";
+	include: "Components/Elements/Joints/spindle.joint";
+	include: "Components/Elements/Joints/spring.joint";
+	
+	# front right suspension
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_SPRING = CURR_SPRING + 1;
+	set: CURR_WISHBONE = CURR_WISHBONE + 10;
+	set: CURR_TIE = CURR_TIE + 1;
+	set: CURR_SPINDLE = CURR_SPINDLE + 1;
+	include: "VehicleData/Kinematics/DP15/FR.var";
+	include: "Components/Elements/Joints/wishbone.joint";
+	include: "Components/Elements/Joints/tie.front.joint";
+	include: "Components/Elements/Joints/spindle.joint";
+	include: "Components/Elements/Joints/spring.joint";
+
+	# rear left suspension
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_SPRING = CURR_SPRING + 1;
+	set: CURR_WISHBONE = CURR_WISHBONE + 10;
+	set: CURR_TIE = CURR_TIE + 1;
+	set: CURR_SPINDLE = CURR_SPINDLE + 1;
+	include: "VehicleData/Kinematics/DP15/RL.var";
+	set: L0 = sqrt((zM - zX)^2 + (yM - yX)^2 + (xM - xX)^2);
+	set: ks = ksr;
+	set: cs = csr;
+	include: "Components/Elements/Joints/wishbone.joint";
+	include: "Components/Elements/Joints/tie.rear.joint";
+	include: "Components/Elements/Joints/spindle.joint";
+	include: "Components/Elements/Joints/spring.joint";
+
+	# rear right suspension
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_SPRING = CURR_SPRING + 1;
+	set: CURR_WISHBONE = CURR_WISHBONE + 10;
+	set: CURR_TIE = CURR_TIE + 1;
+	set: CURR_SPINDLE = CURR_SPINDLE + 1;
+	include: "VehicleData/Kinematics/DP15/RR.var";
+	include: "Components/Elements/Joints/wishbone.joint";
+	include: "Components/Elements/Joints/tie.rear.joint";
+	include: "Components/Elements/Joints/spindle.joint";
+	include: "Components/Elements/Joints/spring.joint";
+
+	# ------------------------------------------------------------------------------------
+
+	# front left brake
+	set: CURR_HUB = node_HUB + 1;
+	set: CURR_RIM = node_RIM + 1;
+	set: integer CURR_BRAKE = joint_BRAKE + 1;
+	include: "Components/Elements/Joints/brake.joint";
+
+	# front right brake
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_BRAKE = CURR_BRAKE + 1;
+	include: "Components/Elements/Joints/brake.joint";
+
+	# rear left brake
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_BRAKE = CURR_BRAKE + 1;
+	include: "Components/Elements/Joints/brake.joint";
+
+	# rear right brake
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_BRAKE = CURR_BRAKE + 1;
+	include: "Components/Elements/Joints/brake.joint";
+
+	# ------------------------------------------------------------------------------------
+
+	# front left motor
+	set: CURR_HUB = node_HUB + 1;
+	set: CURR_RIM = node_RIM + 1;
+	set: integer CURR_TRQ = torque_MOTOR + 1;
+	include: "Components/Elements/Forces/motor.torque";
+
+	# front right motor
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_TRQ = CURR_TRQ + 1;
+	include: "Components/Elements/Forces/motor.torque";
+
+	# rear left motor
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_TRQ = CURR_TRQ + 1;
+	include: "Components/Elements/Forces/motor.torque";
+
+	# rear right motor
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_TRQ = CURR_TRQ + 1;
+	include: "Components/Elements/Forces/motor.torque";
+
+	# ------------------------------------------------------------------------------------
+
+	module load: "libmodule-MFtire.la";
+
+	# front left tire
+	set: CURR_RIM = node_RIM + 1;
+	set: CURR_HUB = node_HUB + 1;
+	set: integer CURR_TIRE = loadable_TIRE + 1;
+	include: "Tires/MFtire.tire";
+
+	# front right tire
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_TIRE = CURR_TIRE + 1;
+	include: "Tires/MFtire.tire";
+
+	# rear left tire
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_TIRE = CURR_TIRE + 1;
+	include: "Tires/MFtire.tire";
+
+	# rear right tire
+	set: CURR_RIM = CURR_RIM + 1;
+	set: CURR_HUB = CURR_HUB + 1;
+	set: CURR_TIRE = CURR_TIRE + 1;
+	include: "Tires/MFtire.tire";
+
+	# ------------------------------------------------------------------------------------
+
+	# set: [node, x,  node_CHASSIS, structural, string="X[1]"];
+	# set: [node, y,  node_CHASSIS, structural, string="X[2]"];
+	# set: [node, z,  node_CHASSIS, structural, string="X[3]"];
+	# set: [node, p1, node_CHASSIS, structural, string="Phi[1]"];
+	# set: [node, p2, node_CHASSIS, structural, string="Phi[2]"];
+	# set: [node, p3, node_CHASSIS, structural, string="Phi[3]"];
+
+	# output element: 10000, socket stream,
+	# 	stream name, "MAILBX",
+	# 	create, yes,
+	# 	port, 9011, host, "192.168.1.200",
+	# 	socket type, tcp,
+	# 	output every, 10,
+	# 	values, 6,   
+	# 		drive, string, "x",
+	# 		drive, string, "y",
+	# 		drive, string, "z",
+	# 		drive, string, "p1",
+	# 		drive, string, "p2",
+	# 		drive, string, "p3";  
+
+	gravity: uniform, 0., 0., -1., const, 9.81;
+
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

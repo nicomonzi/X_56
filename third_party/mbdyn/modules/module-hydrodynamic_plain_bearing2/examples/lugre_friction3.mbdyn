@@ -1,0 +1,294 @@
+################################################################
+## PARAMETERS
+################################################################
+
+set: real body1_h = 8e-3;
+set: real body1_diameter = 10.5e-3;
+set: real hole_diameter = 10.51e-3;
+
+set: real kappa = 0.0 * atan(0.5 * (hole_diameter - body1_diameter) / body1_h);
+
+set: real mu = 0.24;
+set: real sigma0 = 1e5;
+set: real sigma1 = 50;
+
+set: real E1 = 210000e6;
+set: real E2 = 210000e6;
+set: real nu1 = 0.3;
+set: real nu2 = 0.3;
+
+set: real gravity_g = 0.;
+set: real gravity_Zeta = -pi / 2.;
+set: real gravity_Psi = 0.;
+
+set: real Fx = 3600.;
+set: real Fy = 0.;
+set: real omega1z = -2 * pi * 49;
+set: real omega2z = 0;
+
+set: real body1_mass = 100e-3;
+set: real body1_Jxx = body1_mass * (body1_diameter/2.)^2 / 2.;
+set: real body1_Jyy = body1_mass * (3 * (body1_diameter/2.)^2 + body1_h^2) / 12.;
+set: real body1_Jzz = body1_Jyy;
+
+set: real eta = 0.00214/1000;		# dynamic oil viscosity
+set: real rho = 900.;
+set: real initial_time = 0;
+set: real final_time = 0.02;
+set: real output_start_time = 0;
+set: real output_time_step = 1e-3;
+
+set: real time_step = 1e-4;
+set: real max_time_step = 1e-4;
+set: real min_time_step = 1e-8;
+
+################################################################
+## ID NUMBERS
+################################################################
+
+set: integer node_id_body1 = 1100;
+set: integer node_id_ground = 1000;
+
+set: integer body1_id = 2002;
+
+set: integer joint_id_ground = 3001;
+set: integer joint_id_body = 3002;
+
+set: integer force_id_F1 = 4001;
+set: integer ref_id_ground = 5001;
+set: integer ref_id_body = 5004;
+
+set: integer elem_id_bearing = 6001;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: initial_time;
+	final time: final_time;
+	
+	time step: time_step;
+	min time step: min_time_step;
+	max time step: max_time_step;
+	strategy: factor, 
+			# reduction_factor
+				0.5, 
+			# steps_before_reduction
+				2,
+			# raise_factor
+				2, 
+			# steps_before_raise
+				2, 
+			# min_iterations
+				3, 
+			# max_iterations
+				6;
+	
+	max iterations: 40;
+	tolerance: 1.e-6, test, minmax, 1e-4, test, minmax;
+	method: implicit euler;
+	derivatives tolerance: 1e-3, 1e-2;
+	derivatives max iterations: 20;
+	derivatives coefficient: 1e-2, auto;
+	threads: disable;
+	linear solver: umfpack, colamd, scale, iterative, always, max iterations, 10;
+        include: "noxsolver.set";            
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+	output meter: closest next, output_start_time, forever, const, output_time_step;
+	structural nodes: 2;
+	rigid bodies: 1;
+	loadable elements: 1;
+	joints: 2;
+    forces: 1;
+    gravity;
+	output precision: 8;
+	default output: all;
+	default output: reference frames;
+    max iterations: 100;
+    tolerance: 1e-6;
+use automatic differentiation;
+end: control data;
+
+reference: ref_id_ground,
+	# position
+	reference, global, null,
+	# orientation
+	reference, global, eye,
+	# velocity
+	reference, global, null,
+	# angular velocity
+	reference, global, 0., 0., omega2z;
+
+reference: ref_id_body,
+	# position
+	reference, ref_id_ground, null,
+	# orientation
+	reference, ref_id_ground, euler123, 0., kappa, 0.,
+	# velocity
+	reference, ref_id_ground, null,
+	# angular velocity
+	reference, ref_id_ground, 0., 0., omega1z;
+
+begin: nodes;
+    structural: node_id_ground, static,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, eye,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, null;
+				
+	structural: node_id_body1, dynamic, 
+		# absolute position
+		reference, ref_id_body, null, 
+		# absolute orientation matrix
+		reference, ref_id_body, eye, 
+		# absolute velocity
+		reference, ref_id_body, null,
+		# absolute angular velocity
+		reference, ref_id_body, null,
+        accelerations, yes;
+end: nodes;
+
+begin: elements;
+    joint: joint_id_ground, total pin joint,
+        node_id_ground,
+                position, reference, ref_id_ground, null,
+                position orientation, reference, ref_id_ground, eye,
+                rotation orientation, reference, ref_id_ground, eye,   
+            position, reference, ref_id_ground, null,
+            position orientation, reference, ref_id_ground, eye,
+            rotation orientation, reference, ref_id_ground, eye,               
+            position constraint,
+                active, 
+                active,
+                active,
+                component,
+                    const, 0.,
+                    const, 0.,
+                    const, 0.,
+            orientation constraint,
+                active,
+                active,
+                active,
+                component,
+                    const, 0.,
+                    const, 0.,
+                    mult, const, omega2z, time;
+
+    joint: joint_id_body, total pin joint,
+        node_id_body1,
+                position, reference, ref_id_body, null,
+                position orientation, reference, ref_id_body, eye,
+                rotation orientation, reference, ref_id_body, eye,   
+            position, reference, ref_id_body, null,
+            position orientation, reference, ref_id_body, eye,
+            rotation orientation, reference, ref_id_body, eye,               
+            position constraint,
+                inactive, 
+                inactive,
+                active,
+                component,
+                    const, 0.,
+                    const, 0.,
+                    const, 0.,
+            orientation constraint,
+                active,
+                active,
+                active,
+                component,
+                    const, 0.,
+                    const, 0.,
+                    mult, const, omega1z, time;
+
+	body: body1_id, node_id_body1, 
+                # mass
+                body1_mass,
+                # relative center of mass
+                reference, ref_id_body, null,
+                # inertia matrix
+                diag, body1_Jxx, body1_Jyy, body1_Jzz,
+		inertial, reference, ref_id_body, eye;
+
+    user defined: elem_id_bearing, 
+        hydrodynamic plain bearing2,
+            hydraulic fluid, incompressible,
+                density, rho,
+                viscosity, eta,
+                pressure, 0,
+                temperature, 0,
+            mesh, linear finite difference, enable mcp, enable_mcp,
+            geometry, cylindrical,
+                mesh position, at shaft,
+                bearing width, body1_h,
+                shaft diameter, body1_diameter,
+                bearing diameter, hole_diameter,
+                minimum clearance, relative, 1e-2,
+                shaft node,
+                    node_id_body1,
+                    offset, reference, ref_id_body, null,
+                    orientation, reference, ref_id_body, eye,
+                bearing node,
+                    node_id_ground,
+                    offset, reference, ref_id_ground, null,
+                    orientation, reference, ref_id_ground, eye,
+            number of nodes z, 3,
+            number of nodes Phi, 72,
+            boundary conditions,
+                0.,
+                0.,
+/*
+            lubrication grooves, 1,
+                at shaft,
+                    pressure, 0.,
+                    position, 0., 0.,
+                    rectangle, width, body1_diameter * pi,
+                               height, body1_h,
+*/
+            contact model,
+                greenwood williamson lugre,
+                    E1, E1,
+                    nu1, nu1,
+                    E2, E2,
+                    nu2, nu2,
+                    M0, 2 * 0.014,
+                    M2, 2 * 0.00189,
+                    M4, 2 * 0.001939,
+                    H0, -1000,
+                    method, implicit euler,
+                    coulomb friction coefficient, mu,
+                    micro slip stiffness, sigma0,
+                    micro slip damping, sigma1,
+            #compliance model, elastic half space,
+            output pressure, no,
+            output contact pressure, yes,
+            output clearance, no,
+            output clearance derivative, no,
+            output velocity, no,
+            output stress, yes,
+            output contact stress, yes,
+            output reaction force, yes,
+            output friction loss, yes,
+            output mesh, no;
+
+    force: force_id_F1, absolute,
+        node_id_body1, 
+        position, reference, ref_id_body, null,
+        component,
+        string, "Fx * (Time - initial_time) / (final_time - initial_time)",
+        string, "Fy * (Time - initial_time) / (final_time - initial_time)",
+        const, 0.;
+    
+	gravity: cos(gravity_Zeta) * cos(gravity_Psi), 
+             cos(gravity_Zeta) * sin(gravity_Psi), 
+             sin(gravity_Zeta),
+	const, gravity_g;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

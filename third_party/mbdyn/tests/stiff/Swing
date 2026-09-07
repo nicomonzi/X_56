@@ -1,0 +1,105 @@
+# quadrilatero articolato con un lato flessibile ed una massa concentrata
+# tratto dalla tesi di dottorato di Nicolaas J. Theron:
+#   "Multi-Body Dynamic Analysis of Helicopter Rotors"
+#   SCOREC Report #28-1994
+#   Scientific Computation Research Center,
+# ripresa da Lorenzo Trainelli.
+
+begin: data;
+	problem: initial value;
+end: data;
+
+set: real dt = 5.e-3;
+set: real ft = 1.e+0;
+set: integer nfs = 0;
+set: real fsr = 1.e-2;
+set: real it = 0.;
+# set: real it = -dt*fsr*(nfs+1);
+
+begin: initial value;
+	initial time: it;
+	final time: ft;
+	time step: dt;
+        method: Bathe, 0.6;
+	tolerance: 1.e-6, 1e-6;
+	max iterations: 100;
+
+	derivatives coefficient: auto;
+	derivatives tolerance: 1e-6, 1e-6;
+	derivatives max iterations: 10;
+
+        linear solver: umfpack, grad, scale, lapack, always, max iterations, 10;
+        nonlinear solver: linesearch, default solver options, heavy nonlinear, lambda min, 0., tolerance x, 1e-5;
+        threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 7;
+	rigid bodies: 5;
+	beams: 2;
+	joints: 4;
+	forces: 1;
+  
+	initial stiffness: 1.;
+	initial tolerance: 1e-9;
+	max initial iterations: 50;
+  
+#  skip initial joint assembly;
+#  use: rigid bodies, in assembly;
+#  make restart file;
+end: control data;
+
+set: real h = .36;
+set: real l = .72;
+
+begin: nodes;
+	structural: 11, static, 0.,0.,0., eye, null, null, output, no;
+	structural: 12, static, l+h,0.,0., eye, null, null, output, no;
+	structural: 1, dynamic, 0.,0.,-h, eye, null, null;
+	structural: 2, dynamic, l/4.,0.,-h, eye, null, null;
+	structural: 3, dynamic, l/2.,0.,-h, eye, null, null;
+	structural: 4, dynamic, 3./4.*l,0.,-h, eye, null, null;
+	structural: 5, dynamic, l,0.,-h, eye, null, null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 11, node, node;
+	joint: 2, clamp, 12, node, node;
+	joint: 3, distance, 11, 1, const, h;
+	joint: 4, distance, 12, 5, const, sqrt(2.)*h;
+	body: 1, 1, 1.22e-3, l/16,0.,0., diag, 1.00e-8,8.20e-7,8.20e-7;
+	body: 2, 2, 2.43e-3, null, diag, 1.00e-8,6.56e-6,6.56e-6;
+	body: 3, 3, 5.02e-1, null, diag, 1.00e-8,6.56e-6,6.56e-6;
+	body: 4, 4, 2.43e-3, null, diag, 1.00e-8,6.56e-6,6.56e-6;
+	body: 5, 5, 1.22e-3, -l/16,0.,0., diag, 1.00e-8,8.20e-7,8.20e-7;
+	beam: 1,
+		1, null,
+		2, null,
+		3, null,
+		eye,
+		linear elastic generic, 
+			diag, 3.65e5,1.17e5,1.17e5,1.00e-0,3.04e-2,7.60e-1,
+		eye,
+		linear elastic generic, 
+			diag, 3.65e5,1.17e5,1.17e5,1.00e-0,3.04e-2,7.60e-1;
+	beam: 2,
+		3, null,
+		4, null,
+		5, null,
+		eye,
+		linear elastic generic, 
+			diag, 3.65e5,1.17e5,1.17e5,1.00e-0,3.04e-2,7.60e-1,
+		eye,
+		linear elastic generic, 
+			diag, 3.65e5,1.17e5,1.17e5,1.00e-0,3.04e-2,7.60e-1;
+	force: 1, absolute, 3, position, null, 1.,0.,0.,
+		doubleramp, 2./.128, 0., .128, -2./.128,.128,.256,.0;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

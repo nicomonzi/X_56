@@ -1,0 +1,209 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/tubo/port/hydpipes.in,v 1.4 2014/12/13 17:15:44 masarati Exp $
+
+begin: data;
+    problem: initial value;
+
+end: data;
+
+begin: initial value;
+  #  abort after: input;
+    time step: (real dt = 1.e-6);
+    initial time: 0.;
+    final time: 1000*dt;
+    
+    set: (real Rho = .6);
+    method: ms, Rho, Rho;
+    
+    max iterations: 100;
+    tolerance: 1.e-12;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 100;
+    derivatives tolerance: 1.e12; # 1.e-6;
+    
+    fictitious steps number: 0;
+    fictitious steps ratio:
+1.e-1;
+    fictitious steps max iterations: 10;
+    fictitious steps tolerance: 1.e-9;
+
+linear solver: umfpack, workspace size, 10000;
+threads: disable;
+end: initial value;
+
+
+
+begin: control data;
+    hydraulic nodes: 11;       #  numero nodi idraulici 
+    hydraulic elements: 10;    #  numero elementi idraulici
+    forces: 1;                 # una forza generica
+    genels: 2;
+end: control data;
+ 
+begin: nodes;
+    hydraulic: 1, (real p1 = 1.e5);
+    hydraulic: 2, (real p2 = 1.e5);
+    hydraulic: 3, (real p3 = 1.e5);
+    hydraulic: 4, (real p4 = 1.e5);
+    hydraulic: 5, (real p5 = 1.e5);
+    hydraulic: 6, (real p6 = 1.e5);
+    hydraulic: 7, (real p7 = 1.e5);
+    hydraulic: 8, (real p8 = 1.e5);
+    hydraulic: 9, (real p9 = 1.e5);
+    hydraulic: 10, (real p10 = 1.e5);
+    hydraulic: 11, (real p11 = 1.e5);
+end: nodes;
+
+set: real q = -1.e-2;
+
+begin: elements;
+ 
+ # density                  800 kg/m^3		kappa		     10 N/m
+ # diametro               0.007 m		precarico	    300 N 
+ # viscosita'    	    0.9 kg/m/s		larghezza          5e-3 m
+ # area tubo   	       3.84 e-5 m^2		massa		  1.e-3 kg 
+ # lunghezza		      1	m 		area massima      2.e-4 m^2
+ # area diaframma        2. e-5 m^2 50% area tubo  
+ # bulk modulus            2.e9 Pa = 300.000 psi
+ 
+    set: real D = 7.e-3;
+    set: real l = 1.e-2;
+    set: real p0 = 101325.;
+    set: real beta = 2.e9;
+
+    hydraulic: 11, dynamic pipe, 1, 2,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       fluid, linear compressible,
+	       density, 800., beta, p0,  	# densita' bulk modulus press0
+	       viscosity, 0.9;
+	       
+    hydraulic: 12, dynamic pipe, 2, 3,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       fluid, linear compressible,
+	       density, 800., beta, p0,  	# densita' bulk modulus press0
+	       viscosity, 0.9;
+	       
+    hydraulic: 13, dynamic pipe, 3, 4,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       fluid, linear compressible,
+	       density, 800., beta, p0,  	# densita' bulk modulus press0
+	       viscosity, 0.9;
+	       
+    hydraulic: 14, dynamic pipe, 4, 5,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       fluid, linear compressible,
+	       density, 800., beta, p0,  	# densita' bulk modulus press0
+	       viscosity, 0.9;
+	       
+    hydraulic: 15, dynamic pipe, 5, 6,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       fluid, linear compressible,
+	       density, 800., beta, p0,  	# densita' bulk modulus press0
+	       viscosity, 0.9;
+	       
+    hydraulic: 16, dynamic pipe, 6, 7,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       fluid, linear compressible,
+	       density, 800., beta, p0,  	# densita' bulk modulus press0
+	       viscosity, 0.9;
+	       
+    hydraulic: 17, dynamic pipe, 7, 8,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       fluid, linear compressible,
+	       density, 800., beta, p0,  	# densita' bulk modulus press0
+	       viscosity, 0.9;
+	       
+    hydraulic: 18, dynamic pipe, 8, 9,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       fluid, linear compressible,
+	       density, 800., beta, p0,  	# densita' bulk modulus press0
+	       viscosity, 0.9;
+	       
+    hydraulic: 19, dynamic pipe, 9, 10,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       fluid, linear compressible,
+	       density, 800., beta, p0,  	# densita' bulk modulus press0
+	       viscosity, 0.9;
+	       
+    hydraulic: 20, dynamic pipe, 10, 11,
+               D,			# diametro
+	       3.84e-5,		        # area
+	       l,			# lunghezza
+	       #turbulent;		# flag turbulent
+	       #initial value, q, 	# portata iniziale      	
+	       #fluid, linear compressible,
+	       #density, 800., beta, p0,  	# densita' bulk modulus press0
+	       fluid, incompressible, density, 800.,
+	       viscosity, 0.9;
+	       
+    # forza astratta: emula un generatore di portata  
+    force: 101, abstract, 
+           1, hydraulic,
+	   const, 0.;
+	   # const,-10;
+	   # linear, -0.005,-0.03/dt;
+	   # step, 1.*dt, q, 0.;
+	   # ramp, -1.e3,dt,1.e-3+dt,0.;
+	   # cosine, dt, pi/.01, -1, -.5, 0.;
+
+    # incastro: emula un generatore di pressione
+    genel: 1002, clamp,
+           11, hydraulic, 
+	   const, p2;
+	   # step,50.*dt,1.e3,1.e4;
+	   # linear, 1,-1.e6;
+	   # sine, 0.1,pi,1.e6,0,500000.;
+	   
+    genel: 1001, clamp,
+           1, hydraulic, 
+	   # const, p2;
+	   # step, 50.*dt, 2.*p1, p1;
+	   ramp, 1.e4*p1,1.e-5,1.e-4+1.e-5,p1;
+	   # linear, 1,-1.e6;
+	   # sine, 0.1,pi,1.e6,0,500000.;
+	   
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

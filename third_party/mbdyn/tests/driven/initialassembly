@@ -1,0 +1,65 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/driven/initialassembly,v 1.3 2014/12/13 17:15:37 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	# output: residual;
+	# output: iterations;
+        max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	joints: 4;
+	rigid bodies: 1;
+
+	print: dof stats;
+        max iterations: 10;
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		null,
+		eye,
+		null,
+		0.,0.,1.;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, spherical hinge,
+		1, null,
+		2, null;
+	driven: 3, string, "Time <= .5",
+	joint: 3, revolute rotation,
+		1,
+		2;
+	driven: 4, string, "Time > .5",
+	joint: 4, prismatic,
+		1,
+		2, hinge,
+			3, 0.,0.,1.,
+			1, cos(.5),-sin(.5),0.;
+	body: 2, 2,
+		1.,
+		null,
+		eye;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

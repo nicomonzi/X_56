@@ -1,0 +1,51 @@
+#
+
+# Geometrical Data
+set: real L = 2; 		# [m] Blade Lenght
+set: real chord = 0.3;		# [m] Chord
+set: real d = 0.05;		# [m] Flapping hinge location from hub
+set: real RPM = 450; # rpm *[rpm2Rad/s] Rotor ang vel
+set: real Omega= (RPM/60)*2*pi;
+set: real theta = 0*deg2rad;	# blade twist (incidence)
+set: real g = 9.81;	# gravity
+# Inertial Data
+
+# Hub:
+set: real mHub = 100;		# [Kg]
+set: real HubJx = .1;		# [Kg * m^2] 
+set: real HubJy = .1;		# [Kg * m^2] 
+set: real HubJz = .1;		# [Kg * m^2] 
+
+# Blade:
+set: real mBlade = 1.;		# [Kg]
+set: real BladeJx = .1;		# [Kg * m^2] 
+set: real BladeJy = .1;		# [Kg * m^2] 
+set: real BladeJz = .1;		# [Kg * m^2] 
+
+# Air properties:
+
+set: real rho = 1.125;		# [Kg/m3] Air density
+set: real c = 340;		# [m/s] sound speed
+set: real Vinf = 0;		# [m/s] Air stream velocity
+
+# Names:
+
+set: integer ground = 1;
+set: integer Hub = 100;
+set: integer Blade = 200;
+set: integer FlappingHinge = 3000;
+set: integer RotorRotation = 4000;
+set: integer IncidenceHinge = 5000;
+set: integer VerticalMovement = 6000;
+set: integer BladeIncidence = 7000;
+
+set: real t0 = 0.;
+set: real tf = 15;
+set: real dt = 1.e-3;
+set: real Tman = 6.e0;
+set: real Tstart = Tman ;
+set: real Tgrav = 3;
+set: real Tlift = 5;
+set: real dZ = 1.0;
+set: real dTheta = 3*deg2rad;
+

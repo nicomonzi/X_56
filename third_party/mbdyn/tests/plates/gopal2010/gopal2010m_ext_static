@@ -1,0 +1,165 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Based on Pradeep Gopalakrishnan and Danesh K. Tafti
+# "Effect of wing flexibility on lift and thrust production in flapping flight."
+# AIAA Journal, 48(5):865-877, May 2010. doi:10.2514/1.39957
+
+begin: data;
+	problem: initial value;
+end: data;
+
+include: "gopal2010m_m.set";
+
+# tune stiffness and mass to try to reproduce inconsistent results
+# from Gopalakrishnan
+set: E = 2000.;
+set: RHO = 0.;
+
+set: const real T = 2*pi/FREQ;
+set: const real DT = T/1440; # s
+set: const real TF = 10*T;
+
+# set: PS = 0.; # no prestress
+# set: PS = 2.; # N/m
+# set: PS = 4.; # N/m
+set: PS = 8.; # N/m
+# set: PS = 8000.; # N/m
+
+begin: initial value;
+	initial time: 0.;
+	final time: TF;
+	time step: DT;
+	
+	derivatives tolerance: 1e6;
+
+	tolerance: 1.e-6;
+	max iterations: 100;
+
+	method: ms, .6;
+	# method: bdf;
+
+	# nonlinear solver: newton raphson, modified, 2;
+	linear solver: umfpack, cc;
+	# linear solver: naive, colamd;
+
+	threads: disable;
+	# threads: 2;
+	# threads: 4;
+
+	output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	# default output: none;
+	default output: accelerations;
+
+	structural nodes: 1 + 1 + 1 + NNODES;
+	rigid bodies: NBODIES;
+	joints: 1 + 2 + NJOINTS;
+	plates: NSHELLS;
+	forces: 1;
+end: control data;
+
+include: "gopal2010m_m.ref";
+
+begin: nodes;
+	structural: GROUND, static,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: FLAP, static,
+		reference, FLAP, null,
+		reference, FLAP, eye,
+		reference, FLAP, null,
+		reference, FLAP, null;
+
+	structural: PITCH, static,
+		reference, FLAP, null,
+		reference, FLAP, eye,
+		reference, FLAP, null,
+		reference, FLAP, null;
+
+	include: "gopal2010m_m.nod";
+end: nodes;
+
+begin: elements;
+	joint: GROUND, clamp, GROUND, node, node;
+
+	joint: FLAP, total joint,
+		GROUND,
+			position, reference, FLAP, null,
+			position orientation, reference, FLAP, eye,
+			rotation orientation, reference, FLAP, eye,
+		FLAP,
+			position, reference, FLAP, null,
+			position orientation, reference, FLAP, eye,
+			rotation orientation, reference, FLAP, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 1,
+			-1., 0., 0.,
+				# prescribed flap
+				const, 0.;
+				# flap_angle = flap_amp*pi/180*(cos(omega_t))
+				# mult, cosine, 0., FREQ, .5, half, 0, string, "FLAP_A*cos(FREQ*Time)";
+
+
+	joint: PITCH , total joint,
+		FLAP,
+			position, reference, FLAP, null,
+			position orientation, reference, FLAP, eye,
+			rotation orientation, reference, FLAP, eye,
+		PITCH,
+			position, reference, FLAP, null,
+			position orientation, reference, FLAP, eye,
+			rotation orientation, reference, FLAP, eye,
+		position constraint, 1, 1, 1, null,
+		orientation constraint, 1, 1, 1,
+			0., 1., 0.,
+				# prescribed pitch
+				const, 0.;
+				# alpha = pitch_knot*pi/180+pitch_angle*pi/180*cos(omega_t+phase*pi/180)
+				# mult, cosine, 0., FREQ, .5, half, 0, string, "PITCH_0 + PITCH_A*cos(FREQ*Time + PHASE)";
+
+	include: "gopal2010m_m.elm";
+
+	# include: "gopal2010m_ext_m.elm";
+	include: "gopal2010m_ext_m_static.elm";
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

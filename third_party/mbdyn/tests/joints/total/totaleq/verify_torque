@@ -1,0 +1,244 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/total/totaleq/verify_torque,v 1.1 2009/08/30 19:28:45 masarati Exp $
+# Verify force computed by "compute_torque" with more refined model
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+
+begin: data;
+	problem: initial value;
+end: data;
+
+include: "compute_torque.set";
+
+begin: initial value;
+	initial time: 0.;
+	final time: FINAL_TIME;
+	time step: TIME_STEP;
+	tolerance: 1e-8;
+	max iterations: 10;
+	
+	derivatives coefficient: 1.e-6;
+
+	method: ms, 0.;
+
+	eigenanalysis: 0.,
+		use lapack,
+		lower frequency limit, 1.e-3,
+		upper frequency limit, 1.e+1;
+
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+set: integer NBEAMS = 10;
+
+begin: control data;
+	# print: dof stats;
+	structural nodes:
+		+1 + NBEAMS	# discretized continuum
+	;
+	rigid bodies:
+		+1 + NBEAMS	# discretized continuum
+	;
+	beams:
+		+NBEAMS		# discretized continuum
+	;
+	forces:
+		+1		# apply computed force
+	;
+	file drivers:
+		+1		# computed force
+	;
+
+	# default output: none;
+	output precision: 16;
+end: control data;
+
+set: integer GROUND = 0;
+set: integer INPUT = 1;
+set: integer OUTPUT = 1 + NBEAMS;
+
+constitutive law: 1, 6,
+	linear elastic generic, diag, EA, 1.e9, 1.e9, 1.e9, 1.e9, 1.e9;
+	# linear viscoelastic, EA, proportional, 1e-2;
+
+set: real DL = L/NBEAMS;
+set: real DM = M/NBEAMS;
+
+begin: nodes;
+	structural: INPUT + 0, dynamic,
+		0*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 1, dynamic,
+		1*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 2, dynamic,
+		2*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 3, dynamic,
+		3*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 4, dynamic,
+		4*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 5, dynamic,
+		5*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 6, dynamic,
+		6*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 7, dynamic,
+		7*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 8, dynamic,
+		8*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 9, dynamic,
+		9*DL, 0., 0.,
+		eye,
+		null,
+		null;
+	structural: INPUT + 10, dynamic,
+		10*DL, 0., 0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: drivers;
+	file: 1, fixed step,
+		count,
+		1,
+		0.,
+		TIME_STEP,
+		"computed_torque.dat";
+end: drivers;
+
+begin: elements;
+	body: INPUT + 0, INPUT + 0,
+		DM/2,
+		DL/4, 0., 0.,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 1, INPUT + 1,
+		DM,
+		null,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 2, INPUT + 2,
+		DM,
+		null,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 3, INPUT + 3,
+		DM,
+		null,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 4, INPUT + 4,
+		DM,
+		null,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 5, INPUT + 5,
+		DM,
+		null,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 6, INPUT + 6,
+		DM,
+		null,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 7, INPUT + 7,
+		DM,
+		null,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 8, INPUT + 8,
+		DM,
+		null,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 9, INPUT + 9,
+		DM,
+		null,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+	body: INPUT + 10, INPUT + 10,
+		DM/2,
+		-DL/4, 0., 0.,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+
+	beam2: INPUT + 1001,
+		INPUT + 0, null,
+		INPUT + 1, null,
+		from nodes,
+		reference, 1;
+	beam2: INPUT + 1002,
+		INPUT + 1, null,
+		INPUT + 2, null,
+		from nodes,
+		reference, 1;
+	beam2: INPUT + 1003,
+		INPUT + 2, null,
+		INPUT + 3, null,
+		from nodes,
+		reference, 1;
+	beam2: INPUT + 1004,
+		INPUT + 3, null,
+		INPUT + 4, null,
+		from nodes,
+		reference, 1;
+	beam2: INPUT + 1005,
+		INPUT + 4, null,
+		INPUT + 5, null,
+		from nodes,
+		reference, 1;
+	beam2: INPUT + 1006,
+		INPUT + 5, null,
+		INPUT + 6, null,
+		from nodes,
+		reference, 1;
+	beam2: INPUT + 1007,
+		INPUT + 6, null,
+		INPUT + 7, null,
+		from nodes,
+		reference, 1;
+	beam2: INPUT + 1008,
+		INPUT + 7, null,
+		INPUT + 8, null,
+		from nodes,
+		reference, 1;
+	beam2: INPUT + 1009,
+		INPUT + 8, null,
+		INPUT + 9, null,
+		from nodes,
+		reference, 1;
+	beam2: INPUT + 1010,
+		INPUT + 9, null,
+		INPUT + 10, null,
+		from nodes,
+		reference, 1;
+
+	force: INPUT, absolute,
+		INPUT,
+		position, null,
+		1., 0., 0.,
+		file, 1, 1, amplitude, -1;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

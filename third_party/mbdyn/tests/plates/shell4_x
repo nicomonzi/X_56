@@ -1,0 +1,218 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+
+# shell4 element unit test
+# authors:
+#	Riccardo Vescovini <vescovini@aero.polimi.it>
+#	Marco Morandini <morandini@aero.polimi.it>
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2. - 1e-2;
+	time step: 1.e-1;
+
+	tolerance: 1.e-6;
+	max iterations: 10;
+
+	#output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+25
+	;
+	plates:
+		+16
+	;
+	joints:
+		+5
+	;
+	forces:
+		+5
+	;
+end: control data;
+
+
+#         ^
+# 4 o-----+-----o 3
+#   | 1_2 | 2_2 |
+# --+-----+-----+->
+#   | 1_1 | 2_1 |
+# 1 o-----+-----o 2
+
+begin: nodes;
+	structural: 11, static, 0., 0., 0., eye, null, null; 
+	structural: 12, static, 1., 0., 0., eye, null, null;
+	structural: 13, static, 2., 0., 0., eye, null, null; 
+	structural: 14, static, 3., 0., 0., eye, null, null; 
+	structural: 15, static, 4., 0., 0., eye, null, null;
+	structural: 21, static, 0., 1., 0., eye, null, null; 
+	structural: 22, static, 1., 1., 0., eye, null, null;
+	structural: 23, static, 2., 1., 0., eye, null, null; 
+	structural: 24, static, 3., 1., 0., eye, null, null; 
+	structural: 25, static, 4., 1., 0., eye, null, null;
+	structural: 31, static, 0., 2., 0., eye, null, null; 
+	structural: 32, static, 1., 2., 0., eye, null, null;
+	structural: 33, static, 2., 2., 0., eye, null, null; 
+	structural: 34, static, 3., 2., 0., eye, null, null; 
+	structural: 35, static, 4., 2., 0., eye, null, null;
+	structural: 41, static, 0., 3., 0., eye, null, null; 
+	structural: 42, static, 1., 3., 0., eye, null, null;
+	structural: 43, static, 2., 3., 0., eye, null, null; 
+	structural: 44, static, 3., 3., 0., eye, null, null; 
+	structural: 45, static, 4., 3., 0., eye, null, null;
+	structural: 51, static, 0., 4., 0., eye, null, null; 
+	structural: 52, static, 1., 4., 0., eye, null, null;
+	structural: 53, static, 2., 4., 0., eye, null, null; 
+	structural: 54, static, 3., 4., 0., eye, null, null; 
+	structural: 55, static, 4., 4., 0., eye, null, null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 11, node, node;
+	joint: 2, total joint,
+		11,
+			position, reference, global, 0., 1., 0.,
+		21,
+		position constraint, active, inactive, active,
+			null,
+		orientation constraint, active, active, active,
+			null;
+	joint: 3, total joint,
+		11,
+			position, reference, global, 0., 2., 0.,
+		31,
+		position constraint, active, inactive, active,
+			null,
+		orientation constraint, active, active, active,
+			null;
+	joint: 4, total joint,
+		11,
+			position, reference, global, 0., 3., 0.,
+		41,
+		position constraint, active, inactive, active,
+			null,
+		orientation constraint, active, active, active,
+			null;
+	joint: 5, total joint,
+		11,
+			position, reference, global, 0., 4., 0.,
+		51,
+		position constraint, active, inactive, active,
+			null,
+		orientation constraint, active, active, active,
+			null;
+
+	shell4easans: 11, 11, 12, 22, 21, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 12, 12, 13, 23, 22, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 13, 13, 14, 24, 23, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 14, 14, 15, 25, 24, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 21, 21, 22, 32, 31, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 22, 22, 23, 33, 32, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 23, 23, 24, 34, 33, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 24, 24, 25, 35, 34, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 31, 31, 32, 42, 41, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 32, 32, 33, 43, 42, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 33, 33, 34, 44, 43, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 34, 34, 35, 45, 44, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 41, 41, 42, 52, 51, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 42, 42, 43, 53, 52, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 43, 43, 44, 54, 53, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+	shell4easans: 44, 44, 45, 55, 54, diag, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.;
+
+
+	set: real C = .1;
+	set: real L = .1;
+	force: 15, absolute,
+		15,
+		position, null,
+		# 1., 0., 0.,
+		0., 0., 1.,
+		array, 4,
+			cosine, 0., pi/.5, C/8, half, 0.,
+			cosine, .5, pi/.5, L*4/8, half, 0.,
+			cosine, 1., pi/.5, -C/8, half, 0.,
+			cosine, 1.5, pi/.5, -L*4/8, half, 0.;
+	force: 25, absolute,
+		25,
+		position, null,
+		# 1., 0., 0.,
+		0., 0., 1.,
+		array, 4,
+			cosine, 0., pi/.5, C/4, half, 0.,
+			cosine, .5, pi/.5, L*2/8, half, 0.,
+			cosine, 1., pi/.5, -C/4, half, 0.,
+			cosine, 1.5, pi/.5, -L*2/8, half, 0.;
+	force: 35, absolute,
+		35,
+		position, null,
+		# 1., 0., 0.,
+		0., 0., 1.,
+		array, 4,
+			cosine, 0., pi/.5, C/4, half, 0.,
+			cosine, .5, pi/.5, -L*0/8, half, 0.,
+			cosine, 1., pi/.5, -C/4, half, 0.,
+			cosine, 1.5, pi/.5, L*0/8, half, 0.;
+	force: 45, absolute,
+		45,
+		position, null,
+		# 1., 0., 0.,
+		0., 0., 1.,
+		array, 4,
+			cosine, 0., pi/.5, C/4, half, 0.,
+			cosine, .5, pi/.5, -L*2/8, half, 0.,
+			cosine, 1., pi/.5, -C/4, half, 0.,
+			cosine, 1.5, pi/.5, L*2/8, half, 0.;
+	force: 55, absolute,
+		55,
+		position, null,
+		# 1., 0., 0.,
+		0., 0., 1.,
+		array, 4,
+			cosine, 0., pi/.5, C/8, half, 0.,
+			cosine, .5, pi/.5, -L*4/8, half, 0.,
+			cosine, 1., pi/.5, -C/8, half, 0.,
+			cosine, 1.5, pi/.5, L*4/8, half, 0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

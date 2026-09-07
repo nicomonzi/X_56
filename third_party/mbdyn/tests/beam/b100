@@ -1,0 +1,540 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/beam/b100,v 1.2 2014/12/13 17:15:35 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    set: real dt = 1.e-3;
+    time step: dt;
+    initial time: 0.;
+    final time: 10000*dt;
+    
+    method: ms, .6;
+    # method: crank nicholson;
+    
+    max iterations: 100;
+    tolerance: 1.e-8;
+
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 1;
+    derivatives tolerance: 1.e-12;
+
+    fictitious steps number: 0;
+    # linear solver: y12;
+    # linear solver: superlu, cc, mt, 2;
+    # interface solver: y12, workspace size, 3200000;
+    # interface solver: lapack;
+    # interface solver: umfpack;
+    # interface solver: naive, colamd;
+    # linear solver: naive, colamd, mt, 1;
+    # linear solver: klu;
+    # linear solver: lapack;
+    # linear solver: umfpack;
+    # linear solver: umfpack, cc, block size, 2;
+    linear solver: umfpack, dir, block size, 2;
+    # linear solver: naive, colamd, pivot factor, 1e-10;
+    threads: disable;
+
+    nonlinear solver: newton raphson, modified, 4;
+    /*
+    nonlinear solver: matrix free, gmres,
+	tolerance, 1.e-5,
+	steps, 20,
+	tau, 1.e-3,
+	# eta, 1.e-2,
+	preconditioner, full jacobian, steps, 30;
+    */
+
+	output: none;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    set: integer nb = 100;
+    
+    #output results: adams, velocity, no, acceleration, yes;
+    #output results: netcdf;
+    default orientation: orientation vector;
+    #default orientation: orientation matrix;
+    
+    default output: none;
+    #default output: structural nodes;
+    #default output: all;
+    structural nodes: 2*nb+2;
+    joints: 2;
+    forces: 1;
+    rigid bodies: 2*nb;
+    beams: nb;
+    
+    #print: dof description;
+    #print: all;
+end: control data;
+
+set: integer beam = 1;
+reference: beam,
+	null,
+	eye,
+	null,
+	null;
+
+set: integer curr_label;
+
+begin: nodes;
+    set: real l = 1.;
+    set: real dl = l/(2.*nb);
+    
+    structural: 1, dynamic,
+                null,
+		eye,
+		null,
+		null;
+    structural: 0, static,
+                null,
+		eye,
+		null,
+		null;
+    set: curr_label = 2;
+    include: "b.nod";
+    set: curr_label = 4;
+    include: "b.nod";    
+    set: curr_label = 6;
+    include: "b.nod";    
+    set: curr_label = 8;
+    include: "b.nod";    
+    set: curr_label = 10;
+    include: "b.nod";    
+    set: curr_label = 12;
+    include: "b.nod";    
+    set: curr_label = 14;
+    include: "b.nod";    
+    set: curr_label = 16;
+    include: "b.nod";    
+    set: curr_label = 18;
+    include: "b.nod";    
+    set: curr_label = 20;
+    include: "b.nod";
+    set: curr_label = 22;
+    include: "b.nod";
+    set: curr_label = 24;
+    include: "b.nod";    
+    set: curr_label = 26;
+    include: "b.nod";    
+    set: curr_label = 28;
+    include: "b.nod";    
+    set: curr_label = 30;
+    include: "b.nod";    
+    set: curr_label = 32;
+    include: "b.nod";    
+    set: curr_label = 34;
+    include: "b.nod";    
+    set: curr_label = 36;
+    include: "b.nod";    
+    set: curr_label = 38;
+    include: "b.nod";    
+    set: curr_label = 40;
+    include: "b.nod";
+    set: curr_label = 42;
+    include: "b.nod";
+    set: curr_label = 44;
+    include: "b.nod";    
+    set: curr_label = 46;
+    include: "b.nod";    
+    set: curr_label = 48;
+    include: "b.nod";    
+    set: curr_label = 50;
+    include: "b.nod";    
+    set: curr_label = 52;
+    include: "b.nod";    
+    set: curr_label = 54;
+    include: "b.nod";    
+    set: curr_label = 56;
+    include: "b.nod";    
+    set: curr_label = 58;
+    include: "b.nod";    
+    set: curr_label = 60;
+    include: "b.nod";
+    set: curr_label = 62;
+    include: "b.nod";
+    set: curr_label = 64;
+    include: "b.nod";    
+    set: curr_label = 66;
+    include: "b.nod";    
+    set: curr_label = 68;
+    include: "b.nod";    
+    set: curr_label = 70;
+    include: "b.nod";    
+    set: curr_label = 72;
+    include: "b.nod";    
+    set: curr_label = 74;
+    include: "b.nod";    
+    set: curr_label = 76;
+    include: "b.nod";    
+    set: curr_label = 78;
+    include: "b.nod";    
+    set: curr_label = 80;
+    include: "b.nod";
+    set: curr_label = 82;
+    include: "b.nod";
+    set: curr_label = 84;
+    include: "b.nod";    
+    set: curr_label = 86;
+    include: "b.nod";    
+    set: curr_label = 88;
+    include: "b.nod";    
+    set: curr_label = 90;
+    include: "b.nod";    
+    set: curr_label = 92;
+    include: "b.nod";    
+    set: curr_label = 94;
+    include: "b.nod";    
+    set: curr_label = 96;
+    include: "b.nod";    
+    set: curr_label = 98;
+    include: "b.nod";    
+    set: curr_label = 100;
+    include: "b.nod";
+    set: curr_label = 102;
+    include: "b.nod";
+    set: curr_label = 104;
+    include: "b.nod";    
+    set: curr_label = 106;
+    include: "b.nod";    
+    set: curr_label = 108;
+    include: "b.nod";    
+    set: curr_label = 110;
+    include: "b.nod";    
+    set: curr_label = 112;
+    include: "b.nod";    
+    set: curr_label = 114;
+    include: "b.nod";    
+    set: curr_label = 116;
+    include: "b.nod";    
+    set: curr_label = 118;
+    include: "b.nod";    
+    set: curr_label = 120;
+    include: "b.nod";
+    set: curr_label = 122;
+    include: "b.nod";
+    set: curr_label = 124;
+    include: "b.nod";    
+    set: curr_label = 126;
+    include: "b.nod";    
+    set: curr_label = 128;
+    include: "b.nod";    
+    set: curr_label = 130;
+    include: "b.nod";    
+    set: curr_label = 132;
+    include: "b.nod";    
+    set: curr_label = 134;
+    include: "b.nod";    
+    set: curr_label = 136;
+    include: "b.nod";    
+    set: curr_label = 138;
+    include: "b.nod";    
+    set: curr_label = 140;
+    include: "b.nod";
+    set: curr_label = 142;
+    include: "b.nod";
+    set: curr_label = 144;
+    include: "b.nod";    
+    set: curr_label = 146;
+    include: "b.nod";    
+    set: curr_label = 148;
+    include: "b.nod";    
+    set: curr_label = 150;
+    include: "b.nod";    
+    set: curr_label = 152;
+    include: "b.nod";    
+    set: curr_label = 154;
+    include: "b.nod";    
+    set: curr_label = 156;
+    include: "b.nod";    
+    set: curr_label = 158;
+    include: "b.nod";    
+    set: curr_label = 160;
+    include: "b.nod";
+    set: curr_label = 162;
+    include: "b.nod";
+    set: curr_label = 164;
+    include: "b.nod";    
+    set: curr_label = 166;
+    include: "b.nod";    
+    set: curr_label = 168;
+    include: "b.nod";    
+    set: curr_label = 170;
+    include: "b.nod";    
+    set: curr_label = 172;
+    include: "b.nod";    
+    set: curr_label = 174;
+    include: "b.nod";    
+    set: curr_label = 176;
+    include: "b.nod";    
+    set: curr_label = 178;
+    include: "b.nod";    
+    set: curr_label = 180;
+    include: "b.nod";
+    set: curr_label = 182;
+    include: "b.nod";
+    set: curr_label = 184;
+    include: "b.nod";    
+    set: curr_label = 186;
+    include: "b.nod";    
+    set: curr_label = 188;
+    include: "b.nod";    
+    set: curr_label = 190;
+    include: "b.nod";    
+    set: curr_label = 192;
+    include: "b.nod";    
+    set: curr_label = 194;
+    include: "b.nod";    
+    set: curr_label = 196;
+    include: "b.nod";    
+    set: curr_label = 198;
+    include: "b.nod";    
+    set: curr_label = 200;
+    include: "b.nod";
+    output: structural, 201;
+end: nodes;
+
+begin: elements;
+    joint: 1, clamp, 0, node, node;
+    joint: 2, revolute hinge,
+    	1,
+    	  null,
+	  hinge, reference, global,
+	  1, 1., 0., 0.,
+	  3, 0., -1., 0.,
+	0,
+	  null,
+	  hinge, reference, global,
+	  1, 1., 0., 0.,
+	  3, 0., -1., 0.;
+    /*force: 1, absolute, 
+           # 2*nb+1, 1.,0.,0., null,
+           2*nb+1, 0.,0.,1., null,
+	   step, 10.*dt, 1.e3, 0.;*/
+    couple: 1, absolute,
+           1, 0.,1.,0.,
+	   step, 10.*dt, 1, 0.;   
+    set: real m = 1.;
+    set: real dm = m/(2.*nb);
+    set: real j = 1.;
+    set: real dj = j/(2.*nb);
+
+    set: real EA = 1e3;
+    set: real GAy = 1e3;
+    set: real GAz = 1e3;
+    set: real GJ = 1e3;
+    set: real EJy = 1e3;
+    set: real EJz = 1e3;
+	   
+    set: curr_label = 2;
+    include: "b.elm";
+    set: curr_label = 4;
+    include: "b.elm";
+    set: curr_label = 6;
+    include: "b.elm";
+    set: curr_label = 8;
+    include: "b.elm";
+    set: curr_label = 10;
+    include: "b.elm";
+    set: curr_label = 12;
+    include: "b.elm";
+    set: curr_label = 14;
+    include: "b.elm";
+    set: curr_label = 16;
+    include: "b.elm";
+    set: curr_label = 18;
+    include: "b.elm";
+    set: curr_label = 20;
+    include: "b.elm";
+    set: curr_label = 22;
+    include: "b.elm";
+    set: curr_label = 24;
+    include: "b.elm";
+    set: curr_label = 26;
+    include: "b.elm";
+    set: curr_label = 28;
+    include: "b.elm";
+    set: curr_label = 30;
+    include: "b.elm";
+    set: curr_label = 32;
+    include: "b.elm";
+    set: curr_label = 34;
+    include: "b.elm";
+    set: curr_label = 36;
+    include: "b.elm";
+    set: curr_label = 38;
+    include: "b.elm";
+    set: curr_label = 40;
+    include: "b.elm";
+    set: curr_label = 42;
+    include: "b.elm";
+    set: curr_label = 44;
+    include: "b.elm";
+    set: curr_label = 46;
+    include: "b.elm";
+    set: curr_label = 48;
+    include: "b.elm";
+    set: curr_label = 50;
+    include: "b.elm";
+    set: curr_label = 52;
+    include: "b.elm";
+    set: curr_label = 54;
+    include: "b.elm";
+    set: curr_label = 56;
+    include: "b.elm";
+    set: curr_label = 58;
+    include: "b.elm";
+    set: curr_label = 60;
+    include: "b.elm";
+    set: curr_label = 62;
+    include: "b.elm";
+    set: curr_label = 64;
+    include: "b.elm";
+    set: curr_label = 66;
+    include: "b.elm";
+    set: curr_label = 68;
+    include: "b.elm";
+    set: curr_label = 70;
+    include: "b.elm";
+    set: curr_label = 72;
+    include: "b.elm";
+    set: curr_label = 74;
+    include: "b.elm";
+    set: curr_label = 76;
+    include: "b.elm";
+    set: curr_label = 78;
+    include: "b.elm";
+    set: curr_label = 80;
+    include: "b.elm";
+    set: curr_label = 82;
+    include: "b.elm";
+    set: curr_label = 84;
+    include: "b.elm";
+    set: curr_label = 86;
+    include: "b.elm";
+    set: curr_label = 88;
+    include: "b.elm";
+    set: curr_label = 90;
+    include: "b.elm";
+    set: curr_label = 92;
+    include: "b.elm";
+    set: curr_label = 94;
+    include: "b.elm";
+    set: curr_label = 96;
+    include: "b.elm";
+    set: curr_label = 98;
+    include: "b.elm";
+    set: curr_label = 100;
+    include: "b.elm";
+    set: curr_label = 102;
+    include: "b.elm";
+    set: curr_label = 104;
+    include: "b.elm";
+    set: curr_label = 106;
+    include: "b.elm";
+    set: curr_label = 108;
+    include: "b.elm";
+    set: curr_label = 110;
+    include: "b.elm";
+    set: curr_label = 112;
+    include: "b.elm";
+    set: curr_label = 114;
+    include: "b.elm";
+    set: curr_label = 116;
+    include: "b.elm";
+    set: curr_label = 118;
+    include: "b.elm";
+    set: curr_label = 120;
+    include: "b.elm";
+    set: curr_label = 122;
+    include: "b.elm";
+    set: curr_label = 124;
+    include: "b.elm";
+    set: curr_label = 126;
+    include: "b.elm";
+    set: curr_label = 128;
+    include: "b.elm";
+    set: curr_label = 130;
+    include: "b.elm";
+    set: curr_label = 132;
+    include: "b.elm";
+    set: curr_label = 134;
+    include: "b.elm";
+    set: curr_label = 136;
+    include: "b.elm";
+    set: curr_label = 138;
+    include: "b.elm";
+    set: curr_label = 140;
+    include: "b.elm";
+    set: curr_label = 142;
+    include: "b.elm";
+    set: curr_label = 144;
+    include: "b.elm";
+    set: curr_label = 146;
+    include: "b.elm";
+    set: curr_label = 148;
+    include: "b.elm";
+    set: curr_label = 150;
+    include: "b.elm";
+    set: curr_label = 152;
+    include: "b.elm";
+    set: curr_label = 154;
+    include: "b.elm";
+    set: curr_label = 156;
+    include: "b.elm";
+    set: curr_label = 158;
+    include: "b.elm";
+    set: curr_label = 160;
+    include: "b.elm";
+    set: curr_label = 162;
+    include: "b.elm";
+    set: curr_label = 164;
+    include: "b.elm";
+    set: curr_label = 166;
+    include: "b.elm";
+    set: curr_label = 168;
+    include: "b.elm";
+    set: curr_label = 170;
+    include: "b.elm";
+    set: curr_label = 172;
+    include: "b.elm";
+    set: curr_label = 174;
+    include: "b.elm";
+    set: curr_label = 176;
+    include: "b.elm";
+    set: curr_label = 178;
+    include: "b.elm";
+    set: curr_label = 180;
+    include: "b.elm";
+    set: curr_label = 182;
+    include: "b.elm";
+    set: curr_label = 184;
+    include: "b.elm";
+    set: curr_label = 186;
+    include: "b.elm";
+    set: curr_label = 188;
+    include: "b.elm";
+    set: curr_label = 190;
+    include: "b.elm";
+    set: curr_label = 192;
+    include: "b.elm";
+    set: curr_label = 194;
+    include: "b.elm";
+    set: curr_label = 196;
+    include: "b.elm";
+    set: curr_label = 198;
+    include: "b.elm";
+    set: curr_label = 200;
+    include: "b.elm";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

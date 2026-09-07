@@ -1,0 +1,88 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+   	initial time:   	0.;
+   	final time:   		2.;
+	time step: 1e-3;
+   	max iterations: 	100, at most;
+   	tolerance:      	1.e-4;
+  	# linear solver: 		umfpack;	
+  	linear solver: 		naive;
+	# output: residual;
+	# output: jacobian;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 3;
+	beams:
+		+2	# rhs
+	;
+	joints:
+		+1	# clamp
+		+1	# prescribed motion
+	;
+	default orientation: orientation vector;
+	max iterations: 10;
+end: control data;
+
+reference: 0,
+	null,
+	eye,
+	null,
+	null;
+
+begin: nodes;
+	structural: 0, static, reference, 0, 0., 0., 0., reference, 0, eye, reference, 0, null, reference, 0, null;
+	structural: 1, static, reference, 0, 1., 0., 0., reference, 0, eye, reference, 0, null, reference, 0, null;
+	structural: 2, static, reference, 0, 2., 0., 0., reference, 0, eye, reference, 0, null, reference, 0, null;
+end: nodes;
+
+constitutive law: 0, 6, linear elastic generic, diag, 1e9, 1./(1./1e8 + 1./(12*1e4)), 1./(1./1e8 + 1./(12*1e4)), 1e4, 1e4, 1e4;
+constitutive law: 1, 6, linear viscoelastic generic, diag, 1e9, 1./(1./1e8 + 1./(12*1e4)), 1./(1./1e8 + 1./(12*1e4)), 1e4, 1e4, 1e4, proportional, 0e-4;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+
+	# right hand side
+	beam2: 11,
+		0, null,
+		1, null,
+		reference, 0, eye,
+		reference, 0;
+	beam2: 12,
+		1, null,
+		2, null,
+		reference, 0, eye,
+		reference, 0;
+
+	joint: 12, total joint,
+		0,
+			position, reference, 0, 2., 0., 0.,
+			position orientation, reference, 0, eye,
+			rotation orientation, reference, 0, eye,
+		2,
+			position, reference, 0, 2., 0., 0.,
+			position orientation, reference, 0, eye,
+			rotation orientation, reference, 0, eye,
+		position constraint, 1, 1, 1,
+			component,
+				const, 0.,
+				const, 0.,
+				linear, 0., .02,
+		orientation constraint, 1, 1, 1,
+			component,
+				const, 0.,
+				const, 0.,
+				const, 0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

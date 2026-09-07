@@ -1,0 +1,96 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/regularization/plane,v 1.2 2014/12/13 17:15:52 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+	tolerance: 1e-6;
+	max iterations: 10;
+
+	output: iterations;
+	#output: residual;
+	#output: solution;
+	#output: residual, jacobian, solution;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	parameter nodes: 2;
+	rigid bodies: 1;
+	joints: 1 + 2;
+	joint regularizations: 2;
+	forces: 1;
+
+	# default output: none;
+
+	skip initial joint assembly;
+	print: equation description;
+end: control data;
+
+begin: nodes;
+	structural: 1, dynamic,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		null,
+		eye,
+		null,
+		0.,0.,10.;
+	parameter: 1, element;
+	parameter: 2, element;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, revolute hinge,
+		1, reference, node, null,
+		hinge, reference, node, eye,
+		2, reference, node, null,
+		hinge, reference, node, eye;
+	joint: 3, revolute hinge,
+		1, reference, node, null,
+		hinge, reference, node, eye,
+		2, reference, node, null,
+		hinge, reference, node, eye;
+
+	joint regularization: 2, dynamic, 1e-12, rho, .9;
+	joint regularization: 3, dynamic, 1e-12, rho, .9;
+	#joint regularization: 2, tikhonov, 1e-9;
+	#joint regularization: 3, tikhonov, 1e-9;
+	
+	bind: 2, joint, 1, string, "rz";
+	bind: 2, joint, 2, string, "wz";
+	body: 2, 2, 1., 1.,1.,1., diag, 1.,1.,.05;
+
+	drive caller: 1, string, "-4e-1*Var";
+	drive caller: 2, string, "-2e0*Var*(1-exp(-1*Time))";
+	drive caller: 3, dof, 1, parameter, reference, 1;
+	drive caller: 4, dof, 2, parameter, reference, 2;
+	drive caller: 5, array, 2,
+		reference, 3,
+		reference, 4;
+	couple: 2, follower, 2, 0.,0.,1., reference, 5;
+	/*
+	couple: 2, follower, 2, 0.,0.,1., array, 2,
+		dof, 1, parameter, string, "-4e-1*Var",
+		dof, 2, parameter, string, "-2e0*Var*(1-exp(-1*Time))";
+	*/
+	
+	#force: 3, conservative, 2, 1.,0.,0., null, const, 1.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

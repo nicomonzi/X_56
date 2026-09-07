@@ -1,0 +1,114 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/deformablehinge/deformableaxialjoint,v 1.2 2014/12/13 17:15:45 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.;
+	time step: 1.e-3;
+
+	tolerance: 1e-6;
+	max iterations: 10;
+
+	derivatives tolerance: 1e-6;
+	derivatives max iterations: 10;
+	derivatives coefficient: 1e-12;
+
+	nonlinear solver: newton raphson, modified, 5, keep jacobian;
+
+	method: ms, .6;
+
+	# output: iterations, residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1+2;
+	rigid bodies: 2;
+	joints:
+		+1	# ground
+		+2	# axial
+		+2	# regular
+	;
+	forces: 2;
+end: control data;
+
+set: real wz = 10.;
+set: real A = 10.;
+set: real W = sqrt(1000.);
+set: real K = 1e3;
+set: real C = 1e1;
+set: real m = 1.;
+set: real J = .25e0;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 10, dynamic,
+		null,
+		eye,
+		null,
+		null;
+	structural: 20, dynamic,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+scalar function: "linear",
+	multilinear,
+		-1., -K,
+		 1., K;
+constitutive law: 1, 1,
+	# linear elastic generic, diag, K;
+	linear viscoelastic generic, K, C;
+	# scalar function elastic isotropic, "linear";
+constitutive law: 3, 3,
+	# linear elastic generic, diag, K,K,K;
+	linear visco elastic generic, diag, K,K,K, diag, C, C, C;
+	# scalar function elastic isotropic, "linear";
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+
+	body: 10, 10, m, null, eye, scale, J;
+	joint: 10, revolute hinge,
+		1, reference, node, null,
+		hinge, reference, node, eye,
+		10, reference, node, null,
+		hinge, reference, node, eye;
+	joint: 11, deformable axial joint,
+		1, hinge, reference, node, eye,
+		10, hinge, reference, node, eye,
+		reference, 1;
+	couple: 10, follower, 10,
+		# 0.,0.,1., sine, 0,W,A,forever,0.;
+		0.,0.,1., sine, 0,W,A,one,0.;
+
+	body: 20, 20, m, null, eye, scale, J;
+	joint: 20, revolute hinge,
+		1, reference, node, null,
+		hinge, reference, node, eye,
+		20, reference, node, null,
+		hinge, reference, node, eye;
+	joint: 21, deformable hinge,
+		1, hinge, reference, node, eye,
+		20, hinge, reference, node, eye,
+		reference, 3;
+	couple: 20, follower, 20,
+		# 0.,0.,1., sine, 0,W,A,forever,0.;
+		0.,0.,1., sine, 0,W,A,one,0.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

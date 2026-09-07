@@ -1,0 +1,10 @@
+### Set ###
+set terminal x11 enhanced
+
+### Plot ###
+splot 'prestress_4x1.mov' u 2:3:4 w lp
+
+### Pause ###
+print "Press return to exit...";
+pause -1
+

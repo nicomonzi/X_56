@@ -1,0 +1,95 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/modalext/edge/edge-modal,v 1.6 2010/06/03 19:01:18 masarati Exp $
+
+begin: data;
+	integrator: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	# final time: forever;
+	final time: 1.01;
+	time step: 0.0010;
+
+	tolerance: 1e-4;
+	max iterations: 1000;
+
+	#derivatives tolerance: 1;
+	derivatives max iterations: 1000;
+	#derivatives coefficient: 1;
+
+	threads: disable;
+
+	output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1	# modal
+		+1	# interface
+	;
+	joints:
+		+1	# clamp
+		+1	# modal
+	;
+	forces:
+		+1	# extmodal
+		+1	# excitation
+	;
+end: control data;
+
+begin: nodes;
+	structural: 9999, modal,
+		null,
+		eye,
+		null,
+		null;
+	structural: 5555, static,
+		1.177590, 0.762000, 0.000000,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 1, clamp, 9999, node, node;
+	joint: 2, modal,
+		9999,	# modal node
+        	4,	# n. of modes
+			list, 1, 2, 3, 4,
+		121,	# n. of FEM nodes
+		no damping,
+		# proportional damping, .7,
+		"agard-445.6.fem",
+		1,
+        	121, 5555, null;
+
+	# NOTE: because of developers' laziness, EDGE interface
+	# needs two external modal force elements, one that accounts
+	# for the rigid-body motion and one that accounts for modal
+	# deformability.  Apart from the type, the rest of the
+	# configuration is identical, except that the second one
+	# probably does not need sleeptime
+	force: 11, external modal,
+		EDGE,
+		"mflag.dat",	# EDGE exchange flag file
+		"mdata.dat",	# EDGE exchange data file
+		sleeptime, 5,
+		coupling, tight,
+		2,			# modal joint
+		type, modal;		# extern force type
+	force: 12, absolute,
+		5555, 0., 0., 1., null,
+		sine, 0., pi/.1, 1.e+2, one, 0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

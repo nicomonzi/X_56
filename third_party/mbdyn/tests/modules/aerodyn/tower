@@ -1,0 +1,206 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/modules/aerodyn/tower,v 1.5 2014/12/13 17:15:53 masarati Exp $
+
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+#
+# Used to support the development of module-aerodyn
+#
+# Needs module-aerodyn.so built with AeroDyn 12.58,
+# and aerodyn.ipt, S809_cln.dat, and yawdyn.wnd from the same
+# AeroDyn distribution
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 2.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-6;
+	max iterations: 20;
+	method: ms, .6;
+
+	derivatives coefficient: 1.e-6;
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 20;
+
+	newton raphson: modified, 4;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 
+		+1	# ground
+		+1	# pylon
+		+1	# nacelle
+		+1	# hub
+		+2	# blades
+	;
+	joints:
+		+1	# ground clamp
+		+1	# nacelle
+		+1	# revolute
+		+2	# blade hinges
+	;
+	rigid bodies:
+		+1	# tower
+		+1	# nacelle
+		+1	# hub
+		+2	# blades
+	;
+	beams:
+		+1	# tower
+	;
+	loadable elements:
+		+1	# aerodyn
+	;
+	gravity;
+
+	skip initial joint assembly;
+end: control data;
+
+set: integer ground = 1;
+set: integer tower = 1000;
+set: integer nacelle = 2000;
+set: integer hub = 3000;
+set: integer blade_1 = 10000;
+set: integer blade_2 = 20000;
+
+reference: ground,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: tower,
+	reference, ground, 0.,0.,4.,
+	reference, ground, eye,
+	reference, ground, null,
+	reference, ground, null;
+reference: hub,
+	reference, tower, null,
+	reference, tower, 3, 1.,0.,0., 2, 0.,1.,0.,
+	reference, tower, null,
+	reference, tower, null;
+reference: blade_1,
+	reference, hub, 0.,1.,0.,
+	reference, hub, 1, 0.,1.,0., 3, 0.,0.,1.,
+	reference, hub, null,
+	reference, hub, null;
+reference: blade_2,
+	reference, hub, 0.,-1.,0.,
+	reference, hub, 1, 0.,-1.,0., 3, 0.,0.,1.,
+	reference, hub, null,
+	reference, hub, null;
+
+begin: nodes;
+	structural: ground, static,
+		reference, ground, null,
+		reference, ground, eye,
+		reference, ground, null,
+		reference, ground, null;
+	structural: tower, dynamic,
+		reference, tower, null,
+		reference, tower, eye,
+		reference, tower, null,
+		reference, tower, null;
+	structural: nacelle, dynamic,
+		reference, tower, null,
+		reference, tower, eye,
+		reference, tower, null,
+		reference, tower, null;
+	structural: hub, dynamic,
+		reference, hub, null,
+		reference, hub, eye,
+		reference, hub, null,
+		reference, hub, null;
+	structural: blade_1, dynamic,
+		reference, blade_1, null,
+		reference, blade_1, eye,
+		reference, blade_1, null,
+		reference, blade_1, null;
+	structural: blade_2, dynamic,
+		reference, blade_2, null,
+		reference, blade_2, eye,
+		reference, blade_2, null,
+		reference, blade_2, null;
+end: nodes;
+
+begin: elements;
+	gravity: 0.,0.,-1., 9.81;
+
+	joint: ground, clamp, ground, node, node;
+	joint: nacelle, revolute hinge,
+		tower,
+			reference, tower, null,
+			hinge, reference, tower, eye,
+		nacelle,
+			reference, tower, null,
+			hinge, reference, tower, eye;
+	joint: hub, revolute hinge,
+		nacelle,
+			reference, hub, null,
+			hinge, reference, hub, eye,
+		hub,
+			reference, hub, null,
+			hinge, reference, hub, eye;
+
+	joint: blade_1, revolute hinge,
+		hub,
+			reference, blade_1, -1.,0.,0.,
+			hinge, reference, blade_1, 3, 0.,1.,0., 1, 1.,0.,0.,
+		blade_1,
+			reference, blade_1, -1.,0.,0.,
+			hinge, reference, blade_1, 3, 0.,1.,0., 1, 1.,0.,0.;
+	joint: blade_2, revolute hinge,
+		hub,
+			reference, blade_2, -1.,0.,0.,
+			hinge, reference, blade_2, 3, 0.,1.,0., 1, 1.,0.,0.,
+		blade_2,
+			reference, blade_2, -1.,0.,0.,
+			hinge, reference, blade_2, 3, 0.,1.,0., 1, 1.,0.,0.;
+
+	body: tower, tower,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+	body: nacelle, nacelle,
+		10.,
+		null,
+		diag, 1.,1.,1.;
+	body: hub, hub,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+	
+	body: blade_1, blade_1,
+		10.,
+		null,
+		diag, 1.,2*10./12,2.*10./12;
+	body: blade_2, blade_2,
+		10.,
+		null,
+		diag, 1.,2*10./12,2.*10./12;
+	
+	beam2: tower,
+		ground,
+			reference, ground, null,
+		tower,
+			reference, tower, null,
+		reference, ground, 1, 0.,0.,1., 2, 0.,1.,0.,
+		linear elastic generic,
+			diag, 1.e9,1.e9,1.e9,1.e5,1.e6,1.e6;
+
+	loadable: 1000, "./module-aerodyn.so", help,
+		nacelle,	# nacelle node label
+		hub,		# hub node label
+		.5,		# pilon top-hub xy distance
+		2;		# number of blades
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

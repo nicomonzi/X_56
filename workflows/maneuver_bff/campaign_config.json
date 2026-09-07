@@ -6,6 +6,7 @@
     "fem_file": "../bff_open_loop/INCLUDE/mbdyn_modal.fem",
     "modal_joint_file": "../bff_open_loop/INCLUDE/modaljoint.mbd",
     "main_mbd_file": "../bff_open_loop/main_bff_open_loop.mbd",
+    "prestress_rom_directory": "../maneuver_stiffness_rom",
     "femgen_source": "/home/nicomonzi/src/mbdyn/utils/femgen.f90",
     "mbdyn_modal_source": "/home/nicomonzi/src/mbdyn/mbdyn/struct/modal.cc",
     "mbdyn_modal_ad_source": "/home/nicomonzi/src/mbdyn/mbdyn/struct/modalad.cc",
@@ -70,6 +71,19 @@
       "time_steps_s": [0.01],
       "mode7_frequency_scales": [0.99, 1.01],
       "reference_campaigns": ["primary"]
+    },
+    "prestress_rom": {
+      "description": "Full 6x6 Nastran fixed-basis prestress correction during the validated dive-pull-up, with the original SAS-off identification window",
+      "velocities_mps": [65.9375, 66.09375, 66.25, 66.75, 67.25],
+      "nominal_load_factors": [1.3, 1.6],
+      "time_steps_s": [0.01],
+      "mode7_frequency_scales": [1.0],
+      "physical_prestress": true,
+      "output_root": "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_STIFFNESS_SWEEP",
+      "reference_directories": [
+        "/mnt/c/Users/Utente/Desktop/BFF_PULLUP_V2/primary"
+      ],
+      "open_loop_directory": "/mnt/c/Users/Utente/Desktop/BFF_open_loop"
     }
   },
   "acceptance": {

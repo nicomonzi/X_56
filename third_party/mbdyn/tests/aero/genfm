@@ -1,0 +1,99 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-2;
+    
+	tolerance: 1.e-5;
+	max iterations: 10;
+    
+	method: ms, .6, .6;
+    
+	derivatives coefficient: 1.e-6;
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	joints: 1;
+	air properties;
+	aerodynamic elements: 1;
+	max iterations: 10;
+end: control data;
+
+set: real omega = 2*pi/160./1e-3;
+set: real l = 5.;
+set: real c = .1;
+set: real m = 6.;
+set: real theta_0 = 2./180.*pi;
+
+reference: 1, 
+	0.,0.,5e3,
+	eye,
+	null,
+	null;
+
+begin: nodes;
+	structural: 1000, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+	# body has x axis forward, z axis downward, and y axis right
+	joint: 1000, total pin joint,
+		1000,
+		position,
+			reference, node, null,
+		rotation orientation,
+			reference, node,
+				1, 1., 0., 0.,
+				3, 0., 0., -1.,
+		position,
+			reference, 1, null,
+		rotation orientation,
+			reference, 1,
+				1, 1., 0., 0.,
+				3, 0., 0., -1.,
+		position constraint,
+			active, active, active,
+			null,
+		orientation constraint,
+			active, active, active,
+			# 0., -1., 0., linear, 0., 360.*deg2rad;	# alpha
+			# 0., 0., -1., linear, 0., 360.*deg2rad;	# beta
+			array, 2,
+				0., -1., 0., cosine, 0., pi/.05, 5.*deg2rad, half, 0.,
+				0., 0., -1., linear, 0., 360.*deg2rad;
+			
+
+	# air goes backwards
+	air properties: std, SI, 
+		single, -1., 0., 0., 
+			const, .3*(5.*40.);
+
+	driven: 1, string, "Time > 1.",
+	generic aerodynamic force: 1,
+		1000,
+		# position, 0.,0.,0.,
+		# orientation, eye,
+		# reference surface, 1.,
+		# reference length, 1.,
+		alpha first, yes,
+		file, angle units, degrees, "genfm.txt";
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

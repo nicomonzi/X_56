@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+<log>
+    <sink
+      filter="(%Severity% > error)"
+      format="\033[0;33m ◀ in progress ▶ %ColorizedSeverity% %Message%"
+      enabled="true" /></log>
+      
+  <solver-interface dimensions="3">
+
+    <!-- === Data =========================================== -->
+    
+    <data:vector name="Position" />
+    <data:vector name="Rotation" />
+    <data:vector name="Velocity" />
+    <data:vector name="AngularVelocity" />
+    <data:vector name="Force" />
+    <data:vector name="Moment" />
+    
+    <!-- === Mesh =========================================== -->
+    <mesh name="MBDynNodes">
+      <use-data name="Position" />
+      <use-data name="Rotation" />
+      <use-data name="Velocity" />
+      <use-data name="AngularVelocity" />
+      <use-data name="Force" />
+      <use-data name="Moment" />
+    </mesh>
+
+    <mesh name="dust_mesh">
+      <use-data name="Position" />
+      <use-data name="Rotation" />
+      <use-data name="Velocity" />
+      <use-data name="AngularVelocity" />
+      <use-data name="Force" />
+      <use-data name="Moment" />
+    </mesh>
+
+    <!-- === Participants =================================== -->
+    <participant name="MBDyn">
+      <use-mesh   name="MBDynNodes" provide="yes"/>
+      <write-data name="Position"        mesh="MBDynNodes" />
+      <write-data name="Rotation"        mesh="MBDynNodes" />
+      <write-data name="Velocity"        mesh="MBDynNodes" />
+      <write-data name="AngularVelocity" mesh="MBDynNodes" />
+      <read-data  name="Force"           mesh="MBDynNodes" />
+      <read-data  name="Moment"          mesh="MBDynNodes" />
+    </participant>
+
+    <participant name="dust">
+      <use-mesh   name="dust_mesh"  provide="yes" />
+      <use-mesh   name="MBDynNodes" from="MBDyn" />
+      <write-data name="Force"           mesh="dust_mesh" />
+      <write-data name="Moment"          mesh="dust_mesh" />
+      <read-data  name="Position"        mesh="dust_mesh" />
+      <read-data  name="Rotation"        mesh="dust_mesh" />
+      <read-data  name="Velocity"        mesh="dust_mesh" />
+      <read-data  name="AngularVelocity" mesh="dust_mesh" />
+      <mapping:nearest-neighbor direction="read"  from="MBDynNodes" to="dust_mesh"
+        constraint="consistent" />
+      <mapping:nearest-neighbor direction="write" from="dust_mesh"  to="MBDynNodes"
+        constraint="conservative" />
+    </participant>
+
+    <!-- === Communication ================================== -->
+    <m2n:sockets exchange-directory="./../" from="MBDyn" to="dust"/>
+
+    <!-- === Coupling scheme ================================ -->
+    <coupling-scheme:serial-implicit>
+      <participants first="MBDyn" second="dust" />
+      <max-time value="1.1" />
+      <time-window-size value="-1" valid-digits="10" method="first-participant" />
+      <exchange data="Position"        from="MBDyn" mesh="MBDynNodes" to="dust" />
+      <exchange data="Rotation"        from="MBDyn" mesh="MBDynNodes" to="dust" />
+      <exchange data="Velocity"        from="MBDyn" mesh="MBDynNodes" to="dust" />
+      <exchange data="AngularVelocity" from="MBDyn" mesh="MBDynNodes" to="dust" />
+      <exchange data="Force"           from="dust"  mesh="MBDynNodes" to="MBDyn" />
+      <exchange data="Moment"          from="dust"  mesh="MBDynNodes" to="MBDyn" />
+      <max-iterations value="60"/>
+      <absolute-convergence-measure limit="1.0e-4" data="Position" mesh="MBDynNodes" />
+      <absolute-convergence-measure limit="1.0e-3" data="Rotation" mesh="MBDynNodes" />
+      <!--<absolute-convergence-measure limit="1.0e-1" data="Force" mesh="MBDynNodes" />-->	
+      <absolute-convergence-measure limit="1.0e-3" data="Velocity" mesh="MBDynNodes" />
+      <absolute-convergence-measure limit="1.0e-3" data="AngularVelocity" mesh="MBDynNodes" /> 
+      <acceleration:aitken>
+        <data name="Force" mesh="MBDynNodes"/>
+        <initial-relaxation value="0.1"/>
+      </acceleration:aitken>		
+    </coupling-scheme:serial-implicit>
+
+  </solver-interface>
+
+</precice-configuration>

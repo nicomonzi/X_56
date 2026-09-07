@@ -1,0 +1,10 @@
+	initial time: 0.;
+	final time: 5; # s
+	time step: 4e-3; # s
+
+        method: implicit euler;
+	tolerance: 1e-9, 1e-9;
+	max iterations: 20;
+        derivatives coefficient: auto;
+	linear solver: naive, colamd;
+	nonlinear solver: newton raphson, modified, 10;

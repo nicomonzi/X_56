@@ -1,0 +1,157 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/beam/DETC2007-35511/modal,v 1.1 2009/08/21 12:04:29 masarati Exp $
+#
+# Copyright 2009 Pierangelo Masarati <masarati@aero.polimi.it>
+#
+# Space manipulator based on DETC2007-35511
+# Proceedings of IDETC/CIE 2007
+# ASME 2007 International Design Engineering Technical Conferences &
+# Computers and Information in Engineering Conference
+# September 4-7, 2007, Las Vegas, USA
+# INVESTIGATION OF BOUNDARY CONDITIONS FOR FLEXIBLE MULTIBODY
+# SPACECRAFT DYNAMICS (DRAFT VERSION)
+# John R. MacLean
+# An Huynh
+# Leslie J. Quiocho
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1e-3;
+
+	linear solver: naive, colamd;
+	nonlinear solver: newton raphson, modified, 5;
+
+	method: ms, .6;
+
+	tolerance: 1e-4;
+	max iterations: 50;
+
+	derivatives tolerance: 1e-4;
+	derivatives max iterations: 10;
+
+	eigenanalysis: 0.,
+		use lapack,
+		lower frequency limit, 1e-3,
+		upper frequency limit, 20,
+		balance, permute,
+		output eigenvectors;
+
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1		# ground
+		+1		# modal
+		+2		# interface to FEM nodes
+	;
+	joints:
+		+1		# ground clamp
+		+1		# pin
+		+1		# modal
+	;
+	forces:
+		+1		# torque
+	;
+end: control data;
+
+set: integer GROUND = 0;
+set: integer MODAL = 9;
+set: integer PIN = 1000;
+set: integer TIP = 2000;
+
+set: real L = 3.372;		# m
+
+# set: real COUPLE = 44.;	# Nm, according to the plot
+# set: real COUPLE = 44./9.81;	# Nm, more likely but apparently not yet
+# set: real COUPLE = 9.81/2;	# Nm, more likely but apparently not yet
+set: real COUPLE = 4.85;	# Nm, more likely but apparently not yet
+
+reference: GROUND,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: PIN,
+	reference, GROUND, null,
+	reference, GROUND, eye,
+	reference, GROUND, null,
+	reference, GROUND, null;
+
+reference: TIP,
+	reference, PIN, L, 0., 0.,
+	reference, PIN, eye,
+	reference, PIN, null,
+	reference, PIN, null;
+
+begin: nodes;
+	structural: GROUND, static,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: MODAL, modal,
+		reference, PIN, null,
+		reference, PIN, eye,
+		reference, PIN, null,
+		reference, PIN, null;
+
+	structural: PIN, static,
+		reference, PIN, null,
+		reference, PIN, eye,
+		reference, PIN, null,
+		reference, PIN, null;
+
+	structural: TIP, static,
+		reference, TIP, null,
+		reference, TIP, eye,
+		reference, TIP, null,
+		reference, TIP, null;
+end: nodes;
+
+begin: elements;
+	joint: GROUND, clamp, GROUND, node, node;
+
+	joint: PIN, revolute hinge,
+		GROUND,
+			reference, PIN, null,
+			hinge, reference, PIN, eye,
+		PIN,
+			reference, PIN, null,
+			hinge, reference, PIN, eye;
+
+	joint: MODAL, modal,
+		MODAL,		# modal node
+		5,		# number of modes
+		from file,	# FEM node number
+		no damping,
+		"DETC2007_35511.fem",
+		2,
+			1000, PIN, null,
+			2000, TIP, null;
+
+	couple: PIN, follower internal,
+		GROUND,
+		PIN,
+		0., 0., 1.,
+		array, 6,
+			double step, 0.0001, 1.5, -COUPLE, 0.,
+			double step, 1.5, 3.,  COUPLE, 0.,
+			double step, 3., 3.5, -COUPLE, 0.,
+			double step, 3.5, 4.,  COUPLE, 0.,
+			double step, 4., 4.5, -COUPLE, 0.,
+			double step, 4.5, 5.,  COUPLE, 0.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

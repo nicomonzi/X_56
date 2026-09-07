@@ -1,0 +1,29 @@
+set: i = 1;
+include: "beam_frame_gauss_i.ref";
+
+set: i = 2;
+include: "beam_frame_gauss_i.ref";
+
+set: i = 3;
+include: "beam_frame_gauss_i.ref";
+
+set: i = 4;
+include: "beam_frame_gauss_i.ref";
+
+set: i = 5;
+include: "beam_frame_gauss_i.ref";
+
+set: i = 6;
+include: "beam_frame_gauss_i.ref";
+
+set: i = 7;
+include: "beam_frame_gauss_i.ref";
+
+set: i = 8;
+include: "beam_frame_gauss_i.ref";
+
+set: i = 9;
+include: "beam_frame_gauss_i.ref";
+
+set: i = 10;
+include: "beam_frame_gauss_i.ref";

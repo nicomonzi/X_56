@@ -1,0 +1,74 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/impdisp/imppin0,v 1.3 2014/12/13 17:15:46 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+/*
+	max time step: 1e-2;
+	min time step: 1e-4;
+
+	strategy: factor,
+		.5,
+		10,
+		1.1,
+		10,
+		2;
+*/
+
+	tolerance: 1.e-9;
+	max iterations: 10;
+
+	method: ms, .6;
+
+	output: iterations;
+	# output: residual;
+        derivatives max iterations: 10;
+        derivatives coefficient: auto;
+threads: disable;
+end: initial value;
+
+begin: control data;
+        max iterations: 10;
+	print: dof stats;
+
+	structural nodes: 2;
+	joints: 1;
+	rigid bodies: 1;
+end: control data;
+
+begin: nodes;
+	structural: 2, dynamic,
+		2.,3.,4.,
+		eye,
+		null,
+		null;
+	structural: 3, dummy,
+		2, offset,
+		0.,-1.,0.,
+		eye;
+end: nodes;
+
+begin: elements;
+	joint: 2, imposed displacement pin,
+		2, reference, node, 0.,-1.,0.,
+		1.,2.,3.,
+		1.,0.,0.,
+			cosine, 0.,pi/.05,1.,forever,1.;
+	body: 2, 2,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

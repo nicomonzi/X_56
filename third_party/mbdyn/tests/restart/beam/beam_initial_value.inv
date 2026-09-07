@@ -1,0 +1,17 @@
+        initial time: initial_time;
+        final time: final_time;
+        time step: time_step;
+        max iterations: 200;
+        derivatives coefficient: auto;
+        derivatives max iterations: 10;
+        derivatives tolerance: 1e-6, 1e-6;
+        linear solver: umfpack, grad, scale, row max column max, always, max iterations, 3;
+
+        threads: disable;
+
+        method: implicit euler;
+        nonlinear solver: nox, modified, 30, keep jacobian matrix, jacobian operator, newton krylov, forcing term, type 2, minimum step, 1e-11, recovery step, 1e-11, line search method, polynomial;
+
+        tolerance: 1e-6, test, sepnorm, 1e-6, test, norm;
+
+        output: iterations, cpu time;

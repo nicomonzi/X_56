@@ -1,0 +1,77 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/tubo/wave/wave1,v 1.4 2014/12/13 17:15:44 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    set: real dt = 1.e-3;
+    time step: dt;
+    initial time: 0.;
+    final time: 1000.*dt;
+    
+    set: real Rho = .6;
+    method: ms, Rho, Rho;
+    
+    max iterations: 20;
+    tolerance: 1.e-6;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 20;
+    derivatives tolerance: 1.e-6;
+    
+    fictitious steps number: 0;
+threads: disable;
+end: initial value;
+
+
+
+begin: control data;
+    set: integer nel = 1;
+    hydraulic nodes: 1+nel;
+    hydraulic elements: nel;
+    
+    forces: 1;
+    
+    genels: 1;
+end: control data;
+ 
+begin: nodes;
+    set: real p = 1.e5;
+    hydraulic: 1, 100*p;
+    hydraulic: 2, p;
+end: nodes;
+
+begin: elements;
+    set: real r = 6.17e-3;              # m
+    set: real d = 2.*r;                 # m
+    set: real A = r^2.*pi;              # m^2
+    set: real l = 19.74/nel;            # m
+    set: real rho = 870.;               # kg/m^3
+    set: real c = 1.4e3;                # m/s
+    set: real beta = c^2*rho;           # Pa
+    set: real mu = 8.e-5*rho;           # kg/m/s
+    
+    hydraulic: 11, dynamic pipe, 1, 2,
+               d, A, l,
+	       fluid, linear compressible, density, rho, beta, p, viscosity, mu;
+	       
+    force: 101, abstract,
+           1, hydraulic,
+           const, -0.001e1*rho;
+           # linear, -0.005,-0.03/dt;
+           # step, 10.*dt,-1.e-4,0.;
+	   # double step, 10.*dt, 10.*dt+0.1e-12, -0.001*rho, 0.;
+
+    genel: 1001, clamp, 
+           1+nel, hydraulic,   
+            const, p;    
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

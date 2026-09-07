@@ -1,0 +1,41 @@
+set: ( # Node Labels
+
+	const integer node_GROUND   = 0;
+	const integer node_CHASSIS	= 1;
+	const integer node_HUB		= 10;
+	const integer node_RIM		= 20;
+	const integer node_RACK		= 30
+);
+
+set: ( # Body Labels
+
+	const integer body_CHASSIS	= 1;
+	const integer body_HUB		= 10;
+	const integer body_RIM		= 20
+);
+
+set: ( # Joint Labels
+
+	const integer joint_CLAMP 		= 0;
+	const integer joint_RACK		= 30;
+	const integer joint_TIE			= 40;
+	const integer joint_SPRING		= 50;
+	const integer joint_WISHBONE	= 100;
+	const integer joint_SPINDLE		= 60;
+	const integer joint_BRAKE		= 70
+);
+
+set: ( # Loadable Labels
+	const integer loadable_TIRE = 10
+);
+
+set: ( # Output Labels
+
+	const integer DUMP = 1
+);
+
+set: ( # Force Labels
+
+	const integer torque_MOTOR = 10
+
+);

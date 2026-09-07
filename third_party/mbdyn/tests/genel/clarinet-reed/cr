@@ -1,0 +1,81 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/genel/clarinet-reed/cr,v 1.1 2013/03/16 23:11:40 masarati Exp $
+#
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+#
+# Limit-cycle resulting from Hopf bifurcation
+#
+# ddot{x} = alpha * dot{x} - beta*dot{x}^3 - k*(x - x0)
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 100.;
+	time step: 1e-2;
+
+	max iterations: 20;
+	tolerance: 1e-6;
+
+	method: ms, .6;
+
+	# output: residual;
+	# output: solution;
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	abstract nodes: 2;
+	genels: 1;
+end: control data;
+
+# ALPHA < 0: focus
+# ALPHA > 0: limit cycle
+set: const real ALPHA = 5;
+set: const real BETA = 1.;
+set: const real K = 1.;
+set: const real X0 = 1.;
+
+set: const real X1_0 = 0.;
+set: const real X2_0 = 0.;
+set: const real X1P_0 = X2_0;
+set: const real X2P_0 = ALPHA*X2_0 - BETA*X2_0^3 - K*(X1_0 - X0);
+
+begin: nodes;
+	abstract: 1, differential, value, X1_0, derivative, X1P_0;
+	abstract: 2, differential, value, X2_0, derivative, X2P_0;
+end: nodes;
+
+set: [dof, X1, 1, abstract, algebraic];
+set: [dof, X2, 2, abstract, algebraic];
+
+begin: elements;
+	genel: 1, state space MIMO,
+			2,
+				1, abstract, algebraic,
+				2, abstract, algebraic,
+			1,
+				drive, string, "-BETA*X2^3 + K*X0",
+		2,
+		matrix A,
+			0, 1,
+			-K, ALPHA,
+		matrix B,
+			0.,
+			1.,
+		matrix C,
+			1., 0.,
+			0., 1.,
+		value,
+			X1_0,
+			X2_0;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

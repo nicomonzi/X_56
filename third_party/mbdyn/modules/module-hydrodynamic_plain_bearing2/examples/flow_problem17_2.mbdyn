@@ -1,0 +1,321 @@
+/* 
+ * MBDyn (C) is a multibody analysis code. 
+ * http://www.mbdyn.org
+ *
+ * Copyright (C) 1996-2012
+ *
+ * Pierangelo Masarati	<masarati@aero.polimi.it>
+ * Paolo Mantegazza	<mantegazza@aero.polimi.it>
+ *
+ * Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+ * via La Masa, 34 - 20156 Milano, Italy
+ * http://www.aero.polimi.it
+ *
+ * Changing this copyright notice is forbidden.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation (version 2 of the License).
+ * 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ AUTHOR: Reinhard Resch <mbdyn-user@a1.net>
+        Copyright (C) 2011(-2025) all rights reserved.
+
+        The copyright of this code is transferred
+        to Pierangelo Masarati and Paolo Mantegazza
+        for use in the software MBDyn as described
+        in the GNU Public License version 2.1
+*/
+
+set: integer node_id_rotor 				= 1001;
+set: integer node_id_stator				= 1002;
+
+set: integer joint_id_rotor 		        = 3001;
+set: integer joint_id_stator 				= 3002;
+
+set: integer elem_id_bearing				= 4001;
+
+set: integer ref_id_bearing                 = 5000;
+set: integer ref_id_rotor 					= 5001;
+set: integer ref_id_stator 					= 5002;
+
+set: integer drive_id_time_step             = 6001;
+
+set: bool f_translate = FALSE;
+set: bool f_rotate = FALSE;
+
+set: real omega1z = 0;
+set: real omega2z = 0;
+set: real v1z = 0;
+set: real v2z = 2;
+set: integer K = 10;
+set: real t1 = 0.5;
+set: real max_dt = t1 / K;
+set: real min_dt = max_dt/10;
+
+set: real d1 = 10.5e-3;
+set: real D2 = 10.52e-3;
+set: real B = 1;
+set: real T = 0.;
+set: real rhol = 950;
+set: real rhov = 0.019;
+set: real cl = 1600;
+set: real cv = 352;
+set: real eta = 2.14e-3;
+set: real etav = 2.14e-4;
+set: integer M = 100;
+set: integer N = 4;
+set: real pc = 0;
+set: real epsilon_t0 = 0;
+set: real epsilon_t1 = 0;
+set: real gamma_t0 = 0;
+set: real gamma_t1 = 0;
+set: real delta_t0 = pi;
+set: real delta_t1 = pi;
+
+set: real Phi1x_t0 = atan(gamma_t0 * (D2 - d1) / B);
+set: real Phi1x_t1 = atan(gamma_t1 * (D2 - d1) / B);
+set: real omega1x = (Phi1x_t1 - Phi1x_t0) / t1;
+
+set: real epsilon_dot = (epsilon_t1 - epsilon_t0) / t1;
+set: real delta_dot = (delta_t1 - delta_t0) / t1;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: 0;
+	final time: t1 + 2 * max_dt;
+	time step: max_dt;
+	min time step: min_dt;
+	max time step: postponed, drive_id_time_step, hard limit, yes;
+
+	strategy: factor, 0.5, 3, 2, 3, 15, 20;
+	max iterations: 30;
+	tolerance: 1e-5, test, minmax, 1e-4, test, minmax;
+
+        method: implicit euler;
+        include: "noxsolver.set";        
+	output: messages;
+        derivatives tolerance: 5e-4, 1e-2;
+        derivatives max iterations: 30;
+        derivatives coefficient: 1e-5, auto;	
+        output: iterations, solver condition number, stat, yes;
+	eigenanalysis: -1,
+	output matrices,
+	output eigenvectors, output geometry,lower frequency limit, 0.1,upper frequency limit, 10000,
+	parameter, 1,
+	use lapack,balance, permute;
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+    output meter: closest next, t1, forever, const, max_dt;
+    use: loadable elements, in assembly;
+    max iterations: 10;
+    default orientation: euler123;
+	structural nodes: 2;
+	joints: 2;
+	loadable elements: 1;
+	print: equation description;
+    output precision: 8;
+use automatic differentiation;
+end: control data;
+
+reference: ref_id_bearing,
+	reference, global, 150e-3*f_translate, -250e-3*f_translate, 800e-3*f_translate,
+	reference, global, euler123, 30.*pi/180.*f_rotate, 45.*pi/180.*f_rotate, 280.*pi/180.*f_rotate,
+	reference, global, null,
+	reference, global, null;
+
+# X1 = (D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * cos(delta_t0 + delta_dot * Time)
+# X2 = (D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * sin(delta_t0 + delta_dot * Time)
+
+# XP1 = (D2 - d1) / 2 * (epsilon_dot * cos(delta_t0) - epsilon_t0 * sin(delta_t0) * delta_dot);
+# X2P = (D2 - d1) / 2 * (epsilon_dot * sin(delta_t0) + epsilon_t0 * cos(delta_t0) * delta_dot);
+
+reference: ref_id_rotor,
+	reference, ref_id_bearing, 
+        (D2 - d1) / 2 * epsilon_t0 * cos(delta_t0), 
+        (D2 - d1) / 2 * epsilon_t0 * sin(delta_t0), 
+        0.,
+	reference, ref_id_bearing, euler123, 
+        Phi1x_t0, 
+        0., 
+        0.,
+	reference, ref_id_bearing, 
+        (D2 - d1) / 2 * (epsilon_dot * cos(delta_t0) - epsilon_t0 * sin(delta_t0) * delta_dot),
+        (D2 - d1) / 2 * (epsilon_dot * sin(delta_t0) + epsilon_t0 * cos(delta_t0) * delta_dot),
+        v1z,
+	reference, ref_id_bearing, 
+        omega1x, 
+        0., 
+        omega1z;
+
+reference: ref_id_stator,
+	reference, ref_id_bearing, null,
+	reference, ref_id_bearing, eye,
+	reference, ref_id_bearing, 
+        0., 
+        0., 
+        v2z,
+	reference, ref_id_bearing, 
+        0.,
+        0.,
+        omega2z;
+
+begin: nodes;
+	structural: node_id_rotor, static,
+		# position
+		reference, ref_id_rotor, 700e-3*f_translate, 800e-3*f_translate, 300e-3*f_translate,
+		# orientation
+		reference, ref_id_rotor, euler123, 15.*pi/180.*f_rotate, 30.*pi/180.*f_rotate, 80.*pi/180.*f_rotate,
+		# velocity
+		reference, ref_id_rotor, null,
+		# angular velocity
+		reference, ref_id_rotor, null;
+				
+	structural: node_id_stator, static,
+		# position
+		reference, ref_id_stator, 170e-3*f_translate, -300e-3*f_translate, 240e-3*f_translate,
+		# orientation
+		reference, ref_id_stator, euler123, -15. * pi / 180.*f_rotate, 45. * pi /180.*f_rotate, 60. * pi / 180.*f_rotate,
+		# velocity
+		reference, ref_id_stator, null,
+		# angular velocity
+		reference, ref_id_stator, null;		
+end: nodes;
+
+begin: elements;		
+	joint: joint_id_rotor, total pin joint,
+		node_id_rotor,
+			position, reference, ref_id_rotor, null,
+			position orientation, reference, ref_id_rotor, eye,
+			rotation orientation, reference, ref_id_rotor, eye,
+		position, reference, ref_id_bearing, null,
+		position orientation, reference, ref_id_bearing, eye,
+		rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            string, "(D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * cos(delta_t0 + delta_dot * Time)",
+            string, "(D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * sin(delta_t0 + delta_dot * Time)",
+            mult, const, v1z,
+                  time,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            array, 2, 
+                const, Phi1x_t0,
+                mult, const, omega1x, time,
+            const, 0.,
+            mult, const, omega1z, 
+                  time;
+
+	joint: joint_id_stator, total pin joint,
+		node_id_stator,
+			position, reference, ref_id_stator, null,
+			position orientation, reference, ref_id_stator, eye,
+			rotation orientation, reference, ref_id_stator, eye,
+		position, reference, ref_id_bearing, null,
+		position orientation, reference, ref_id_bearing, eye,
+		rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            const, 0.,
+            const, 0.,
+            mult, const, v2z,
+                  time,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            const, 0.,
+            const, 0.,
+            mult, const, omega2z, 
+                  time;
+
+    set: real dy = 0;
+
+    user defined: elem_id_bearing, 
+        hydrodynamic plain bearing2,
+            hydraulic fluid, linear compressible, 
+                density, rhol,
+                sound celerity, cl,
+                # reference pressure
+                pc,
+                viscosity, eta,
+            viscosity vapor, etav,
+            mesh, linear finite difference, enable mcp, enable_mcp,
+            geometry, cylindrical,
+                mesh position, at shaft,
+                bearing width, B,
+                shaft diameter, d1,
+                bearing diameter, D2,
+
+                pockets,
+                    shaft, 1,
+                        position, d1 * pi * 0.5, 0.,
+                            rectangle, 
+                                width, 2*d1 * pi, 
+                                height, B,
+                            pocket height, 
+                                linear, 
+                                    x, 0., d1 * pi, 
+                                    z, -0.5 * B, 0.5*B, 
+                                    delta y, 0., dy, 
+                                             0., dy,
+                shaft node,
+                    node_id_rotor,
+                    offset, reference, ref_id_rotor, null,
+                    orientation, reference, ref_id_rotor, eye,
+                bearing node,
+                    node_id_stator,
+                    offset, reference, ref_id_stator, null,
+                    orientation, reference, ref_id_stator, eye,
+            number of nodes z, M,
+            number of nodes Phi, N,
+            boundary conditions, density, 0.5*rhol, density, rhol,
+            pressure dof scale, 400000.,
+            output pressure, yes,
+            output density, yes,
+            output clearance, yes,
+            output clearance derivative, yes,
+            output velocity, yes,
+            output stress, yes,
+            output reaction force, yes,
+            output mesh, yes;   
+
+    drive caller: drive_id_time_step, name, "timestep",
+        max, 2,
+            const, min_dt,
+            min, 2, 
+                const, max_dt,
+                element, elem_id_bearing, loadable, string, "maxdt", direct;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

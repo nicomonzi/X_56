@@ -1,0 +1,188 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/circuito/circ1,v 1.4 2014/12/13 17:15:41 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    # abort after: input;
+    time step: (real dt = 1.e-3);
+    initial time: 0.;
+    final time: 10000*dt;
+    newton raphson: modified, 4;
+    method: ms, .6, .6;
+    max iterations: 20;
+    tolerance: 1.e-6;
+
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 20;
+    derivatives tolerance: 1.e-9;
+
+    fictitious steps number: 0;        
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+
+    hydraulic nodes: 6;
+    structural nodes: 2;
+    abstract nodes: 1+1;
+    
+    file drivers: 1;
+
+    hydraulic elements: 2+1+1;
+    rigid bodies: 1;
+    joints: 3;
+    gravity;
+    genels: 2+1+1;
+    forces: 1+1;
+end: control data;
+
+set: real p_0 = 1.01325e5;
+set: real p_lo = 2.e6;
+set: real p_hi = 3.e6;
+
+begin: nodes;
+    structural: 101, static,
+                0.,0.,-.5e-1,
+		eye,
+		null,
+		null;
+
+    structural: 102, dynamic,
+                null,
+		eye,
+		null,
+		null;
+
+    hydraulic: 1, p_0;
+    hydraulic: 2, p_0;
+    hydraulic: 3, p_0;
+    hydraulic: 6, p_0;
+    hydraulic: 7, p_0;
+    hydraulic: 8, p_0;
+    
+    abstract: 100, .0;
+    abstract: 101, .0;
+end: nodes;
+
+begin: drivers;
+    file: 1, socket, 1, port, 5565, noauth;
+end: drivers;
+
+hydraulic fluid: 1000,
+                 linear compressible, 
+		 density, 977., 1.95e9, 101325.,
+		 viscosity, 0.0799;
+
+begin: elements;
+    joint: 101, clamp, 101, node, node;
+   
+    joint: 102, inline, 
+           101, null, eye, 
+	   102; 
+	    
+    joint: 103, prismatic, 
+           101, 
+	   102;
+
+    body: 102, 102,
+          1.e-1,
+	  null, 
+	  diag, 1.e-6, 1.e-6, 1.e-6;
+	  
+    automatic structural: 102,
+                          null,
+			  null,
+			  0.,0.,-9.81*1.e-1,
+			  null;
+
+    gravity: 0.,0.,-1., const, 9.81;
+    
+    force: 102, conservative, 102, 0.,0.,-1., null,
+                # random, 10.,0.,.1,1000., steps, 20;
+		const, 0.;
+
+    hydraulic: 11, actuator,
+               3, 6,
+               101, null,
+	       102, null, 
+	       direction, 0.,0.,1.,
+	       1.e-4,	       
+	       1.e-4,   
+	       1.e-1,
+	       fluid, reference, 1000,
+	       same;
+
+    set: real d = .02;
+    hydraulic: 12, /*dynamic*/ pipe, 1, 2,
+	       d,
+	       d^2*pi/4.,
+	       10.,
+               fluid, reference, 1000;
+		    
+    hydraulic: 15, /*dynamic*/ pipe, 7, 8,
+	       d,
+	       d^2*pi/4.,
+	       10.,
+               fluid, reference, 1000;
+
+    hydraulic: 16, control valve, 2, 3, 6, 7,
+               .001^2*pi/4.,
+	       loss, 1.e-3,
+	       # cosine, .01, pi/.01, .25, -1, 0.,
+	       # double step, .01, .05, .5, 0.,
+	       # const, .5,
+	       # step, .05, 0., .5,
+	       /*
+	       array, 3,
+	              # double step, 1., 1.05, 1., 0.,
+		      # cosine, 1., pi/.005, .5, 1, 0.,
+		      dof, 100, abstract, algebraic, linear, 0., 5.e0,
+		      dof, 101, abstract, algebraic, linear, 0., 0.e0,
+		      dof, 102, structural, 3, differential, linear, 0., -1.e-2,
+	       */
+	       array, 3,
+	              # double step, 1., 1.05, 1., 0.,
+		      # cosine, 1., pi/.005, .5, 1, 0.,
+		      dof, 100, abstract, algebraic, 
+		                          string, "1.*tanh(1000.*Var)",
+		      dof, 101, abstract, algebraic, linear, 0., 1.e-1,
+		      dof, 102, structural, 3, differential,
+		                               # string, "-.1*tanh(10.*Var)",
+					       const, 0.,
+	       fluid, reference, 1000;
+	       
+    genel: 1, clamp, 
+           1, hydraulic, 
+	   # const, p_hi;
+	   cosine, .001, pi/(50.*dt), (p_hi-p_0)/2., -1, p_0;
+   
+    genel: 8, clamp, 
+           8, hydraulic, 
+	   cosine, .001, pi/(50.*dt), (p_lo-p_0)/2., -1, p_0;
+	   
+    genel: 100, spring support,
+           100, abstract, algebraic,
+	        linear elastic, 1.;
+    force: 100, abstract, 100, abstract, 
+                array, 2, 
+           	       dof, 102, structural, 3, algebraic, linear, 0., -1.,
+		       file, 1, 1;
+    genel: 101, state space siso,
+           101, abstract, algebraic,
+	   100, abstract, algebraic,
+	   1,
+	   matrix A, 0.,
+	   matrix B, 1.,
+	   matrix C, 1.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

@@ -1,0 +1,126 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/aero/aero2,v 1.5 2010/08/11 20:54:47 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	tolerance: 1.e-6;
+	max iterations: 20;
+    
+	method: ms, .6, .6;
+    
+	derivatives coefficient: 1.e-8;
+	derivatives tolerance: 1.e-5;
+	derivatives max iterations: 10;
+
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 3;
+	rigid bodies: 2;
+	joints: 2;
+	beams: 1;
+	air properties;
+	induced velocity elements: 1;
+	aerodynamic elements: 1;
+end: control data;
+
+set: real OMEGA = 40.;
+set: real L = 5.;
+set: real C = .1;
+set: real M = 1.;
+set: real THETA_0 = 8./180.*pi;
+
+reference: 1, 
+	null,
+	eye,
+	null,
+	null;
+reference: 2, 
+	reference, 1, null,
+	reference, 1, eye,
+	reference, 1, null,
+	reference, 1, 0.,0.,OMEGA;
+reference: 3,
+	reference, 2, null,
+	reference, 2,
+		1, 0., cos(THETA_0), sin(THETA_0),
+		3, 1., 0., 0.,
+	reference, 2, null,
+	reference, 2, null;
+
+begin: nodes;
+	structural: 1000, static,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+	structural: 1, dynamic,
+		reference, 2, null,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+	structural: 2, dynamic,
+		reference, 2, L,0.,0.,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+end: nodes;
+
+begin: elements;
+	joint: 1000, clamp, 1000, node, node;
+	joint: 1, axial rotation, 
+		1000, reference, 1, null,
+		1, reference, 1, null,
+		const, OMEGA;
+    
+	body: 1, 1,
+		M/2,
+		L/4,0.,0.,
+		diag, 1., 1/12.*M/2*(L/2)^2, 1/12.*M/2*(L/2)^2;
+	body: 2, 2,
+		M/2,
+		-L/4,0.,0.,
+		diag, 1., 1/12.*M/2*(L/2)^2, 1/12.*M/2*(L/2)^2;
+
+	beam2: 1,
+		1, null,
+		2, null,
+		eye,
+		linear viscoelastic generic, 
+			diag, 1.e8,1.e4,1.e4, 1.e5,1.e5,1.e6,
+			proportional, 1.e-3;
+	  
+	air properties: 1.225, 340.,
+		single, 0.,0.,1., 
+			const, 0.;
+	induced velocity: 1, rotor, 1000, 1, induced velocity, no;
+	aerodynamic beam2: 1, 1,
+		induced velocity, 1,
+		reference, node, null,
+		reference, 3, eye,
+		reference, node, null,
+		reference, 3, 
+			1, cos(-10./180.*pi),sin(-10./180.*pi),0.,
+			3, 0.,0.,1.,
+		const, C,
+		const, 0.,
+		const, -.5*C,
+		const, 0.,
+		2;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,77 @@
+basename = Postprocessing/post
+data_basename = Output/wings
+
+analysis = {
+  name = v1
+  type = Viz
+
+  format = vtk !tecplot
+
+  start_res = 1
+  end_res = 61
+  step_res = 1
+  wake = T
+
+  variable = Vorticity
+  variable = Pressure
+
+}
+
+analysis = {
+
+type = integral_loads
+name = loads_left
+start_res = 1 
+end_res   = 61
+step_res  = 1
+format   = dat
+
+component = left_wing  
+reference_tag = 0
+
+}
+
+analysis = {
+
+type = integral_loads
+name = loads_right
+start_res = 1 
+end_res   = 61
+step_res  = 1
+format   = dat
+
+component = right_wing  
+reference_tag = 0
+
+}
+
+analysis = {
+
+type = integral_loads
+name = loads_full
+start_res = 30 
+end_res   = 61
+step_res  = 1
+format   = dat
+
+average = T
+component = left_wing  
+component = right_wing  
+reference_tag = 0
+
+}
+
+!analysis = {
+  type = chordwise_loads
+  name = cl01
+  start_res = 1
+  end_res = 100
+  step_res = 1
+  format = dat
+  average = F
+  component = left_wing  
+  n_station = 3
+  span_station = (/1., 2., 3.0/)
+  axis_nod = (/ 0.0, 0.0, 0.0 /)
+  axis_dir = (/ 0.0, 1.0, 0.0 /)
+}

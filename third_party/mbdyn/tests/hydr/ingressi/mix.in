@@ -1,0 +1,237 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/hydr/ingressi/mix.in,v 1.4 2014/12/13 17:15:42 masarati Exp $
+
+begin: data;
+    problem: initial value;
+
+end: data;
+
+begin: initial value;
+  #  abort after: input;
+    time step: (real dt = 1.);
+    initial time: 0.;
+    final time: 100*dt;
+    
+    set: (real Rho = .6);
+    method: ms, Rho, Rho;
+    
+    max iterations: 10;
+    tolerance: 1.e-5;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives max iterations: 10;
+    derivatives tolerance: 1.e-4;
+    
+    fictitious steps number: 2;
+    fictitious steps ratio: 1.e-4;
+    fictitious steps max iterations: 10;
+    fictitious steps tolerance: 1.e-4;
+
+linear solver: umfpack, workspace size, 10000;
+threads: disable;
+end: initial value;
+
+
+
+begin: control data;
+#  output file name: "output";
+
+  
+  
+  hydraulic nodes: 3;       #  numero nodi idraulici
+ 
+  hydraulic elements: 2;    #  numero elementi idraulici
+                            
+  
+
+  forces: 0;                 #  generatore di portata
+
+  
+  genels: 2;                 # generatori di pressione
+                   
+ 
+ end: control data;
+ 
+begin: nodes;
+
+#   hydraulic: 3;  #(real p1=12.e5);
+#   hydraulic: 4:  # (real p2=2.e5);
+    hydraulic: 1; #(real p1=1.e5); # ingresso 
+    hydraulic: 2; #(real p2=2.e4); # uscita
+    hydraulic: 3; #(real p3=2.e5); # in utilizzatore
+#    hydraulic: 4; #(real p4=1.e4); # out utilizzatore
+
+end: nodes;
+
+
+
+begin: elements;
+ 
+ # density                  800 kg/m^3		kappa		     10 N/m
+ # diametro               0.007 m		precarico	    300 N 
+ # viscosità    	    0.9 kg/m/s		larghezza          5e-3 m
+ # area tubo   	       3.84 e-5 m^2		massa		  1.e-3 kg 
+ # lunghezza		      1	m 		area massima      2.e-4 m^2
+ # area diaframma        2. e-5 m^2 50% area tubo  
+
+
+ # hydraulic: 1,pipe test ,1,2,0.5;
+
+/*
+ # Parte !! 
+  hydraulic: 1,pipe,1,2,
+		800.,		# densità
+		.007.,		# diametro
+		.9,		# viscosità
+		3.84e-5,	# area
+		1.,		# lunghezza
+		0;       	# flag turbulent
+ */
+
+
+ # Parte !!
+	
+/*
+     hydraulic: 1,minor losses,1,2,
+		.1,		# kappa
+		3.84e-5,	# area tubo
+		800.;		# densità      
+*/
+
+ hydraulic: 1,orifices,1,2,
+		800.,		# densità
+		.007,		# diametro idraulico
+		.9,		# viscosità
+		2.e-5,		# area diaframma
+		3.84e-5;	# area tubo
+
+      hydraulic: 2,minor losses,2,3,
+		.1,		# kappa
+		3.84e-5,	# area tubo
+		800.;		# densità    
+
+ 
+ 
+/* 
+ hydraulic: 2,orifices,2,3,
+		800.,		# densità
+		.007,		# diametro idraulico
+		.9,		# viscosità
+		2.e-5,		# area diaframma
+		3.84e-5;	# area tubo
+*/
+
+/* 
+ #  assert fault line 306 solman.h
+   hydraulic: 1,pressure valve,1,2,
+    	        800.,  		# densità
+             	2.e-5, 		# area diaframma
+ 		1.e+3,  	# massa
+		2.e-4,  	# area massima
+		1.e1,  		# kappa
+		300.,  		# precarico molla
+		5.e-3;  	# larghezza
+*/
+
+
+/*
+ # Parte !  Con un generatore di portata ha bisogno di molte iterazioni (1000 invece di 10)
+  hydraulic: 1,flow valve,1,2,3,  # 1:ingresso  2: scarico  3:uscita
+		800,		# densità
+            	2.e-5,   	# area diaframma
+ 	        1.e-3,  	# massa
+		2.e-4,  	# area massima
+		10., 		# kappa
+		300,  		# precarico molla
+		5.e-3;  	# larghezza
+
+*/
+
+/*
+# funziona con 4 gen di p.
+
+  hydraulic: 1,control valve,1,2,3,4,
+             	800.,		# 	densità
+	   	-1.5; 		# 	stato
+
+*/
+
+/*
+ # funziona male oscilla troppo !!!
+   hydraulic: 1,accumulator,1,
+		1.e5,	# 	press0
+		1.e7,     #       press_max
+                3.,	# 	stroke
+		3.e-2,	#       area 
+		4.e-3,	#       massa 
+		1.1;	#       kappa (mai unitaria)
+*/	
+ 
+
+/*  
+ # forza generico: generatore di portata
+ 
+   force: 1, abstract, 
+          1, hydraulic,
+          const,-1.e-3;
+          # step,1.e-3,1.e-3,1.e-3;
+          # array, 2,
+	  # random, .01,0.,dt,1000., steps, 10;
+	  # sine, 0.,pi,1.e-4,0,0.;  
+          # linear, -1.e-2,-1.e-5;
+          #  step,5.,-1.e-6,-1.e-3;
+ 
+ */
+# incastro generico: generatore di pressione
+
+   genel: 1, clamp,    # 2 uscita
+             1, hydraulic, 
+	    const, 1.e5;        # const, p1;
+            #step,4,p1,p1;
+            #linear, 1.8e7,5.e7; # per il tubo
+            #linear, p1,-5.e3; # per la valvola di pressione
+	    #linear, 1.5999e6,50/dt; #per la valvola di portata
+	    # linear, 1.e5,10;
+            # sine, 0.1,pi,1.e6,0,500000.;
+
+
+# incastro generico: generatore di pressione
+/*
+   genel: 2, clamp,     # in utilizzatore
+             2, hydraulic, 
+	     const, 1.e3;
+	    # const, p2;
+            # step,2.,1.e8,1.e5;
+            #linear, 1,-1.e6;
+	    # sine, 0.1,pi,1.e6,0,500000.;
+
+
+
+
+# incastro generico: generatore di pressione
+
+   genel: 3, clamp,   # out utilizzatore
+             3, hydraulic, 
+	     const, p3;
+            # step,2.,1.e5,1.e8;
+            #linear, 1.e7,1.e6;
+	    # sine, 0.1,pi,1.e6,0,500000.;
+*/
+# incastro generico: generatore di pressione
+
+   genel: 2, clamp,    # ingresso 
+             3, hydraulic, 
+	     const, 1.e3;
+            # step,2.,1.e5,1.e8;
+            #linear, 1.e7,1.e6;
+	    # sine, 0.1,pi,1.e6,0,500000.;
+
+
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

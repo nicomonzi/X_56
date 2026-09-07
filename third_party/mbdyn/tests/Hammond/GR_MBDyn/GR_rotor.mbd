@@ -1,0 +1,337 @@
+# MBDyn (C) is a multibody analysis code.
+# http://www.mbdyn.org
+#
+# Copyright (C) 1996-2017
+#
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+#
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+#
+# Changing this copyright notice is forbidden.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+#
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# ---------------------------------------------------------------------------
+#
+# 4-blade rotor on flexible support, from
+# Hammond, C. E., 1974. "An application of Floquet theory to prediction of mechanical instability".
+# Journal of the American Helicopter Society, 19(4), pp. 14–23. doi:10.4050/JAHS.19.14.
+#
+# Author: Gianni Cassoni
+# Based on a generic rotor model by Pierangelo Masarati
+#
+# ------ GR MODEL: main ------
+
+begin: data;
+        problem: initial value;
+end: data;
+
+set: const integer N_B = 4; # number of blades
+# OMEGA_100 is the nominal rotor angular velocity, in radian/s;
+# either change this value, or set the environment variable MBDYNVARS to "const real OMEGA_100 = <value>"
+set: ifndef const real OMEGA_100 = 1.8879; # [rad/s]
+
+set: real OMEGA_0 = OMEGA_100; # [rad/s]
+
+begin: initial value;
+        initial time: 0.;
+        final time:  60.;
+        time step: 0.001;
+        method: ms, 0.7; # spectral radius
+        tolerance: 1.e-6;
+        max iterations: 1000.;
+        derivatives tolerance: 1e-2;
+        # output: iterations;
+        # output: residual;
+threads: disable;
+end: initial value;
+#--------------------------------------------------------------------------------
+/*
+                 ^ y
+         \_\_\_\_\_\_\_\_\_\
+        |      A_x          |
+        |       _ | _       |   GROUND          A_x : AIRFRAME_X
+        |    \|A_y|   |\    |                   A_Y : AIRFRAME_Y
+        |    \|   |H  |\    |                   H : HUB
+        | --------o-------- |   > x
+        |    \|   |   |\    |    _ Cx
+        |    \| _ | _ |\    |---|_-------|
+        |      |  |  |      |---/\/\/\---|
+        |      |     \      |      Kx
+                |  Cy |-|    / Ky   |
+                |      |     |      |
+                |      -     -      |
+                |_ _ _ _ _ _ _ _ _ _|
+         \ \ \ \ \ \ \ \ \ \
+
+                                                                                  ^ y
+                                  ^ z
+                        BLADE
+                ---------------|---O---|---------------  > x          ________________________
+                         |HUB|                           BLADE_FLAP_OFFSET            |
+                                                 |   |                                 \         BLADE        |   > x
+                                             |   |                                  \_____________________|
+                             |   |
+                         |	 |  ^
+                         |   |__| OMEGA [rad/s]
+                   ______|___|______
+                       AIRFRAME_Y
+*/
+#--------------------------------------------------------------------------------
+begin: control data;
+        structural nodes:
+                +1      # Ground
+                +1	    # Airframe x
+                +1	    # Airframe y
+                +1	    # Hub
+                +N_B*(
+                        +1	# Rigid blade
+                )
+        ;
+        joints:
+                +1      # Ground clamp
+                +1		# Airframe x
+                +1      # Kx , Cx
+                +1      # Airframe y
+                +1      # Ky , Cy
+                +1      # Hub
+                +N_B*(
+                        +1	# Blade root hinge
+                        +1	# Elastomeric hinge (lead-lag damper)
+                )
+                -1 # removing Blade inoperative
+        ;
+        rigid bodies:
+        #    +1      # Hub
+            +1		# Airframe Mx
+                +1      # Airframe My
+                        +N_B*(
+                        +1	# Blade
+                )
+        ;
+        #print: dof description;
+        print: all;
+        default output: reference frames;
+        ### uncomment for output in NetCDF format
+        # output results: netcdf, no text;
+end: control data;
+
+set: const integer GROUND = 0;
+set: const integer AIRFRAME_X = 100;
+set: const integer AIRFRAME_Y = 200;
+set: const integer HUB = 10000;
+set: const integer BLADE_FLAP_OFFSET = 30;
+set: const integer BLADE_CM = 40;
+
+
+set: const real M_AIRFRAME_X= 8026.6; #[kg]
+set: const real M_AIRFRAME_Y= 3283.6; #[kg]
+
+set: const real Z_HUB = 2.0; # [m], relative to airframe
+
+set: const real M_HUB = 0.; # [kg]; define
+set: const real J_HUB_X = 0.; # [kg m^2]; define
+set: const real J_HUB_Z = 0.; # [kg m^2]; define
+
+set: const real X_BLADE_FLAP_OFFSET = 0.3048; # [m]; define
+
+# blade inertia properties
+set: const real M_BLADE = 94.9; # [kg]; define
+set: const real S_BLADE_Z = 289.1; # [kg m]; define
+set: const real X_BLADE_CM = S_BLADE_Z/M_BLADE; # [m]; define
+set: const real J_BLADE_CM_X = 0.; # [kg m^2]; define 1084.7 [kg m^2]
+set: const real J_BLADE_CM_Y = 0.; # [kg m^2]; define
+
+set: const real J_BLADE_Z = 1084.7; # [kg m^2]
+set: const real J_BLADE_CM_Z = J_BLADE_Z - S_BLADE_Z*X_BLADE_CM; # [kg m^2];
+
+# equivalent (visco)elastic properties of elastomeric hinge
+set: const integer CL_BLADE_ROOT_OK = 98;
+set: const integer CL_BLADE_ROOT_FAILED = 99;
+set: integer CURR_CL_BLADE_ROOT;
+set: const real K_BLADE_ROOT_X = 0.;
+set: const real K_BLADE_ROOT_Y = 0.;
+set: const real K_BLADE_ROOT_Z = 0.;
+set: const real C_BLADE_ROOT_X = 0.;
+set: const real C_BLADE_ROOT_Y = 0.;
+set: const real C_BLADE_ROOT_Z = 4067.5;
+constitutive law: CL_BLADE_ROOT_OK, 3,
+                linear viscoelastic generic,
+                        diag, K_BLADE_ROOT_X, K_BLADE_ROOT_Y, K_BLADE_ROOT_Z,
+                        diag, C_BLADE_ROOT_X, C_BLADE_ROOT_Y, C_BLADE_ROOT_Z;
+constitutive law: CL_BLADE_ROOT_FAILED, 3,
+                linear viscoelastic generic,
+                        diag, K_BLADE_ROOT_X, K_BLADE_ROOT_Y, K_BLADE_ROOT_Z,
+                        diag, C_BLADE_ROOT_X, C_BLADE_ROOT_Y, 0.; # failed damper
+#--------------------------------------------------------------------------------
+set: const real x_0 = 0.1; # x0 initial condition
+set: const real y_0 = 0.;  # y0 initial condition
+
+reference: GROUND,
+        reference, global, null,
+        reference, global, eye,
+        reference, global, null,
+        reference, global, null;
+reference: AIRFRAME_X,
+        reference, GROUND, x_0,0.,0.,
+        reference, GROUND, eye,
+        reference, GROUND, null,
+        reference, GROUND, null;
+reference: AIRFRAME_Y,
+        reference, AIRFRAME_X, 0.,y_0,0.,
+        reference, AIRFRAME_X, eye,
+        reference, AIRFRAME_X, null,
+        reference, AIRFRAME_X, null;
+reference: HUB,
+        reference, AIRFRAME_Y, 0., 0., Z_HUB,
+        reference, AIRFRAME_Y, eye,
+        reference, AIRFRAME_Y, null,
+        reference, AIRFRAME_Y, 0., 0., OMEGA_0;
+set: const integer BLADE_1 = HUB + 1000;
+set: const integer BLADE_2 = HUB + 2000;
+set: const integer BLADE_3 = HUB + 3000;
+set: const integer BLADE_4 = HUB + 4000;
+# this variable will be assigned the value of the current blade's label
+set: integer CURR_BLADE;
+# will be pythonized
+set: CURR_BLADE = BLADE_1;
+include: "rotor_blade.ref";
+set: CURR_BLADE = BLADE_2;
+include: "rotor_blade.ref";
+set: CURR_BLADE = BLADE_3;
+include: "rotor_blade.ref";
+set: CURR_BLADE = BLADE_4;
+include: "rotor_blade.ref";
+
+begin: nodes;
+        structural: GROUND, static,
+                reference, GROUND, null,
+                reference, GROUND, eye,
+                reference, GROUND, null,
+                reference, GROUND, null;
+        structural: AIRFRAME_X, dynamic,
+                reference, AIRFRAME_X, null,
+                reference, AIRFRAME_X, eye,
+                reference, AIRFRAME_X, null,
+                reference, AIRFRAME_X, null;
+        structural: AIRFRAME_Y, dynamic,
+                reference, AIRFRAME_Y, null,
+                reference, AIRFRAME_Y, eye,
+                reference, AIRFRAME_Y, null,
+                reference, AIRFRAME_Y, null;
+        structural: HUB, static,
+                reference, HUB, null,
+                reference, HUB, eye,
+                reference, HUB, null,
+                reference, HUB, null;
+        set: CURR_BLADE = BLADE_1;
+        include: "rotor_blade.nod";
+        set: CURR_BLADE = BLADE_2;
+        include: "rotor_blade.nod";
+        set: CURR_BLADE = BLADE_3;
+        include: "rotor_blade.nod";
+        set: CURR_BLADE = BLADE_4;
+        include: "rotor_blade.nod";
+end: nodes;
+#--------------------------------------------------------------------------------
+begin: elements;
+        body: AIRFRAME_X, AIRFRAME_X,
+                M_AIRFRAME_X-M_AIRFRAME_Y,
+                null,
+                null;
+        body: AIRFRAME_Y, AIRFRAME_Y,
+                M_AIRFRAME_Y,
+                null,
+                null;
+        joint: GROUND, clamp, GROUND, node, node;
+        # AIRFRAME-GROUND total joint
+        joint: AIRFRAME_X, total joint,
+                GROUND,		# label of node #1
+                        position,reference, GROUND, null,
+                        position orientation, reference, GROUND, eye,
+                        rotation orientation, reference, GROUND, eye,
+                AIRFRAME_X,
+                        position, reference, AIRFRAME_X, null,
+                        position orientation, reference, AIRFRAME_X, eye,
+                        rotation orientation, reference, AIRFRAME_X, eye,
+                position constraint, 0, 1, 1, null,
+                # orientation constraint, 1, 1, 1, 0., 0., 1., linear, 0., OMEGA_0;
+                orientation constraint, 1, 1, 1, null;
+        # HUB-AIRFRAME total joint
+        joint: AIRFRAME_Y, total joint,
+                AIRFRAME_X,		# label of node #1
+                        position,reference, AIRFRAME_X, null,
+                        position orientation, reference, AIRFRAME_X, eye,
+                        rotation orientation, reference, AIRFRAME_X, eye,
+                AIRFRAME_Y,
+                        position, reference, AIRFRAME_Y, null,
+                        position orientation, reference, AIRFRAME_Y, eye,
+                        rotation orientation, reference, AIRFRAME_Y, eye,
+                position constraint, 1, 0, 1, null,
+                # orientation constraint, 1, 1, 1, 0., 0., 1., linear, 0., OMEGA_0;
+                orientation constraint, 1, 1, 1, null;
+        # AIRFRAME_X C_x*xdot+K_x*x
+        set: const real Kx = 1240481.8; # [N/m]
+        set: const real Cx = 51078.7; #  [N*s/m]
+        joint: AIRFRAME_X+1,deformable displacement joint,
+         GROUND,reference,AIRFRAME_X,null, # relative offset
+         AIRFRAME_X,null, # relative offset
+         linear viscoelastic, Kx, Cx; # spring damper AIRFRAME_X-----GROUND
+        # AIRFRAME_Y C_y*ydot+K_y*y
+        set: const real Ky = 1240481.8; # [N/m]
+        set: const real Cy =  25539.3; #  [N*s/m]
+        joint: AIRFRAME_Y+1,deformable displacement joint,
+         AIRFRAME_X,null, # relative offset
+         AIRFRAME_Y,null, # relative offset
+         linear viscoelastic, Ky, Cy; # spring damper AIRFRAME_Y-----GROUND
+        joint: HUB, total joint,
+                AIRFRAME_Y,
+                        position, reference, HUB, null,
+                        position orientation, reference, AIRFRAME_Y, eye,
+                        rotation orientation, reference, AIRFRAME_Y, eye,
+                HUB,
+                        position, reference, HUB, null,
+                        position orientation, reference, HUB, eye,
+                        rotation orientation, reference, HUB, eye,
+                position constraint, 1, 1, 1, null,
+                # orientation constraint, 1, 1, 1, 0., 0., 1., linear, 0., OMEGA_0;
+                orientation constraint, 1, 1, angular velocity, 0., 0., 1., const, OMEGA_0;
+        set: CURR_BLADE = BLADE_1;
+        set: CURR_CL_BLADE_ROOT = CL_BLADE_ROOT_OK;
+        include: "rotor_blade.elm";
+        set: CURR_BLADE = BLADE_2;
+        set: CURR_CL_BLADE_ROOT = CL_BLADE_ROOT_OK;
+        include: "rotor_blade.elm";
+        set: CURR_BLADE = BLADE_3;
+        set: CURR_CL_BLADE_ROOT = CL_BLADE_ROOT_OK;
+        ### set: CURR_CL_BLADE_ROOT = CL_BLADE_ROOT_FAILED;
+        include: "rotor_blade.elm";
+        set: CURR_BLADE = BLADE_4;
+        set: CURR_CL_BLADE_ROOT = CL_BLADE_ROOT_OK;
+        include: "rotor_blade_In.elm"; # Inoperative damper
+end: elements;
+#--------------------------------------------------------------------------------
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

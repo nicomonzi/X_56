@@ -1,0 +1,369 @@
+/* 
+ * MBDyn (C) is a multibody analysis code. 
+ * http://www.mbdyn.org
+ *
+ * Copyright (C) 1996-2012
+ *
+ * Pierangelo Masarati	<masarati@aero.polimi.it>
+ * Paolo Mantegazza	<mantegazza@aero.polimi.it>
+ *
+ * Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+ * via La Masa, 34 - 20156 Milano, Italy
+ * http://www.aero.polimi.it
+ *
+ * Changing this copyright notice is forbidden.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation (version 2 of the License).
+ * 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ AUTHOR: Reinhard Resch <mbdyn-user@a1.net>
+        Copyright (C) 2011(-2025) all rights reserved.
+
+        The copyright of this code is transferred
+        to Pierangelo Masarati and Paolo Mantegazza
+        for use in the software MBDyn as described
+        in the GNU Public License version 2.1
+*/
+
+set: integer node_id_rotor 				= 1001;
+set: integer node_id_stator				= 1002;
+
+set: integer joint_id_rotor 		        = 3001;
+set: integer joint_id_stator 				= 3002;
+
+set: integer elem_id_bearing				= 4001;
+
+set: integer ref_id_bearing                 = 5000;
+set: integer ref_id_rotor 					= 5001;
+set: integer ref_id_stator 					= 5002;
+
+set: integer drive_id_boundary_pressure = 6001;
+
+
+set: real v1z = 0;
+set: real v2z = 0;
+set: real n = 1e-5;
+set: integer K = 50;
+set: real t1 = 1e-3;
+set: real omega1z = 2 * pi / t1 * 0;
+set: real omega2z = -2 * pi / t1 * 0;
+set: real dt = t1 / K;
+set: real d0 = 13.995e-3;
+set: real d1 = 14e-3;
+set: real D2 = 14.01e-3;
+set: real B = 8e-3;
+set: real C = 0.5e-3;
+set: real eta = 2.14e-3;
+set: real rho = 900.;
+
+set: real E1 = 110000e6*1e38;
+set: real G1 = 43651e6*1e38;
+set: real nu1 = E1 / (2 * G1) - 1;
+
+set: real E2 = 175000e6;
+set: real G2 = 68627.5e6;
+set: real nu2 = E2 / (2 * G2) - 1;
+
+set: real p_B = 0.;
+set: real epsilon_t0 = 0;
+set: real epsilon_t1 = 1.5;
+set: real gamma_t0 = 0;
+set: real gamma_t1 = 0;
+set: real delta_t0 = pi;
+set: real delta_t1 = pi;
+
+set: real tau = 1e-2 * dt / 1000;
+
+set: real Phi1x_t0 = atan(gamma_t0 * (D2 - d1) / B);
+set: real Phi1x_t1 = atan(gamma_t1 * (D2 - d1) / B);
+set: real omega1x = (Phi1x_t1 - Phi1x_t0) / t1;
+
+set: real epsilon_dot = (epsilon_t1 - epsilon_t0) / t1;
+set: real delta_dot = (delta_t1 - delta_t0) / t1;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: -tau;
+	final time: t1;
+	time step: dt;
+	max iterations: 30;
+	tolerance: 1e-5, test, minmax, 1e-4, test, minmax;
+
+        linear solver: umfpack, map ,scale, row max column max, always, max iterations, 10;
+        derivatives coefficient: 1e-3, auto;
+        enforce constraint equations: constraint violations;
+        include: "noxsolver.set";
+
+        method: implicit euler;
+        threads: assembly, 1;
+	output: messages;
+        derivatives tolerance: 5e-4, 1e-2;
+        derivatives max iterations: 10;
+        derivatives coefficient: 1e-3, auto;
+        output: iterations, cpu time, solver condition number, stat, yes;
+end: initial value;
+
+begin: control data;
+make restart file: format, binary;
+       max iterations: 20;
+       tolerance: 1e-6;
+       epsilon: 1.;
+       model: static;
+    print: dof stats, to file;
+    print: dof description, to file;
+    use: loadable elements, in assembly;
+    default orientation: euler123;
+	structural nodes: 2;
+	joints: 2;
+	loadable elements: 1;
+	print: dof stats, to file;
+	print: equation description, to file;
+	print: dof description, to file;
+	print: element connection, to file;
+	print: node connection, to file;	
+    output precision: 16;
+use automatic differentiation;
+end: control data;
+
+reference: ref_id_bearing,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+# X1 = (D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * cos(delta_t0 + delta_dot * Time)
+# X2 = (D2 - d1) / 2 * (epsilon_t0 + epsilon_dot * Time) * sin(delta_t0 + delta_dot * Time)
+
+# XP1 = (D2 - d1) / 2 * (epsilon_dot * cos(delta_t0) - epsilon_t0 * sin(delta_t0) * delta_dot);
+# X2P = (D2 - d1) / 2 * (epsilon_dot * sin(delta_t0) + epsilon_t0 * cos(delta_t0) * delta_dot);
+
+reference: ref_id_rotor,
+	reference, ref_id_bearing, 
+        (D2 - d1) / 2 * epsilon_t0 * cos(delta_t0) * (tau == 0.), 
+        (D2 - d1) / 2 * epsilon_t0 * sin(delta_t0) * (tau == 0.), 
+        0.,
+	reference, ref_id_bearing, euler123, 
+        Phi1x_t0, 
+        0., 
+        0.,
+	reference, ref_id_bearing, 
+        (D2 - d1) / 2 * (epsilon_dot * cos(delta_t0) - epsilon_t0 * sin(delta_t0) * delta_dot) * (tau == 0.),
+        (D2 - d1) / 2 * (epsilon_dot * sin(delta_t0) + epsilon_t0 * cos(delta_t0) * delta_dot) * (tau == 0.),
+        v1z * (tau == 0.),
+	reference, ref_id_bearing, 
+        omega1x * (tau == 0.), 
+        0., 
+        omega1z * (tau == 0.);
+
+reference: ref_id_stator,
+	reference, ref_id_bearing, null,
+	reference, ref_id_bearing, eye,
+	reference, ref_id_bearing, 
+        0., 
+        0., 
+        v2z * (tau == 0.),
+	reference, ref_id_bearing, 
+        0.,
+        0.,
+        omega2z * (tau == 0.);
+
+begin: nodes;
+	structural: node_id_rotor, static,
+		# position
+		reference, ref_id_rotor, null,
+		# orientation
+		reference, ref_id_rotor, eye,
+		# velocity
+		reference, ref_id_rotor, null,
+		# angular velocity
+		reference, ref_id_rotor, null,
+                assembly, 1e10, 1e10, no;
+				
+	structural: node_id_stator, static,
+		# position
+		reference, ref_id_stator, null,
+		# orientation
+		reference, ref_id_stator, eye,
+		# velocity
+		reference, ref_id_stator, null,
+		# angular velocity
+		reference, ref_id_stator, null,
+                assembly, 1e10, 1e10, no;		
+end: nodes;
+
+begin: elements;		
+	joint: joint_id_rotor, total pin joint,
+		node_id_rotor,
+			position, reference, ref_id_rotor, null,
+			position orientation, reference, ref_id_rotor, eye,
+			rotation orientation, reference, ref_id_rotor, eye,
+		position, reference, ref_id_bearing, null,
+		position orientation, reference, ref_id_bearing, eye,
+		rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            piecewise linear, 3,
+                      -tau, 0.,
+                      0., (D2 - d1) / 2 * epsilon_t0 * cos(delta_t0),
+                      t1, (D2 - d1) / 2 * epsilon_t1 * cos(delta_t1),
+            piecewise linear, 3,
+                      -tau, 0.,
+                      0., (D2 - d1) / 2 * epsilon_t0 * sin(delta_t0),
+                      t1, (D2 - d1) / 2 * epsilon_t1 * sin(delta_t1),
+            piecewise linear, 3,
+                      -tau, 0.,
+                      0., 0.,
+                      t1, v1z * t1,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            piecewise linear, 3,
+                      -tau, 0.,
+                      0., 0.,
+                      t1, omega1x * t1,
+            null,
+            piecewise linear, 3,
+                      -tau, 0.,
+                      0., 0.,
+                      t1, omega1z * t1;
+
+	joint: joint_id_stator, total pin joint,
+		node_id_stator,
+			position, reference, ref_id_stator, null,
+			position orientation, reference, ref_id_stator, eye,
+			rotation orientation, reference, ref_id_stator, eye,
+		position, reference, ref_id_bearing, null,
+		position orientation, reference, ref_id_bearing, eye,
+		rotation orientation, reference, ref_id_bearing, eye,
+        position constraint,
+            active,
+            active,
+            active,
+        component,
+            const, 0.,
+            const, 0.,
+            piecewise linear, 3,
+                      -tau, 0.,
+                      0., 0.,
+                      t1, v2z * t1,
+        orientation constraint,
+            active,
+            active,
+            active,
+        component,
+            null,
+            null,
+            piecewise linear, 3,
+                      -tau, 0.,
+                      0., 0.,
+                      t1, omega2z * t1;
+
+    drive caller: drive_id_boundary_pressure,
+          piecewise linear, 2,
+          0.0 * t1, 0.,
+          2.0 * t1, 2 * p_B;
+          
+    user defined: elem_id_bearing, 
+        hydrodynamic plain bearing2,
+            hydraulic fluid, incompressible,
+                density, rho,
+                viscosity, eta,
+                pressure, 0.,
+            mesh, quadratic finite element,
+            geometry, cylindrical,
+                mesh position, at shaft,
+                bearing width, B,
+                shaft diameter, d1,
+                bearing diameter, D2,
+                pockets,
+                    shaft, 2,
+                        position, 0.5 * d1 * pi, 0.5 * (B - C),
+                            rectangle, 
+                                width, d1 * pi, 
+                                height, 1.0001 * C,
+                            pocket height, 
+                                linear, 
+                                    x, 0., d1 * pi, 
+                                    z, 0.5 * B - C, 0.5 * B,
+                                    delta y, 0., -0.5 * (d1 - d0), 
+                                             0., -0.5 * (d1 - d0),
+                        position, 0.5 * d1 * pi, -0.5 * (B - C),
+                            rectangle, 
+                                width, d1 * pi, 
+                                height, 1.0001 * C,
+                            pocket height, 
+                                linear, 
+                                    x, 0., d1 * pi, 
+                                    z, -0.5 * B, -0.5 * B + C,
+                                    delta y, -0.5 * (d1 - d0), 0.,
+                                             -0.5 * (d1 - d0), 0.,
+                                shaft node,
+                    node_id_rotor,
+                    offset, reference, ref_id_rotor, null,
+                    orientation, reference, ref_id_rotor, eye,
+                bearing node,
+                    node_id_stator,
+                    offset, reference, ref_id_stator, null,
+                    orientation, reference, ref_id_stator, eye,              
+            number of elements z, 30,
+            number of elements Phi, 30,
+           boundary conditions,
+                     reference, drive_id_boundary_pressure,
+                     reference, drive_id_boundary_pressure,
+           lubrication grooves, 1,
+                at shaft,
+                    pressure, reference, drive_id_boundary_pressure,
+                    position, 0., 0.,
+                    rectangle, width, 1.1*d1 * pi, height, 1.1*B,
+           contact model, penalty,
+                    E1, E1,
+                    nu1, nu1,
+                    E2, E2,
+                    nu2, nu2,
+                    sigma, (D2 - d1) / 1000.,
+                    elastic factor, 1e3,
+            compliance model,
+            elastic half space,
+                    /*E1, E1,
+                    nu1, nu1,
+                    E2, E2,
+                    nu2, nu2,*/
+            pressure dof scale, 1e6,
+            equation scale, 1e3,
+            output pressure, no,
+            output contact pressure, yes,
+            output clearance, yes,
+            output clearance derivative, no,
+            output total deformation, yes,
+            output velocity, no,
+            output stress, no,
+            output reaction force, yes,
+            output mesh, yes;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

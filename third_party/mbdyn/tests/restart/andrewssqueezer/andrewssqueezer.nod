@@ -1,0 +1,47 @@
+	structural: POINT_C, static,
+		reference, POINT_C, null,
+		reference, POINT_C, eye,
+		reference, POINT_C, null,
+		reference, POINT_C, null;
+
+	structural: LINK_O_F, dynamic,
+		reference, LINK_O_F, null,
+		reference, LINK_O_F, eye,
+		reference, LINK_O_F, null,
+		reference, LINK_O_F, null;
+
+	structural: LINK_E_F, dynamic,
+		reference, LINK_E_F, null,
+		reference, LINK_E_F, eye,
+		reference, LINK_E_F, null,
+		reference, LINK_E_F, null;
+
+	structural: LINK_H_E, dynamic,
+		reference, LINK_H_E, null,
+		reference, LINK_H_E, eye,
+		reference, LINK_H_E, null,
+		reference, LINK_H_E, null;
+
+	structural: LINK_G_E, dynamic,
+		reference, LINK_G_E, null,
+		reference, LINK_G_E, eye,
+		reference, LINK_G_E, null,
+		reference, LINK_G_E, null;
+
+	structural: LINK_A_G, dynamic,
+		reference, LINK_A_G, null,
+		reference, LINK_A_G, eye,
+		reference, LINK_A_G, null,
+		reference, LINK_A_G, null;
+
+	structural: LINK_A_H, dynamic,
+		reference, LINK_A_H, null,
+		reference, LINK_A_H, eye,
+		reference, LINK_A_H, null,
+		reference, LINK_A_H, null;
+
+	structural: LINK_E_B_D, dynamic,
+		reference, LINK_E_B_D, null,
+		reference, LINK_E_B_D, eye,
+		reference, LINK_E_B_D, null,
+		reference, LINK_E_B_D, null;

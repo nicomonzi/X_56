@@ -1,0 +1,105 @@
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 10.;
+	time step: 1e-2;
+
+	method: ms, .6;
+	tolerance: 1e-6;
+	max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 1;
+	joints: 1;
+	air properties;
+	aerodynamic elements: 1;
+	forces: 1;
+end: control data;
+
+set: const integer AIRCRAFT = 1;
+
+begin: nodes;
+	structural: AIRCRAFT, static,
+		null,
+		# eye,
+		1, -1., 0., 0., 3, 0., 0., -1.,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 1, total pin joint,
+		AIRCRAFT,
+			position, reference, global, null,
+			position orientation, reference, global, eye,
+			rotation orientation, reference, global, eye,
+		position, reference, global, null,
+		position orientation, reference, global, eye,
+		rotation orientation, reference, global, eye,
+		position constraint, 1, 1, 1,
+			null,
+			/*
+			component,
+				cosine, 0., pi/1., 10./2, one, 0.,
+				cosine, 3., pi/1., 10./2, one, 0.,
+				cosine, 6., pi/1., 10./2, one, 0.,
+			*/
+		orientation constraint, 1, 1, 1,
+			# null;
+			component,
+				cosine, 0., pi/1., 10.*deg2rad/2, one, 0.,
+				cosine, 3., pi/1., 10.*deg2rad/2, one, 0.,
+				cosine, 6., pi/1., 10.*deg2rad/2, one, 0.;
+	air properties: std, SI, 1., 0., 0., 100.;
+	aircraft instruments: AIRCRAFT, AIRCRAFT,
+		orientation, flight mechanics;
+		# orientation, aeroelasticity;
+	couple: 1, follower,
+		AIRCRAFT,
+		position, null,
+		component,
+			element, AIRCRAFT, aerodynamic element, string, "rollrate",
+				linear, 0., -.2,
+			0.,
+			element, AIRCRAFT, aerodynamic element, string, "yawrate",
+				linear, 0., -.4;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

@@ -1,0 +1,93 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/dummy/d,v 1.4 2014/12/13 17:15:37 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: real dt = 2.e-3;
+set: real t0 = 0.;
+set: real tf = 10000*dt;
+
+begin: initial value;
+    # abort after: input;
+    # abort after: assembly;
+
+    time step: dt;
+    initial time: t0;
+    final time: tf;
+    
+    tolerance: 1.e-9;
+    max iterations: 10;
+
+    derivatives coefficient: 1.e-12;
+    derivatives tolerance: 1.e-9;
+    derivatives max iterations: 10;
+    
+    fictitious steps number: 0;
+
+    set: real Rho = .6;
+    method: ms, Rho, Rho;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+        
+    structural nodes: 5;
+    
+    rigid bodies: 1;
+    joints: 4;  
+end: control data;
+
+set: real Omega = 1.;
+begin: nodes;
+    structural: 1, static,
+                null,
+		eye,
+		null,
+		null;
+    structural: 2, dynamic,
+                null,
+		eye,
+		null,
+		0.,0.,Omega,
+		accelerations, yes;
+    structural: 3, dynamic,
+                null,
+		eye,
+		null,
+		null,
+		accelerations, yes;
+    structural: 4, dummy,
+                3, offset,
+		1.,0.,0., 
+		eye;
+    structural: 5, dummy, 
+                4, relative frame, 2;
+end: nodes;
+
+begin: elements;
+    body: 3, 3, 1.,
+          1.,0.,0.,
+	  diag, 1.,1.,1.;
+    joint: 1, clamp, 1, node, node;
+    joint: 2, axial rotation,
+           1, null,
+	   2, null,
+	   const, Omega;
+    joint: 3, revolute hinge,
+           2, null,
+	   3, null;
+    joint: 4, deformable hinge,
+           2,
+	   3,
+	   linear elastic, 1.e2;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

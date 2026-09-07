@@ -1,0 +1,115 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/beam/b2,v 1.10 2014/12/13 17:15:35 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	set: real dt = 1.e-3;
+	time step: dt;
+	initial time: 0.;
+	final time: 400*dt;
+	
+	set: real Rho = .6;
+	method: ms, Rho, Rho;
+	
+	max iterations: 100;
+	tolerance: 1.e-6;
+	
+	derivatives coefficient: 1.e-6;
+	derivatives max iterations: 1;
+	derivatives tolerance: 1.e12;
+	
+	fictitious steps number: 0;
+
+	#output: all;
+	#output: iterations;
+	# output meter: string, "Time > 3.99";
+	#output meter: step, 3.9, 1., 0.;
+
+	threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	joints: 1;
+#	structural nodes: 1;
+#	joints: 0;
+	forces: 1;
+	rigid bodies: 1;
+	beams: 1;
+#	beams: 0;
+    output results: netcdf, sync;
+    output frequency: 10;
+    #initial assembly of deformable and force elements;
+    skip initial joint assembly;
+    output units: Custom, Length, "m", Mass, "g", Time, "ms", Current, "A", Temperature, "K";
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 3, dynamic,
+		1.,0.,0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+scalar function: "constpippo", const, 1.;
+scalar function: "linear", linear, 1.,2.,3.,4.;
+scalar function: "multilinear", multilinear, 1.,2.,3.,4.;
+scalar function: "mul", mul, "constpippo", "linear";
+scalar function: "spline1", cubicspline, 1.,2.,3.,4.,5.,6.;
+scalar function: "cb", chebychev, -2., 2., 0., 9., 0., .5;
+
+remark: "x=-3.", model::sf::cb(-3.);
+remark: "x=-2.", model::sf::cb(-2.);
+remark: "x=-1.", model::sf::cb(-1.);
+remark: "x=-0.", model::sf::cb( 0.);
+remark: "x=+1.", model::sf::cb( 1.);
+remark: "x=+2.", model::sf::cb( 2.);
+remark: "x=+3.", model::sf::cb( 3.);
+
+remark: "x=-3.", model::sf::cb(-3., 1);
+remark: "x=-2.", model::sf::cb(-2., 1);
+remark: "x=-1.", model::sf::cb(-1., 1);
+remark: "x=-0.", model::sf::cb( 0., 1);
+remark: "x=+1.", model::sf::cb( 1., 1);
+remark: "x=+2.", model::sf::cb( 2., 1);
+remark: "x=+3.", model::sf::cb( 3., 1);
+
+set: string x = "ciciu";
+remark: "ciao", x + ".";
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	force: 1, absolute, 
+		3,
+			position, null,
+		0.,0.,1.,
+#	couple: 1, absolute, 
+#		3, 0.,0.,1.,
+		step, 0., 100., 0.;
+	body: 3, 3, 1., null, eye;
+	set: real k = 1./(1.e-6+.5^2/12.*1.e-3);
+#	remark: "k=", k;
+	beam2: 1,
+		1, null,
+		3, null,
+		eye,
+		linear elastic generic, diag,
+		1.e6, k, k, 1.e3, 1.e3, 1.e3;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

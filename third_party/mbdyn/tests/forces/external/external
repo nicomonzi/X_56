@@ -1,0 +1,63 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/external/external,v 1.4 2014/12/13 17:15:38 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-2;
+
+	tolerance: 1e-9;
+	max iterations: 10;
+
+	threads: disable;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 2;
+	forces: 1;
+end: control data;
+
+begin: nodes;
+	structural: 1, dynamic,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	body: 1, 1,
+		.4,
+		null,
+		diag, 4.,5.,6.;
+	body: 2, 2,
+		4.,
+		null,
+		diag, 7.,8.,9.;
+	force: 10, external structural,
+		"IN.dat",
+		"OUT.dat",
+		2,
+		1, offset, 0.,0.,0.,
+		2, offset, 0.,0.,0.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

@@ -1,0 +1,19 @@
+	structural: CRANK, dynamic,
+		reference, CRANK, null,
+		reference, CRANK, eye,
+		reference, CRANK, null,
+		reference, CRANK, null;
+
+	structural: ROD, dynamic,
+		reference, ROD, null,
+		reference, ROD, eye,
+		reference, ROD, null,
+		reference, ROD, null,
+			assembly, 1., 0., no;
+
+	structural: BLOCK, dynamic,
+		reference, BLOCK, null,
+		reference, BLOCK, eye,
+		reference, BLOCK, null,
+		reference, BLOCK, null,
+			assembly, 1., 0., no;

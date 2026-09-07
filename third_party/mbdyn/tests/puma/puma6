@@ -1,0 +1,359 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/puma/puma6,v 1.6 2014/12/13 17:15:56 masarati Exp $
+
+/*
+
+6 dof manipulator ...
+
+  1               3          4
+   o         o=========o-r-o
+   |\         \             \
+   o r         r             r
+   |  \         \             \
+   o   o=========o             o-r-o
+  /|\       2                5       6
+          
+                     z
+                    |
+                y   |
+                  \ |
+                   \|      x
+                     ------
+
+*/
+
+
+set: integer ground = 1;
+set: integer body1 = 1000;
+set: integer revolute1 = 1001;
+set: integer body2 = 2000;
+set: integer revolute2 = 2001;
+set: integer body3 = 3000;
+set: integer revolute3 = 3001;
+set: integer body4 = 4000;
+set: integer revolute4 = 4001;
+set: integer body5 = 5000;
+set: integer revolute5 = 5001;
+set: integer body6 = 6000;
+set: integer revolute6 = 6001;
+
+set: real angle1 = 0.;
+set: real omega1 = 0.;
+set: real angle2 = 0.;
+set: real omega2 = 0.;
+set: real angle3 = 0.;
+set: real omega3 = 0.;
+set: real angle4 = 0.;
+set: real omega4 = 0.;
+set: real angle5 = 0.;
+set: real omega5 = 0.;
+set: real angle6 = 0.;
+set: real omega6 = 0.;
+
+set: real L2 = 1.;
+set: real L3 = 1.;
+
+set: real beam_damp = 1.e-9;
+
+set: real dt = 1.6e-3;
+set: real T = 10.;
+
+reference: ground,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: revolute1,
+	reference, ground, 0.,0.,.1,
+	reference, ground, eye,
+	reference, ground, null,
+	reference, ground, null;
+reference: body1,
+	reference, revolute1, 0.,0.,.1,
+	reference, revolute1, 3, 0.,0.,1., 1, cos(angle1),sin(angle1),0.,
+	reference, revolute1, null,
+	reference, revolute1, 0.,0.,omega1;
+
+reference: revolute2,
+	reference, body1, 0.,-.1,0.,
+	reference, body1, 3, 0.,1.,0., 1, 1.,0.,0.,
+	reference, body1, null,
+	reference, body1, null;
+reference: body2,
+	reference, revolute2, 0.,0.,-.1,
+	reference, revolute2, 3, 0.,0.,1., 1, cos(angle2),sin(angle2),0.,
+	reference, revolute2, null,
+	reference, revolute2, 0.,0.,omega2;
+
+reference: revolute3,
+	reference, body2, L2,0.,.1,
+	reference, body2, eye,
+	reference, body2, null,
+	reference, body2, null;
+reference: body3,
+	reference, revolute3, 0.,0.,.1,
+	reference, revolute3, 3, 0.,0.,1., 1, cos(angle3),sin(angle3),0.,
+	reference, revolute3, null,
+	reference, revolute3, 0.,0.,omega3;
+
+reference: revolute4,
+	reference, body3, L3+.1,0.,0.,
+	reference, body3, 3, 1.,0.,0., 2, 0.,1.,0.,
+	reference, body3, null,
+	reference, body3, null;
+reference: body4,
+	reference, revolute4, 0.,0.,.1,
+	reference, revolute4, 3, 0.,0.,1., 1, cos(angle4),sin(angle4),0.,
+	reference, revolute4, null,
+	reference, revolute4, 0.,0.,omega4;
+
+reference: revolute5,
+	reference, body4, .1,0.,0.,
+	reference, body4, 3, 1.,0.,0., 2, 0.,1.,0.,
+	reference, body4, null,
+	reference, body4, null;
+reference: body5,
+	reference, revolute5, 0.,0.,.1,
+	reference, revolute5, 3, 0.,0.,1., 1, cos(angle5),sin(angle5),0.,
+	reference, revolute5, null,
+	reference, revolute5, 0.,0.,omega5;
+
+reference: revolute6,
+	reference, body5, -.1,0.,0.,
+	reference, body5, 3, -1.,0.,0., 2, 0.,1.,0.,
+	reference, body5, null,
+	reference, body5, null;
+reference: body6,
+	reference, revolute6, 0.,0.,.1,
+	reference, revolute6, 3, 0.,0.,1., 1, cos(angle6),sin(angle6),0.,
+	reference, revolute6, null,
+	reference, revolute6, 0.,0.,omega6;
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: T;
+	time step: dt;
+
+	tolerance: 1.e-6;
+	max iterations: 20;
+
+	method: ms, .6;
+
+	newton raphson: modified, 5;
+
+	derivatives tolerance: 1.e-6;
+	derivatives max iterations: 20;
+	derivatives coefficient: 1.e-9;
+
+	output: none;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	default output: none;
+	make restart file: time, T/2.;
+	output precision: 20;
+	print: dof stats;
+	structural nodes:
+		+1	# ground
+		+1	# body 1
+		+2	# body 2
+		+2	# body 3
+		+1	# body 4
+		+1	# body 5
+		+1	# body 6
+	;
+	rigid bodies:
+		+1	# body 1
+		+2	# body 2
+		+2	# body 3
+		+1	# body 4
+		+1	# body 5
+		+1	# body 6
+	;
+	joints:
+		+1	# ground
+		+1	# revolute 1
+		+1	# revolute 2
+		+1	# revolute 3
+		+1	# revolute 4
+		+1	# revolute 5
+		+1	# revolute 6
+	;
+	beams:
+		+1	# body 2
+		+1	# body 3
+	;
+	gravity;
+end: control data;
+
+begin: nodes;
+	structural: ground, static,
+		reference, ground, null,
+		reference, ground, eye,
+		reference, ground, null,
+		reference, ground, null;
+	structural: body1, dynamic,
+		reference, body1, null,
+		reference, body1, eye,
+		reference, body1, null,
+		reference, body1, null;
+	structural: body2, dynamic,
+		reference, body2, null,
+		reference, body2, eye,
+		reference, body2, null,
+		reference, body2, null;
+	structural: body2+100, dynamic,
+		reference, body2, L2,0.,0.,
+		reference, body2, eye,
+		reference, body2, null,
+		reference, body2, null;
+	structural: body3, dynamic,
+		reference, body3, null,
+		reference, body3, eye,
+		reference, body3, null,
+		reference, body3, null;
+	structural: body3+100, dynamic,
+		reference, body3, L3,0.,0.,
+		reference, body3, eye,
+		reference, body3, null,
+		reference, body3, null;
+	structural: body4, dynamic,
+		reference, body4, null,
+		reference, body4, eye,
+		reference, body4, null,
+		reference, body4, null;
+	structural: body5, dynamic,
+		reference, body5, null,
+		reference, body5, eye,
+		reference, body5, null,
+		reference, body5, null;
+	structural: body6, dynamic,
+		reference, body6, null,
+		reference, body6, eye,
+		reference, body6, null,
+		reference, body6, null;
+end: nodes;
+
+begin: elements;
+	gravity: 0.,0.,-1., cosine, 0.,pi/.01,9.81/2.,half,0.;
+	joint: ground, clamp, ground, node, node;
+
+	joint: revolute1, revolute hinge,
+		ground,
+			reference, revolute1, null,
+			hinge, reference, revolute1, eye,
+		body1,
+			reference, revolute1, null,
+			hinge, reference, revolute1, eye;
+	body: body1, body1,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+
+	joint: revolute2, revolute hinge,
+		body1,
+			reference, revolute2, null,
+			hinge, reference, revolute2, eye,
+		body2,
+			reference, revolute2, null,
+			hinge, reference, revolute2, eye;
+	body: body2, body2,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+	beam2: body2,
+		body2, null,
+		body2+100, null,
+		reference, body2, eye,
+		linear viscoelastic generic,
+			diag,
+			1.e9,
+			1./(1./1.e9+L2^2/12./1.e5),
+			1./(1./1.e9+L2^2/12./1.e6),
+			1.e5,
+			1.e6,
+			1.e5,
+			proportional, beam_damp;
+	body: body2+100, body2+100,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+
+	joint: revolute3, revolute hinge,
+		body2+100,
+			reference, revolute3, null,
+			hinge, reference, revolute3, eye,
+		body3,
+			reference, revolute3, null,
+			hinge, reference, revolute3, eye;
+	body: body3, body3,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+	beam2: body3,
+		body3, null,
+		body3+100, null,
+		reference, body3, eye,
+		linear viscoelastic generic,
+			diag,
+			1.e9,
+			1./(1./1.e9+L3^2/12./1.e5),
+			1./(1./1.e9+L3^2/12./1.e6),
+			1.e5,
+			1.e6,
+			1.e5,
+			proportional, beam_damp;
+	body: body3+100, body3+100,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+
+	joint: revolute4, revolute hinge,
+		body3+100,
+			reference, revolute4, null,
+			hinge, reference, revolute4, eye,
+		body4,
+			reference, revolute4, null,
+			hinge, reference, revolute4, eye;
+	body: body4, body4,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+
+	joint: revolute5, revolute hinge,
+		body4,
+			reference, revolute5, null,
+			hinge, reference, revolute5, eye,
+		body5,
+			reference, revolute5, null,
+			hinge, reference, revolute5, eye;
+	body: body5, body5,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+
+	joint: revolute6, revolute hinge,
+		body5,
+			reference, revolute6, null,
+			hinge, reference, revolute6, eye,
+		body6,
+			reference, revolute6, null,
+			hinge, reference, revolute6, eye;
+	body: body6, body6,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

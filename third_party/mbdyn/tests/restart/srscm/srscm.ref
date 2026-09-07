@@ -1,0 +1,55 @@
+reference: GROUND,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+reference: POINT_A,
+	reference, GROUND, X_POINT_A, Y_POINT_A, Z_POINT_A,
+	reference, GROUND, eye,
+	reference, GROUND, null,
+	reference, GROUND, null;
+
+reference: POINT_B,
+	reference, POINT_A, 0., 0., L_CRANK,
+	reference, POINT_A, eye,
+	reference, POINT_A, null,
+	reference, POINT_A, null;
+
+reference: POINT_C,
+	reference, GROUND, X_POINT_C, Y_POINT_C, Z_POINT_C,
+	reference, GROUND, eye,
+	reference, GROUND, null,
+	reference, GROUND, null;
+
+reference: CRANK + 1, # orientation and angular velocity
+	reference, POINT_A, null,
+	reference, POINT_A, 1, 1., 0., 0., 2, 0., 0., 1.,
+	reference, POINT_A, null,
+	reference, POINT_A, OMEGA, 0., 0.;
+
+reference: CRANK, # location of CM
+	reference, CRANK + 1, null, # 0., L_CRANK/2, 0.,
+	reference, CRANK + 1, eye,
+	reference, CRANK + 1, null,
+	reference, CRANK + 1, null;
+
+reference: ROD + 1,
+	reference, POINT_C, null,
+	reference, POINT_C,
+		2, -X_POINT_C, Y_POINT_B, Z_POINT_B,
+		3, 1., 0., 0., # note: not orthogonal to 2; 
+	reference, POINT_C, null,
+	reference, POINT_C, null;
+
+reference: ROD,
+	reference, ROD + 1, 0., L_ROD/2, 0.,
+	reference, ROD + 1, eye,
+	reference, ROD + 1, null,
+	reference, ROD + 1, null;
+
+reference: BLOCK,
+	reference, POINT_C, null,
+	reference, POINT_C, eye,
+	reference, POINT_C, null,
+	reference, POINT_C, null;

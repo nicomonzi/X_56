@@ -1,0 +1,47 @@
+basename =     Postpro/test
+data_basename = Output/test
+
+analysis = {
+  name = vl
+  type = Viz
+
+  format = vtk !tecplot ! vtk ! tecplot
+
+  start_res = 1
+  end_res = 19
+  step_res = 1
+  wake = T
+  separate_wake = T
+  variable = Vorticity
+  variable = Pressure
+}
+
+analysis = {
+  type = hinge_loads
+  name = hm
+
+  start_res = 1
+  end_res = 19
+  step_res = 1
+
+  format = dat
+  average = F
+  component = Wing
+  hinge_tag = Flap_r
+}
+
+analysis = {
+  type = hinge_loads
+  name = hm
+
+  start_res = 1
+  end_res = 19
+  step_res = 1
+
+  format = dat
+  average = F
+  component = Wing
+  hinge_tag = Flap_l
+}
+
+

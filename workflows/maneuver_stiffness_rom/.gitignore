@@ -1,0 +1,14 @@
+generated/
+nastran/cases/
+results/
+*.f04
+*.f06
+*.log
+*.op2
+*.xdb
+*.MASTER
+*.DBALL
+*.mat
+*.tab
+*.fem
+__pycache__/

@@ -1,0 +1,61 @@
+
+!basename       = ./Output/ref_base
+basename       = ./Output/i1
+basename_debug =  ./Debug/nope
+
+! Timings ---------------------
+tstart = 0.0
+tend   = 1.0
+dt = 0.025
+dt_out = 0.1
+!dt_out = 0.025
+dt_debug_out = 0.025
+output_start = T
+debug_level = 5
+
+! restart --------------------
+restart_from_file= F
+reset_time = F
+
+
+
+! geo input ----------------------
+reference_file = ./References.in
+geometry_file = ./geo_input.h5
+
+! reference values ---------------------
+u_inf = (/ 0.0 , 0.0 , 0.0 /)
+P_inf = 0.0
+rho_inf = 1.0 
+u_ref = 6.28
+!mu_inf = 1e-2
+
+! Model parameters -------------------
+vortex_rad = 0.05
+rankine_rad = 0.005
+cutoff_rad = 0.001
+fmm = T
+vortstretch = F
+diffusion = F
+penetration_avoidance = F
+particles_redistribution = F
+
+
+! wake parameters -------------
+!n_wake_panels = 1000
+n_wake_panels = 3
+n_wake_particles = 160000
+particles_box_min = (/-3.0, -3.0, -5.0/)
+particles_box_max = (/ 3.0,  3.0,   1.0/)
+rigid_wake = F
+rigid_wake_vel = (/0.0, 0.0, -0.344/)
+implicit_panel_min_vel = 0.1
+
+! octree things-------------------
+box_length = 6
+n_box = (/1,1,1/)
+octree_origin = (/-3.0, -3.0, -5.0/)
+n_octree_levels = 6
+min_octree_part = 5
+multipole_degree = 2
+

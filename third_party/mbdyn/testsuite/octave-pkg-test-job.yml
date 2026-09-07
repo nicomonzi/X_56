@@ -1,0 +1,125 @@
+# MBDyn (C) is a multibody analysis code.
+# http://www.mbdyn.org
+#
+# Copyright (C) 1996-2023
+#
+# Pierangelo Masarati	<pierangelo.masarati@polimi.it>
+# Paolo Mantegazza	<paolo.mantegazza@polimi.it>
+#
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+#
+# Changing this copyright notice is forbidden.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# AUTHOR: Reinhard Resch <mbdyn-user@a1.net>
+# Copyright (C) 2023(-2023) all rights reserved.
+
+# The copyright of this code is transferred
+# to Pierangelo Masarati and Paolo Mantegazza
+# for use in the software MBDyn as described
+# in the GNU Public License version 2.1
+
+octave-pkg-test-job:   # This job runs in the test stage.
+  variables:
+      OCT_PKG_TEST_JOB_LOG: "octave-pkg-test-job.log"
+      OCT_PKG_TEST_JOB_STATUS: "octave-pkg-test-job.status"
+      OCT_PKG_TEST_JOB_NUM_TASKS: 32
+      OCT_PKG_FUNCTION_FILTER: ""
+  stage: test    # It only starts when the job in the build stage completes successfully.
+  needs:
+      - job: mkl-build-job
+      - job: siconos-build-job
+        artifacts: true
+      - job: trilinos-build-job
+        artifacts: true
+      - job: hdf5-build-job
+        artifacts: true
+      - job: netcdf-c-build-job
+        artifacts: true
+      - job: netcdf-cxx4-build-job
+        artifacts: true
+      - job: nlopt-build-job
+        artifacts: true
+      - job: gtest-build-job
+        artifacts: true
+      - job: tfel-build-job
+        artifacts: true
+      - job: mgis-build-job
+        artifacts: true
+      - job: gallery-build-job
+        artifacts: true
+      - job: mbdyn-build-job
+        artifacts: true
+      - job: gmsh-build-job
+        artifacts: true
+      - job: octave-pkg-build-job
+        artifacts: true
+  script:
+      - MBD_INSTALL_PREFIX=${CI_PROJECT_DIR}/${MBD_INSTALL_PREFIX}
+      - export OCT_PKG_INSTALL_PREFIX=${CI_PROJECT_DIR}/${OCT_PKG_INSTALL_PREFIX}
+      - GMSH_INSTALL_PREFIX=${CI_PROJECT_DIR}/${GMSH_INSTALL_PREFIX}
+      - OCT_PKG_TEST_OUTPUT_DIR=${CI_PROJECT_DIR}/${OCT_PKG_TEST_OUTPUT_DIR}
+      - OCT_PKG_TESTSUITE_SCRIPT="${CI_PROJECT_DIR}/testsuite/octave_pkg_testsuite.m"
+      - export PATH=${MBD_INSTALL_PREFIX}/bin:${GMSH_INSTALL_PREFIX}/bin:${OCT_PKG_INSTALL_PREFIX}/bin:${PATH}
+      - export AWKPATH=${MBD_INSTALL_PREFIX}/share/awk:${AWKPATH}
+      - export TESTSUITE_TIME_CMD
+      - export MBDYN_EXEC
+      - export OCTAVE_EXEC="${GTEST_OCTAVE_EXEC}"
+      - export CI_PROJECT_DIR
+      - export MBDYN_ARGS_ADD
+      - export JUNIT_XML_KEEP_ALL_OUTPUT
+      - mkdir -p "${OCT_PKG_TEST_OUTPUT_DIR}"
+      - log_file="${OCT_PKG_TEST_OUTPUT_DIR}/${OCT_PKG_TEST_JOB_LOG}"
+      - echo "octave packages test job" | tee "${log_file}"
+      - which mbdyn | tee -a "${log_file}"
+      - mbdyn --version | tee -a "${log_file}"
+      - which mbdyn2easyanim.sh | tee -a "${log_file}"
+      - which gmsh | tee -a "${log_file}"
+      - gmsh --version | tee -a "${log_file}"
+      - which octave | tee -a "${log_file}"
+      - |
+        case "${OCTAVE_EXEC}" in
+          gtest-*)
+            gtest_octave_cli_flags=`printf ' --test-suite-name "%s" --test-name "%s" --gtest_output=xml:%s' "octave-pkg-test-job.yml" "${gtest_octave_cli_test_func}" "${OCT_PKG_TEST_OUTPUT_DIR}/junit_xml_report_octave_${gtest_octave_cli_test_func}.xml"`
+            ;;
+          *)
+            gtest_octave_cli_flags=""
+            ;;
+        esac
+      ## Disable multithreaded BLAS/LAPACK
+      - export OMP_NUM_THREADS=1
+      - export MKL_NUM_THREADS=1
+      - export OPENBLAS_NUM_THREADS=1
+      - ${GTEST_OCTAVE_EXEC} --gtest_output=xml:"${OCT_PKG_TEST_OUTPUT_DIR}/junit_xml_report_octave_main.xml" --test-suite-name octave-pkg-test-job.yml --test-name "${OCT_PKG_TESTSUITE_SCRIPT}" -q "${OCT_PKG_TESTSUITE_SCRIPT}" --octave-pkg-list "${OCT_PKG_LIST}" --octave-pkg-test-dir "${OCT_PKG_TEST_OUTPUT_DIR}" --octave-exec "${GTEST_OCTAVE_EXEC}" --tasks "${OCT_PKG_TEST_JOB_NUM_TASKS}"
+      - cd "${OCT_PKG_TEST_OUTPUT_DIR}"
+      - find . -name 'junit_xml_report_*.xml' -print0 | xargs -0 "${CI_PROJECT_DIR}/testsuite/junit_xml_relative_path.py" -p "${CI_PROJECT_DIR}"
+
+  artifacts:
+    name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}
+    expire_in: 2 days
+    paths:
+      - $OCT_PKG_TEST_OUTPUT_DIR/$OCT_PKG_TEST_JOB_LOG
+      - $OCT_PKG_TEST_OUTPUT_DIR/$OCT_PKG_TEST_JOB_STATUS
+      - $OCT_PKG_TEST_OUTPUT_DIR/**/junit_xml_report_octave_*.xml
+      - $OCT_PKG_TEST_OUTPUT_DIR/**/fntests.out
+      - $OCT_PKG_TEST_OUTPUT_DIR/**/fntests.log
+      - $OCT_PKG_TEST_OUTPUT_DIR/**/octave_pkg_testsuite_test_*.m
+      - $OCT_PKG_TEST_OUTPUT_DIR/**/octave_pkg_testsuite_test_*.tst
+    when: always
+    reports:
+      junit: $OCT_PKG_TEST_OUTPUT_DIR/**/junit_xml_report_octave_*.xml

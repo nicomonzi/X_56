@@ -1,0 +1,87 @@
+basename =     Postpro/test_coupled
+data_basename = Output/test_coupled
+
+analysis = {
+  name = vl
+  type = Viz
+
+  format = vtk !tecplot ! vtk ! tecplot
+
+  start_res = 1
+  end_res = 100
+  step_res = 1
+  wake = T
+  separate_wake = T
+  variable = Vorticity
+  variable = Pressure
+}
+
+
+analysis = {
+
+Type = integral_loads
+Name = wing
+StartRes = 1
+EndRes   = 100
+StepRes  = 1
+Format   = dat
+
+Reference_Tag = 0
+
+}
+
+analysis = {
+    type = sectional_loads
+    name = sl01
+    start_res = 1
+    end_res = 100
+    step_res = 1
+    format = dat
+    average = F
+    component = Blade_1
+    axis_nod = (/ 0.0, 0.0, 0.0 /)
+    axis_dir = (/ 0.0, 1.0, 0.0 /)    
+}
+
+analysis = {
+    type = sectional_loads
+    name = sl02
+    start_res = 1
+    end_res = 100
+    step_res = 1
+    format = dat
+    average = F
+    component = Blade_2
+    axis_nod = (/ 0.0, 0.0, 0.0 /)
+    axis_dir = (/ 0.0, 1.0, 0.0 /)
+}
+
+analysis = {
+  type = chordwise_loads
+  name = cl01
+  start_res = 1
+  end_res = 100
+  step_res = 1
+  format = dat
+  average = F  
+  component = Blade_1
+  n_station  = 2
+  span_station = (/1.0, 3.0/) 
+  axis_nod = (/ 0.0, 0.0, 0.0 /)
+  axis_dir = (/ 0.0, 1.0, 0.0 /)
+}
+
+analysis = {
+  type = chordwise_loads
+  name = cl02
+  start_res = 1
+  end_res = 100
+  step_res = 1
+  format = dat
+  average = F  
+  component = Blade_2
+  n_station  = 2
+  span_station = (/1.0, 3.0/) 
+  axis_nod = (/ 0.0, 0.0, 0.0 /)
+  axis_dir = (/ 0.0, 1.0, 0.0 /)
+}

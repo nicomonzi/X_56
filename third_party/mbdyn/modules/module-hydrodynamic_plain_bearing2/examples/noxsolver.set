@@ -1,0 +1,24 @@
+linear solver: umfpack, grad, scale, iterative, always, max iterations, 10, verbose, 0;
+
+nonlinear solver: nox,
+                 modified, 0,
+                 jacobian operator, newton,
+                 solver, line search based,
+                 direction, newton,
+                 line search method, backtrack,
+                 weighted rms absolute tolerance, 0,
+                 weighted rms relative tolerance, 0,
+                 forcing term, type 2,                 
+                 forcing term min tolerance, 1e-10,
+                 forcing term max tolerance, 1e-5,                 
+                 minimum step, 1e-12,
+                 recovery step type, constant,
+                 recovery step, 1e-12,
+                 verbose, yes,
+                 print convergence info, no,
+                 linear solver max iterations, 20,
+                 linear solver tolerance, 1e-8,
+                 krylov subspace size, 20,
+                 line search max iterations, 200;
+
+set: bool enable_mcp = FALSE;

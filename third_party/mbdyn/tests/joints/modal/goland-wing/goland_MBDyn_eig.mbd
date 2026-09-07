@@ -1,0 +1,184 @@
+# MBDyn test - Goland Wing with modal element (wing)
+# Author: Alessandro Cocco 
+# 		 <alessandro.cocco@polimi.it>  
+
+
+/* Frequencies Results   
+*	NASTRAN 		MBDyn Modal 	
+*	7.665914E+00	7.665913891842176
+*	1.521993E+01	15.21992773702186
+*	2.484945E+01	24.84944986599963
+*	3.851744E+01	38.51744216485096
+*	5.477121E+01	54.77120839940799
+*/
+
+
+begin: data;
+	problem: initial value;
+end: data;
+
+/* Labels */ 
+set: const integer GROUND = 0; 
+set: const integer BEAM = 100; 
+set: const integer MODAL_NODE = 1000; 
+set: const integer CLAMP = 1; 
+set: const integer MODAL_JOINT = 2; 
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1.e-3;
+
+	method: ms, .6;
+
+	nonlinear solver: newton raphson, modified, 5;
+
+	tolerance: 1.e-5;
+	max iterations: 10;
+
+	eigenanalysis: 1., 
+		parameter, 1.e-6, 
+		output matrices, 
+		output eigenvectors, 
+		output geometry; 
+
+threads: disable;
+end: initial value;
+
+begin: control data;
+	print: dof stats;
+
+	structural nodes:
+		+1		# modal
+		+11		# beam nodes 
+	;
+	joints:
+		+1		# modal
+		+1		# ground
+	;
+
+	output results: netcdf, no text; 
+	default orientation: orientation vector;  
+
+end: control data;
+
+reference: GROUND,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+begin: nodes;
+
+
+	structural: MODAL_NODE, modal,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null; 
+	
+	/* Interface nodes */
+	structural: BEAM + 0, static,
+		reference, GROUND, 0.0000000000E+00, 0.0000000000E+00,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 1, static,
+		reference, GROUND, 0.0000000000E+00, 0.6096000000E+00,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 2, static,
+		reference, GROUND, 0.0000000000E+00, 0.1219200000E+01,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 3, static,
+		reference, GROUND, 0.0000000000E+00, 0.1828800000E+01,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 4, static,
+		reference, GROUND, 0.0000000000E+00, 0.2438400000E+01,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 5, static,
+		reference, GROUND, 0.0000000000E+00, 0.3048000000E+01,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 6, static,
+		reference, GROUND, 0.0000000000E+00, 0.3657600000E+01,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 7, static,
+		reference, GROUND, 0.0000000000E+00, 0.4267200000E+01,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 8, static,
+		reference, GROUND, 0.0000000000E+00, 0.4876800000E+01,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 9, static,
+		reference, GROUND, 0.0000000000E+00, 0.5486400000E+01,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: BEAM + 10, static,
+		reference, GROUND, 0.0000000000E+00, 0.6096000000E+01,	0.0000000000E+00,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+end: nodes;
+
+begin: elements;
+
+	joint: CLAMP, clamp, MODAL_NODE, node, node; 
+
+	joint: MODAL_JOINT, modal, 
+		MODAL_NODE,		 	 # Modal node
+		5,					 # Number of modes to keep 
+		list, 1, 2, 3, 4, 5, # Modes to keep  
+		34,					 # Number of FEM grid points:  LE - BEAM - TE + REB3 (just to test)
+		no damping,
+		"goland_modal_joint.fem",
+		11,					# N. Interface nodes 
+			# ID Nastran, ID MBDyn, Offset  
+			1, 	BEAM + 0,  null, 
+			2, 	BEAM + 1,  null,
+			3, 	BEAM + 2,  null,
+			4, 	BEAM + 3,  null,
+			5, 	BEAM + 4,  null,
+			6, 	BEAM + 5,  null,
+			7, 	BEAM + 6,  null,
+			8, 	BEAM + 7,  null,
+			9, 	BEAM + 8,  null,
+			10, BEAM + 9,  null,
+			11, BEAM + 10, null; 
+
+	inertia: 1, name, "modal",
+		joint, 2;
+
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

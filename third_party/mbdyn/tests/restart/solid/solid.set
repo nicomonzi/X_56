@@ -1,0 +1,99 @@
+## MBDyn (C) is a multibody analysis code.
+## http://www.mbdyn.org
+##
+## Copyright (C) 1996-2025
+##
+## Pierangelo Masarati	<masarati@aero.polimi.it>
+## Paolo Mantegazza	<mantegazza@aero.polimi.it>
+##
+## Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+## via La Masa, 34 - 20156 Milano, Italy
+## http://www.aero.polimi.it
+##
+## Changing this copyright notice is forbidden.
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation (version 2 of the License).
+##
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+
+set: integer number_of_nodes = 86;
+set: integer number_of_nodes_hydraulic = 0;
+set: integer number_of_solids = 20;
+set: integer number_of_genels = 0;
+set: integer number_of_forces = 1;
+set: integer number_of_joints = 6;
+set: integer number_of_surface_loads = 0;
+set: real t1 = 1.0000000000000000e-02;
+set: real t2 = 1.0000000000000000e-02;
+set: real dt = 5.0000000000000001e-05;
+set: real gx = 0.0000000000000000e+00;
+set: real gy = 0.0000000000000000e+00;
+set: real gz = 0.0000000000000000e+00;
+set: real Wx = 0.0000000000000000e+00;
+set: real Wy = 0.0000000000000000e+00;
+set: real Wz = 0.0000000000000000e+00;
+set: real WPx = 0.0000000000000000e+00;
+set: real WPy = 0.0000000000000000e+00;
+set: real WPz = 0.0000000000000000e+00;
+set: real XPPx = 0.0000000000000000e+00;
+set: real XPPy = 0.0000000000000000e+00;
+set: real XPPz = 0.0000000000000000e+00;
+set: real V0x = 0.0000000000000000e+00;
+set: real V0y = 0.0000000000000000e+00;
+set: real V0z = 0.0000000000000000e+00;
+set: real W0x = 0.0000000000000000e+00;
+set: real W0y = 0.0000000000000000e+00;
+set: real W0z = 0.0000000000000000e+00;
+set: real R11 = 1;
+set: real R12 = 0;
+set: real R13 = 0;
+set: real R21 = 0;
+set: real R22 = 1;
+set: real R23 = 0;
+set: real R31 = 0;
+set: real R32 = 0;
+set: real R33 = 1;
+set: real sigma0_1 = 0.0000000000000000e+00;
+set: real sigma0_2 = 0.0000000000000000e+00;
+set: real sigma0_3 = 0.0000000000000000e+00;
+set: real sigma0_4 = 0.0000000000000000e+00;
+set: real sigma0_5 = 0.0000000000000000e+00;
+set: real sigma0_6 = 0.0000000000000000e+00;
+set: real epsilon0_1 = 0.0000000000000000e+00;
+set: real epsilon0_2 = 0.0000000000000000e+00;
+set: real epsilon0_3 = 0.0000000000000000e+00;
+set: real epsilon0_4 = 0.0000000000000000e+00;
+set: real epsilon0_5 = 0.0000000000000000e+00;
+set: real epsilon0_6 = 0.0000000000000000e+00;
+
+set: integer ref_id_solid = 1000;
+set: integer tpl_drive_id_pre_stress = 2001;
+set: integer tpl_drive_id_pre_strain = 2002;
+set: integer drive_id_E = 3001;
+set: integer drive_id_beta1 = 3002;
+set: integer drive_id_beta2 = 3003;
+set: integer drive_id_beta3 = 3004;
+set: integer drive_id_gamma1 = 3005;
+set: integer drive_id_gamma2 = 3006;
+set: integer drive_id_gamma3 = 3007;
+set: integer drive_id_U = 3008;
+set: integer drive_id_W = 3009;
+set: integer drive_id_rdt = 3010;
+set: integer inertia_id_solid = 4001;
+set: integer drive_id_beta1_2 = 5001;
+set: integer drive_id_beta2_2 = 5002;
+set: integer drive_id_beta3_2 = 5003;
+set: integer drive_id_gamma1_2 = 6001;
+set: integer drive_id_gamma2_2 = 6002;
+set: integer drive_id_gamma3_2 = 6003;

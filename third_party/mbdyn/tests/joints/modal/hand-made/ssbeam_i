@@ -1,0 +1,82 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/modal/hand-made/ssbeam_i,v 1.1 2015/05/12 21:54:42 masarati Exp $
+
+# Tarocco a mano senza massa
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    initial time: 0.;
+    final time:   5.;
+    time step:   1.e-3;
+
+    method: ms, .6;  
+
+    tolerance: 1.e-6;
+    max iterations: 10;
+
+    derivatives coefficient: 1.e-9;
+    derivatives tolerance: 1.e-9;
+    derivatives max iterations: 20;
+
+    output: iterations;
+    output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+    structural nodes:
+	+ 1	# modal
+	+ 1	# fem
+    ;
+    rigid bodies:
+	+ 0	# mb
+    ;
+    joints:
+	+ 1	# clamp
+	+ 1	# modal
+    ;
+    forces:
+	+ 0	# excitation modal
+    ;
+    gravity;
+end: control data;
+
+begin: nodes;
+    structural: 1000, modal,
+                reference, global, null,
+                reference, global, eye,
+                reference, global, null,
+                reference, global, null;
+    
+    structural: 1001, static,
+                reference, global, .5, 0., -1.255131e-01,
+                reference, global, eye,              
+                reference, global, null,
+                reference, global, null;
+end: nodes;
+
+
+begin: elements;
+    joint: 0, clamp, 1000, node, node;
+    joint: 1000, modal,
+	1000, # FEM model is connected to (modal) node 1000 for RB motion
+        2,	# n. of modes
+		initial value, mode, 1, -1.255131e-01, 0.,
+        11,	# n. of FEM nodes
+	no damping,
+        "ssbeam.fem",
+	# echo, "ssbeam_echo.fem",
+        1,
+        5, 1001, null;
+
+	gravity: 0., 0., -1., 9.81;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

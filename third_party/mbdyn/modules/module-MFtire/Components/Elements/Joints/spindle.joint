@@ -1,0 +1,5 @@
+joint: CURR_SPINDLE, revolute hinge,
+	CURR_HUB, reference, node, null,
+	hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.,
+	CURR_RIM, reference, node, null,
+	hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.;

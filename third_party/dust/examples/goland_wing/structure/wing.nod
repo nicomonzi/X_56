@@ -1,0 +1,12 @@
+
+structural: 2*curr_elem-1, dynamic,
+  reference, GROUND, 0., (curr_elem - 0.5) * dL, 0.,
+  reference, GROUND, eye, 
+  reference, GROUND, null, 
+  reference, GROUND, null;
+
+structural: 2*curr_elem, dynamic,
+  reference, GROUND, 0., curr_elem * dL, 0.,
+  reference, GROUND, eye, 
+  reference, GROUND, null, 
+  reference, GROUND, null;

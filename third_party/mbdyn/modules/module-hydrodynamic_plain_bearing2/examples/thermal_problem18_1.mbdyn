@@ -1,0 +1,105 @@
+/* 
+ * MBDyn (C) is a multibody analysis code. 
+ * http://www.mbdyn.org
+ *
+ * Copyright (C) 1996-2012
+ *
+ * Pierangelo Masarati	<masarati@aero.polimi.it>
+ * Paolo Mantegazza	<mantegazza@aero.polimi.it>
+ *
+ * Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+ * via La Masa, 34 - 20156 Milano, Italy
+ * http://www.aero.polimi.it
+ *
+ * Changing this copyright notice is forbidden.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation (version 2 of the License).
+ * 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/*
+ AUTHOR: Reinhard Resch <mbdyn-user@a1.net>
+        Copyright (C) 2011(-2025) all rights reserved.
+
+        The copyright of this code is transferred
+        to Pierangelo Masarati and Paolo Mantegazza
+        for use in the software MBDyn as described
+        in the GNU Public License version 2.1
+*/
+
+set: real Di = 200e-3;
+set: real Do = 299e-3;
+set: real Wo = 200e-3;
+set: real rho = 7850;
+set: real T1 = 100;
+set: real T2 = 20;
+set: real m1 = (Do^2 - Di^2) * pi / 4. * Wo * rho;
+set: real c1 = 470;
+set: real A12 = Do * pi * Wo + 2 * (Do^2 - Di^2) * pi / 4;
+set: real alpha12 = 50;
+set: real P1 = 100;
+
+set: integer node_id_T1 = 4001;
+set: integer node_id_T2 = 4002;
+set: integer elem_id_T2 = 5001;
+set: integer elem_id_m1 = 5002;
+set: integer elem_id_k12 = 5003;
+set: integer elem_id_P1 = 5004;
+
+begin: data;
+	problem: initial value; # the default
+end: data;
+
+begin: initial value;
+	initial time: 0;
+	final time: 36000;
+	time step: 10;
+	max iterations: 100;
+	tolerance: 1e-5, test, minmax, 1e-4, test, minmax;
+	linear solver: umfpack, colamd, scale, row max column max, always, max iterations, 10;
+	#nonlinear solver: line search, default solver options, heavy nonlinear, divergence check, no, verbose, no, print convergence info, no;
+        include: "noxsolver.set";            
+        derivatives tolerance: 1e-6, 1e-2;
+        derivatives max iterations: 10;
+        derivatives coefficient: auto;
+    method: ms, 0.6;
+    output: iterations, solver condition number, stat, yes;
+end: initial value;
+
+begin: control data;
+#make restart file: format, binary;
+       max iterations: 10;
+       thermal nodes: 2;
+       genels: 3;
+       forces: 1;
+use automatic differentiation;
+end: control data;
+
+begin: nodes;
+        thermal: node_id_T1, T1;
+        thermal: node_id_T2, T2;        
+end: nodes;
+
+begin: elements;		
+    genel: elem_id_T2, clamp, node_id_T2, thermal, algebraic, T2;
+    genel: elem_id_m1, spring support, node_id_T1, thermal, algebraic, linear viscous generic, m1 * c1;
+    genel: elem_id_k12, spring, node_id_T1, thermal, algebraic, node_id_T2, thermal, algebraic, linear elastic generic, A12 * alpha12;
+    force: elem_id_P1, abstract, node_id_T1, thermal, P1;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

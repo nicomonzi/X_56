@@ -1,0 +1,261 @@
+# 3 masses - 3 springs - 3 dampers system
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 100.;
+	time step: 1.e-2;
+	method: ms, .6;
+
+	nonlinear solver: newton raphson, modified, 4;
+
+	max iterations: 20;
+	tolerance: 1.e-6;
+	#newton raphson: modified, 4;
+
+	derivatives coefficient: 1.e+2;
+	derivatives max iterations: 10;
+	derivatives tolerance: 1.e-6;
+threads: disable;
+end: initial value;
+
+include: "system3M.set";
+
+begin: control data;
+	skip initial joint assembly;
+	structural nodes: 
+		+1	# ground
+		+1	# mass 1
+		+1	# mass 2
+		+1	# mass 3
+	;
+
+	joints: 
+		+1	# gruond clamp
+		+3	# inline
+		+3	# elastic elements
+	;
+
+	rigid bodies: 
+		+3	# masses
+	;
+	forces:
+		+3
+	;
+	file drivers:
+		+1
+	;
+	output elements:
+		+1
+	;
+	select timeout: 1;
+
+	default output: accelerations;
+
+end: control data;
+
+# 
+set: integer GROUND = 1;
+set: integer MASS1 = 1000;
+set: integer MASS2 = 2000;
+set: integer MASS3 = 3000;
+set: real  POSITION1 = 1.;					# m
+set: real  POSITION2 = 2.;					# m
+set: real  POSITION3 = 3.;					# m
+
+reference: GROUND, # Z in the vertical direction
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: MASS1,
+	reference, GROUND, POSITION1, 0., 0.,
+	reference, GROUND, eye,
+	reference, GROUND, null,
+	reference, GROUND, 0.,0.,0.;
+reference: MASS2,
+	reference, GROUND, POSITION2, 0., 0.,
+	reference, GROUND, eye,
+	reference, GROUND, null,
+	reference, GROUND, 0.,0.,0.;
+reference: MASS3,
+	reference, GROUND, POSITION3, 0., 0.,
+	reference, GROUND, eye,
+	reference, GROUND, null,
+	reference, GROUND, 0.,0.,0.;
+
+begin: nodes;
+	#structural: GROUND, static,
+	structural: GROUND, dynamic,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+	structural: MASS1, dynamic,
+		reference, MASS1, null,
+		reference, MASS1, eye,
+		reference, MASS1, null,
+		reference, MASS1, null;
+	structural: MASS2, dynamic,
+		reference, MASS2, null,
+		reference, MASS2, eye,
+		reference, MASS2, null,
+		reference, MASS2, null;
+	structural: MASS3, dynamic,
+		reference, MASS3, null,
+		reference, MASS3, eye,
+		reference, MASS3, null,
+		reference, MASS3, null;
+end: nodes;
+
+set: integer CONTROLS = 100;
+set: integer MEASURES = 200;
+begin: drivers;
+	file: CONTROLS, stream,
+		stream drive name, "CONTROL_INPUTS",
+		create, yes,
+		#path, "/home/mattia/PhD/mbdyn-devel/utils/tmp/controls.sock",
+		path, "sockets/controls.sock",
+		receive first, no,
+		timeout, 1.5,
+		3;
+end: drivers;
+
+begin: elements;
+
+	body: MASS1, MASS1,
+		M1,
+		reference, MASS1, null,
+		eye;
+
+	body: MASS2, MASS2,
+		M2,
+		reference, MASS2, null,
+		eye;
+
+	body: MASS3, MASS3,
+		M3,
+		reference, MASS3, null,
+		eye;
+
+	joint: GROUND, clamp, GROUND, node, node;
+ 	
+	joint: MASS1, in line,
+		GROUND,
+			reference, GROUND, null,
+			reference, GROUND, 
+					3, 1., 0., 0.,
+					2, 0., 1., 0.,
+		MASS1;
+
+	joint: MASS1+1, deformable displacement joint,
+		GROUND,
+			reference, GROUND, 0.5, 0., 0.,
+		MASS1,
+			reference, MASS1, -0.5, 0., 0.,
+		#linear viscoelastic isotropic,
+		#	K1, R1;
+		linear time variant viscoelastic generic,
+			diag, K1, K1, K1,
+				 cosine, 50., pi/20., 0./2., half, 1.,
+			diag, R1, R1, R1,
+				 cosine, 50., pi/20., 0./2., half, 1.;
+ 	
+	joint: MASS2, in line,
+		GROUND,
+			reference, GROUND, null,
+			reference, GROUND, 
+					3, 1., 0., 0.,
+					2, 0., 1., 0.,
+		MASS2;
+
+	joint: MASS2+1, deformable displacement joint,
+		MASS1,
+			reference, MASS1, 0.5, 0., 0.,
+		MASS2,
+			reference, MASS2, -0.5, 0., 0.,
+		#linear viscoelastic isotropic,
+		#	K2, R2;
+		linear time variant viscoelastic generic,
+			diag, K2, K2, K2,
+				 cosine, 50., pi/20., 0./2., half, 1.,
+			diag, R2, R2, R2,
+				 cosine, 50., pi/20., 0./2., half, 1.;
+ 	
+	joint: MASS3, in line,
+		GROUND,
+			reference, GROUND, null,
+			reference, GROUND, 
+					3, 1., 0., 0.,
+					2, 0., 1., 0.,
+		MASS3;
+
+	joint: MASS3+1, deformable displacement joint,
+		MASS2,
+			reference, MASS2, 0.5, 0., 0.,
+		MASS3,
+			reference, MASS3, -0.5, 0., 0.,
+		#linear viscoelastic isotropic,
+		#	K3, R3;
+		linear time variant viscoelastic generic,
+			diag, K3, K3, K3,
+				 cosine, 50., pi/20., 0./2., half, 1.,
+			diag, R3, R3, R3,
+				# unstable
+				#cosine, 50., pi/20., -8./2., half, 1.;
+				cosine, 50., pi/20., -4./2., half, 1.;
+				# stable
+				# cosine, 50., pi/20., 0./2., half, 1.;
+
+	force: MASS1, absolute,
+			MASS1, 
+				reference, MASS1, 1., 0., 0.,
+				reference, MASS1, null,
+				file, CONTROLS, 1;
+				#cosine, 0., pi/0.1, 200./2., half, 0.;
+				#sine, 0., pi/0.1, 100., forever, 0.;
+
+	force: MASS2, absolute,
+			MASS2, 
+				reference, MASS2, 1., 0., 0.,
+				reference, MASS2, null,
+				file, CONTROLS, 2;
+
+	force: MASS3, absolute,
+			MASS3, 
+				reference, MASS3, 1., 0., 0.,
+				reference, MASS3, null,
+				file, CONTROLS, 3;
+
+	stream output: MEASURES,
+		stream name, "MEASUR",
+		create, yes,
+		#path, "/home/mattia/PhD/mbdyn-devel/utils/tmp/measures.sock",
+		path, "sockets/measures.sock",
+		3,
+			drive, node, MASS1, structural,
+				#string, "XPP[1]"
+				string, "X[1]",
+				linear, 0., 1.,
+			drive, node, MASS2, structural,
+				#string, "XPP[1]",
+				string, "X[1]",
+				linear, 0., 1.,
+			drive, node, MASS3, structural,
+				#string, "XPP[1]",
+				string, "X[1]",
+				linear, 0., 1.;
+
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

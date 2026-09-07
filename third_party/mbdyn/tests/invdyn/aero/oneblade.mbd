@@ -1,0 +1,272 @@
+/* Rigid Clamped Blade */
+/* Author: Alessandro Fumagalli <alessandro.fumagalli@polimi.it>*/
+
+include: "data.set";
+
+reference: Hub,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+# The flapping hinge rfr must have the Z axis oriented as the 
+# hinge axis...
+reference: FlappingHinge,
+	reference, Hub, d, 0., 0.,
+	reference, Hub, 
+			3, 0., 1., 0.,
+			1, 1., 0., 0.,
+	reference, Hub, null,
+	reference, Hub, null;
+
+reference: Blade,
+	reference, Hub, d + 0.5*L, 0., 0.,
+	reference, Hub, eye,
+	reference, Hub, null,
+	reference, Hub, null;
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: t0;
+	final time: tf;
+	time step: dt;
+
+	tolerance: 1.e-5;
+	max iterations: 1000;
+
+	method: ms, .0; 
+	
+	linear solver: naive, colamd, pivot factor, 1.e-5;
+	
+	nonlinear solver: newton raphson;
+	#newton raphson: modified, 1;
+
+	#nonlinear solver: matrix free, gmres,
+        #	tolerance, 1.e-5,
+        #	steps, 300,
+        #	tau, 1.e-6,
+        #	eta, 1.e-2,
+        #	preconditioner, full jacobian;
+
+	derivatives tolerance: 2.e-5;
+	derivatives max iterations: 100;
+	derivatives coefficient: 1.e-6;
+
+	#output: jacobian;
+#	output: residual;
+#	output: iterations;
+	
+threads: disable;
+end: initial value;
+
+begin: control data;
+	print: dofstats;
+	#default output: none;
+	#skip initial joint assembly;	
+	
+	structural nodes:
+		+1	# ground
+		+1	# Hub 
+		+1	# Blade
+	
+	
+	;
+	
+	rigid bodies:
+		+2	# Hub & Blade
+	;
+	
+	joints:
+		+1	# ground
+		+1	# Angular velocity
+		+1	# Hub-Blade Conncetion 
+		+1 	# Total reaction to change blade incidence
+		+1 	# Total equation to lift the Hub
+	#	+2	# ---
+		
+	;
+	
+	air properties;
+
+#	rotors:
+#		+1
+#	;
+
+	aerodynamic elements:
+		+1	# Blade
+	;
+
+	gravity;
+
+end: control data;
+
+begin: nodes;
+
+	structural: ground, static,
+		reference, global, null,
+		reference, global, eye,
+		reference, global, null,
+		reference, global, null;
+	
+	structural: Hub, dynamic,
+		reference, Hub, null,
+		reference, Hub, eye,
+		reference, Hub, null,
+		reference, Hub, null;
+	
+	structural: Blade, dynamic,
+		reference, Blade, null,
+		reference, Blade, eye,
+		reference, Blade, null,
+		reference, Blade, null;
+	
+end: nodes;
+
+begin: elements;
+	
+	gravity: 0., 0., -1, #9.81;
+					string, "(Time <= Tstart) * (0) +
+						(Time>Tstart) * (Time <= Tstart + Tgrav) *
+							(126*((Time-Tstart)/Tgrav)^5+
+							  -420*((Time-Tstart)/Tgrav)^6+
+							  540*((Time-Tstart)/Tgrav)^7+
+							  -315*((Time-Tstart)/Tgrav)^8+
+							  70*((Time-Tstart)/Tgrav)^9) * (9.81) 
+						+ (Time > Tstart+Tgrav) * (9.81)";
+		
+	joint: ground, clamp, ground, position, node, orientation, node;
+
+	joint: RotorRotation, total joint,
+		ground,
+			position, reference, Hub, null,
+			position orientation, reference, Hub, eye,
+			rotation orientation, reference, Hub, eye,
+		Hub,
+			position, reference, Hub, null,
+			position orientation, reference, Hub, eye,
+			rotation orientation, reference, Hub, eye,
+		position constraint, active, active, inactive,
+			0., 0., 1., const, 0.,
+		orientation constraint, rotation, rotation, angular velocity,
+				component,
+					0., 
+					0., 
+					# angular velocity component
+					string, "(Time <= Tman) * (Time >= 0) *
+							(126*(Time/Tman)^5+
+							  -420*(Time/Tman)^6+
+							  540*(Time/Tman)^7+
+							  -315*(Time/Tman)^8+
+							  70*(Time/Tman)^9) * Omega
+						+ (Time > Tman) * Omega"
+		;
+	
+	joint: Hub + Blade, total joint,
+		Hub,
+			position, reference, Hub, null,
+			position orientation, reference, Hub, eye,
+			rotation orientation, reference, Hub, eye,
+		Blade,
+			position, reference, Hub, null,
+			position orientation, reference, Hub, eye,
+			rotation orientation, reference, Hub, eye,
+		position constraint, active, active, active,
+			1, 0, 0, const, 0,
+		orientation constraint, inactive, active, active,
+			1, 0, 0, const, 0;
+
+	driven: VerticalMovement, string, "Time>Tstart",
+	joint: VerticalMovement, total equation,
+		ground,
+			position, reference, Hub, null,
+			position orientation, reference, Hub, eye,
+			rotation orientation, reference, Hub, eye,
+		Hub,
+			position, reference, Hub, null,
+			position orientation, reference, Hub, eye,
+			rotation orientation, reference, Hub, eye,
+/*
+		position constraint, inactive, inactive, active,
+				0., 0., 1.,	
+					string, "(Time <= Tstart) * (0) +
+						(Time>Tstart) * (Time <= Tstart + Tlift) *
+							(126*((Time-Tstart)/Tlift)^5+
+							  -420*((Time-Tstart)/Tlift)^6+
+							  540*((Time-Tstart)/Tlift)^7+
+							  -315*((Time-Tstart)/Tlift)^8+
+							  70*((Time-Tstart)/Tlift)^9) * (dZ) 
+						+ (Time > Tstart+Tlift) * (dZ)",
+*/
+		position constraint, inactive, inactive, velocity,
+				0., 0., 1.,	
+					string, "(Time <= Tstart) * (0) +
+						(Time>Tstart) * (Time <= Tstart + Tlift) *
+							(126*5*(1/Tlift^5)*(Time-Tstart)^4+
+							  -420*6*(1/Tlift^6)*(Time-Tstart)^5+
+							  540*7*(1/Tlift^7)*(Time-Tstart)^6+
+							  -315*8*(1/Tlift^8)*(Time-Tstart)^7+
+							  70*9*(1/Tlift^9)*(Time-Tstart)^8) * (dZ) 
+						+ (Time > Tstart+Tlift) * (0)",
+
+		orientation constraint, inactive, inactive, inactive,
+			0., 0., 1., const, 0;
+
+	driven: BladeIncidence, string, "Time>Tstart",
+	joint: BladeIncidence, total internal reaction,
+		Hub,
+			position, reference, Hub, null,
+			position orientation, reference, Hub, eye,
+			rotation orientation, reference, Hub, eye,
+		Blade,
+			position, reference, Hub, null,
+			position orientation, reference, Hub, eye,
+			rotation orientation, reference, Hub, eye,
+		position constraint, inactive, inactive, inactive,
+		orientation constraint, active, inactive, inactive,
+			total equation, VerticalMovement;
+
+	body: Hub, Hub,
+		mHub,
+		reference, Hub, null,
+		diag,
+			HubJx,
+			  HubJy,
+			    HubJz;
+			
+	body: Blade, Blade,
+		mBlade,
+		reference, Blade, null,
+		diag,
+			BladeJx,
+			  BladeJy,
+			    BladeJz;
+
+	air properties:
+		rho, c,
+		0., -1., 0., const, Vinf;
+	
+	c81data: 1, "../../../var/naca0012.c81";
+
+	aerodynamic body: Blade, Blade,
+#		rotor, 1,
+		reference, Blade, 0., 0., 0.,
+		reference, Blade, 3, 1., 0., 0., 2, 0., 0., 1.,
+		L,
+		const, chord,
+		const, 0.,
+		const, 0.,
+		const, theta,
+		1,
+		c81, 1, jacobian, yes;
+
+
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

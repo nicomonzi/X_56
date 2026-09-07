@@ -1,0 +1,25 @@
+set: const integer POINT_A = 10;
+set: const integer POINT_B = 20;
+set: const integer POINT_C = 30;
+
+set: const integer GROUND = 0;
+set: const integer CRANK = 100;
+set: const integer ROD = 200;
+set: const integer BLOCK = 300;
+
+set: const real L_CRANK = 0.08; # m
+set: const real L_ROD = 0.3; # m
+
+set: const real X_POINT_A = 0.; # m
+set: const real Y_POINT_A = 0.1; # m
+set: const real Z_POINT_A = 0.12; # m
+
+set: const real X_POINT_B = X_POINT_A; # m
+set: const real Y_POINT_B = Y_POINT_A; # m
+set: const real Z_POINT_B = Z_POINT_A + L_CRANK;
+
+set: const real X_POINT_C = sqrt(L_ROD^2 - 0.1^2 - (0.12 + L_CRANK)^2);
+set: const real Y_POINT_C = 0.; # m
+set: const real Z_POINT_C = 0.; # m
+
+set: real OMEGA = 6.; # rad/s

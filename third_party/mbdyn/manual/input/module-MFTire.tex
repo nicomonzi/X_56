@@ -1,0 +1,23 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \bnt{name} ::= \kw{MFtire}
+
+    \bnt{arglist} ::=
+        (\ty{integer}) \bnt{hub_node_label}, # wheel structural node label
+        (\ty{integer}) \bnt{rim_node_label}, # rim structural node label
+        (\hty{Vec3}) \bnt{Vec3_axle} , # wheel axle direction (e.g. 0., 1., 0.)
+        (\ty{real}) \bnt{Ru}, # unloaded radius
+        (\ty{real}) \bnt{Re}, # effective rolling radius
+        (\ty{real}) \bnt{kt}, # tire vertical stiffness
+        # longitudinal pacejka coefficients
+        (\ty{real}) \bnt{Dx},
+        (\ty{real}) \bnt{Cx},
+        (\ty{real}) \bnt{Bx},
+        (\ty{real}) \bnt{Ex},
+        # lateral pacejka coefficients
+        (\ty{real}) \bnt{Dy},
+        (\ty{real}) \bnt{Cy},
+        (\ty{real}) \bnt{By},
+        (\ty{real}) \bnt{Ey}
+        # reference vx, damping coeff
+        [\kw{low speed}, (\ty{real}) \bnt{vx_low}, (\ty{real}) \bnt{vx_dmp}];
+\end{Verbatim}

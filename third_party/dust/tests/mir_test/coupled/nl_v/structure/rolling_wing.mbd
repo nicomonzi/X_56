@@ -1,0 +1,310 @@
+# === data ======================================================
+begin: data;
+  problem: initial value;
+end: data;
+
+# === initial value problem =====================================
+begin: initial value;
+  initial time: 0.0;
+  final time: 1;
+  time step: 0.1;
+
+  max iterations: 250;
+  tolerance: 1.000000e-02;
+  derivatives tolerance: 1e-3;
+  derivatives max iterations: 100;
+  derivatives coefficient: 1.000000e-03, auto, max iterations, 100, factor, 3.0;
+  linear solver: naive, colamd, pivot factor, 1e-5;
+  method: ms, cosine, 0., pi/0.01, 0.8/2, half, 0.; 
+  
+  output: counter;
+  # output: iterations;
+  # output: residual;
+end: initial value;
+
+# === some variables ============================================
+set: const integer GROUND = 0;
+set: const integer AIRCRAFT = 100;
+set: const integer FLAPERON_RIGHT = 200;
+set: const integer FLAPERON_LEFT = 300;
+# ------------------FLAPERON--------------------
+set: const real T_START_FLAPERON_RIGHT = 0.05; 
+set: const real T_PERIOD_FLAPERON_RIGHT = 0.01; 
+set: const real DEG_FLAPERON_RIGHT = deg2rad*(20.0); 
+
+set: const real T_START_FLAPERON_LEFT = 0.05; 
+set: const real T_PERIOD_FLAPERON_LEFT = 0.01; 
+set: const real DEG_FLAPERON_LEFT = deg2rad*(-20.0);
+# === control data ==============================================
+begin: control data;
+  structural nodes: +1           # aircfraft
+                    +4;          # hinges
+  joints:           +7;          # ground clamp
+  forces:           +1;
+  rigid bodies:     +1;
+
+  default output: reference frames;
+	default orientation: orientation vector;
+  output results: netcdf;
+
+end: control data;
+
+# === reference frame ===========================================
+reference: GROUND,
+  reference, global, 0., -6.0, 0.,
+  reference, global, eye,
+  reference, global, null,
+  reference, global, null;
+
+reference: AIRCRAFT,
+  reference, GROUND, null,
+  reference, GROUND, eye,
+  reference, GROUND, null,
+  reference, GROUND, null;
+
+# right flaperon
+reference: FLAPERON_RIGHT + 1,
+  reference, AIRCRAFT, 0.21336, 0.9144,  0,
+  reference, AIRCRAFT, eye,
+  reference, AIRCRAFT, null,
+  reference, AIRCRAFT, null;
+
+reference: FLAPERON_RIGHT + 2,
+  reference, AIRCRAFT, 0.21336, 0.9144+0.9144,  0,
+  reference, AIRCRAFT, eye,
+  reference, AIRCRAFT, null,
+  reference, AIRCRAFT, null;
+
+# left flaperon
+reference: FLAPERON_LEFT + 1,
+  reference, AIRCRAFT, 0.21336, -0.9144,  0,
+  reference, AIRCRAFT, eye,
+  reference, AIRCRAFT, null,
+  reference, AIRCRAFT, null;
+
+reference: FLAPERON_LEFT + 2,
+  reference, AIRCRAFT, 0.21336, -(0.9144+0.9144),  0,
+  reference, AIRCRAFT, eye,
+  reference, AIRCRAFT, null,
+  reference, AIRCRAFT, null;
+
+# === nodes =====================================================
+begin: nodes;
+
+  structural:  AIRCRAFT, dynamic,  # static,
+    reference, AIRCRAFT, null,
+    reference, AIRCRAFT, eye,
+    reference, AIRCRAFT, null,
+    reference, AIRCRAFT, null;
+
+  # right flaperon
+  structural:  FLAPERON_RIGHT + 1, dynamic,  # static,
+    reference, FLAPERON_RIGHT + 1, null,
+    reference, FLAPERON_RIGHT + 1, eye,
+    reference, FLAPERON_RIGHT + 1, null,
+    reference, FLAPERON_RIGHT + 1, null;
+
+  structural:  FLAPERON_RIGHT + 2, dynamic,  # static,
+    reference, FLAPERON_RIGHT + 2, null,
+    reference, FLAPERON_RIGHT + 2, eye,
+    reference, FLAPERON_RIGHT + 2, null,
+    reference, FLAPERON_RIGHT + 2, null;
+
+  # left flaperon
+  structural:  FLAPERON_LEFT + 1, dynamic,  # static,
+    reference, FLAPERON_LEFT + 1, null,
+    reference, FLAPERON_LEFT + 1, eye,
+    reference, FLAPERON_LEFT + 1, null,
+    reference, FLAPERON_LEFT + 1, null;
+
+  structural:  FLAPERON_LEFT + 2, dynamic,  # static,
+    reference, FLAPERON_LEFT + 2, null,
+    reference, FLAPERON_LEFT + 2, eye,
+    reference, FLAPERON_LEFT + 2, null,
+    reference, FLAPERON_LEFT + 2, null;
+
+end: nodes;
+# === elements ==================================================
+
+begin: elements;
+  #> === Joints ===
+  joint: AIRCRAFT, total pin joint,
+    AIRCRAFT,
+        position, reference, node, null, 
+        position orientation, reference, AIRCRAFT, eye,
+        rotation orientation, reference, AIRCRAFT, eye,
+    #GROUND,
+        position, reference, other node, null,
+        position orientation, reference, AIRCRAFT, eye,
+        rotation orientation, reference, AIRCRAFT, eye,
+    position constraint,
+        1,
+        1,
+        1,
+    null,
+    orientation constraint,
+        1,  # roll d.o.f.
+        1,
+        1,
+    component,
+        0, 
+        0,
+        0;
+
+
+  # FLAPERON right
+  joint: FLAPERON_RIGHT + 1, total joint,
+    AIRCRAFT, 
+      position, reference,  FLAPERON_RIGHT + 1, null,
+      position orientation, reference,  FLAPERON_RIGHT + 1, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    FLAPERON_RIGHT + 1,
+      position, reference, FLAPERON_RIGHT + 1, null,
+      position orientation, reference, FLAPERON_RIGHT + 1, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    position constraint,
+      1,
+      1,
+      1,
+    null,
+    orientation constraint,
+      0,
+      1,
+      0,
+      #null;
+      component,
+      0.0,
+      cosine, T_START_FLAPERON_RIGHT, pi/T_PERIOD_FLAPERON_RIGHT, DEG_FLAPERON_RIGHT/2, half, 0.0,
+      0.0;		
+
+  joint: FLAPERON_RIGHT + 2, total joint,
+    AIRCRAFT, 
+      position, reference, FLAPERON_RIGHT + 2, null,
+      position orientation, reference,FLAPERON_RIGHT + 2, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    FLAPERON_RIGHT + 2,
+      position, reference, FLAPERON_RIGHT + 2, null,
+      position orientation, reference, FLAPERON_RIGHT + 2, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    position constraint,
+      1,
+      0,
+      1,
+    null,
+    orientation constraint,
+      0,
+      0,
+      0,
+    null;	
+
+  joint: FLAPERON_RIGHT + 3, total joint,
+    FLAPERON_RIGHT + 1, 
+      position, reference, FLAPERON_RIGHT + 1,  0.0, 0.821,	0.0,
+      position orientation, reference, FLAPERON_RIGHT + 1, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    FLAPERON_RIGHT + 2,
+      position, reference, FLAPERON_RIGHT + 1,  0.0, 0.821,	0.0,
+      position orientation, reference, FLAPERON_RIGHT + 1, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    position constraint,
+      1,
+      1,
+      1,
+    null,
+    orientation constraint,
+      1,
+      1,
+      1,
+    null;
+
+  # FLAPERON left
+  joint: FLAPERON_LEFT + 1, total joint,
+    AIRCRAFT, 
+      position, reference,  FLAPERON_LEFT + 1, null,
+      position orientation, reference,  FLAPERON_LEFT + 1, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    FLAPERON_LEFT + 1,
+      position, reference, FLAPERON_LEFT + 1, null,
+      position orientation, reference, FLAPERON_LEFT + 1, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    position constraint,
+      1,
+      1,
+      1,
+    null,
+    orientation constraint,
+      0,
+      1,
+      0,
+      #null;
+      component,
+      0.0,
+      cosine, T_START_FLAPERON_LEFT, pi/T_PERIOD_FLAPERON_LEFT, DEG_FLAPERON_LEFT/2, half, 0.0,
+      0.0;		
+
+  joint: FLAPERON_LEFT + 2, total joint,
+    AIRCRAFT, 
+      position, reference, FLAPERON_LEFT + 2, null,
+      position orientation, reference,FLAPERON_LEFT + 2, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    FLAPERON_LEFT + 2,
+      position, reference, FLAPERON_LEFT + 2, null,
+      position orientation, reference, FLAPERON_LEFT + 2, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    position constraint,
+      1,
+      0,
+      1,
+    null,
+    orientation constraint,
+      0,
+      0,
+      0,
+    null;	
+
+  joint: FLAPERON_LEFT + 3, total joint,
+    FLAPERON_LEFT + 1, 
+      position, reference, FLAPERON_LEFT + 1,  0.0, -0.821,	0.0,
+      position orientation, reference, FLAPERON_LEFT + 1, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    FLAPERON_LEFT + 2,
+      position, reference, FLAPERON_LEFT + 1,  0.0, -0.821,	0.0,
+      position orientation, reference, FLAPERON_LEFT + 1, eye,
+      rotation orientation, reference, AIRCRAFT, eye,
+    position constraint,
+      1,
+      1,
+      1,
+    null,
+    orientation constraint,
+      1,
+      1,
+      1,
+    null;
+
+  body: AIRCRAFT, AIRCRAFT
+    ,
+    1,
+    reference, AIRCRAFT, null,
+      diag, 1000.000000e+00, 0.000000e+00, 0.000000e+00,
+      orientation, reference, AIRCRAFT, eye 
+  ;
+
+  force: 9, external structural,
+    socket,
+      create, yes,
+      path, "$MBSOCK",
+      no signal,
+    coupling, tight,
+    sorted, yes,
+    orientation, orientation vector,
+    accelerations, yes,
+    1,
+    AIRCRAFT
+    ;
+    #FLAPERON_RIGHT + 1, FLAPERON_RIGHT + 2,
+    #FLAPERON_LEFT + 1, FLAPERON_LEFT +2;
+
+end: elements;
+
+# vim:ft=mbd

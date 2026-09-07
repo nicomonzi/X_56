@@ -1,0 +1,73 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/planed/planedispjoint,v 1.3 2014/12/13 17:15:52 masarati Exp $
+
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    set: real dt = 1.e-2;
+    initial time: 0.;
+    final time: 10.;
+    time step: dt;
+    
+    tolerance: 1.e-6;
+    max iterations: 20;
+    newton raphson: modified, 4;
+    method: ms, .6, .6;
+    
+    derivatives coefficient: 1.e-6;
+    derivatives tolerance: 1.e-6;
+    derivatives max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    skip initial joint assembly;
+    
+    structural nodes: 2;
+    joints: 2;
+    rigid bodies: 1;
+    forces: 1;
+    gravity;
+end: control data;
+
+reference: 1,
+           null,
+	   2, 0.,1.,0., 3, 1.,0.,1.,
+	   null,
+	   null;
+
+begin: nodes;
+    structural: 1, static,
+                reference, 1, null,
+		reference, 1, eye, 
+		reference, 1, null, 
+		reference, 1, null;
+    structural: 2, dynamic,
+                reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+begin: elements;
+    joint: 1, clamp, 1, node, node;
+    joint: 2, plane displacement,
+           1, null,
+	   2, null;
+    body: 2, 2, 
+          1.,
+	  0.,.1,.1,
+	  diag, 1.,1.,1.;
+    gravity: 0.,0.,-1., const, 9.81;
+    force: 1, conservative, 2, 1.,0.,0., null, 
+           const, 0.;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 0

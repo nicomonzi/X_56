@@ -1,0 +1,84 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/forces/strext/socket/socketlabel,v 1.1 2010/03/31 20:08:04 masarati Exp $
+
+begin: data;
+	integrator: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	# final time: .001;
+	final time: 1;
+	time step: 1e-3;
+
+	tolerance: 1e-9;
+	max iterations: 10;
+
+	#derivatives tolerance: 1;
+	derivatives max iterations: 10;
+	#derivatives coefficient: 1;
+
+	threads: disable;
+
+	#output: iterations;
+	#output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes:
+		+1
+		+1
+	;
+	joints:
+		+1	# clamp
+	;
+	rigid bodies:
+		+1
+	;
+	forces:
+		+1	# extmodal
+	;
+end: control data;
+
+begin: nodes;
+	structural: 0, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 1, dynamic,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+	body: 1, 1,
+		1.,
+		null,
+		eye;
+
+	force: 10, external structural,
+		socket,
+		create, yes,
+		path, "/tmp/mbdyn.sock",
+		no signal,
+		coupling,
+			tight,
+		labels, yes,
+		2,
+			0, offset, null,
+			1, offset, null;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

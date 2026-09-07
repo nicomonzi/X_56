@@ -1,0 +1,72 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/borri/borri,v 1.5 2010/08/16 19:23:17 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 800*pi;
+	time step: .05*pi;
+
+	method: ms, .6;
+	tolerance: 1.e-6;
+	max iterations: 20;
+	
+	derivatives coefficient: 1.e-12;
+	derivatives tolerance: 1.e-9;
+	derivatives max iterations: 10;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 2;
+	joints: 2;
+	forces: 1;
+end: control data;
+
+set: real L = 6.;
+set: real M = 2.;
+set: real J = 2*L^2/12;
+
+begin: nodes;
+	structural : 1, dynamic,
+		L/2., 0., 0.,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		L*3/2, 0., 0.,
+		eye,
+		null,
+		null;
+end: nodes;
+
+begin: elements;
+	body: 1, 1,
+		M,
+		null,
+		diag, 1., J, J;
+	body: 2, 2,
+		M,
+		null,
+		diag, 1., J, J;
+	joint: 1, revolute pin,
+		1, -L/2,0.,0.,
+		null;
+	joint: 2, spherical hinge,
+		1, L/2,0.,0., hinge, eye,
+		2, -L/2,0.,0., hinge, eye;
+	force: 2, absolute, 2,
+		position, null,
+		0., 1., 0., const, 1.;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

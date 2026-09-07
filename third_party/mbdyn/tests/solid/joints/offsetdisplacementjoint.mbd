@@ -1,0 +1,99 @@
+set: real Wz = 2. * pi;
+
+begin: data;
+        problem: initial value; # the default
+end: data;
+
+begin: initial value;
+    threads: assembly, 1;
+
+        initial time: 0;
+        final time: 1;
+        time step: 1e-4;
+
+    max iterations: 10;
+    linear solver: naive, colamd;
+    nonlinear solver: newton raphson;
+        tolerance: 1e-6, test, norm, 1e-6, test, norm;
+        derivatives tolerance: 1e-3, 1e-3;
+        derivatives max iterations: 20;
+        derivatives coefficient: 1e-6;
+    output: iterations;
+    method: ms, 0.6;
+    #abort after: derivatives;
+
+threads: disable;
+end: initial value;
+
+begin: control data;
+    print: dof description;
+    print: equation description;
+    output precision: 16;
+
+    use automatic differentiation;
+       tolerance: 1e-13;
+       max iterations: 10;
+        structural nodes: 2;
+        joints: 2;
+    rigid bodies: 1;
+    stiffness: 1,1;
+end: control data;
+
+reference: 1,
+    position, reference, global, 0.1, 0.15, 0.25,
+    orientation, reference, global, euler123, 30. * pi / 180., 20. * pi / 180., 40. * pi / 180.,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 2,
+    position, reference, 1, null,
+    orientation, reference, 1, eye,
+    velocity, reference, 1, null,
+    angular velocity, reference, 1, 0., 0., Wz;
+
+reference: 3,
+   position, reference, 2, 0.2, 0.3, 0.4,
+   orientation, reference, 2, eye,
+   velocity, reference, 2, null,
+   angular velocity, reference, 2, null;
+
+begin: nodes;
+        structural: 2, dynamic,
+                position, reference, 2, null,
+                orientation, reference, 2, eye,
+                velocity, reference, 2, null,
+                angular velocity, reference, 2, null;
+
+        structural: 3, static displacement,
+                position, reference, 3, 0.5, 0.6, 0.7,
+                velocity, reference, 3, 200, 300, 4000;
+end: nodes;
+
+begin: elements;
+       body: 1, 2, 1., null, diag, 0., 0., 1.;
+
+        joint: 1, total pin joint,
+                2,
+                position, reference, 2, null,
+                position orientation, reference, 2, eye,
+                rotation orientation, reference, 2, eye,
+                position, reference, 1, null,
+                position orientation, reference, 1, eye,
+                rotation orientation, reference, 1, eye,
+                position constraint,
+                active, active, active, null,
+                orientation constraint,
+                active,
+                active,
+                active, component, 0., 0., mult, time, Wz;
+
+         joint: 2, offset displacement joint,
+                2,
+                3, position, reference, 3, null;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

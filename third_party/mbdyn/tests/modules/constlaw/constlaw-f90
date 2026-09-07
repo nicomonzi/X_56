@@ -1,0 +1,68 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/modules/constlaw/constlaw-f90,v 1.5 2014/12/13 17:15:54 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 1.;
+	time step: 1e-2;
+
+	method: ms, .6;
+
+	# output: iterations;
+threads: disable;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	joints: 2;
+	rigid bodies: 1;
+	forces: 1;
+end: control data;
+
+begin: nodes;
+	structural: 1, static,
+		null,
+		eye,
+		null,
+		null;
+	structural: 2, dynamic,
+		null,
+		eye,
+		null,
+		null;
+end: nodes;
+
+# Hint: make a symlink to the appropriate file...
+# module load: "./module-constlaw-f90.so";
+# ... or get it where it's supposed to be...
+# module load: "../../../modules/module-constlaw-f90.so";
+# ... or rely on default path for installed modules
+
+# create a symlink to the build directory of the module
+# module load: "module-constlaw-f90/libmodule-constlaw-f90.la";
+
+# this works if the module is installed properly
+module load: "libmodule-constlaw-f90.la";
+
+begin: elements;
+	joint: 1, clamp, 1, node, node;
+	joint: 2, deformable joint,
+		1, null,
+		2, null,
+		dummyf90, 6, 1.e3, 1.e3, 1.e3, 1.e3, 1.e3, 1.e3;
+	body: 2, 2,
+		1.,
+		null,
+		eye;
+	force: 2, absolute, 2, position, null, 0.,0.,1., const, 3.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

@@ -1,0 +1,334 @@
+include: "mbdyn_test_solid_1.set";
+set: integer ref_id_ground = 1001;
+set: integer ref_id_shaft = 1002;
+set: integer ref_id_rotor = 1003;
+set: integer ref_id_bearing1 = 1004;
+set: integer ref_id_bearing2 = 1005;
+set: integer ref_id_shaft_section = 1006;
+set: integer ref_id_bearing1_center = 1007;
+set: integer ref_id_bearing2_center = 1008;
+set: integer node_id_rotor = 2001;
+set: integer node_id_bearing1 = 2002;
+set: integer node_id_bearing1_center = 2003;
+set: integer node_id_bearing2 = 2004;
+set: integer node_id_bearing2_center = 2005;
+set: integer body_id_rotor = 3001;
+set: integer body_id_bearing1 = 3002;
+set: integer body_id_bearing1_center = 3003;
+set: integer body_id_bearing2 = 3004;
+set: integer body_id_bearing2_center = 3005;
+set: integer beam_id_shaft1 = 4001;
+set: integer beam_id_shaft2 = 4002;
+set: integer joint_id_bearing1 = 3006;
+set: integer joint_id_bearing2 = 3007;
+set: integer joint_id_drive = 3008;
+set: integer elem_id_inertia = 4001;
+set: integer drive_id_rotor_speed = 5001;
+set: integer drive_id_time_step = 5002;
+set: real l1 = 0.5 * l + o - 0.5 * w;
+set: real l2 = 0.5 * l - o - 0.5 * w;
+set: real rotor_m = rho * D^2 * pi / 4. * w;
+set: real rotor_Jx = rotor_m * ((0.5 * D)^2 + w^2 / 3.) / 4.;
+set: real rotor_Jy = rotor_Jx;
+set: real rotor_Jz = rotor_m * (0.5 * D)^2 / 2.;
+set: real shaft_rotor1_m = rho * d^2 * pi / 4. * (l1 / 4.);
+set: real shaft_rotor1_Jx = shaft_rotor1_m * ((0.5 * d)^2 + (l1 / 4.)^2 / 3.) / 4.;
+set: real shaft_rotor1_Jy = shaft_rotor1_Jx;
+set: real shaft_rotor1_Jz = shaft_rotor1_m * (0.5 * d)^2 / 2.;
+set: real shaft_rotor2_m = rho * d^2 * pi / 4. * (l2 / 4.);
+set: real shaft_rotor2_Jx = shaft_rotor2_m * ((0.5 * d)^2 + (l2 / 4.)^2 / 3.) / 4.;
+set: real shaft_rotor2_Jy = shaft_rotor2_Jx;
+set: real shaft_rotor2_Jz = shaft_rotor2_m * (0.5 * d)^2 / 2.;
+set: real shaft_bearing1_m = rho * d^2 * pi / 4. * (l1 / 4.);
+set: real shaft_bearing1_Jx = shaft_bearing1_m * ((0.5 * d)^2 + (l1 / 4.)^2 / 3.) / 4.;
+set: real shaft_bearing1_Jy = shaft_bearing1_Jx;
+set: real shaft_bearing1_Jz = shaft_bearing1_m * (0.5 * d)^2 / 2.;
+set: real shaft_bearing1_center_m = rho * d^2 * pi / 4. * (l1 / 2.);
+set: real shaft_bearing1_center_Jx = shaft_bearing1_center_m * ((0.5 * d)^2 + (l1 / 2.)^2 / 3.) / 4.;
+set: real shaft_bearing1_center_Jy = shaft_bearing1_center_Jx;
+set: real shaft_bearing1_center_Jz = shaft_bearing1_center_m * ((0.5 * d)^2) / 2.;
+set: real shaft_bearing2_m = rho * d^2 * pi / 4. * (l2 / 4.);
+set: real shaft_bearing2_Jx = shaft_bearing2_m * ((0.5 * d)^2 + (l2 / 4.)^2 / 3.) / 4.;
+set: real shaft_bearing2_Jy = shaft_bearing2_Jx;
+set: real shaft_bearing2_Jz = shaft_bearing2_m * (0.5 * d)^2 / 2.;
+set: real shaft_bearing2_center_m = rho * d^2 * pi / 4. * (l2 / 2.);
+set: real shaft_bearing2_center_Jx = shaft_bearing2_center_m * ((0.5 * d)^2 + (l2 / 2.)^2 / 3.) / 4.;
+set: real shaft_bearing2_center_Jy = shaft_bearing2_center_Jx;
+set: real shaft_bearing2_center_Jz = shaft_bearing2_center_m * ((0.5 * d)^2) / 2.;
+set: real shaft_A = d^2 * pi / 4;
+set: real shaft_As = 9. / 10. * shaft_A;
+set: real shaft_Iy = d^4 * pi / 64.;
+set: real shaft_Iz = shaft_Iy;
+set: real shaft_Ip = shaft_Iy + shaft_Iz;
+set: real shaft_It = shaft_Ip;
+set: real shaft_E = E;
+set: real shaft_nu = nu;
+set: real shaft_G = shaft_E / (2 * (1 + shaft_nu));
+set: real shaft_rho = rho;
+set: real shaft_damping_ratio = beta;
+set: real initial_time = 0.;
+set: real final_time = 2. * pi * n / (abs(omega1 + omega0) / 2.);
+begin: data;
+        problem: initial value;
+end: data;
+begin: initial value;
+        initial time: initial_time;
+        final time: final_time;
+        time step: 2. * pi / (360. * abs(omega0));
+        strategy: change, postponed, drive_id_time_step;
+        method: ms, 0.6;
+        tolerance: 1e-6, test, norm, 1e-6, test, norm;
+        derivatives tolerance: 1e-4, 1e-4;
+        max iterations: 100;
+        derivatives max iterations: 10;
+        derivatives coefficient: auto;
+        output: iterations;
+        linear solver: naive, colamd, scale, row max column max, always, max iterations, 100;
+        enforce constraint equations: constraint violations;
+        threads: assembly, 1;
+        nonlinear solver: nox, modified, 10,
+             keep jacobian matrix,
+             inner iterations before assembly, 6,
+             jacobian operator, newton krylov,
+             solver, line search based,
+             forcing term, type 2,
+             direction, newton,
+             weighted rms absolute tolerance, 0.,
+             weighted rms relative tolerance, 0.,
+             linear solver, gmres,
+             linear solver max iterations, 12,
+             krylov subspace size, 12;
+threads: disable;
+end: initial value;
+begin: control data;
+       use automatic differentiation;
+       default output: none, structural nodes;
+       default orientation: euler123;
+       output precision: 16;
+       max iterations: 10;
+       initial assembly of deformable and force elements;
+       initial stiffness: 1e6, 1e6;
+        structural nodes: 5;
+        joints: 3;
+        beams: 2;
+        rigid bodies: 5;
+        rigid body kinematics: drive, angular velocity,
+        component,
+           null,
+           null,
+           array, 2,
+             mult, time, const, (omega1 - omega0) / (final_time - initial_time),
+             const, omega0,
+        angular acceleration,
+        component,
+           null,
+           null,
+           const, (omega1 - omega0) / (final_time - initial_time);
+end: control data;
+reference: ref_id_ground,
+        reference, global, null,
+        reference, global, eye,
+        reference, global, null,
+        reference, global, null;
+reference: ref_id_shaft,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, eye,
+        reference, ref_id_ground, null,
+        reference, ref_id_ground, null;
+reference: ref_id_rotor,
+        reference, ref_id_shaft, 0., 0., o,
+        reference, ref_id_shaft, eye,
+        reference, ref_id_shaft, null,
+        reference, ref_id_shaft, null;
+reference: ref_id_shaft_section,
+           reference, ref_id_shaft, null,
+           reference, ref_id_shaft, 1, 0., 0., 1.,
+                                    2, 0., 1., 0.,
+           reference, ref_id_shaft, null,
+           reference, ref_id_shaft, null;
+reference: ref_id_bearing1,
+        reference, ref_id_shaft,
+                   0.,
+                   0.,
+                   -0.5 * l,
+        reference, ref_id_shaft, eye,
+        reference, ref_id_shaft, null,
+        reference, ref_id_shaft, null;
+reference: ref_id_bearing1_center,
+        reference, ref_id_bearing1,
+                   0.,
+                   0.,
+                   0.5 * l1,
+        reference, ref_id_rotor, eye,
+        reference, ref_id_rotor, null,
+        reference, ref_id_rotor, null;
+reference: ref_id_bearing2,
+        reference, ref_id_shaft,
+                   0.,
+                   0.,
+                   0.5 * l,
+        reference, ref_id_shaft, eye,
+        reference, ref_id_shaft, null,
+        reference, ref_id_shaft, null;
+reference: ref_id_bearing2_center,
+        reference, ref_id_bearing2,
+                   0.,
+                   0.,
+                   -0.5 * l2,
+        reference, ref_id_rotor, eye,
+        reference, ref_id_rotor, null,
+        reference, ref_id_rotor, null;
+begin: nodes;
+        structural: node_id_rotor, dynamic,
+                reference, ref_id_rotor, null,
+                reference, ref_id_rotor, eye,
+                reference, ref_id_rotor, null,
+                reference, ref_id_rotor, null;
+        structural: node_id_bearing1, dynamic,
+                reference, ref_id_bearing1, null,
+                reference, ref_id_bearing1, eye,
+                reference, ref_id_bearing1, null,
+                reference, ref_id_bearing1, null;
+        structural: node_id_bearing1_center, dynamic,
+                reference, ref_id_bearing1_center, null,
+                reference, ref_id_bearing1_center, eye,
+                reference, ref_id_bearing1_center, null,
+                reference, ref_id_bearing1_center, null;
+        structural: node_id_bearing2, dynamic,
+                reference, ref_id_bearing2, null,
+                reference, ref_id_bearing2, eye,
+                reference, ref_id_bearing2, null,
+                reference, ref_id_bearing2, null;
+        structural: node_id_bearing2_center, dynamic,
+                reference, ref_id_bearing2_center, null,
+                reference, ref_id_bearing2_center, eye,
+                reference, ref_id_bearing2_center, null,
+                reference, ref_id_bearing2_center, null;
+end: nodes;
+begin: elements;
+       drive caller: drive_id_rotor_speed, string, "(omega1 - omega0) / (final_time - initial_time) * Time + omega0", output, yes;
+       drive caller: drive_id_time_step, string, "2. * pi / (max(1., 360. * abs(model::drive(drive_id_rotor_speed, Time))))";
+       body: body_id_rotor,
+             node_id_rotor,
+             condense, 4,
+                rotor_m,
+                  reference, node, null,
+                  diag, rotor_Jx, rotor_Jy, rotor_Jz,
+                shaft_rotor1_m,
+                  reference, node, 0., 0., -w / 2. - l1 / 8.,
+                  diag, shaft_rotor1_Jx, shaft_rotor1_Jy, shaft_rotor1_Jz,
+                shaft_rotor2_m,
+                  reference, node, 0., 0., w / 2. + l2 / 8.,
+                  diag, shaft_rotor2_Jx, shaft_rotor2_Jy, shaft_rotor2_Jz,
+                dm,
+                  reference, node, dr, 0., 0.,
+                  diag, 0., 0., 0.;
+        body: body_id_bearing1,
+              node_id_bearing1,
+              shaft_bearing1_m,
+              reference, node, 0., 0., l1 / 8.,
+              diag, shaft_bearing1_Jx, shaft_bearing1_Jy, shaft_bearing1_Jz;
+        body: body_id_bearing1_center,
+              node_id_bearing1_center,
+              shaft_bearing1_center_m,
+              reference, node, null,
+              diag, shaft_bearing1_center_Jx, shaft_bearing1_center_Jy, shaft_bearing1_center_Jz;
+        body: body_id_bearing2,
+              node_id_bearing2,
+              shaft_bearing2_m,
+              reference, node, 0., 0., -l2 / 8.,
+              diag, shaft_bearing2_Jx, shaft_bearing2_Jy, shaft_bearing2_Jz;
+        body: body_id_bearing2_center,
+              node_id_bearing2_center,
+              shaft_bearing2_center_m,
+              reference, node, null,
+              diag, shaft_bearing2_center_Jx, shaft_bearing2_center_Jy, shaft_bearing2_center_Jz;
+    beam3: beam_id_shaft1,
+                # node 1
+                node_id_bearing1, position, reference, node, null,
+                orientation, reference, ref_id_shaft_section, eye,
+                # node 2
+                node_id_bearing1_center, position, reference, node, null,
+                orientation, reference, ref_id_shaft_section, eye,
+                # node 3,
+                node_id_rotor, position, reference, node, 0., 0., -0.5 * w,
+                orientation, reference, ref_id_shaft_section, eye,
+                # orientation matrix section I
+                reference, ref_id_shaft_section, eye,
+                # constitutive law section I
+                linear viscoelastic generic,
+                diag, shaft_E * shaft_A , shaft_G * shaft_As, shaft_G * shaft_As,
+                      shaft_G * shaft_It, shaft_E * shaft_Iy, shaft_E * shaft_Iz,
+                proportional, shaft_damping_ratio,
+                # orientation matrix section II
+                same,
+                # constitutive law section II
+                same;
+    beam3: beam_id_shaft2,
+                # node 1
+                node_id_rotor, position, reference, node, 0., 0., 0.5 * w,
+                orientation, reference, ref_id_shaft_section, eye,
+                # node 2
+                node_id_bearing2_center, position, reference, node, null,
+                orientation, reference, ref_id_shaft_section, eye,
+                # node 3,
+                node_id_bearing2, position, reference, node, null,
+                orientation, reference, ref_id_shaft_section, eye,
+                # orientation matrix section I
+                reference, ref_id_shaft_section, eye,
+                # constitutive law section I
+                linear viscoelastic generic,
+                diag, shaft_E * shaft_A , shaft_G * shaft_As, shaft_G * shaft_As,
+                      shaft_G * shaft_It, shaft_E * shaft_Iy, shaft_E * shaft_Iz,
+                proportional, shaft_damping_ratio,
+                # orientation matrix section II
+                same,
+                # constitutive law section II
+                same;
+        joint: joint_id_bearing1, total pin joint,
+                node_id_bearing1,
+                        position, reference, ref_id_bearing1, null,
+                        position orientation, reference, ref_id_bearing1, eye,
+                        rotation orientation, reference, ref_id_bearing1, eye,
+                        position, reference, ref_id_bearing1, null,
+                        position orientation, reference, ref_id_bearing1, eye,
+                        rotation orientation, reference, ref_id_bearing1, eye,
+               position constraint,
+                        active, active, active,
+                        null,
+               orientation constraint,
+                        inactive, inactive, inactive,
+                        null;
+        joint: joint_id_bearing2, total pin joint,
+               node_id_bearing2,
+                        position, reference, ref_id_bearing2, null,
+                        position orientation, reference, ref_id_bearing2, eye,
+                        rotation orientation, reference, ref_id_bearing2, eye,
+               position, reference, ref_id_bearing2, null,
+               position orientation, reference, ref_id_bearing2, eye,
+               rotation orientation, reference, ref_id_bearing2, eye,
+               position constraint,
+                        active, active, inactive,
+                        null,
+               orientation constraint,
+                        inactive, inactive, inactive,
+                        null;
+     joint: joint_id_drive, angular velocity,
+             # node label
+             node_id_rotor,
+             # direction
+             0.,0.,1.,
+             # angular velocity
+           null;
+        inertia: elem_id_inertia,
+                 position, reference, ref_id_rotor, null,
+                 orientation, reference, ref_id_rotor, eye,
+                 body, all, joint, all, loadable, all,
+                 output, both;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

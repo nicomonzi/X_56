@@ -1,0 +1,80 @@
+begin: data;
+    problem: initial value;
+end: data;
+
+begin: initial value;
+    initial time: 0.;
+    final time: 1.;
+    time step: 1.e-3;
+
+    tolerance: 1.e-9;
+    max iterations: 10;
+
+    method: ms, .6;
+
+    # output: iterations;
+    # output: residual;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    structural nodes: 3;
+    joints: 3;
+    rigid bodies: 2;
+    max iterations: 10;
+end: control data;
+
+reference: 2,
+	null,
+	eye,
+	null,
+	0.,0.,20.4;
+
+begin: nodes;
+    structural: 1, dynamic,
+                null,
+		eye,
+		null,
+		null;
+    structural: 2, static,
+                null,
+		eye,
+		null,
+		reference, 2, null;
+    structural: 3, dynamic,
+                reference, 2, 1.,0.,0.,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+end: nodes;
+
+begin: elements;
+    joint: 1, drive displacement pin,
+	1, reference, node, null,
+	null,
+		1.,0.,0., cosine, 0.,pi/.05,1.,forever,1.;
+    joint: 2, revolute hinge,
+	1, reference, node, null,
+	hinge, reference, node, eye,
+	2, reference, node, null,
+	hinge, reference, node, eye;
+    joint: 3, drive displacement,
+	2, reference, node, null,
+	3, reference, node, null,
+	   1.,0.,0., cosine, 0.,pi/.05,1.,forever,1.;
+    body: 1, 1,
+	  1.,
+          null,
+	  diag, 1e6, 1e6, 1e6;
+    body: 3, 3,
+          1,
+	  null,
+	  diag, 1.,1.,1.;
+end: elements;
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

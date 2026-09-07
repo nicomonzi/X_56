@@ -1,0 +1,27 @@
+	structural nodes:
+		+1		# crank
+		+1		# rod
+		+1		# sliding block
+	;
+
+	rigid bodies:
+		+1		# crank
+		+1		# rod
+		+1		# sliding block
+	;
+
+	joints: 
+		+1		# crank hinge
+		+1		# crank-rod pin
+		+1		# rod-block Cardano
+		+1		# block slider
+	;
+
+	gravity;
+
+	# default output: none;
+	tolerance: 1e-9;
+	max iterations: 20;
+
+        include: "srscm_static.con";
+        include: "srscm_ad.con";

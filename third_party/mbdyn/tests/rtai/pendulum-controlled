@@ -1,0 +1,98 @@
+begin: data;
+	problem: initial value;
+end: data;
+
+set: real tf = 80;
+set: real dt = 5.e-3;
+
+begin: initial value;
+	initial time: 0.;
+	final time: tf;
+	time step: dt;
+
+	tolerance: 1.e-6;
+	max iterations: 10;
+
+	method: ms, .6;
+	
+	realtime: mode, period, 
+                  time step, dt*1.e9,
+                  reserve stack, 1000000,
+                  hard real time;
+threads: disable;
+end: initial value;
+
+begin: control data;
+        default output: none;
+	structural nodes: 1;
+	parameter nodes: 2;
+	rigid bodies: 1;
+	joints: 1;
+	rtai output elements: 1;
+	gravity;
+	forces: 1;
+        file drivers: 1;
+end: control data;
+
+reference: 1,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: 2,
+	reference, 1, null,
+	reference, 1, eye,
+	reference, 1, null,
+	reference, 1, 0.,0.,0.;
+
+begin: nodes;
+	structural: 1, dynamic,
+		reference, 2, 0.,0.,-1.,
+		reference, 2, eye,
+		reference, 2, null,
+		reference, 2, null;
+	parameter: 1, /* bound to */ element;
+	parameter: 2, /* bound to */ element;
+end: nodes;
+
+begin: drivers;
+        file: 1, rtai input,
+        mailbox name, "MBXOUT",
+        create, yes, 2;
+end: drivers;
+
+begin: elements;
+	body: 1, 1,
+		1.,
+		null,
+		diag, 1.,1.,1.;
+	joint: 1, revolute pin,
+		1, reference, 1, null,
+		hinge, reference, 1, 1, 1.,0.,0., 3, 0.,1.,0.,
+		reference, 1, null,
+		hinge, reference, 1, 1, 1.,0.,0., 3, 0.,1.,0.;
+	bind: 1, joint, 1, string, "rz";
+	bind: 1, joint, 2, string, "wz";
+	gravity: 0.,0.,-1., 9.81;
+
+	rtai output: 1,
+		mailbox name, "MBXINN",
+		create, yes,
+		# host, "mbdyn.aero.polimi.it",
+		2,
+			1, parameter,
+                        2, parameter;
+
+	force: 1, follower, 1, -1.,0.,0., null,
+		dof, 1, parameter, file, 1, 2;
+end: elements;
+
+
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
+
+## @MBDYN_SIMPLE_TESTSUITE_EXCLUDE@ = 1

@@ -1,0 +1,592 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/invdyn/pa10,v 1.9 2017/01/12 15:03:27 masarati Exp $
+#
+# MBDyn (C) is a multibody analysis code. 
+# http://www.mbdyn.org
+# 
+# Copyright (C) 1996-2017
+# 
+# Pierangelo Masarati	<masarati@aero.polimi.it>
+# Paolo Mantegazza	<mantegazza@aero.polimi.it>
+# 
+# Dipartimento di Ingegneria Aerospaziale - Politecnico di Milano
+# via La Masa, 34 - 20156 Milano, Italy
+# http://www.aero.polimi.it
+# 
+# Changing this copyright notice is forbidden.
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation (version 2 of the License).
+# 
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Author: Pierangelo Masarati <masarati@aero.polimi.it>
+#
+# Data from:
+#
+# A SIMPLE APPROACH TO KINEMATIC INVERSION OF REDUNDANT MECHANISMS
+# Alessandro Fumagalli, Gabriella Gaias, Pierangelo Masarati
+# IDETC/CIE 2007
+# ASME 2007 International Design Engineering Technical Conferences &
+# Computers and Information in Engineering Conference
+# September 4-7, 2007, Las Vegas, Nevada, USA
+#
+# Table 1. Denavit-Hartenberg Parameters of the PA-10 Robot Arm
+# Joint	theta	alpha	ai	di
+# 1	theta1 -90	0 mm	315 mm
+# 2	theta2	90	0 mm	0 mm
+# 3	theta3 -90	0 mm	450 mm
+# 4	theta4  90	0 mm	0 mm
+# 5	theta5  90	0 mm	500 mm
+# 6	theta6  90	0 mm	0 mm
+# 7	theta7	 0	0 mm	80 mm
+#
+# <http://guppy.mpe.nus.edu.sg/~mpeangh/PA-10.html>
+#
+# The Mitsubishi Robot Physical Parameters (provided by Manufacturer)   up
+#
+# link masses (kg)
+# m2= 8.41;
+# m3=3.51;
+# m4= 4.31;
+# m5= 3.45;
+# m6= 1.46;
+# m7= 0.24;
+#
+# center of mass (m)
+# rz2= 0.06325;
+# ry3= 0.08944;
+# rz4= 0.04609;
+# ry5= 0.1647;
+# rz6= -0.03;
+# rz7= -0.029;
+#
+# offset distance (m)
+# d1= 0.115;
+# d3=  0.450;
+# d5=  0.50;
+# d7=  0.08;
+#  
+#
+#  motor constants (link-referenced in kg-m^2):
+#  Im1=Im2=0.75;
+#  Im3=Im4=0.2125;
+#  Im5=Im6=Im7=0.00575; 
+
+begin: data;
+	problem: inverse dynamics;
+end: data;
+
+begin: inverse dynamics;
+	problem type: underdetermined fully actuated, weights, 0., 0., 1., 0., 1., 0.;
+	initial time: 0.;
+	final time: 2.;
+	#time step: 1.e-3;
+	time step: 4.e-3;
+	#time step: 1.e-2;
+	#tolerance: 1e-12;
+	tolerance: 1e-9;
+	#tolerance: 1e-6;
+	max iterations: 100;
+	threads: 1;
+	# nonlinear solver: newton raphson, modified, 5;
+	#linear solver: naive, colamd;
+	linear solver: umfpack, cc;
+	output: iterations;
+ 	# output: residual;
+ 	# output: solution;
+ 	# output: jacobian;
+end: inverse dynamics;
+
+begin: control data;
+	structural nodes:
+		+1	# ground
+		+7	# links
+	;
+	rigid bodies:
+		+7	# links
+	;
+	joints:
+		+1	# ground
+		+7	# passive joints
+		+7	# torques
+		+7	# ergonomy
+		+1	# prescribed motion
+	;
+	gravity;
+
+	default output: reference frames;
+	default orientation: orientation vector;
+end: control data;
+
+set: const integer GROUND = 0;
+set: const integer LINK_1 = 100;
+set: const integer LINK_2 = 200;
+set: const integer LINK_3 = 300;
+set: const integer LINK_4 = 400;
+set: const integer LINK_5 = 500;
+set: const integer LINK_6 = 600;
+set: const integer LINK_7 = 700;
+
+reference: GROUND,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+
+#     the z-axis is in the direction of the joint axis
+#     the x-axis is parallel to the common normal: x_n = z_n \times z_{n-1}
+#     If there is no unique common normal (parallel z axes), then d (below) is a free parameter. The direction of xn is from zn − 1 to zn, as shown in the video below.
+#     the y-axis follows from the x- and z-axis by choosing it to be a right-handed coordinate system.
+#
+#     The transformation is then described by the following four parameters known as D–H parameters:[1].
+#
+#     d: offset along previous z to the common normal
+#     theta: angle about previous z, from old x to new x
+#     a: length of the common normal. Assuming a revolute joint, this is the radius about previous z.
+#     alpha: angle about common normal, from old z axis to new z axis
+
+set: real THETA_1 = 0.;
+set: real THETA_2 = pi/4;
+set: real THETA_3 = 0.;
+set: real THETA_4 = pi/4;
+set: real THETA_5 = 0.;
+set: real THETA_6 = pi/4;
+set: real THETA_7 = 0.;
+
+reference: LINK_1, denavit hartenberg, reference, GROUND, 0.315, THETA_1, 0., -pi/2;
+reference: LINK_2, denavit hartenberg, reference, LINK_1, 0.000, THETA_2, 0.,  pi/2;
+reference: LINK_3, denavit hartenberg, reference, LINK_2, 0.450, THETA_3, 0., -pi/2;
+reference: LINK_4, denavit hartenberg, reference, LINK_3, 0.000, THETA_4, 0.,  pi/2;
+reference: LINK_5, denavit hartenberg, reference, LINK_4, 0.500, THETA_5, 0., -pi/2;
+reference: LINK_6, denavit hartenberg, reference, LINK_5, 0.000, THETA_6, 0.,  pi/2;
+reference: LINK_7, denavit hartenberg, reference, LINK_6, 0.080, THETA_7, 0.,  0.;
+
+set: const integer LINK_7_EE = LINK_7 + 10;
+reference: LINK_7_EE,
+	reference, LINK_7, 0., 0., 0.,
+	reference, LINK_7, eye,
+	reference, LINK_7, null,
+	reference, LINK_7, null;
+
+constitutive law: LINK_1, 1, linear elastic, 1.e-3; # 1.e-6
+constitutive law: LINK_2, 1, linear elastic, 1.e-3;
+constitutive law: LINK_3, 1, linear elastic, 1.e-3;
+constitutive law: LINK_4, 1, linear elastic, 1.e-3;
+constitutive law: LINK_5, 1, linear elastic, 1.e-2;
+constitutive law: LINK_6, 1, linear elastic, 1.e-3;
+constitutive law: LINK_7, 1, linear elastic, 1.e-3;
+
+begin: nodes;
+	structural: GROUND, static,
+		reference, GROUND, null,
+		reference, GROUND, eye,
+		reference, GROUND, null,
+		reference, GROUND, null;
+
+	structural: LINK_1, static,
+		reference, LINK_1, null,
+		reference, LINK_1, eye,
+		reference, LINK_1, null,
+		reference, LINK_1, null;
+
+	structural: LINK_2, static,
+		reference, LINK_2, null,
+		reference, LINK_2, eye,
+		reference, LINK_2, null,
+		reference, LINK_2, null;
+
+	structural: LINK_3, static,
+		reference, LINK_3, null,
+		reference, LINK_3, eye,
+		reference, LINK_3, null,
+		reference, LINK_3, null;
+
+	structural: LINK_4, static,
+		reference, LINK_4, null,
+		reference, LINK_4, eye,
+		reference, LINK_4, null,
+		reference, LINK_4, null;
+
+	structural: LINK_5, static,
+		reference, LINK_5, null,
+		reference, LINK_5, eye,
+		reference, LINK_5, null,
+		reference, LINK_5, null;
+
+	structural: LINK_6, static,
+		reference, LINK_6, null,
+		reference, LINK_6, eye,
+		reference, LINK_6, null,
+		reference, LINK_6, null;
+
+	structural: LINK_7, static,
+		reference, LINK_7, null,
+		reference, LINK_7, eye,
+		orientation description, euler 123,
+		reference, LINK_7, null,
+		reference, LINK_7, null;
+end: nodes;
+
+begin: elements;
+	joint: GROUND, clamp, GROUND, node, node;
+
+	gravity: 0., 0., -1., 9.81;
+
+# link masses (kg)
+# m2= 8.41;
+# m3= 3.51;
+# m4= 4.31;
+# m5= 3.45;
+# m6= 1.46;
+# m7= 0.24;
+#
+# center of mass (m)
+# rz2= 0.06325;
+# ry3= 0.08944;
+# rz4= 0.04609;
+# ry5= 0.1647;
+# rz6= -0.03;
+# rz7= -0.029;
+
+	body: LINK_1, LINK_1,
+		1.,
+		null,
+		eye;
+
+	body: LINK_2, LINK_2,
+		8.41,
+		reference, node, 0., 0., 0.06325,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+
+	body: LINK_3, LINK_3,
+		3.51,
+		reference, node, 0., 0.08944, 0.,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+
+	body: LINK_4, LINK_4,
+		4.31,
+		reference, node, 0., 0., 0.04609,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+
+	body: LINK_5, LINK_5,
+		3.45,
+		reference, node, 0., 0.1647, 0.,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+
+	body: LINK_6, LINK_6,
+		1.46,
+		reference, node, 0., 0., -0.03,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+
+	body: LINK_7, LINK_7,
+		0.24,
+		reference, node, 0., 0., -0.029,
+		diag, 1.e-6, 1.e-6, 1.e-6;
+
+	# passive constraints
+	joint: LINK_1, total joint,
+		GROUND,
+			position, reference, GROUND, null,
+			position orientation, reference, GROUND, eye,
+			rotation orientation, reference, GROUND, eye,
+		LINK_1,
+			position, reference, GROUND, null,
+			position orientation, reference, GROUND, eye,
+			rotation orientation, reference, GROUND, eye,
+		position constraint, 1, 1, 1, null, null, null,
+		orientation constraint, 1, 1, 0, null, null, null;
+
+	joint: LINK_2, total joint,
+		LINK_1,
+			position, reference, LINK_1, null,
+			position orientation, reference, LINK_1, eye,
+			rotation orientation, reference, LINK_1, eye,
+		LINK_2,
+			position, reference, LINK_1, null,
+			position orientation, reference, LINK_1, eye,
+			rotation orientation, reference, LINK_1, eye,
+		position constraint, 1, 1, 1, null, null, null,
+		orientation constraint, 1, 1, 0, null, null, null;
+
+	joint: LINK_3, total joint,
+		LINK_2,
+			position, reference, LINK_2, null,
+			position orientation, reference, LINK_2, eye,
+			rotation orientation, reference, LINK_2, eye,
+		LINK_3,
+			position, reference, LINK_2, null,
+			position orientation, reference, LINK_2, eye,
+			rotation orientation, reference, LINK_2, eye,
+		position constraint, 1, 1, 1, null, null, null,
+		orientation constraint, 1, 1, 0, null, null, null;
+
+	joint: LINK_4, total joint,
+		LINK_3,
+			position, reference, LINK_3, null,
+			position orientation, reference, LINK_3, eye,
+			rotation orientation, reference, LINK_3, eye,
+		LINK_4,
+			position, reference, LINK_3, null,
+			position orientation, reference, LINK_3, eye,
+			rotation orientation, reference, LINK_3, eye,
+		position constraint, 1, 1, 1, null, null, null,
+		orientation constraint, 1, 1, 0, null, null, null;
+
+	joint: LINK_5, total joint,
+		LINK_4,
+			position, reference, LINK_4, null,
+			position orientation, reference, LINK_4, eye,
+			rotation orientation, reference, LINK_4, eye,
+		LINK_5,
+			position, reference, LINK_4, null,
+			position orientation, reference, LINK_4, eye,
+			rotation orientation, reference, LINK_4, eye,
+		position constraint, 1, 1, 1, null, null, null,
+		orientation constraint, 1, 1, 0, null, null, null;
+
+	joint: LINK_6, total joint,
+		LINK_5,
+			position, reference, LINK_5, null,
+			position orientation, reference, LINK_5, eye,
+			rotation orientation, reference, LINK_5, eye,
+		LINK_6,
+			position, reference, LINK_5, null,
+			position orientation, reference, LINK_5, eye,
+			rotation orientation, reference, LINK_5, eye,
+		position constraint, 1, 1, 1, null, null, null,
+		orientation constraint, 1, 1, 0, null, null, null;
+
+	joint: LINK_7, total joint,
+		LINK_6,
+			position, reference, LINK_6, null,
+			position orientation, reference, LINK_6, eye,
+			rotation orientation, reference, LINK_6, eye,
+		LINK_7,
+			position, reference, LINK_6, null,
+			position orientation, reference, LINK_6, eye,
+			rotation orientation, reference, LINK_6, eye,
+		position constraint, 1, 1, 1, null, null, null,
+		orientation constraint, 1, 1, 0, null, null, null;
+
+	# torques
+	joint: LINK_1 + 1, total joint,
+		GROUND,
+			position, reference, GROUND, null,
+			position orientation, reference, GROUND, eye,
+			rotation orientation, reference, GROUND, eye,
+		LINK_1,
+			position, reference, GROUND, null,
+			position orientation, reference, GROUND, eye,
+			rotation orientation, reference, GROUND, eye,
+		position constraint, 0, 0, 0, null, null, null,
+		orientation constraint, 0, 0, 1, null, null, null,
+		inverse dynamics, torque, yes;
+
+	joint: LINK_2 + 1, total joint,
+		LINK_1,
+			position, reference, LINK_1, null,
+			position orientation, reference, LINK_1, eye,
+			rotation orientation, reference, LINK_1, eye,
+		LINK_2,
+			position, reference, LINK_1, null,
+			position orientation, reference, LINK_1, eye,
+			rotation orientation, reference, LINK_1, eye,
+		position constraint, 0, 0, 0, null, null, null,
+		orientation constraint, 0, 0, 1, null, null, null,
+		inverse dynamics, torque, yes;
+
+	joint: LINK_3 + 1, total joint,
+		LINK_2,
+			position, reference, LINK_2, null,
+			position orientation, reference, LINK_2, eye,
+			rotation orientation, reference, LINK_2, eye,
+		LINK_3,
+			position, reference, LINK_2, null,
+			position orientation, reference, LINK_2, eye,
+			rotation orientation, reference, LINK_2, eye,
+		position constraint, 0, 0, 0, null, null, null,
+		orientation constraint, 0, 0, 1, null, null, null,
+		inverse dynamics, torque, yes;
+
+	joint: LINK_4 + 1, total joint,
+		LINK_3,
+			position, reference, LINK_3, null,
+			position orientation, reference, LINK_3, eye,
+			rotation orientation, reference, LINK_3, eye,
+		LINK_4,
+			position, reference, LINK_3, null,
+			position orientation, reference, LINK_3, eye,
+			rotation orientation, reference, LINK_3, eye,
+		position constraint, 0, 0, 0, null, null, null,
+		orientation constraint, 0, 0, 1, null, null, null,
+		inverse dynamics, torque, yes;
+
+	joint: LINK_5 + 1, total joint,
+		LINK_4,
+			position, reference, LINK_4, null,
+			position orientation, reference, LINK_4, eye,
+			rotation orientation, reference, LINK_4, eye,
+		LINK_5,
+			position, reference, LINK_4, null,
+			position orientation, reference, LINK_4, eye,
+			rotation orientation, reference, LINK_4, eye,
+		position constraint, 0, 0, 0, null, null, null,
+		orientation constraint, 0, 0, 1, null, null, null,
+		inverse dynamics, torque, yes;
+
+	joint: LINK_6 + 1, total joint,
+		LINK_5,
+			position, reference, LINK_5, null,
+			position orientation, reference, LINK_5, eye,
+			rotation orientation, reference, LINK_5, eye,
+		LINK_6,
+			position, reference, LINK_5, null,
+			position orientation, reference, LINK_5, eye,
+			rotation orientation, reference, LINK_5, eye,
+		position constraint, 0, 0, 0, null, null, null,
+		orientation constraint, 0, 0, 1, null, null, null,
+		inverse dynamics, torque, yes;
+
+	joint: LINK_7 + 1, total joint,
+		LINK_6,
+			position, reference, LINK_6, null,
+			position orientation, reference, LINK_6, eye,
+			rotation orientation, reference, LINK_6, eye,
+		LINK_7,
+			position, reference, LINK_6, null,
+			position orientation, reference, LINK_6, eye,
+			rotation orientation, reference, LINK_6, eye,
+		position constraint, 0, 0, 0, null, null, null,
+		orientation constraint, 0, 0, 1, null, null, null,
+		inverse dynamics, torque, yes;
+
+	# ergonomy
+	joint: LINK_1 + 2, deformable axial joint,
+		GROUND,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		LINK_1,
+			position, reference, GROUND, null,
+			orientation, reference, GROUND, eye,
+		reference, LINK_1,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+
+	joint: LINK_2 + 2, deformable axial joint,
+		LINK_1,
+			position, reference, LINK_1, null,
+			orientation, reference, LINK_1, eye,
+		LINK_2,
+			position, reference, LINK_1, null,
+			orientation, reference, LINK_1, eye,
+		reference, LINK_2,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+
+	joint: LINK_3 + 2, deformable axial joint,
+		LINK_2,
+			position, reference, LINK_2, null,
+			orientation, reference, LINK_2, eye,
+		LINK_3,
+			position, reference, LINK_2, null,
+			orientation, reference, LINK_2, eye,
+		reference, LINK_3,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+
+	joint: LINK_4 + 2, deformable axial joint,
+		LINK_3,
+			position, reference, LINK_3, null,
+			orientation, reference, LINK_3, eye,
+		LINK_4,
+			position, reference, LINK_3, null,
+			orientation, reference, LINK_3, eye,
+		reference, LINK_4,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+
+	joint: LINK_5 + 2, deformable axial joint,
+		LINK_4,
+			position, reference, LINK_4, null,
+			orientation, reference, LINK_4, eye,
+		LINK_5,
+			position, reference, LINK_4, null,
+			orientation, reference, LINK_4, eye,
+		reference, LINK_5,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+
+	joint: LINK_6 + 2, deformable axial joint,
+		LINK_5,
+			position, reference, LINK_5, null,
+			orientation, reference, LINK_5, eye,
+		LINK_6,
+			position, reference, LINK_5, null,
+			orientation, reference, LINK_5, eye,
+		reference, LINK_6,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+
+	joint: LINK_7 + 2, deformable axial joint,
+		LINK_6,
+			position, reference, LINK_6, null,
+			orientation, reference, LINK_6, eye,
+		LINK_7,
+			position, reference, LINK_6, null,
+			orientation, reference, LINK_6, eye,
+		reference, LINK_7,
+		inverse dynamics, right hand side, no, ergonomy, yes;
+
+	# ...
+	#set: real A_X = .02;
+	#set: real W_X = 4.*2*pi;
+	#set: real A_Y = .05;
+	#set: real W_Y = 2.*2*pi;
+	#set: real A_Z = .1;
+	#set: real W_Z = 1.*2*pi;
+
+	# ...
+	set: real A_X = 1.2/2;
+	set: real W_X = .5*2*pi;
+	set: real A_Y = .6/2;
+	set: real W_Y = 1.*2*pi;
+	set: real A_Z = .0/2;
+	set: real W_Z = 2.*2*pi;
+
+	joint: 1, total joint,
+		GROUND,
+			position, reference, LINK_7_EE, null,
+			position orientation, reference, GROUND, eye,
+			rotation orientation, reference, GROUND, eye,
+		LINK_7,
+			position, reference, LINK_7_EE, null,
+			position orientation, reference, GROUND, eye,
+			rotation orientation, reference, GROUND, eye,
+		position constraint, 1, 1, 1,
+			component,
+				string, "-A_X*(1 - cos(W_X*Time))",
+				string, "-A_Y*(1 - cos(W_Y*Time))",
+				# string, "-A_Y*sin(W_Y*Time)",
+				string, "-A_Z*(1 - cos(W_Z*Time))",
+			component,
+				string, "-A_X*W_X*sin(W_X*Time)",
+				string, "-A_Y*W_Y*sin(W_Y*Time)",
+				# string, "-A_Y*W_Y*cos(W_Y*Time)",
+				string, "-A_Z*W_Z*sin(W_Z*Time)",
+			component,
+				string, "-A_X*(W_X^2)*cos(W_X*Time)",
+				string, "-A_Y*(W_Y^2)*cos(W_Y*Time)",
+				# string, "A_Y*(W_Y^2)*sin(W_Y*Time)",
+				string, "-A_Z*(W_Z^2)*cos(W_Z*Time)",
+		# orientation constraint, 1, 1, 0, null, null, null,
+		inverse dynamics, prescribed motion, yes;
+end: elements;
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

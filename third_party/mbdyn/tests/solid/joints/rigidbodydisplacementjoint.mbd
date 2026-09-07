@@ -1,0 +1,318 @@
+set: real Wz = 2. * pi;
+
+begin: data;
+        problem: initial value; # the default
+end: data;
+
+begin: initial value;
+    threads: assembly, 1;
+
+        initial time: 0;
+        final time: 1;
+        time step: 1e-2;
+
+    max iterations: 10;
+    linear solver: naive, colamd;
+    nonlinear solver: newton raphson;
+        tolerance: 1e-5, test, norm, 1e-5, test, norm;
+        derivatives tolerance: 1e-3, 1e-3;
+        derivatives max iterations: 20;
+        derivatives coefficient: 1e-6;
+    output: iterations;
+    method: ms, 0.6;
+threads: disable;
+end: initial value;
+
+begin: control data;
+    model: static;
+    print: dof description;
+    print: equation description;
+    output precision: 16;
+    default orientation: orientation vector;
+    output results: netcdf, text;
+    use automatic differentiation;
+       tolerance: 1e-13;
+       max iterations: 10;
+        structural nodes: 6;
+        joints: 6;
+    rigid bodies: 2;
+    forces: 1;
+    inertia: 2;
+end: control data;
+
+reference: 1,
+    position, reference, global, null,
+    orientation, reference, global, eye,
+    velocity, reference, global, null,
+    angular velocity, reference, global, null;
+
+reference: 2,
+    position, reference, 1, null,
+    orientation, reference, 1, eye,
+    velocity, reference, 1, null,
+    angular velocity, reference, 1, 0., 0., Wz;
+
+reference: 3,
+   position, reference, 2, 0.2, 0.3, 0.4,
+   orientation, reference, 2, eye,
+   velocity, reference, 2, null,
+   angular velocity, reference, 2, null;
+
+reference: 4,
+   position, reference, 2, -0.2, 0.3, 0.4,
+   orientation, reference, 2, eye,
+   velocity, reference, 2, null,
+   angular velocity, reference, 2, null;
+
+reference: 5,
+   position, reference, 2, 0.2, -0.3, 0.4,
+   orientation, reference, 2, eye,
+   velocity, reference, 2, null,
+   angular velocity, reference, 2, null;
+
+reference: 6,
+   position, reference, 2, -0.2, -0.3, 0.4,
+   orientation, reference, 2, eye,
+   velocity, reference, 2, null,
+   angular velocity, reference, 2, null;
+
+begin: nodes;
+        structural: 2, dynamic,
+                position, reference, 2, null,
+                orientation, reference, 2, eye,
+                velocity, reference, 2, null,
+                angular velocity, reference, 2, null;
+
+        structural: 3, static displacement,
+                position, reference, 3, null,
+                velocity, reference, 3, null;
+
+        structural: 4, static displacement,
+                position, reference, 4, null,
+                velocity, reference, 4, null;
+
+        structural: 5, static displacement,
+                position, reference, 5, null,
+                velocity, reference, 5, null;
+
+        structural: 6, static displacement,
+                position, reference, 6, null,
+                velocity, reference, 6, null;
+
+        structural: 7, dynamic,
+                position, reference, 2, 1.1, 2.2, 3.3,
+                #orientation, reference, 2, euler123, 10. * pi / 180, 45. * pi / 180., 70. * pi / 180.,
+                orientation, reference, 2, eye,
+                velocity, reference, 2, null,
+                angular velocity, reference, 2, null;
+end: nodes;
+
+begin: elements;
+       body: 1, 2, 1., null, diag, 1., 2., 3.;
+       body: 2, 7, 1., 0.1, 0.2, 0.3, diag, 1e-3, 2e-3, 3e-3, inertial, reference, node, eye;
+
+        joint: 1, total pin joint,
+                2,
+                position, reference, 2, null,
+                position orientation, reference, 2, eye,
+                rotation orientation, reference, 2, eye,
+                position, reference, 1, null,
+                position orientation, reference, 1, eye,
+                rotation orientation, reference, 1, eye,
+                position constraint,
+                active, active, active, null,
+                orientation constraint,
+                active,
+                active,
+                active, component, 0., 0., mult, time, Wz;
+
+         joint: 2, offset displacement joint,
+                2,
+                3, position, reference, 3, null;
+
+         joint: 3, offset displacement joint,
+                2,
+                4, position, reference, 4, null;
+
+         joint: 4, offset displacement joint,
+                2,
+                5, position, reference, 5, null;
+
+         joint: 5, offset displacement joint,
+                2,
+                6, position, reference, 6, null;
+
+         joint: 6, rigid body displacement joint,
+                7, 4,
+                3, position, reference, 3, null, weight, 1.,
+                4, position, reference, 4, null, weight, 1.,
+                5, position, reference, 5, null, weight, 1.,
+                6, position, reference, 6, null, weight, 1.;
+
+
+         drive caller: 1, element, 6, joint, string, "Fx", direct, output, yes;
+         drive caller: 2, element, 6, joint, string, "Fy", direct, output, yes;
+         drive caller: 3, element, 6, joint, string, "Fz", direct, output, yes;
+         drive caller: 4, element, 6, joint, string, "Mx", direct, output, yes;
+         drive caller: 5, element, 6, joint, string, "My", direct, output, yes;
+         drive caller: 6, element, 6, joint, string, "Mz", direct, output, yes;
+
+         drive caller: 7, element, 6, joint, string, "fx", direct, output, yes;
+         drive caller: 8, element, 6, joint, string, "fy", direct, output, yes;
+         drive caller: 9, element, 6, joint, string, "fz", direct, output, yes;
+         drive caller: 10, element, 6, joint, string, "mx", direct, output, yes;
+         drive caller: 11, element, 6, joint, string, "my", direct, output, yes;
+         drive caller: 12, element, 6, joint, string, "mz", direct, output, yes;
+
+         drive caller: 13, element, 2, joint, string, "Fx", direct, output, yes;
+         drive caller: 14, element, 2, joint, string, "Fy", direct, output, yes;
+         drive caller: 15, element, 2, joint, string, "Fz", direct, output, yes;
+         drive caller: 16, element, 2, joint, string, "Mx", direct, output, yes;
+         drive caller: 17, element, 2, joint, string, "My", direct, output, yes;
+         drive caller: 18, element, 2, joint, string, "Mz", direct, output, yes;
+
+         drive caller: 19, element, 2, joint, string, "fx", direct, output, yes;
+         drive caller: 20, element, 2, joint, string, "fy", direct, output, yes;
+         drive caller: 21, element, 2, joint, string, "fz", direct, output, yes;
+         drive caller: 22, element, 2, joint, string, "mx", direct, output, yes;
+         drive caller: 23, element, 2, joint, string, "my", direct, output, yes;
+         drive caller: 24, element, 2, joint, string, "mz", direct, output, yes;
+
+         drive caller: 25, element, 3, joint, string, "Fx", direct, output, yes;
+         drive caller: 26, element, 3, joint, string, "Fy", direct, output, yes;
+         drive caller: 27, element, 3, joint, string, "Fz", direct, output, yes;
+         drive caller: 28, element, 3, joint, string, "Mx", direct, output, yes;
+         drive caller: 29, element, 3, joint, string, "My", direct, output, yes;
+         drive caller: 30, element, 3, joint, string, "Mz", direct, output, yes;
+
+         drive caller: 31, element, 3, joint, string, "fx", direct, output, yes;
+         drive caller: 32, element, 3, joint, string, "fy", direct, output, yes;
+         drive caller: 33, element, 3, joint, string, "fz", direct, output, yes;
+         drive caller: 34, element, 3, joint, string, "mx", direct, output, yes;
+         drive caller: 35, element, 3, joint, string, "my", direct, output, yes;
+         drive caller: 36, element, 3, joint, string, "mz", direct, output, yes;
+
+         drive caller: 37, element, 4, joint, string, "Fx", direct, output, yes;
+         drive caller: 38, element, 4, joint, string, "Fy", direct, output, yes;
+         drive caller: 39, element, 4, joint, string, "Fz", direct, output, yes;
+         drive caller: 40, element, 4, joint, string, "Mx", direct, output, yes;
+         drive caller: 41, element, 4, joint, string, "My", direct, output, yes;
+         drive caller: 42, element, 4, joint, string, "Mz", direct, output, yes;
+
+         drive caller: 43, element, 4, joint, string, "fx", direct, output, yes;
+         drive caller: 44, element, 4, joint, string, "fy", direct, output, yes;
+         drive caller: 45, element, 4, joint, string, "fz", direct, output, yes;
+         drive caller: 46, element, 4, joint, string, "mx", direct, output, yes;
+         drive caller: 47, element, 4, joint, string, "my", direct, output, yes;
+         drive caller: 48, element, 4, joint, string, "mz", direct, output, yes;
+
+         drive caller: 49, element, 5, joint, string, "Fx", direct, output, yes;
+         drive caller: 50, element, 5, joint, string, "Fy", direct, output, yes;
+         drive caller: 51, element, 5, joint, string, "Fz", direct, output, yes;
+         drive caller: 52, element, 5, joint, string, "Mx", direct, output, yes;
+         drive caller: 53, element, 5, joint, string, "My", direct, output, yes;
+         drive caller: 54, element, 5, joint, string, "Mz", direct, output, yes;
+
+         drive caller: 55, element, 5, joint, string, "fx", direct, output, yes;
+         drive caller: 56, element, 5, joint, string, "fy", direct, output, yes;
+         drive caller: 57, element, 5, joint, string, "fz", direct, output, yes;
+         drive caller: 58, element, 5, joint, string, "mx", direct, output, yes;
+         drive caller: 59, element, 5, joint, string, "my", direct, output, yes;
+         drive caller: 60, element, 5, joint, string, "mz", direct, output, yes;
+
+         force: 1, absolute, 7,
+                position, reference, global, 1., 0., 0.,
+                component,
+                        mult, time, 0.,
+                        mult, time, 0.,
+                        mult, time, 1.;
+        inertia: 1, name, "bodies", body, 1, output, always;
+        inertia: 2, name, "bodies", body, 2, output, always;
+
+        drive caller: 100, element, 1, inertia, string, "X[1]", direct, output, yes;
+        drive caller: 200, element, 1, inertia, string, "X[2]", direct, output, yes;
+        drive caller: 300, element, 1, inertia, string, "X[3]", direct, output, yes;
+        drive caller: 400, element, 1, inertia, string, "V[1]", direct, output, yes;
+        drive caller: 500, element, 1, inertia, string, "V[2]", direct, output, yes;
+        drive caller: 600, element, 1, inertia, string, "V[3]", direct, output, yes;
+        drive caller: 700, element, 1, inertia, string, "Omega[1]", direct, output, yes;
+        drive caller: 800, element, 1, inertia, string, "Omega[2]", direct, output, yes;
+        drive caller: 900, element, 1, inertia, string, "Omega[3]", direct, output, yes;
+        drive caller: 1000, element, 1, inertia, string, "JP[1]", direct, output, yes;
+        drive caller: 1100, element, 1, inertia, string, "JP[2]", direct, output, yes;
+        drive caller: 1200, element, 1, inertia, string, "JP[3]", direct, output, yes;
+        drive caller: 1300, element, 1, inertia, string, "J[1,1]", direct, output, yes;
+        drive caller: 1400, element, 1, inertia, string, "J[2,1]", direct, output, yes;
+        drive caller: 1500, element, 1, inertia, string, "J[3,1]", direct, output, yes;
+        drive caller: 1600, element, 1, inertia, string, "J[1,2]", direct, output, yes;
+        drive caller: 1700, element, 1, inertia, string, "J[2,2]", direct, output, yes;
+        drive caller: 1800, element, 1, inertia, string, "J[3,2]", direct, output, yes;
+        drive caller: 1900, element, 1, inertia, string, "J[1,3]", direct, output, yes;
+        drive caller: 2000, element, 1, inertia, string, "J[2,3]", direct, output, yes;
+        drive caller: 2100, element, 1, inertia, string, "J[3,3]", direct, output, yes;
+        drive caller: 2200, element, 1, inertia, string, "m", direct, output, yes;
+        drive caller: 2300, element, 1, inertia, string, "beta[1]", direct, output, yes;
+        drive caller: 2400, element, 1, inertia, string, "beta[2]", direct, output, yes;
+        drive caller: 2500, element, 1, inertia, string, "beta[3]", direct, output, yes;
+        drive caller: 2600, element, 1, inertia, string, "gamma[1]", direct, output, yes;
+        drive caller: 2700, element, 1, inertia, string, "gamma[2]", direct, output, yes;
+        drive caller: 2800, element, 1, inertia, string, "gamma[3]", direct, output, yes;
+        drive caller: 2900, element, 1, inertia, string, "Jcg[1,1]", direct, output, yes;
+        drive caller: 3000, element, 1, inertia, string, "Jcg[2,1]", direct, output, yes;
+        drive caller: 3100, element, 1, inertia, string, "Jcg[3,1]", direct, output, yes;
+        drive caller: 3200, element, 1, inertia, string, "Jcg[1,2]", direct, output, yes;
+        drive caller: 3300, element, 1, inertia, string, "Jcg[2,2]", direct, output, yes;
+        drive caller: 3400, element, 1, inertia, string, "Jcg[3,2]", direct, output, yes;
+        drive caller: 3500, element, 1, inertia, string, "Jcg[1,3]", direct, output, yes;
+        drive caller: 3600, element, 1, inertia, string, "Jcg[2,3]", direct, output, yes;
+        drive caller: 3700, element, 1, inertia, string, "Jcg[3,3]", direct, output, yes;
+        drive caller: 3800, element, 1, inertia, string, "Phi[1]", direct, output, yes;
+        drive caller: 3900, element, 1, inertia, string, "Phi[2]", direct, output, yes;
+        drive caller: 4000, element, 1, inertia, string, "Phi[3]", direct, output, yes;
+
+        drive caller: 5100, element, 2, inertia, string, "X[1]", direct, output, yes;
+        drive caller: 5200, element, 2, inertia, string, "X[2]", direct, output, yes;
+        drive caller: 5300, element, 2, inertia, string, "X[3]", direct, output, yes;
+        drive caller: 5400, element, 2, inertia, string, "V[1]", direct, output, yes;
+        drive caller: 5500, element, 2, inertia, string, "V[2]", direct, output, yes;
+        drive caller: 5600, element, 2, inertia, string, "V[3]", direct, output, yes;
+        drive caller: 5700, element, 2, inertia, string, "Omega[1]", direct, output, yes;
+        drive caller: 5800, element, 2, inertia, string, "Omega[2]", direct, output, yes;
+        drive caller: 5900, element, 2, inertia, string, "Omega[3]", direct, output, yes;
+        drive caller: 6000, element, 2, inertia, string, "JP[1]", direct, output, yes;
+        drive caller: 6100, element, 2, inertia, string, "JP[2]", direct, output, yes;
+        drive caller: 6200, element, 2, inertia, string, "JP[3]", direct, output, yes;
+        drive caller: 6300, element, 2, inertia, string, "J[1,1]", direct, output, yes;
+        drive caller: 6400, element, 2, inertia, string, "J[2,1]", direct, output, yes;
+        drive caller: 6500, element, 2, inertia, string, "J[3,1]", direct, output, yes;
+        drive caller: 6600, element, 2, inertia, string, "J[1,2]", direct, output, yes;
+        drive caller: 6700, element, 2, inertia, string, "J[2,2]", direct, output, yes;
+        drive caller: 6800, element, 2, inertia, string, "J[3,2]", direct, output, yes;
+        drive caller: 6900, element, 2, inertia, string, "J[1,3]", direct, output, yes;
+        drive caller: 7000, element, 2, inertia, string, "J[2,3]", direct, output, yes;
+        drive caller: 7100, element, 2, inertia, string, "J[3,3]", direct, output, yes;
+        drive caller: 7200, element, 2, inertia, string, "m", direct, output, yes;
+        drive caller: 7300, element, 2, inertia, string, "beta[1]", direct, output, yes;
+        drive caller: 7400, element, 2, inertia, string, "beta[2]", direct, output, yes;
+        drive caller: 7500, element, 2, inertia, string, "beta[3]", direct, output, yes;
+        drive caller: 7600, element, 2, inertia, string, "gamma[1]", direct, output, yes;
+        drive caller: 7700, element, 2, inertia, string, "gamma[2]", direct, output, yes;
+        drive caller: 7800, element, 2, inertia, string, "gamma[3]", direct, output, yes;
+        drive caller: 7900, element, 2, inertia, string, "Jcg[1,1]", direct, output, yes;
+        drive caller: 8000, element, 2, inertia, string, "Jcg[2,1]", direct, output, yes;
+        drive caller: 8100, element, 2, inertia, string, "Jcg[3,1]", direct, output, yes;
+        drive caller: 8200, element, 2, inertia, string, "Jcg[1,2]", direct, output, yes;
+        drive caller: 8300, element, 2, inertia, string, "Jcg[2,2]", direct, output, yes;
+        drive caller: 8400, element, 2, inertia, string, "Jcg[3,2]", direct, output, yes;
+        drive caller: 8500, element, 2, inertia, string, "Jcg[1,3]", direct, output, yes;
+        drive caller: 8600, element, 2, inertia, string, "Jcg[2,3]", direct, output, yes;
+        drive caller: 8700, element, 2, inertia, string, "Jcg[3,3]", direct, output, yes;
+        drive caller: 8800, element, 2, inertia, string, "Phi[1]", direct, output, yes;
+        drive caller: 8900, element, 2, inertia, string, "Phi[2]", direct, output, yes;
+        drive caller: 9000, element, 2, inertia, string, "Phi[3]", direct, output, yes;
+end: elements;
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################

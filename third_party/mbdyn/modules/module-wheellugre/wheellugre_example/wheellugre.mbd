@@ -1,0 +1,239 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/modules/wheel2/wheel2,v 1.8 2014/12/13 17:15:55 masarati Exp $
+
+# This simple model shows the basic usage of the wheel2 module. It implements a virtual tire test rig, a device used to measure the
+# forces and moments exchanged between tire and ground as function of several variables, such as vertical force, slip angle, slip ratio,
+# camber, etc.
+
+# In this example, the axle position, orientation, and torque are imposed,
+# and the resulting forces are stored in the .frc file.
+
+include: "params.var";
+
+set: const real z_axle	= 0.95*Ru;		# axle imposed z coordinate
+set: const real Vx		= 15.;			# axle imposed forward velocity
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+
+	initial time:	0.;
+	final time:		15.;
+	time step:		1.e-3;
+
+	tolerance: 		1.e-6;
+	max iterations: 20;
+	method: 		ms, .6;
+
+	nonlinear solver: newton raphson, modified, 4;
+	linear solver: naive, colamd, mt, 1;
+	
+	derivatives tolerance: 		1.e-1;
+	derivatives max iterations:	20;
+	derivatives coefficient:	1.e-7;
+		
+end: initial value;
+
+begin: control data;
+
+	max iterations: 100;
+
+	structural nodes:
+		+1	# ground
+		+1	# HUB
+		+1	# RIM
+	;
+
+	joints:
+		+1	# ground clamp
+		+1	# revolute joint between HUB and RIM
+		+1	# total pin joint (HUB imposed displacement and rotations)
+	;
+
+	rigid bodies:
+		+1	# RIM
+	;
+	
+	loadable elements:
+		1	# tire
+	;
+	
+	forces:
+		+1	# internal torque
+	;
+
+	output results: netcdf;
+
+end: control data;
+
+set: integer EARTH = 1;
+reference: EARTH,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+	
+set: integer HUB = 2;
+reference: HUB,
+	reference, global, 0., 0., z_axle,
+	reference, global, eye,
+	reference, global, Vx, 0., 0.,
+	reference, global, null;
+
+set: integer RIM = 3;
+reference: RIM,
+	reference, HUB, null,
+	reference, HUB, eye,
+	reference, HUB, null,
+	reference, HUB, 0., Vx/Ru, 0.;	# initial angular velocity
+
+begin: nodes;
+
+	structural: EARTH, static,
+		reference, EARTH, null,
+		reference, EARTH, eye,
+		reference, EARTH, null,
+		reference, EARTH, null;
+
+	structural: HUB, static,
+		reference, HUB, null,
+		reference, HUB, eye,
+		reference, HUB, null,
+		reference, HUB, null;
+
+	structural: RIM, dynamic,
+		reference, RIM, null,
+		reference, RIM, eye,
+		reference, RIM, null,
+		reference, RIM, null;
+
+end: nodes;
+
+begin: elements;
+
+	joint: 1, clamp, EARTH, node, node;
+
+	joint: 2, revolute hinge,
+		HUB, reference, node, null,
+		hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.,
+		RIM, reference, node, null,
+		hinge, reference, node, 1, 1.,0.,0., 3, 0.,1.,0.;
+
+	joint: 4, total pin joint,
+		# position of constraint with respect to node 1
+		HUB,
+			position, reference, node, null,
+			position orientation, reference, node, eye,
+			rotation orientation, reference, node, eye,
+
+		# position of constraint with respect to ground
+			position, null,
+			position orientation, eye,
+			rotation orientation, eye,
+
+		# prescribed relative position
+		position constraint, active, active, active,
+		# 3 component vector of prescribed relative position
+			component,
+				linear, 0., Vx,
+				cosine,
+				  10.,
+				  1*pi,
+				  2.,
+				  3,
+				  0.,
+				const, z_axle,
+		# prescribed relative orientation
+		orientation constraint, active, active, active, null;
+
+	body: 3, RIM,
+		#0.96,
+		100.,
+		null,
+		diag, 0.589844, 0.812366, 0.589844;
+
+	module load: "libmodule-wheellugre.la";
+
+	loadable: 1000, "libmodule-wheellugre",
+		# wheel structural node label
+		RIM,
+		# wheel axle direction
+		0, 1, 0,
+		# ground structural node label
+		EARTH,
+		# reference point position of the ground plane
+		null,
+		# direction orthogonal to the ground plane
+		0, 0, 1,
+		# wheel radius
+		Ru,
+		# stiffness law
+		"tire_stiffness", linear, 0., 0., 1., 1.e5,
+		#reference velocity
+		 30,	#reference velocity
+		    slip,
+		      preload, 0.1,
+		      modlugre, 
+		      	4., 		# sigma0 
+			0.03, 		# sigma1 
+			0.018,		# sigma2 
+			0.,		# kappa 
+	     	
+			# mu_c=0.3, mu_s=0.8, alpha=0.5, vs=4.5 m/s
+			"fss_function", multilinear, 
+			do not extrapolate,
+			0   ,   0.8  ,
+			0.5   ,	 0.66 ,
+			1     ,	 0.61 ,
+			1.5   ,	 0.58 ,
+			2     ,	 0.56 ,
+			2.5   ,	 0.54 ,
+			3     ,	 0.52 ,
+			3.5   ,	 0.51 ,
+			4     ,	 0.49 ,
+			4.5   ,	 0.48 ,
+			5     ,	 0.47 ,
+			5.5   ,	 0.47 ,
+			6     ,	 0.46 ,
+			6.5   ,	 0.45 ,
+			7     ,	 0.44 ,
+			7.5   ,	 0.44 ,
+			8     ,	 0.43 ,
+			8.5   ,	 0.43 ,
+			9     ,  0.42 ,
+			9.5   ,	 0.42 ,
+			10    ,	 0.41 ,
+			end,
+			
+		     	2., # kappa0
+		      "re_function", const, 10.95*in2m,
+			
+		      linear, 0., 0.0,
+		      linear, 0., 0.0,
+		      threshold, 0.; 		      
+	
+	couple: 1, follower internal,
+		RIM,
+			position, reference, node, null,
+		HUB,
+			position, reference, node, null,
+		single, reference, node, 0., 1., 0.,
+			array, 2,
+				sine,
+					3.,
+					1*pi,
+					500.,
+					3,
+					0.,
+				const, 0.;
+			
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 1
+##############################################################################################################

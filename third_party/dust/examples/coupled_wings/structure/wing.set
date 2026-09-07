@@ -1,0 +1,47 @@
+set: const real dt =0.01000; 
+set: const real t_end =2.000000; 
+set: const real t_start =0.000000; 
+# === some variables ============================================
+set: integer curr_elem;
+set: const integer GROUND = 0;
+set: const integer CENTRAL = 10;
+set: const integer RIGHT = 20;
+set: const integer LEFT = 30;
+set: const integer FLAP_RIGHT = 250;
+set: const integer FLAP_LEFT = 350;
+# 
+set: const real delta  = 0*deg2rad;      #dihedral
+set: const real lambda = 30*deg2rad;      #sweep
+set: const real theta  = 0*deg2rad;      #twist 
+# --- beam ---
+set: integer Nel = 4;
+
+set: real Chord = 1.5; # wing chord meter  
+set: real M =  217.74912; 
+set: real L =  4; 
+set: real dL = (L/Nel) / (cos(deg2rad*30)/(cos(deg2rad*10)));
+set: real m = M/L;
+set: real j = 7.452;
+set: real EA  = 1.e+10;    
+set: real GAy = 1.e+10;   
+set: real GAz = 1.e+10;   
+set: real GJ  = 900.88e+5;  
+set: real EJx = 900.77e+5;   
+set: real EJz = 90.77e+7;   
+set: real CA_location = 25; 
+set: real EA_location = 33; 
+set: real FLAP_location = 70;
+set: real FLAP_inboard = 2;
+set: real FLAP_outboard = 3.5;
+set: real CG_location = 33; 
+set: real Off_CA = (CA_location-EA_location)*Chord/100;
+set: real Off_CG = (CG_location-EA_location)*Chord/100;
+
+# ------------------  FLAP  --------------------
+set: const real T_START_FLAP_RIGHT = 0.01; 
+set: const real T_PERIOD_FLAP_RIGHT = 0.1; 
+set: const real DEG_FLAP_RIGHT = deg2rad*(10.0); 
+
+set: const real T_START_FLAP_LEFT = 0.01;
+set: const real T_PERIOD_FLAP_LEFT = 0.1; 
+set: const real DEG_FLAP_LEFT = -deg2rad*(30.0);

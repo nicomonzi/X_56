@@ -1,0 +1,17 @@
+Simple test case to showcase the possibilities of reference frames motion and
+different types of postprocessing.
+
+As usual, copy or link the executables in the present folder, and execute
+
+./dust_pre
+./dust
+./dust_post
+
+In dust_post.in different postprocessing analysis are requested: visualizations,
+flowfield visualizations and integral loads. 
+
+While surface visualizations and flowfield visualization produce vtk files, the 
+integral load analyses produce .dat files with the time history of the loads.
+
+All type of analysis can also be generated in tecplot format editing the 
+dust_post.in input files. 

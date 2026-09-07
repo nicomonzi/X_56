@@ -1,0 +1,127 @@
+# $Header: /var/cvs/mbdyn/mbdyn/mbdyn-1.0/tests/joints/plane/planefriction,v 1.3 2014/12/13 17:15:47 masarati Exp $
+
+begin: data;
+	problem: initial value;
+end: data;
+
+begin: initial value;
+	initial time: 0.;
+	final time: 20.;
+	time step: 1.e-3;
+	tolerance: 1e-6;
+	derivatives coefficient: 1e-6;
+	derivatives max iterations: 10;
+	derivatives tolerance: 1e-3;
+	max iterations: 10;
+	linear solver: naive, colamd;
+	#abort after: derivatives;
+	#output: iterations;
+	#output: residual;
+	#output: residual, jacobian, solution;
+end: initial value;
+
+begin: control data;
+	structural nodes: 2;
+	rigid bodies: 1;
+	joints: 2;
+	gravity;
+
+#	skip initial joint assembly;
+#	jacobian check: step,  0.059, 1., 0., output, all;
+	print: dof description;
+	print: equation description;
+
+	# default output: none;
+end: control data;
+
+set: const real L = 1.;
+set: const real THETA_0 = -pi/2;
+set: const real OMEGA_0 = 0.1;
+
+reference: 0,
+	reference, global, null,
+	reference, global, eye,
+	reference, global, null,
+	reference, global, null;
+reference: 2,
+	reference, 0, null,
+	reference, 0,
+		2, 0., 1., 0.,
+		3, sin(THETA_0), 0., cos(THETA_0),
+	reference, 0, null,
+	reference, 0, 0., OMEGA_0, 0.;
+reference: 1,
+	reference, 2, 0., 0., -L,
+	reference, 2, eye,
+	reference, 2, null,
+	reference, 2, null;
+
+begin: nodes;
+	structural: 0, static,
+		reference, 0, null,
+		reference, 0, eye,
+		reference, 0, null,
+		reference, 0, null;
+	structural: 1, dynamic,
+		reference, 1, null,
+		reference, 1, eye,
+		reference, 1, null,
+		reference, 1, null;
+end: nodes;
+
+scalar function: "constfriction", const, 0.3;
+
+begin: elements;
+	joint: 0, clamp, 0, node, node;
+/*
+	joint: 1, 
+		revolute hinge,
+		0,
+			position, reference, node, null,
+			orientation, reference, node,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.,
+		1,
+			position, reference, other node, null,
+			orientation, reference, node,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.,
+		friction, 0.1,
+			preload, .1,
+			modlugre, 2000, 0.1, 0., 0.71, "constfriction",
+			simple;
+*/
+#/*
+	joint: 1, 
+		spherical hinge,
+		0,
+			position, reference, node, null,
+			orientation, reference, node,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.,
+		1,
+			position, reference, other node, null,
+			orientation, reference, node,
+				3, 0., 1., 0.,
+				1, 1., 0., 0.,
+		friction, 0.1,
+			preload, .1,
+			modlugre 2D, 2000, 0.1, 0., 0.71, "constfriction",
+			simple 2D;
+#*/
+
+	body: 1, 1,
+		10,
+		reference, node, null,
+		diag, 1., 1., 1.;
+
+	gravity: uniform, 0., 0., -1, 9.81;
+end: elements;
+
+# vim:ft=mbd
+
+##############################################################################################################
+## Variables to be updated by simple_testsuite.sh --update-reference-test-status
+## Warning, do not edit!!!
+## @MBDYN_SIMPLE_TESTSUITE_EXIT_STATUS@ = 0
+##############################################################################################################
