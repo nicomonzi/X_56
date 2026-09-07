@@ -1,0 +1,17 @@
+data_basename = dust/trim
+basename = paraview/trim55
+
+analysis = {
+  type = viz
+  name = coupled
+  start_res = 1
+  end_res = 200
+  step_res = 1
+  format = vtk
+  wake = T
+  separate_wake = T
+  variable = velocity
+  variable = vorticity
+  variable = pressure
+  component = all
+}
