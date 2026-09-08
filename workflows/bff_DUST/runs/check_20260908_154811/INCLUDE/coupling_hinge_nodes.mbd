@@ -1,0 +1,59 @@
+structural: 882001, dynamic, reference, GROUND, 176.525690450000, 16.830000000000, 100.160003700000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882002, dynamic, reference, GROUND, 164.968487850000, 45.930000000000, 103.517388000000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882003, dynamic, reference, GROUND, 165.456503760000, 54.217500000000, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882004, dynamic, reference, GROUND, 176.200002719498, 79.490796998591, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882005, dynamic, reference, GROUND, 176.207826980501, 79.509203001410, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882006, dynamic, reference, GROUND, 186.948476539499, 104.775796998590, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882007, dynamic, reference, GROUND, 186.956300800501, 104.794203001410, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882008, dynamic, reference, GROUND, 197.696950359499, 130.060796998590, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882009, dynamic, reference, GROUND, 197.704774620502, 130.079203001409, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882010, dynamic, reference, GROUND, 208.447210850000, 155.350000000000, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882011, dynamic, reference, GROUND, 164.968487850000, -45.930000000000, 103.517388000000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882012, dynamic, reference, GROUND, 176.525690450000, -16.830000000000, 100.160003700000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882013, dynamic, reference, GROUND, 176.200002719498, -79.490796998591, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882014, dynamic, reference, GROUND, 165.456503760000, -54.217500000000, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882015, dynamic, reference, GROUND, 186.948476539499, -104.775796998590, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882016, dynamic, reference, GROUND, 176.207826980501, -79.509203001410, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882017, dynamic, reference, GROUND, 197.696950359499, -130.060796998590, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882018, dynamic, reference, GROUND, 186.956300800501, -104.794203001410, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882019, dynamic, reference, GROUND, 208.447210850000, -155.350000000000, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;
+
+structural: 882020, dynamic, reference, GROUND, 197.704774620502, -130.079203001409, 104.089996300000,
+    reference, GROUND, eye, reference, GROUND, null, reference, GROUND, null;

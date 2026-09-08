@@ -1,0 +1,397 @@
+
+>>>>>> DUST beginning >>>>>>
+
+
+Reading input parameters from file "dust.in"
+
+
+====== Input parameters: ======
+
+Reading input parameters from file "dust.in"
+
+Using PreCICE
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+
+====== Geometry Creation ======
+
+Reading input parameters from file "References.in"
+Reading geometry from file "geo_input.h5"
+Created geometry in:     0.157 s.
+
+====== Initializing Octree ======
+Initialized octree in:     0.442 s.
+
+====== Initializing Wake ======
+
+====== Initializing Linear System ======
+Initialized linear system in:     2.146 s.
+
+------ Completed all preliminary operations in:     4.313 s.
+  is coupling ongoing:            1
+  dt_precice         :    2.0000000000000000E-003
+
+////////// Performing Computations //////////
+
+--> Step     1 of    21 simulation time:    0.0000
+Elapsed wall time:     4.374
+Assembled linear system in:     1.270 s.
+Solved linear system in:     4.221 s.
+(0) 13:13:55 [acceleration::ResidualSumPreconditioner]:49 in _update_: [36mWARNING: [0mAll residual sub-vectors in the residual-sum preconditioner are numerically zero ( sum = 0). This indicates that the data values exchanged between two successive iterations did not change. The simulation may be unstable, e.g. produces NAN values. Please check the data values exchanged between the solvers is not identical between iterations. The preconditioner scaling factors were not updated in this iteration and the scaling factors determined in the previous iteration were used.
+(0) 13:13:55 [acceleration::ResidualSumPreconditioner]:62 in _update_: [36mWARNING: [0mA sub-vector in the residual-sum preconditioner became numerically zero ( sub-vector = 0). If this occurred in the second iteration and the initial-relaxation factor is equal to 1.0, check if the coupling data values of one solver is zero in the first iteration. The preconditioner scaling factors were not updated for this iteration and the scaling factors determined in the previous iteration were used.
+(0) 13:13:55 [acceleration::ResidualSumPreconditioner]:62 in _update_: [36mWARNING: [0mA sub-vector in the residual-sum preconditioner became numerically zero ( sub-vector = 0). If this occurred in the second iteration and the initial-relaxation factor is equal to 1.0, check if the coupling data values of one solver is zero in the first iteration. The preconditioner scaling factors were not updated for this iteration and the scaling factors determined in the previous iteration were used.
+
+--> Step     1 of    21 simulation time:    0.0000
+Elapsed wall time:    10.087
+Assembled linear system in:     1.332 s.
+Solved linear system in:     4.321 s.
+
+--> Step     1 of    21 simulation time:    0.0000
+Elapsed wall time:    15.940
+Assembled linear system in:     1.251 s.
+Solved linear system in:     4.137 s.
+Updated wake in:     0.022 s.
+Updated geometry in:     0.004 s.
+
+--> Step     2 of    21 simulation time:    0.0020
+Elapsed wall time:    21.700
+Assembled linear system in:     1.365 s.
+Solved linear system in:     4.329 s.
+
+--> Step     2 of    21 simulation time:    0.0020
+Elapsed wall time:    27.586
+Assembled linear system in:     1.263 s.
+Solved linear system in:     4.305 s.
+
+--> Step     2 of    21 simulation time:    0.0020
+Elapsed wall time:    33.390
+Assembled linear system in:     1.361 s.
+Solved linear system in:     4.294 s.
+
+--> Step     2 of    21 simulation time:    0.0020
+Elapsed wall time:    39.270
+Assembled linear system in:     1.276 s.
+Solved linear system in:     4.327 s.
+Updated wake in:     0.039 s.
+Updated geometry in:     0.006 s.
+
+--> Step     3 of    21 simulation time:    0.0040
+Elapsed wall time:    45.253
+Assembled linear system in:     1.266 s.
+Solved linear system in:     4.220 s.
+
+--> Step     3 of    21 simulation time:    0.0040
+Elapsed wall time:    50.946
+Assembled linear system in:     1.361 s.
+Solved linear system in:     4.284 s.
+
+--> Step     3 of    21 simulation time:    0.0040
+Elapsed wall time:    56.810
+Assembled linear system in:     1.270 s.
+Solved linear system in:     4.302 s.
+
+--> Step     3 of    21 simulation time:    0.0040
+Elapsed wall time:    62.628
+Assembled linear system in:     1.282 s.
+Solved linear system in:     4.262 s.
+Updated wake in:     0.070 s.
+Updated geometry in:     0.005 s.
+
+--> Step     4 of    21 simulation time:    0.0060
+Elapsed wall time:    68.556
+Assembled linear system in:     1.306 s.
+Solved linear system in:     4.246 s.
+
+--> Step     4 of    21 simulation time:    0.0060
+Elapsed wall time:    74.305
+Assembled linear system in:     1.366 s.
+Solved linear system in:     4.232 s.
+
+--> Step     4 of    21 simulation time:    0.0060
+Elapsed wall time:    80.114
+Assembled linear system in:     1.292 s.
+Solved linear system in:     4.214 s.
+Updated wake in:     0.089 s.
+Updated geometry in:     0.008 s.
+
+--> Step     5 of    21 simulation time:    0.0080
+Elapsed wall time:    86.047
+Assembled linear system in:     1.295 s.
+Solved linear system in:     4.234 s.
+
+--> Step     5 of    21 simulation time:    0.0080
+Elapsed wall time:    91.817
+Assembled linear system in:     1.309 s.
+Solved linear system in:     4.232 s.
+
+--> Step     5 of    21 simulation time:    0.0080
+Elapsed wall time:    97.546
+Assembled linear system in:     1.316 s.
+Solved linear system in:     4.258 s.
+Updated wake in:     0.095 s.
+Updated geometry in:     0.007 s.
+
+--> Step     6 of    21 simulation time:    0.0100
+Elapsed wall time:   103.526
+Assembled linear system in:     1.417 s.
+Solved linear system in:     4.255 s.
+
+--> Step     6 of    21 simulation time:    0.0100
+Elapsed wall time:   109.405
+Assembled linear system in:     1.311 s.
+Solved linear system in:     4.240 s.
+
+--> Step     6 of    21 simulation time:    0.0100
+Elapsed wall time:   115.180
+Assembled linear system in:     1.381 s.
+Solved linear system in:     4.237 s.
+Updated wake in:     0.114 s.
+Updated geometry in:     0.005 s.
+
+--> Step     7 of    21 simulation time:    0.0120
+Elapsed wall time:   121.233
+Assembled linear system in:     1.349 s.
+Solved linear system in:     4.233 s.
+
+--> Step     7 of    21 simulation time:    0.0120
+Elapsed wall time:   127.006
+Assembled linear system in:     1.323 s.
+Solved linear system in:     4.266 s.
+
+--> Step     7 of    21 simulation time:    0.0120
+Elapsed wall time:   132.810
+Assembled linear system in:     1.356 s.
+Solved linear system in:     4.252 s.
+Updated wake in:     0.133 s.
+Updated geometry in:     0.004 s.
+
+--> Step     8 of    21 simulation time:    0.0140
+Elapsed wall time:   138.873
+Assembled linear system in:     1.309 s.
+Solved linear system in:     4.153 s.
+
+--> Step     8 of    21 simulation time:    0.0140
+Elapsed wall time:   144.529
+Assembled linear system in:     1.292 s.
+Solved linear system in:     4.132 s.
+
+--> Step     8 of    21 simulation time:    0.0140
+Elapsed wall time:   150.170
+Assembled linear system in:     1.299 s.
+Solved linear system in:     4.162 s.
+Updated wake in:     0.136 s.
+Updated geometry in:     0.010 s.
+
+--> Step     9 of    21 simulation time:    0.0160
+Elapsed wall time:   156.094
+Assembled linear system in:     1.352 s.
+Solved linear system in:     4.131 s.
+
+--> Step     9 of    21 simulation time:    0.0160
+Elapsed wall time:   161.783
+Assembled linear system in:     1.348 s.
+Solved linear system in:     4.104 s.
+
+--> Step     9 of    21 simulation time:    0.0160
+Elapsed wall time:   167.448
+Assembled linear system in:     1.304 s.
+Solved linear system in:     4.137 s.
+Updated wake in:     0.145 s.
+Updated geometry in:     0.007 s.
+
+--> Step    10 of    21 simulation time:    0.0180
+Elapsed wall time:   173.337
+Assembled linear system in:     1.320 s.
+Solved linear system in:     4.091 s.
+
+--> Step    10 of    21 simulation time:    0.0180
+Elapsed wall time:   178.963
+Assembled linear system in:     1.336 s.
+Solved linear system in:     4.204 s.
+
+--> Step    10 of    21 simulation time:    0.0180
+Elapsed wall time:   184.715
+Assembled linear system in:     1.331 s.
+Solved linear system in:     4.184 s.
+Updated wake in:     0.167 s.
+Updated geometry in:     0.007 s.
+
+--> Step    11 of    21 simulation time:    0.0200
+Elapsed wall time:   190.724
+Assembled linear system in:     1.338 s.
+Solved linear system in:     4.067 s.
+
+--> Step    11 of    21 simulation time:    0.0200
+Elapsed wall time:   196.322
+Assembled linear system in:     1.344 s.
+Solved linear system in:     4.082 s.
+
+--> Step    11 of    21 simulation time:    0.0200
+Elapsed wall time:   201.973
+Assembled linear system in:     1.397 s.
+Solved linear system in:     4.134 s.
+Updated wake in:     0.197 s.
+Updated geometry in:     0.005 s.
+
+--> Step    12 of    21 simulation time:    0.0220
+Elapsed wall time:   208.021
+Assembled linear system in:     1.367 s.
+Solved linear system in:     4.221 s.
+
+--> Step    12 of    21 simulation time:    0.0220
+Elapsed wall time:   213.805
+Assembled linear system in:     1.339 s.
+Solved linear system in:     4.142 s.
+
+--> Step    12 of    21 simulation time:    0.0220
+Elapsed wall time:   219.494
+Assembled linear system in:     1.348 s.
+Solved linear system in:     4.048 s.
+Updated wake in:     0.189 s.
+Updated geometry in:     0.007 s.
+
+--> Step    13 of    21 simulation time:    0.0240
+Elapsed wall time:   225.458
+Assembled linear system in:     1.345 s.
+Solved linear system in:     4.184 s.
+
+--> Step    13 of    21 simulation time:    0.0240
+Elapsed wall time:   231.197
+Assembled linear system in:     1.354 s.
+Solved linear system in:     4.147 s.
+
+--> Step    13 of    21 simulation time:    0.0240
+Elapsed wall time:   236.912
+Assembled linear system in:     1.349 s.
+Solved linear system in:     4.116 s.
+Updated wake in:     0.223 s.
+Updated geometry in:     0.007 s.
+
+--> Step    14 of    21 simulation time:    0.0260
+Elapsed wall time:   242.901
+Assembled linear system in:     1.382 s.
+Solved linear system in:     4.291 s.
+
+--> Step    14 of    21 simulation time:    0.0260
+Elapsed wall time:   248.786
+Assembled linear system in:     1.421 s.
+Solved linear system in:     4.098 s.
+
+--> Step    14 of    21 simulation time:    0.0260
+Elapsed wall time:   254.513
+Assembled linear system in:     1.411 s.
+Solved linear system in:     4.050 s.
+Updated wake in:     0.243 s.
+Updated geometry in:     0.010 s.
+
+--> Step    15 of    21 simulation time:    0.0280
+Elapsed wall time:   260.527
+Assembled linear system in:     1.357 s.
+Solved linear system in:     4.068 s.
+
+--> Step    15 of    21 simulation time:    0.0280
+Elapsed wall time:   266.170
+Assembled linear system in:     1.350 s.
+Solved linear system in:     4.078 s.
+
+--> Step    15 of    21 simulation time:    0.0280
+Elapsed wall time:   271.816
+Assembled linear system in:     1.369 s.
+Solved linear system in:     4.068 s.
+Updated wake in:     0.242 s.
+Updated geometry in:     0.004 s.
+
+--> Step    16 of    21 simulation time:    0.0300
+Elapsed wall time:   277.830
+Assembled linear system in:     1.356 s.
+Solved linear system in:     4.023 s.
+
+--> Step    16 of    21 simulation time:    0.0300
+Elapsed wall time:   283.410
+Assembled linear system in:     1.427 s.
+Solved linear system in:     4.091 s.
+
+--> Step    16 of    21 simulation time:    0.0300
+Elapsed wall time:   289.130
+Assembled linear system in:     1.357 s.
+Solved linear system in:     4.193 s.
+Updated wake in:     0.267 s.
+Updated geometry in:     0.004 s.
+
+--> Step    17 of    21 simulation time:    0.0320
+Elapsed wall time:   295.255
+Assembled linear system in:     1.358 s.
+Solved linear system in:     4.216 s.
+
+--> Step    17 of    21 simulation time:    0.0320
+Elapsed wall time:   301.041
+Assembled linear system in:     1.392 s.
+Solved linear system in:     4.161 s.
+
+--> Step    17 of    21 simulation time:    0.0320
+Elapsed wall time:   306.804
+Assembled linear system in:     1.428 s.
+Solved linear system in:     4.067 s.
+Updated wake in:     0.285 s.
+Updated geometry in:     0.007 s.
+
+--> Step    18 of    21 simulation time:    0.0340
+Elapsed wall time:   312.898
+Assembled linear system in:     1.421 s.
+Solved linear system in:     4.177 s.
+
+--> Step    18 of    21 simulation time:    0.0340
+Elapsed wall time:   318.713
+Assembled linear system in:     1.388 s.
+Solved linear system in:     4.060 s.
+
+--> Step    18 of    21 simulation time:    0.0340
+Elapsed wall time:   324.362
+Assembled linear system in:     1.405 s.
+Solved linear system in:     4.076 s.
+Updated wake in:     0.309 s.
+Updated geometry in:     0.007 s.
+
+--> Step    19 of    21 simulation time:    0.0360
+Elapsed wall time:   330.477
+Assembled linear system in:     1.374 s.
+Solved linear system in:     4.037 s.
+
+--> Step    19 of    21 simulation time:    0.0360
+Elapsed wall time:   336.090
+Assembled linear system in:     1.378 s.
+Solved linear system in:     4.067 s.
+
+--> Step    19 of    21 simulation time:    0.0360
+Elapsed wall time:   341.724
+Assembled linear system in:     1.389 s.
+Solved linear system in:     4.120 s.
+Updated wake in:     0.325 s.
+Updated geometry in:     0.008 s.
+
+--> Step    20 of    21 simulation time:    0.0380
+Elapsed wall time:   347.879
+Assembled linear system in:     1.396 s.
+Solved linear system in:     4.092 s.
+
+--> Step    20 of    21 simulation time:    0.0380
+Elapsed wall time:   353.563
+Assembled linear system in:     1.389 s.
+Solved linear system in:     4.193 s.
+
+--> Step    20 of    21 simulation time:    0.0380
+Elapsed wall time:   359.368
+Assembled linear system in:     1.383 s.
+Solved linear system in:     4.074 s.
+
+\\\\\\\\\\  Computations Finished \\\\\\\\\\
+Completed all computations in   365.119 s
+
+<<<<<< DUST end <<<<<<
+

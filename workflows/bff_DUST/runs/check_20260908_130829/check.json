@@ -1,0 +1,10 @@
+{
+  "check_pass": true,
+  "geometry": [
+    7320,
+    7503,
+    59,
+    10
+  ],
+  "scope": "FEM25, input and XML validation; no time step"
+}

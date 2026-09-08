@@ -1,0 +1,43 @@
+{
+  "technical_pass": true,
+  "complete": true,
+  "final_time_s": 0.04000000000000002,
+  "states": 21,
+  "modes": 25,
+  "finite": true,
+  "yaw_constraint_max_rad": 7.748519294167255e-11,
+  "max_implicit_iterations": 4,
+  "hold_changes_rad": {
+    "BFL": 2.721434189112415e-14,
+    "WF1L": 5.814194611875045e-13,
+    "WF2L": 1.5710956841052948e-13,
+    "WF3L": 4.662641800434741e-13,
+    "BFR": 1.1237538677377756e-14,
+    "WF1R": 6.3636249048038e-13,
+    "WF2R": 2.394725043264323e-13,
+    "WF3R": 6.373807731607783e-14
+  },
+  "surface_hold_pass": true,
+  "release": {
+    "passed": false,
+    "reason": "compressed technical smoke; no equilibrium validation"
+  },
+  "dust_frames": 9,
+  "dust_hinge_max_abs_theta": {
+    "1": 0.0,
+    "2": 0.0,
+    "3": 0.0,
+    "4": 0.0,
+    "5": 0.0,
+    "6": 0.0,
+    "7": 0.0,
+    "8": 0.0,
+    "9": 0.0,
+    "10": 0.0
+  },
+  "dust_theta_note": "theta is unused for coupled hinges; zero is not a motion failure (mod_hinges.f90).",
+  "flutter_validated": false,
+  "load_timing_validated": false,
+  "identification_valid": false,
+  "classification": "technical smoke"
+}

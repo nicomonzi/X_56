@@ -1,0 +1,14 @@
+basename = paraview/x56
+data_basename = dust/case
+analysis = {
+ type = viz
+ name = bff
+ start_res = 1
+ end_res = 9
+ step_res = 1
+ format = vtk
+ wake = T
+ separate_wake = T
+ variable = pressure
+ component = all
+}

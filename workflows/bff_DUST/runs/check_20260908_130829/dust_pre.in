@@ -1,0 +1,4 @@
+comp_name = X56
+geo_file = mesh.in
+ref_tag = centerbody
+file_name = geo_input.h5

@@ -1,0 +1,269 @@
+# BFF DUST: IPS, yaw constrained, seven non-yaw PIDs, no MBDyn aero.
+
+
+
+
+
+begin: data;
+    problem: initial value;
+end: data;
+
+set: const real V_INF = 66.34;
+
+set: const integer GROUND = 0;
+set: const integer BFLjoint = 1;
+set: const integer BFRjoint = 2;
+set: const integer WFLjoint = 3;
+set: const integer WFRjoint = 4;
+set: const integer BASE_NODE = 990000;
+set: const integer MODAL_JOINT = 5;
+
+set: const real X_CG = 163.187383385809;
+set: const real Y_CG = 0.110529571088;
+set: const real Z_CG = 101.239797358848;
+set: const real RHO_AIR = 9.7284e-08;
+set: const real C_SOUND = 340.*m2in;
+set: const real GRAVITY = 9.81*m2in;
+set: const real VINF = V_INF*m2in;
+set: const real Q_DYN = 0.5*RHO_AIR*VINF*VINF;
+
+include: "/home/monzani/X_56/workflows/bff_DUST/runs/check_20260908_154811/INCLUDE/setconst.mbd";
+
+
+set: const real FINAL_TIME = 15.5;
+set: const real SETTLING_END = 10.;
+
+
+
+set: const real SAS_OFF_START = 10.5;
+set: const real SAS_OFF_DURATION = 2.05;
+set: const real SAS_ON_START = SAS_OFF_START + SAS_OFF_DURATION;
+set: const real BFF_RAP_START = SAS_OFF_START + 0.05;
+
+
+
+
+set: const real BFF_RAP_TARGET_FREQUENCY = 2.057;
+set: const real BFF_RAP_DURATION = 0.742/BFF_RAP_TARGET_FREQUENCY;
+set: const real BFF_RAP_AMPLITUDE = 0.2*deg2rad;
+set: const real BFF_RAP_END = BFF_RAP_START + BFF_RAP_DURATION;
+set: const real IDENTIFICATION_START = BFF_RAP_END + 0.08;
+set: const real IDENTIFICATION_END = SAS_ON_START - 0.05;
+set: const real SURFACE_HOLD_TOLERANCE_DEG = 0.001;
+set: const real TIME_STEP = 0.002;
+
+
+
+begin: initial value;
+    initial time: 0.;
+    final time: FINAL_TIME;
+    time step: TIME_STEP;
+    max iterations: 300;
+    tolerance: 1.e-3, test, relnorm;
+    derivatives tolerance: 1.;
+    derivatives max iterations: 100;
+    linear solver: lapack;
+    method: ms, cosine, 0., pi/0.1, 0.6/2, half, 0.;
+    output: counter;
+end: initial value;
+
+begin: control data;
+    print: dof stats;
+    skip initial joint assembly;
+    structural nodes: 76;
+    
+    forces: 2;
+    loadable elements: 7;
+    joints: 32;
+    gravity;
+
+    default orientation: orientation vector;
+
+    output results: netcdf, sync, no text;
+end: control data;
+
+include: "/home/monzani/X_56/workflows/bff_DUST/runs/check_20260908_154811/INCLUDE/reference.mbd";
+
+begin: nodes;
+    include: "/home/monzani/X_56/workflows/bff_DUST/runs/check_20260908_154811/INCLUDE/node.mbd";
+    include: "/home/monzani/X_56/workflows/bff_DUST/runs/check_20260908_154811/INCLUDE/coupling_hinge_nodes.mbd";
+end: nodes;
+
+begin: elements;
+    gravity: uniform, 0., 0., -1., const, GRAVITY;
+    include: "/home/monzani/X_56/workflows/bff_DUST/runs/check_20260908_154811/INCLUDE/modaljoint.mbd";
+    module load: "libmodule-pid";
+
+    joint: 1, total pin joint,
+        BASE_NODE,
+        position, reference, node, null,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position, reference, global, X_CG, Y_CG, Z_CG,
+        position orientation, reference, global, eye,
+        rotation orientation, reference, global, eye,
+        position constraint, active, active, inactive, null,
+        orientation constraint, inactive, inactive, active, null;
+
+    user defined: ALT_PID, pid,
+        setpoint, const, Z_CG,
+        measure, node, BASE_NODE, structural, string, "X[3]", direct,
+        
+        
+        
+        Kp, (0.00040*SAS_Q_SCALE)*1,
+        Ki, (0.0000100*SAS_Q_SCALE)*1,
+        Kd, (0.)*1, Ii0, 0.,
+        Ks, 1.,
+        Ymin, -2.*deg2rad, Ymax, 2.*deg2rad;
+
+    drive caller: ALT_RAW_DRIVE,
+        element, ALT_PID, loadable, string, "yout", direct;
+
+    drive caller: ALT_DRIVE,
+        discrete filter, 1, ALT_LP_A1, ALT_LP_B0, 1, ALT_LP_B1,
+            reference, ALT_RAW_DRIVE;
+
+    user defined: VZ_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter, 1, VZ_LP_A1, VZ_LP_B0, 1, VZ_LP_B1,
+                node, BASE_NODE, structural, string, "XP[3]", direct,
+        Kp, (0.00120*SAS_Q_SCALE)*1, 
+        Ki, (0.)*1, 
+        Kd, (0.)*1, Ii0, 0., 
+        Ks, 1.,
+        Ymin, -2.*deg2rad, Ymax, 2.*deg2rad;
+
+    drive caller: VZ_DRIVE,
+        element, VZ_PID, loadable, string, "yout", direct;
+
+    drive caller: LIFT_RAW_DRIVE, mult, const, LIFT_HOLD_GAIN,
+        array, 2, reference, ALT_DRIVE, reference, VZ_DRIVE;
+
+    drive caller: LIFT_LIMIT_DRIVE, string,
+        "max(-LIFT_CORRECTION_LIMIT,min(LIFT_CORRECTION_LIMIT,model::drive(LIFT_RAW_DRIVE,Time)))";
+
+    drive caller: LIFT_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, LIFT_LIMIT_DRIVE;
+
+    
+    
+    
+    user defined: PITCH_PID, pid,
+        setpoint, const, TRIM_PITCH,
+        measure, node, BASE_NODE, structural, string, "E[2]", direct,
+        Kp, (-0.60*SAS_Q_SCALE)*1,
+        Ki, (0.)*1,
+        Kd, (0.)*1, Ii0, 0.,
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    drive caller: PITCH_DRIVE,
+        element, PITCH_PID, loadable, string, "yout", direct;
+
+    user defined: Q_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter, 1, Q_LP_A1, Q_LP_B0, 1, Q_LP_B1,
+                node, BASE_NODE, structural, string, "Omega[2]", direct,
+        Kp, (-0.75*SAS_Q_SCALE)*1, 
+        Ki, (0.)*1, 
+        Kd, (0.)*1, Ii0, 0., 
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    include: "/home/monzani/X_56/workflows/bff_DUST/runs/check_20260908_154811/INCLUDE/driver.mbd";
+
+    user defined: ROLL_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "E[1]", direct,
+        Kp, (-0.80)*1,
+        Ki, (-0.080)*1,
+        Kd, (0.)*1, Ii0, 0., 
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    drive caller: ROLL_DRIVE,
+        element, ROLL_PID, loadable, string, "yout", direct;
+
+    user defined: P_PID, pid,
+        setpoint, const, 0.,
+        measure, node, BASE_NODE, structural, string, "Omega[1]", direct,
+        
+        
+        Kp, (-0.40)*1, 
+        Ki, (0.)*1, 
+        Kd, (0.)*1, Ii0, 0., 
+        Ks, 1.,
+        Ymin, -6.*deg2rad, Ymax, 6.*deg2rad;
+
+    drive caller: P_DRIVE,
+        element, P_PID, loadable, string, "yout", direct;
+
+    drive caller: LAT_RAW_DRIVE, array, 2,
+        reference, ROLL_DRIVE, reference, P_DRIVE;
+
+    
+    
+    
+    drive caller: LAT_LIMIT_DRIVE, string,
+        "max(-SURFACE_CORRECTION_LIMIT,min(SURFACE_CORRECTION_LIMIT,model::drive(LAT_RAW_DRIVE,Time)))";
+
+    drive caller: LAT_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, LAT_LIMIT_DRIVE;
+
+    user defined: VY_PID, pid,
+        setpoint, const, 0.,
+        measure,
+            discrete filter, 2, LP_A1, LP_A2, LP_B0, 2, LP_B1, LP_B2,
+                node, BASE_NODE, structural, string, "XP[2]", direct,
+        Kp, (0.00060)*1, 
+        Ki, (0.000020)*1, 
+        Kd, (0.)*1, Ii0, 0., 
+        Ks, 1.,
+        Ymin, -3.*deg2rad, Ymax, 3.*deg2rad;
+
+    drive caller: VY_DRIVE,
+        element, VY_PID, loadable, string, "yout", direct;
+
+    drive caller: DIR_RAW_DRIVE, reference, VY_DRIVE;
+
+    
+    drive caller: DIR_LIMIT_DRIVE, const, 0.;
+
+    drive caller: DIR_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, DIR_LIMIT_DRIVE;
+
+    
+    
+    drive caller: BFF_RAP_RAW_DRIVE, string,
+        "BFF_RAP_AMPLITUDE*((Time>=BFF_RAP_START)&&(Time<BFF_RAP_START+0.5*BFF_RAP_DURATION))-BFF_RAP_AMPLITUDE*((Time>=BFF_RAP_START+0.5*BFF_RAP_DURATION)&&(Time<BFF_RAP_END))";
+    drive caller: BFF_RAP_ACT_DRIVE,
+        discrete filter, 1, ACT_A1, ACT_B0, 1, ACT_B1,
+            reference, BFF_RAP_RAW_DRIVE;
+
+    
+    
+    
+    drive caller: OPEN_LOOP_SAMPLE_TRIGGER, string,
+        "((Time<SAS_OFF_START)||(Time>=SAS_ON_START))";
+
+    include: "/home/monzani/X_56/workflows/bff_DUST/runs/check_20260908_154811/INCLUDE/control_surfaces.mbd";
+
+    
+    
+    
+    
+    
+    force: SAS_MODAL_DAMPER_FORCE, modal, MODAL_JOINT,
+        list, 1, 7,
+        element, MODAL_JOINT, joint, string, "qP[7]",
+            string, "-SAS_MODAL_DAMPING*((Time<SAS_OFF_START)||(Time>=SAS_ON_START))*Var",
+        output, no;
+    include: "/home/monzani/X_56/workflows/bff_DUST/runs/check_20260908_154811/INCLUDE/coupling_hinge_joints.mbd";
+    include: "/home/monzani/X_56/workflows/bff_DUST/runs/check_20260908_154811/INCLUDE/external_dust_force.mbd";
+end: elements;

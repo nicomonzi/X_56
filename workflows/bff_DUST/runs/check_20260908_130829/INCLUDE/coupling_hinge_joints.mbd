@@ -1,0 +1,139 @@
+joint: 9601, total joint,
+    881004, position, reference, GROUND, 176.525690450000, 16.830000000000, 100.160003700000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882001, position, reference, GROUND, 176.525690450000, 16.830000000000, 100.160003700000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9602, total joint,
+    881004, position, reference, GROUND, 164.968487850000, 45.930000000000, 103.517388000000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882002, position, reference, GROUND, 164.968487850000, 45.930000000000, 103.517388000000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9603, total joint,
+    881008, position, reference, GROUND, 165.456503760000, 54.217500000000, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882003, position, reference, GROUND, 165.456503760000, 54.217500000000, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9604, total joint,
+    881008, position, reference, GROUND, 176.200002719498, 79.490796998591, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882004, position, reference, GROUND, 176.200002719498, 79.490796998591, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9605, total joint,
+    881011, position, reference, GROUND, 176.207826980501, 79.509203001410, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882005, position, reference, GROUND, 176.207826980501, 79.509203001410, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9606, total joint,
+    881011, position, reference, GROUND, 186.948476539499, 104.775796998590, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882006, position, reference, GROUND, 186.948476539499, 104.775796998590, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9607, total joint,
+    881014, position, reference, GROUND, 186.956300800501, 104.794203001410, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882007, position, reference, GROUND, 186.956300800501, 104.794203001410, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9608, total joint,
+    881014, position, reference, GROUND, 197.696950359499, 130.060796998590, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882008, position, reference, GROUND, 197.696950359499, 130.060796998590, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9609, total joint,
+    881017, position, reference, GROUND, 197.704774620502, 130.079203001409, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882009, position, reference, GROUND, 197.704774620502, 130.079203001409, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9610, total joint,
+    881017, position, reference, GROUND, 208.447210850000, 155.350000000000, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882010, position, reference, GROUND, 208.447210850000, 155.350000000000, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9611, total joint,
+    880004, position, reference, GROUND, 164.968487850000, -45.930000000000, 103.517388000000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882011, position, reference, GROUND, 164.968487850000, -45.930000000000, 103.517388000000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9612, total joint,
+    880004, position, reference, GROUND, 176.525690450000, -16.830000000000, 100.160003700000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882012, position, reference, GROUND, 176.525690450000, -16.830000000000, 100.160003700000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9613, total joint,
+    880008, position, reference, GROUND, 176.200002719498, -79.490796998591, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882013, position, reference, GROUND, 176.200002719498, -79.490796998591, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9614, total joint,
+    880008, position, reference, GROUND, 165.456503760000, -54.217500000000, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882014, position, reference, GROUND, 165.456503760000, -54.217500000000, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9615, total joint,
+    880011, position, reference, GROUND, 186.948476539499, -104.775796998590, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882015, position, reference, GROUND, 186.948476539499, -104.775796998590, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9616, total joint,
+    880011, position, reference, GROUND, 176.207826980501, -79.509203001410, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882016, position, reference, GROUND, 176.207826980501, -79.509203001410, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9617, total joint,
+    880014, position, reference, GROUND, 197.696950359499, -130.060796998590, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882017, position, reference, GROUND, 197.696950359499, -130.060796998590, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9618, total joint,
+    880014, position, reference, GROUND, 186.956300800501, -104.794203001410, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882018, position, reference, GROUND, 186.956300800501, -104.794203001410, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9619, total joint,
+    880017, position, reference, GROUND, 208.447210850000, -155.350000000000, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882019, position, reference, GROUND, 208.447210850000, -155.350000000000, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;
+
+joint: 9620, total joint,
+    880017, position, reference, GROUND, 197.704774620502, -130.079203001409, 104.089996300000,
+        position orientation, reference, node, eye, rotation orientation, reference, node, eye,
+    882020, position, reference, GROUND, 197.704774620502, -130.079203001409, 104.089996300000,
+        position orientation, reference, other node, eye, rotation orientation, reference, other node, eye,
+    position constraint, 1, 1, 1, null, orientation constraint, 1, 1, 1, null;

@@ -1,0 +1,31 @@
+basename = dust/case
+geometry_file = geo_input.h5
+reference_file = References.in
+precice_config = /home/monzani/X_56/workflows/bff_DUST/runs/smoke_20260908_131340/precice.xml
+
+tstart = 0.0
+tend = 0.04
+dt = 0.002
+dt_out = 0.004
+output_start = F
+ndt_update_wake = 1
+
+rho_inf = 9.7284e-08
+a_inf = 13385.8267716535
+P_inf = 14.6959487755
+u_inf = (/2611.811023622047,0.,0./)
+
+particles_box_min = (/-1000.0, -1500.0, -1500.0/)
+particles_box_max = (/2500,1500.,1500./)
+fmm = T
+box_length = 500.0
+n_box = (/7,6,6/)
+octree_origin = (/-1000.0, -1500.0, -1500.0/)
+n_octree_levels = 4
+min_octree_part = 10
+multipole_degree = 2
+vortstretch = T
+diffusion = T
+n_wake_panels = 40
+n_wake_particles = 50000
+Kvortex_rad = 1.0
