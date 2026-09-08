@@ -11,7 +11,7 @@ starting_point = (/ -0.14632 , 0.0 , 0.0/)
 reference_chord_fraction = 0.25
 
 nelem_chord = 30
-type_chord = cosineLE
+type_chord = cosine_le
 ! First section
 chord = 1.829 
 twist = 0.05

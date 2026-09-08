@@ -135,6 +135,16 @@ def make_inputs(kind: str, output: Path, precice_major: int) -> tuple[Path, Path
     config_source = ROOT / ("model/precice-config-v3.xml" if precice_major >= 3
                             else "model/precice-config.xml")
     config_text = config_source.read_text()
+    # Both participants must resolve exactly the same preCICE handshake path.
+    # Use a case-local absolute directory and discard only stale connection
+    # metadata from an earlier interrupted run.
+    exchange_directory = output / "precice-run"
+    if exchange_directory.exists():
+        shutil.rmtree(exchange_directory)
+    config_text = config_text.replace(
+        'exchange-directory="."',
+        f'exchange-directory="{exchange_directory.resolve()}"',
+    )
     if kind == "smoke":
         config_text = config_text.replace('max-time value="9.50"', 'max-time value="0.10"')
     precice_config = output / "precice-config.xml"
@@ -305,8 +315,12 @@ def coupled_run(kind: str, args, bins, precice_major: int,
         blockers = production_blockers()
         if blockers:
             raise SystemExit("PRODUCTION BLOCKED:\n- " + "\n- ".join(blockers))
-    settings = SETTINGS[kind]
-    output = ROOT / f"output/{kind}"
+    settings = dict(SETTINGS[kind])
+    output_label = kind
+    if kind == "smoke" and args.smoke_mesh != "COARSE":
+        settings["mesh"] = args.smoke_mesh
+        output_label = f"smoke_{args.smoke_mesh.lower()}"
+    output = ROOT / f"output/{output_label}"
     if output.exists() and any(output.glob("dust/case_res_*.h5")):
         raise SystemExit(f"Existing result protected: {output}")
     (output / "dust").mkdir(parents=True, exist_ok=True)
@@ -372,6 +386,9 @@ def main() -> None:
     group.add_argument("--smoke", action="store_true")
     group.add_argument("--production", action="store_true")
     parser.add_argument("--threads", type=int, choices=(8, 12, 16), default=12)
+    parser.add_argument("--smoke-mesh", choices=("COARSE", "MEDIUM", "FINE"),
+                        default="COARSE",
+                        help="mesh da usare nel solo smoke test tecnico")
     args = parser.parse_args()
     load_machine_env(); set_python_paths()
     bins = {"mbdyn": resolve_executable("MBDYN_BIN", "mbdyn"),

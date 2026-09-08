@@ -13,7 +13,7 @@ import h5py
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-LEVELS = {"COARSE": 900, "MEDIUM": 2280, "FINE": 4284}
+LEVELS = {"COARSE": 2440, "MEDIUM": 4880, "FINE": 7320}
 WORK = ROOT / "reports/generated_meshes"
 HINGE_Y = np.array([16.83, 45.93, 54.2175, 79.5, 104.785, 130.07, 155.35])
 REGION_Y = np.array([0.0, 3.038, 9.35, 19.021, 25.665, 50.0, 168.0])

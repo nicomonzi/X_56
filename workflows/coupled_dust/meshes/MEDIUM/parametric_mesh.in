@@ -6,9 +6,9 @@ coupled = T
 coupling_type = rbf
 coupling_node_file = model/dust/coupling_nodes.in
 ! Lightweight qualitative aerodynamic mesh: not for quantitative convergence.
-! Nine nominal chordwise divisions produce 18 panels around the 3-D airfoil.
-nelem_chord = 10
-type_chord = cosineLE
+! Chordwise resolution is assigned by tools/configure_meshes.py.
+nelem_chord = 20
+type_chord = cosine_le
 reference_chord_fraction = 0.0
 ! The original DUST mesh is translated into the global IPS frame used by MBDyn.
 starting_point = (/ 100.0, 0.0, 100.16000370 /)
@@ -241,7 +241,7 @@ airfoil = model/dust/airfoilsection/wingattachfitting.dat
 span = 6.644
 sweep = 40.54
 dihed = 0.0
-nelem_span = 5
+nelem_span = 3
 type_span = uniform
 
 chord = 43.88
@@ -265,7 +265,7 @@ sweep = 23.03
 dihed = 0.0
 ! Twenty outer intervals give about four cells per movable WF segment while
 ! keeping the coupled aerodynamic solve inexpensive.
-nelem_span = 34
+nelem_span = 40
 type_span = uniform
 
 chord = 23.94

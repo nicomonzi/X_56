@@ -39,7 +39,7 @@
   <coupling-scheme:serial-implicit>
     <participants first="MBDyn" second="dust"/>
     <max-time value="9.50"/>
-    <time-window-size value="-1" valid-digits="10" method="first-participant"/>
+    <time-window-size value="-1" method="first-participant"/>
     <exchange data="Position" from="MBDyn" mesh="MBDynNodes" to="dust"/>
     <exchange data="Rotation" from="MBDyn" mesh="MBDynNodes" to="dust"/>
     <exchange data="Velocity" from="MBDyn" mesh="MBDynNodes" to="dust"/>

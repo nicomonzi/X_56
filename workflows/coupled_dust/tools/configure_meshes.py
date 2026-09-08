@@ -8,9 +8,12 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / "meshes/COARSE/parametric_mesh.in"
 LEVELS = {
-    "COARSE": (5, [2, 2, 3, 3, 5, 30], 900),
-    "MEDIUM": (10, [2, 3, 4, 5, 9, 34], 2280),
-    "FINE": (17, [2, 3, 4, 5, 9, 40], 4284),
+    # Keep the validated TRIM_DUST_1 span discretization fixed.  This study
+    # isolates chordwise convergence; the production choice requested for
+    # the coupled BFF cases is 30 chordwise elements.
+    "COARSE": (10, [2, 3, 4, 3, 9, 40], 2440),
+    "MEDIUM": (20, [2, 3, 4, 3, 9, 40], 4880),
+    "FINE": (30, [2, 3, 4, 3, 9, 40], 7320),
 }
 
 
