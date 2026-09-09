@@ -1,0 +1,43 @@
+# Machine-local configuration
+config/machine.env
+
+# Solver outputs and logs
+output/
+results/
+*.log
+precice-run/
+precice-*-iterations.log
+precice-*-convergence.log
+precice-*-events.json
+*.sock
+
+# Heavy generated data
+*.nc
+*.h5
+*.hdf5
+*.vtu
+*.vtk
+*.pvd
+*.pvtu
+*.cgns
+
+# Keep the concise, intentionally committed audit visualization.
+!reports/fine_mesh_audit.vtu
+!reports/fine_coupling_nodes.vtu
+
+# Python/build products
+__pycache__/
+*.py[cod]
+build/
+build_dust/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# Previous local development cases are retained on disk but are not part of
+# the portable final case.
+CASE_DUST_SMOKE/
+CASE_DUST_FLUTTER_EMULATION/
+
+# Mesh-audit scratch geometry
+reports/generated_meshes/

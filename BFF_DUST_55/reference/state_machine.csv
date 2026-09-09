@@ -1,0 +1,7 @@
+state,start_s,end_s,feedback,wake,description
+CAPTURE_TRIM,0.0,5.5,enabled,continuous,acquire coupled MBDyn-DUST trim from STRIP/C81 initial guess
+READY,5.5,6.0,enabled,continuous,hold coupled trim while wake continues settling
+RAP,6.0,6.85,enabled then actuator return,continuous,WF4 symmetric doublet followed by bumpless return interval
+OPEN_LOOP,6.85,9.40,disabled and surfaces frozen,continuous,free response used for BFF identification
+RECOVERY,9.40,9.50,re-enabled,continuous,recover after measurement window
+END,9.50,9.50,not applicable,continuous to finalization,normal solver shutdown

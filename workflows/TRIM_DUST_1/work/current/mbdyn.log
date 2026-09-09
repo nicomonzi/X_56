@@ -1,0 +1,355 @@
+
+MBDyn - MultiBody Dynamics develop
+configured on May 21 2026 at 09:10:13
+
+Copyright 1996-2023 (C) Paolo Mantegazza and Pierangelo Masarati,
+Dipartimento di Ingegneria Aerospaziale <http://www.aero.polimi.it/>
+Politecnico di Milano                   <http://www.polimi.it/>
+
+MBDyn is free software, covered by the GNU General Public License,
+and you are welcome to change it and/or distribute copies of it
+under certain conditions.  Use 'mbdyn --license' to see the conditions.
+There is absolutely no warranty for MBDyn.  Use "mbdyn --warranty"
+for details.
+
+reading from file "trim.mbd"
+Creating scalar solver with Lapack linear solver
+Reading Structural(990000)
+Reading Structural(990001)
+Reading Structural(990002)
+Reading Structural(990003)
+Reading Structural(990004)
+Reading Structural(990005)
+Reading Structural(990006)
+Reading Structural(990007)
+Reading Structural(990008)
+Reading Structural(990009)
+Reading Structural(990010)
+Reading Structural(990011)
+Reading Structural(990012)
+Reading Structural(990013)
+Reading Structural(990014)
+Reading Structural(990015)
+Reading Structural(990016)
+Reading Structural(990017)
+Reading Structural(990018)
+Reading Structural(990019)
+Reading Structural(990020)
+Reading Structural(990021)
+Reading Structural(990022)
+Reading Structural(990023)
+Reading Structural(991002)
+Reading Structural(991003)
+Reading Structural(991004)
+Reading Structural(991005)
+Reading Structural(991006)
+Reading Structural(991007)
+Reading Structural(991008)
+Reading Structural(991009)
+Reading Structural(991010)
+Reading Structural(991011)
+Reading Structural(991012)
+Reading Structural(991013)
+Reading Structural(991014)
+Reading Structural(991015)
+Reading Structural(991016)
+Reading Structural(991017)
+Reading Structural(991018)
+Reading Structural(991019)
+Reading Structural(991020)
+Reading Structural(991021)
+Reading Structural(991022)
+Reading Structural(991023)
+Reading Structural(880004)
+Reading Structural(880008)
+Reading Structural(880011)
+Reading Structural(880014)
+Reading Structural(880017)
+Reading Structural(881004)
+Reading Structural(881008)
+Reading Structural(881011)
+Reading Structural(881014)
+Reading Structural(881017)
+Reading Structural(882001)
+Reading Structural(882002)
+Reading Structural(882003)
+Reading Structural(882004)
+Reading Structural(882005)
+Reading Structural(882006)
+Reading Structural(882007)
+Reading Structural(882008)
+Reading Structural(882009)
+Reading Structural(882010)
+Reading Structural(882011)
+Reading Structural(882012)
+Reading Structural(882013)
+Reading Structural(882014)
+Reading Structural(882015)
+Reading Structural(882016)
+Reading Structural(882017)
+Reading Structural(882018)
+Reading Structural(882019)
+Reading Structural(882020)
+Reading Gravity
+Reading Joint(1)
+Reading Joint(23)
+module "libmodule-pid" loaded
+Reading LoadableElement(9101)
+Reading LoadableElement(9102)
+Reading Joint(1004)
+Reading Joint(1008)
+Reading Joint(1011)
+Reading Joint(1014)
+Reading Joint(1017)
+Reading Joint(2004)
+Reading Joint(2008)
+Reading Joint(2011)
+Reading Joint(2014)
+Reading Joint(2017)
+Reading Joint(9601)
+Reading Joint(9602)
+Reading Joint(9603)
+Reading Joint(9604)
+Reading Joint(9605)
+Reading Joint(9606)
+Reading Joint(9607)
+Reading Joint(9608)
+Reading Joint(9609)
+Reading Joint(9610)
+Reading Joint(9611)
+Reading Joint(9612)
+Reading Joint(9613)
+Reading Joint(9614)
+Reading Joint(9615)
+Reading Joint(9616)
+Reading Joint(9617)
+Reading Joint(9618)
+Reading Joint(9619)
+Reading Joint(9620)
+Reading Joint(5)
+Modal(5), file '../mbdyn_modal_60.fem': using 12 of 60 available modes
+Modal(5): warning, requested output but text output is disabled. NetCDF output of Modal Joint is not implemented yet.
+Reading Force(9500)
+LOCAL connection to path="/tmp/zeno_trim55_3433457.sock"
+Initial assembly dof stats
+Structural(990000): 12 1->12
+Structural(990001): 12 13->24
+Structural(990002): 12 25->36
+Structural(990003): 12 37->48
+Structural(990004): 12 49->60
+Structural(990005): 12 61->72
+Structural(990006): 12 73->84
+Structural(990007): 12 85->96
+Structural(990008): 12 97->108
+Structural(990009): 12 109->120
+Structural(990010): 12 121->132
+Structural(990011): 12 133->144
+Structural(990012): 12 145->156
+Structural(990013): 12 157->168
+Structural(990014): 12 169->180
+Structural(990015): 12 181->192
+Structural(990016): 12 193->204
+Structural(990017): 12 205->216
+Structural(990018): 12 217->228
+Structural(990019): 12 229->240
+Structural(990020): 12 241->252
+Structural(990021): 12 253->264
+Structural(990022): 12 265->276
+Structural(990023): 12 277->288
+Structural(991002): 12 289->300
+Structural(991003): 12 301->312
+Structural(991004): 12 313->324
+Structural(991005): 12 325->336
+Structural(991006): 12 337->348
+Structural(991007): 12 349->360
+Structural(991008): 12 361->372
+Structural(991009): 12 373->384
+Structural(991010): 12 385->396
+Structural(991011): 12 397->408
+Structural(991012): 12 409->420
+Structural(991013): 12 421->432
+Structural(991014): 12 433->444
+Structural(991015): 12 445->456
+Structural(991016): 12 457->468
+Structural(991017): 12 469->480
+Structural(991018): 12 481->492
+Structural(991019): 12 493->504
+Structural(991020): 12 505->516
+Structural(991021): 12 517->528
+Structural(991022): 12 529->540
+Structural(991023): 12 541->552
+Structural(880004): 12 553->564
+Structural(880008): 12 565->576
+Structural(880011): 12 577->588
+Structural(880014): 12 589->600
+Structural(880017): 12 601->612
+Structural(881004): 12 613->624
+Structural(881008): 12 625->636
+Structural(881011): 12 637->648
+Structural(881014): 12 649->660
+Structural(881017): 12 661->672
+Structural(882001): 12 673->684
+Structural(882002): 12 685->696
+Structural(882003): 12 697->708
+Structural(882004): 12 709->720
+Structural(882005): 12 721->732
+Structural(882006): 12 733->744
+Structural(882007): 12 745->756
+Structural(882008): 12 757->768
+Structural(882009): 12 769->780
+Structural(882010): 12 781->792
+Structural(882011): 12 793->804
+Structural(882012): 12 805->816
+Structural(882013): 12 817->828
+Structural(882014): 12 829->840
+Structural(882015): 12 841->852
+Structural(882016): 12 853->864
+Structural(882017): 12 865->876
+Structural(882018): 12 877->888
+Structural(882019): 12 889->900
+Structural(882020): 12 901->912
+Joint(1): 8 913->920
+Joint(23): 4 921->924
+Joint(1004): 12 925->936
+Joint(1008): 12 937->948
+Joint(1011): 12 949->960
+Joint(1014): 12 961->972
+Joint(1017): 12 973->984
+Joint(2004): 12 985->996
+Joint(2008): 12 997->1008
+Joint(2011): 12 1009->1020
+Joint(2014): 12 1021->1032
+Joint(2017): 12 1033->1044
+Joint(9601): 12 1045->1056
+Joint(9602): 12 1057->1068
+Joint(9603): 12 1069->1080
+Joint(9604): 12 1081->1092
+Joint(9605): 12 1093->1104
+Joint(9606): 12 1105->1116
+Joint(9607): 12 1117->1128
+Joint(9608): 12 1129->1140
+Joint(9609): 12 1141->1152
+Joint(9610): 12 1153->1164
+Joint(9611): 12 1165->1176
+Joint(9612): 12 1177->1188
+Joint(9613): 12 1189->1200
+Joint(9614): 12 1201->1212
+Joint(9615): 12 1213->1224
+Joint(9616): 12 1225->1236
+Joint(9617): 12 1237->1248
+Joint(9618): 12 1249->1260
+Joint(9619): 12 1261->1272
+Joint(9620): 12 1273->1284
+Joint(5): 564 1285->1848
+Regular steps dof stats
+Structural(990000): 12 1->12
+Structural(990001): 12 13->24
+Structural(990002): 12 25->36
+Structural(990003): 12 37->48
+Structural(990004): 12 49->60
+Structural(990005): 12 61->72
+Structural(990006): 12 73->84
+Structural(990007): 12 85->96
+Structural(990008): 12 97->108
+Structural(990009): 12 109->120
+Structural(990010): 12 121->132
+Structural(990011): 12 133->144
+Structural(990012): 12 145->156
+Structural(990013): 12 157->168
+Structural(990014): 12 169->180
+Structural(990015): 12 181->192
+Structural(990016): 12 193->204
+Structural(990017): 12 205->216
+Structural(990018): 12 217->228
+Structural(990019): 12 229->240
+Structural(990020): 12 241->252
+Structural(990021): 6 253->258
+Structural(990022): 6 259->264
+Structural(990023): 6 265->270
+Structural(991002): 12 271->282
+Structural(991003): 12 283->294
+Structural(991004): 12 295->306
+Structural(991005): 12 307->318
+Structural(991006): 12 319->330
+Structural(991007): 12 331->342
+Structural(991008): 12 343->354
+Structural(991009): 12 355->366
+Structural(991010): 12 367->378
+Structural(991011): 12 379->390
+Structural(991012): 12 391->402
+Structural(991013): 12 403->414
+Structural(991014): 12 415->426
+Structural(991015): 12 427->438
+Structural(991016): 12 439->450
+Structural(991017): 12 451->462
+Structural(991018): 12 463->474
+Structural(991019): 12 475->486
+Structural(991020): 12 487->498
+Structural(991021): 6 499->504
+Structural(991022): 6 505->510
+Structural(991023): 6 511->516
+Structural(880004): 6 517->522
+Structural(880008): 6 523->528
+Structural(880011): 6 529->534
+Structural(880014): 6 535->540
+Structural(880017): 6 541->546
+Structural(881004): 6 547->552
+Structural(881008): 6 553->558
+Structural(881011): 6 559->564
+Structural(881014): 6 565->570
+Structural(881017): 6 571->576
+Structural(882001): 12 577->588
+Structural(882002): 12 589->600
+Structural(882003): 12 601->612
+Structural(882004): 12 613->624
+Structural(882005): 12 625->636
+Structural(882006): 12 637->648
+Structural(882007): 12 649->660
+Structural(882008): 12 661->672
+Structural(882009): 12 673->684
+Structural(882010): 12 685->696
+Structural(882011): 12 697->708
+Structural(882012): 12 709->720
+Structural(882013): 12 721->732
+Structural(882014): 12 733->744
+Structural(882015): 12 745->756
+Structural(882016): 12 757->768
+Structural(882017): 12 769->780
+Structural(882018): 12 781->792
+Structural(882019): 12 793->804
+Structural(882020): 12 805->816
+Joint(1): 4 817->820
+Joint(23): 2 821->822
+Joint(1004): 6 823->828
+Joint(1008): 6 829->834
+Joint(1011): 6 835->840
+Joint(1014): 6 841->846
+Joint(1017): 6 847->852
+Joint(2004): 6 853->858
+Joint(2008): 6 859->864
+Joint(2011): 6 865->870
+Joint(2014): 6 871->876
+Joint(2017): 6 877->882
+Joint(9601): 6 883->888
+Joint(9602): 6 889->894
+Joint(9603): 6 895->900
+Joint(9604): 6 901->906
+Joint(9605): 6 907->912
+Joint(9606): 6 913->918
+Joint(9607): 6 919->924
+Joint(9608): 6 925->930
+Joint(9609): 6 931->936
+Joint(9610): 6 937->942
+Joint(9611): 6 943->948
+Joint(9612): 6 949->954
+Joint(9613): 6 955->960
+Joint(9614): 6 961->966
+Joint(9615): 6 967->972
+Joint(9616): 6 973->978
+Joint(9617): 6 979->984
+Joint(9618): 6 985->990
+Joint(9619): 6 991->996
+Joint(9620): 6 997->1002
+Joint(5): 294 1003->1296
+ExtSocketHandler: recv()=0 (expected 1)
+MBDyn was interrupted
